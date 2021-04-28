@@ -32,6 +32,10 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <sofa/simulation/fwd.h>
+#include <sofa/gl/DrawToolGL.h>
+#include <SofaBaseVisual/BaseCamera.h>
+
 namespace sofa::glfw
 {
 
@@ -43,10 +47,13 @@ public:
 
     static bool init();
     static void setErrorCallback();
+    static void setSimulation(sofa::simulation::NodeSPtr groot);
+    static sofa::core::visual::DrawTool* getDrawTool();
 
     bool createWindow(int width, int height, const char* title);
     void destroyWindow();
     void makeCurrentContext();
+    void initVisual();
     void runLoop();
 
     void terminate();
@@ -55,14 +62,20 @@ private:
     static void error_callback(int error, const char* description);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+    void runStep();
+    void draw();
+
     //static members
     static bool s_glfwIsInitialized;
     static bool s_glewIsInitialized;
+    static sofa::simulation::NodeSPtr s_groot;
+    static sofa::gl::DrawToolGL s_glDrawTool;
     static unsigned int s_nbInstances;
     
     //members 
     GLFWwindow* m_glfwWindow;
-
+    sofa::core::visual::VisualParams* m_vparams;
+    sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
 };
 
 } // namespace sofa::glfw

@@ -25,11 +25,13 @@
 #include <SofaGLFW.h>
 
 #include <sofa/helper/logging/ConsoleMessageHandler.h>
-#include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
+#include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/BackTrace.h>
+#include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
 #include <SofaSimulationGraph/init.h>
 #include <SofaSimulationGraph/DAGSimulation.h>
 #include <sofa/simulation/Node.h>
+#include <sofa/core/visual/VisualParams.h>
 
 #include <SofaBase/initSofaBase.h>
 
@@ -60,11 +62,6 @@ int main(int argc, char** argv)
         std::cerr << "Could not initialize GLFW, quitting..." << std::endl;
         return 0;
     }
-    // create an instance of SofaGLFW window
-    sofa::glfw::SofaGLFW glfwInstance;
-    glfwInstance.createWindow(800, 600, "SofaGLFW");
-    glfwInstance.makeCurrentContext();
-
 
     sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
     sofa::helper::logging::MessageDispatcher::addHandler(new sofa::helper::logging::ConsoleMessageHandler());
@@ -73,16 +70,27 @@ int main(int argc, char** argv)
     fileName = result["file"].as<std::string>();
     startAnim = result["start"].as<bool>();
 
+    fileName = sofa::helper::system::DataRepository.getFile(fileName);
+
     auto groot = sofa::simulation::getSimulation()->load(fileName.c_str());
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
 
+    sofa::glfw::SofaGLFW::setSimulation(groot);
+
+    sofa::core::visual::VisualParams::defaultInstance()->drawTool() = sofa::glfw::SofaGLFW::getDrawTool();
+
+    // create an instance of SofaGLFW window
+    sofa::glfw::SofaGLFW glfwInstance;
+    glfwInstance.createWindow(800, 600, "SofaGLFW");
+    glfwInstance.makeCurrentContext();
 
     sofa::simulation::getSimulation()->init(groot.get());
 
     if (startAnim)
         groot->setAnimate(true);
 
+    glfwInstance.initVisual();
     // Run the main loop
     glfwInstance.runLoop();
     
