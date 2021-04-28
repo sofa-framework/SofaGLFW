@@ -22,7 +22,7 @@
 #include <sofa/config.h>
 
 #include <cxxopts.hpp>
-#include <GLFW/glfw3.h>
+#include <SofaGLFW.h>
 
 #include <sofa/helper/logging/ConsoleMessageHandler.h>
 #include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
@@ -54,11 +54,17 @@ int main(int argc, char** argv)
     sofa::simulation::graph::init();
     sofa::component::initSofaBase();
     
-    if (!glfwInit())
+    if (!sofa::glfw::SofaGLFW::init())
     {
         // Initialization failed
         std::cerr << "Could not initialize GLFW, quitting..." << std::endl;
+        return 0;
     }
+    // create an instance of SofaGLFW window
+    sofa::glfw::SofaGLFW glfwInstance;
+    glfwInstance.createWindow(800, 600, "SofaGLFW");
+    glfwInstance.makeCurrentContext();
+
 
     sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
     sofa::helper::logging::MessageDispatcher::addHandler(new sofa::helper::logging::ConsoleMessageHandler());
@@ -77,6 +83,9 @@ int main(int argc, char** argv)
     if (startAnim)
         groot->setAnimate(true);
 
+    // Run the main loop
+    glfwInstance.runLoop();
+    
     if (groot!=NULL)
         sofa::simulation::getSimulation()->unload(groot);
 

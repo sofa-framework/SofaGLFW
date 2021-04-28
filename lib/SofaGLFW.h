@@ -38,11 +38,30 @@ namespace sofa::glfw
 class SOFA_GLFW_API SofaGLFW
 {
 public:
+    SofaGLFW();
+    virtual ~SofaGLFW();
+
+    static bool init();
+    static void setErrorCallback();
+
+    bool createWindow(int width, int height, const char* title);
+    void destroyWindow();
+    void makeCurrentContext();
+    void runLoop();
+
+    void terminate();
+
+private:
     static void error_callback(int error, const char* description);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-private:
-
+    //static members
+    static bool s_glfwIsInitialized;
+    static bool s_glewIsInitialized;
+    static unsigned int s_nbInstances;
+    
+    //members 
+    GLFWwindow* m_glfwWindow;
 
 };
 

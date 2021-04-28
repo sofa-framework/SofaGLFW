@@ -21,12 +21,112 @@
 ******************************************************************************/
 #include <SofaGLFW.h>
 
+#include <sofa/helper/logging/Messaging.h>
+
 namespace sofa::glfw
 {
 
+bool SofaGLFW::s_glfwIsInitialized = false;
+bool SofaGLFW::s_glewIsInitialized = false;
+unsigned int SofaGLFW::s_nbInstances = 0;
+
+
+SofaGLFW::SofaGLFW()
+    : m_glfwWindow(nullptr)
+{
+}
+
+SofaGLFW::~SofaGLFW()
+{
+    terminate();
+}
+
+bool SofaGLFW::init()
+{
+    if (s_glfwIsInitialized)
+        return true;
+
+    if (glfwInit() == GLFW_TRUE)
+    {
+        s_glfwIsInitialized = true;
+        setErrorCallback();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void SofaGLFW::setErrorCallback()
+{
+    glfwSetErrorCallback(error_callback);
+}
+
+bool SofaGLFW::createWindow(int width, int height, const char* title)
+{
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    m_glfwWindow = glfwCreateWindow(width, height, title, NULL, NULL);
+    if (m_glfwWindow)
+    {
+        glfwSetKeyCallback(m_glfwWindow, key_callback);
+        s_nbInstances++;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void SofaGLFW::destroyWindow()
+{
+    glfwDestroyWindow(m_glfwWindow);
+}
+
+void SofaGLFW::makeCurrentContext()
+{
+    glfwMakeContextCurrent(m_glfwWindow);
+    if (!s_glewIsInitialized)
+    {
+        glewInit();
+        s_glewIsInitialized = true;
+    }
+}
+
+void SofaGLFW::runLoop()
+{
+    while (!glfwWindowShouldClose(m_glfwWindow))
+    {
+        // Keep running
+        //...
+
+        glfwSwapBuffers(m_glfwWindow);
+        glfwPollEvents();
+    }
+
+}
+
+
+void SofaGLFW::terminate()
+{
+    if (!s_glfwIsInitialized)
+        return;
+
+    s_nbInstances--;
+
+    glfwDestroyWindow(m_glfwWindow);
+
+    if (s_nbInstances < 1)
+    {
+        glfwTerminate();
+    }
+}
+
 void SofaGLFW::error_callback(int error, const char* description)
 {
-    fprintf(stderr, "Error: %s\n", description);
+    msg_error("SofaGLFW") << "Error: " << description << ".";
 }
  
 void SofaGLFW::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
