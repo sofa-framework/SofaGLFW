@@ -61,9 +61,15 @@ public:
 private:
     static void error_callback(int error, const char* description);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
     void runStep();
     void draw();
+    void mouseMoveEvent(int xpos, int ypos);
+    void mouseButtonEvent(int button, int action, int mods);
+    void scrollEvent(double xoffset, double yoffset);
 
     //static members
     static bool s_glfwIsInitialized;
@@ -71,11 +77,18 @@ private:
     static sofa::simulation::NodeSPtr s_groot;
     static sofa::gl::DrawToolGL s_glDrawTool;
     static unsigned int s_nbInstances;
+    static std::map< GLFWwindow*, SofaGLFW*> s_mapWindows;
     
     //members 
     GLFWwindow* m_glfwWindow;
     sofa::core::visual::VisualParams* m_vparams;
     sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
+    int m_currentButton;
+    int m_currentAction;
+    int m_currentMods;
+    int m_currentXPos;
+    int m_currentYPos;
+
 };
 
 } // namespace sofa::glfw

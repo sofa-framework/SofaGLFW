@@ -26,9 +26,11 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <sofa/core/objectmodel/MouseEvent.h>
 
 #include <SofaBaseVisual/InteractiveCamera.h>
 #include <SofaBaseVisual/VisualStyle.h>
+
 
 namespace sofa::glfw
 {
@@ -38,6 +40,7 @@ bool SofaGLFW::s_glewIsInitialized = false;
 sofa::simulation::NodeSPtr SofaGLFW::s_groot;
 sofa::gl::DrawToolGL SofaGLFW::s_glDrawTool;
 unsigned int SofaGLFW::s_nbInstances = 0;
+std::map< GLFWwindow*, SofaGLFW*> SofaGLFW::s_mapWindows;
 
 
 SofaGLFW::SofaGLFW()
@@ -90,7 +93,11 @@ bool SofaGLFW::createWindow(int width, int height, const char* title)
     if (m_glfwWindow)
     {
         glfwSetKeyCallback(m_glfwWindow, key_callback);
+        glfwSetCursorPosCallback(m_glfwWindow, cursor_position_callback);
+        glfwSetMouseButtonCallback(m_glfwWindow, mouse_button_callback);
+        glfwSetScrollCallback(m_glfwWindow, scroll_callback);
         s_nbInstances++;
+        s_mapWindows[m_glfwWindow] = this;
         return true;
     }
     else
@@ -271,6 +278,77 @@ void SofaGLFW::terminate()
     }
 }
 
+
+void SofaGLFW::mouseMoveEvent(int xpos, int ypos)
+{
+    switch (m_currentAction)
+    {
+        case GLFW_PRESS:
+        {
+            sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
+            if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftPressed, xpos, ypos);
+            else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightPressed, xpos, ypos);
+            else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddlePressed, xpos, ypos);
+            else {
+                // A fallback event to rule them all...
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressed, xpos, ypos);
+            }
+            m_currentCamera->manageEvent(mEvent);
+            m_currentXPos = xpos;
+            m_currentYPos = ypos;
+            break;
+        }
+        case GLFW_RELEASE:
+        {
+            sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
+            if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftReleased, xpos, ypos);
+            else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightReleased, xpos, ypos);
+            else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddleReleased, xpos, ypos);
+            else {
+                // A fallback event to rules them all...
+                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleased, xpos, ypos);
+            }
+            m_currentCamera->manageEvent(mEvent);
+            m_currentXPos = xpos;
+            m_currentYPos = ypos;
+            break;
+        }
+
+        default:
+        {
+            sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Move, xpos, ypos);
+            m_currentCamera->manageEvent(&me);
+            break;
+        }
+    }
+
+    m_currentButton = -1;
+    m_currentAction = -1;
+    m_currentMods = -1;
+}
+
+void SofaGLFW::mouseButtonEvent(int button, int action, int mods)
+{
+    m_currentButton = button;
+    m_currentAction = action;
+    m_currentMods = mods;
+}
+
+
+void SofaGLFW::scrollEvent(double xoffset, double yoffset)
+{
+    SOFA_UNUSED(xoffset);
+    const double yFactor = 10.f;
+    sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Wheel, yoffset * yFactor);
+    m_currentCamera->manageEvent(&me);
+}
+
 void SofaGLFW::error_callback(int error, const char* description)
 {
     msg_error("SofaGLFW") << "Error: " << description << ".";
@@ -280,6 +358,33 @@ void SofaGLFW::key_callback(GLFWwindow* window, int key, int scancode, int actio
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+void SofaGLFW::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->mouseMoveEvent(xpos, ypos);
+    }
+}
+
+void SofaGLFW::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->mouseButtonEvent(button, action, mods);
+    }
+}
+
+void SofaGLFW::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->scrollEvent(xoffset, yoffset);
+    }
 }
 
 } // namespace sofa::glfw
