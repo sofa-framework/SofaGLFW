@@ -271,6 +271,8 @@ void SofaGLFW::terminate()
     s_nbInstances--;
 
     glfwDestroyWindow(m_glfwWindow);
+    s_mapWindows.erase(m_glfwWindow);
+    m_glfwWindow = nullptr;
 
     if (s_nbInstances < 1)
     {

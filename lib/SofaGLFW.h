@@ -83,11 +83,11 @@ private:
     GLFWwindow* m_glfwWindow;
     sofa::core::visual::VisualParams* m_vparams;
     sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
-    int m_currentButton;
-    int m_currentAction;
-    int m_currentMods;
-    int m_currentXPos;
-    int m_currentYPos;
+    int m_currentButton = -1;
+    int m_currentAction = -1;
+    int m_currentMods = -1;
+    int m_currentXPos = -1;
+    int m_currentYPos = -1;
 
 };
 
