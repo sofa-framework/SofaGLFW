@@ -35,32 +35,29 @@
 namespace sofa::glfw
 {
 
-bool SofaGLFW::s_glfwIsInitialized = false;
-bool SofaGLFW::s_glewIsInitialized = false;
-sofa::simulation::NodeSPtr SofaGLFW::s_groot;
-sofa::gl::DrawToolGL SofaGLFW::s_glDrawTool;
-unsigned int SofaGLFW::s_nbInstances = 0;
-std::map< GLFWwindow*, SofaGLFW*> SofaGLFW::s_mapWindows;
+std::map< GLFWwindow*, SofaGLFWWindow*> SofaGLFWGUI::s_mapWindows;
 
-
-SofaGLFW::SofaGLFW()
-    : m_glfwWindow(nullptr)
+SofaGLFWGUI::SofaGLFWGUI()
+    : m_glfwIsInitialized(false)
+    , m_glewIsInitialized(false)
+    , m_groot()
+    , m_firstWindow(NULL)
 {
 }
 
-SofaGLFW::~SofaGLFW()
+SofaGLFWGUI::~SofaGLFWGUI()
 {
     terminate();
 }
 
-bool SofaGLFW::init()
+bool SofaGLFWGUI::init()
 {
-    if (s_glfwIsInitialized)
+    if (m_glfwIsInitialized)
         return true;
 
     if (glfwInit() == GLFW_TRUE)
     {
-        s_glfwIsInitialized = true;
+        m_glfwIsInitialized = true;
         setErrorCallback();
         return true;
     }
@@ -70,34 +67,63 @@ bool SofaGLFW::init()
     }
 }
 
-void SofaGLFW::setErrorCallback()
+void SofaGLFWGUI::setErrorCallback()
 {
     glfwSetErrorCallback(error_callback);
 }
 
-void SofaGLFW::setSimulation(sofa::simulation::NodeSPtr groot)
+void SofaGLFWGUI::setSimulation(sofa::simulation::NodeSPtr groot)
 {
-    s_groot = groot;
+    m_groot = groot;
 }
 
-sofa::core::visual::DrawTool* SofaGLFW::getDrawTool()
+sofa::core::visual::DrawTool* SofaGLFWGUI::getDrawTool()
 {
-    return &s_glDrawTool;
+    return &m_glDrawTool;
 }
 
-bool SofaGLFW::createWindow(int width, int height, const char* title)
+
+sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWGUI::findCamera(sofa::simulation::NodeSPtr groot)
+{
+    sofa::component::visualmodel::BaseCamera::SPtr camera;
+    groot->get(camera);
+    if (!camera)
+    {
+        camera = sofa::core::objectmodel::New<component::visualmodel::InteractiveCamera>();
+        camera->setName(core::objectmodel::Base::shortName(camera.get()));
+        m_groot->addObject(camera);
+        //currentCamera->p_position.forceSet();
+        //currentCamera->p_orientation.forceSet();
+        camera->bwdInit();
+    }
+
+    camera->setBoundingBox(m_groot->f_bbox.getValue().minBBox(), m_groot->f_bbox.getValue().maxBBox());
+
+    return camera;
+}
+
+bool SofaGLFWGUI::createWindow(int width, int height, const char* title)
 {
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    m_glfwWindow = glfwCreateWindow(width, height, title, NULL, NULL);
-    if (m_glfwWindow)
+    auto glfwWindow = glfwCreateWindow(width, height, title, NULL, m_firstWindow);
+    if (!m_firstWindow)
+        m_firstWindow = glfwWindow;
+
+    if (glfwWindow)
     {
-        glfwSetKeyCallback(m_glfwWindow, key_callback);
-        glfwSetCursorPosCallback(m_glfwWindow, cursor_position_callback);
-        glfwSetMouseButtonCallback(m_glfwWindow, mouse_button_callback);
-        glfwSetScrollCallback(m_glfwWindow, scroll_callback);
-        s_nbInstances++;
-        s_mapWindows[m_glfwWindow] = this;
+        glfwSetKeyCallback(glfwWindow, key_callback);
+        glfwSetCursorPosCallback(glfwWindow, cursor_position_callback);
+        glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
+        glfwSetScrollCallback(glfwWindow, scroll_callback);
+        glfwSetWindowCloseCallback(glfwWindow, close_callback);
+        makeCurrentContext(glfwWindow);
+
+        auto camera = findCamera(m_groot);
+        
+        SofaGLFWWindow* sofaWindow = new SofaGLFWWindow(glfwWindow, camera);
+
+        s_mapWindows[glfwWindow] = sofaWindow;
         return true;
     }
     else
@@ -106,54 +132,49 @@ bool SofaGLFW::createWindow(int width, int height, const char* title)
     }
 }
 
-void SofaGLFW::destroyWindow()
+void SofaGLFWGUI::destroyWindow()
 {
-    glfwDestroyWindow(m_glfwWindow);
 }
 
-void SofaGLFW::makeCurrentContext()
+void SofaGLFWGUI::makeCurrentContext(GLFWwindow* glfwWindow)
 {
-    glfwMakeContextCurrent(m_glfwWindow);
-    if (!s_glewIsInitialized)
+    glfwMakeContextCurrent(glfwWindow);
+    if (!m_glewIsInitialized)
     {
         glewInit();
-        s_glewIsInitialized = true;
+        m_glewIsInitialized = true;
     }
 }
 
-void SofaGLFW::runLoop()
+void SofaGLFWGUI::runLoop()
 {
     m_vparams = sofa::core::visual::VisualParams::defaultInstance();
 
-    while (!glfwWindowShouldClose(m_glfwWindow))
+    while (!s_mapWindows.empty())
     {
         // Keep running
         runStep();
-        draw();
 
-        glfwSwapBuffers(m_glfwWindow);
+        for (auto& window : s_mapWindows)
+        {
+            if (window.second)
+            {
+                makeCurrentContext(window.first);
+                window.second->draw(m_groot, m_vparams);
+                glfwSwapBuffers(window.first);
+            }
+        }
+
         glfwPollEvents();
     }
-
 }
 
-void SofaGLFW::initVisual()
+void SofaGLFWGUI::initVisual()
 {
-    sofa::simulation::getSimulation()->initTextures(s_groot.get());
+    sofa::simulation::getSimulation()->initTextures(m_groot.get());
 
-    //init camera
-    s_groot->get(m_currentCamera);
-    if (!m_currentCamera)
-    {
-        m_currentCamera = sofa::core::objectmodel::New<component::visualmodel::InteractiveCamera>();
-        m_currentCamera->setName(core::objectmodel::Base::shortName(m_currentCamera.get()));
-        s_groot->addObject(m_currentCamera);
-        //currentCamera->p_position.forceSet();
-        //currentCamera->p_orientation.forceSet();
-        m_currentCamera->bwdInit();
-    }
     component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
-    s_groot->get(visualStyle);
+    m_groot->get(visualStyle);
     if (!visualStyle)
     {
         visualStyle = sofa::core::objectmodel::New<component::visualmodel::VisualStyle>();
@@ -163,11 +184,9 @@ void SofaGLFW::initVisual()
         displayFlags->setShowVisualModels(sofa::core::visual::tristate::true_value);
         visualStyle->displayFlags.endEdit();
 
-        s_groot->addObject(visualStyle);
+        m_groot->addObject(visualStyle);
         visualStyle->init();
     }
-
-    m_currentCamera->setBoundingBox(s_groot->f_bbox.getValue().minBBox(), s_groot->f_bbox.getValue().maxBBox());
 
     //init gl states
     glDepthFunc(GL_LEQUAL);
@@ -199,17 +218,95 @@ void SofaGLFW::initVisual()
     glEnable(GL_LIGHT0);
 }
 
-void SofaGLFW::runStep()
+void SofaGLFWGUI::runStep()
 {
     sofa::helper::AdvancedTimer::begin("Animate");
 
-    simulation::getSimulation()->animate(s_groot.get(), s_groot->getDt());
-    simulation::getSimulation()->updateVisual(s_groot.get());
+    simulation::getSimulation()->animate(m_groot.get(), m_groot->getDt());
+    simulation::getSimulation()->updateVisual(m_groot.get());
 
     sofa::helper::AdvancedTimer::end("Animate");
 }
 
-void SofaGLFW::draw()
+void SofaGLFWGUI::terminate()
+{
+    if (!m_glfwIsInitialized)
+        return;
+
+    glfwTerminate();
+}
+
+void SofaGLFWGUI::error_callback(int error, const char* description)
+{
+    msg_error("SofaGLFWGUI") << "Error: " << description << ".";
+}
+ 
+void SofaGLFWGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+void SofaGLFWGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->mouseMoveEvent(xpos, ypos);
+    }
+}
+
+void SofaGLFWGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->mouseButtonEvent(button, action, mods);
+    }
+}
+
+void SofaGLFWGUI::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->scrollEvent(xoffset, yoffset);
+    }
+}
+
+void SofaGLFWGUI::close_callback(GLFWwindow* window)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->close();
+        s_mapWindows.erase(window);
+
+        delete currentSofaWindow->second;
+    }
+}
+
+
+
+
+SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera)
+    : m_glfwWindow(glfwWindow)
+    , m_currentCamera(camera)
+{
+}
+
+
+SofaGLFWWindow::~SofaGLFWWindow()
+{
+}
+
+void SofaGLFWWindow::close()
+{
+    glfwDestroyWindow(m_glfwWindow);
+}
+
+
+void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
@@ -222,16 +319,16 @@ void SofaGLFW::draw()
     // draw the scene
     if (!m_currentCamera)
     {
-        msg_error("SofaGLFW") << "No camera defined.";
+        msg_error("SofaGLFWGUI") << "No camera defined.";
         return;
     }
 
     int width, height;
-    glfwGetFramebufferSize(m_glfwWindow , &width, &height);
-    if (s_groot && s_groot->f_bbox.getValue().isValid())
+    glfwGetFramebufferSize(m_glfwWindow, &width, &height);
+    if (groot->f_bbox.getValue().isValid())
     {
-        m_vparams->sceneBBox() = s_groot->f_bbox.getValue();
-        m_currentCamera->setBoundingBox(m_vparams->sceneBBox().minBBox(), m_vparams->sceneBBox().maxBBox());
+        vparams->sceneBBox() = groot->f_bbox.getValue();
+        m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
     }
     m_currentCamera->computeZ();
     m_currentCamera->p_widthViewport.setValue(width);
@@ -252,82 +349,64 @@ void SofaGLFW::draw()
     glLoadIdentity();
     glMultMatrixd(mvMatrix);
 
-    simulation::getSimulation()->draw(m_vparams, s_groot.get());
-
     // Update the visual params
-    m_vparams->viewport() = { 0, 0, width, height };
-    m_vparams->sceneBBox() = s_groot->f_bbox.getValue();
-    m_vparams->zNear() = m_currentCamera->getZNear();
-    m_vparams->zFar() = m_currentCamera->getZFar();
-    m_vparams->setProjectionMatrix(projectionMatrix);
-    m_vparams->setModelViewMatrix(mvMatrix);
+    vparams->viewport() = { 0, 0, width, height };
+    vparams->zNear() = m_currentCamera->getZNear();
+    vparams->zFar() = m_currentCamera->getZFar();
+    vparams->setProjectionMatrix(projectionMatrix);
+    vparams->setModelViewMatrix(mvMatrix);
+
+    simulation::getSimulation()->draw(vparams, groot.get());
+
 }
 
-void SofaGLFW::terminate()
-{
-    if (!s_glfwIsInitialized)
-        return;
-
-    s_nbInstances--;
-
-    glfwDestroyWindow(m_glfwWindow);
-    s_mapWindows.erase(m_glfwWindow);
-    m_glfwWindow = nullptr;
-
-    if (s_nbInstances < 1)
-    {
-        glfwTerminate();
-    }
-}
-
-
-void SofaGLFW::mouseMoveEvent(int xpos, int ypos)
+void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos)
 {
     switch (m_currentAction)
     {
-        case GLFW_PRESS:
-        {
-            sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
-            if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftPressed, xpos, ypos);
-            else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightPressed, xpos, ypos);
-            else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddlePressed, xpos, ypos);
-            else {
-                // A fallback event to rule them all...
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressed, xpos, ypos);
-            }
-            m_currentCamera->manageEvent(mEvent);
-            m_currentXPos = xpos;
-            m_currentYPos = ypos;
-            break;
+    case GLFW_PRESS:
+    {
+        sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
+        if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftPressed, xpos, ypos);
+        else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightPressed, xpos, ypos);
+        else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddlePressed, xpos, ypos);
+        else {
+            // A fallback event to rule them all...
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressed, xpos, ypos);
         }
-        case GLFW_RELEASE:
-        {
-            sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
-            if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftReleased, xpos, ypos);
-            else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightReleased, xpos, ypos);
-            else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddleReleased, xpos, ypos);
-            else {
-                // A fallback event to rules them all...
-                mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleased, xpos, ypos);
-            }
-            m_currentCamera->manageEvent(mEvent);
-            m_currentXPos = xpos;
-            m_currentYPos = ypos;
-            break;
+        m_currentCamera->manageEvent(mEvent);
+        m_currentXPos = xpos;
+        m_currentYPos = ypos;
+        break;
+    }
+    case GLFW_RELEASE:
+    {
+        sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
+        if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftReleased, xpos, ypos);
+        else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightReleased, xpos, ypos);
+        else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddleReleased, xpos, ypos);
+        else {
+            // A fallback event to rules them all...
+            mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleased, xpos, ypos);
         }
+        m_currentCamera->manageEvent(mEvent);
+        m_currentXPos = xpos;
+        m_currentYPos = ypos;
+        break;
+    }
 
-        default:
-        {
-            sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Move, xpos, ypos);
-            m_currentCamera->manageEvent(&me);
-            break;
-        }
+    default:
+    {
+        sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Move, xpos, ypos);
+        m_currentCamera->manageEvent(&me);
+        break;
+    }
     }
 
     m_currentButton = -1;
@@ -335,7 +414,7 @@ void SofaGLFW::mouseMoveEvent(int xpos, int ypos)
     m_currentMods = -1;
 }
 
-void SofaGLFW::mouseButtonEvent(int button, int action, int mods)
+void SofaGLFWWindow::mouseButtonEvent(int button, int action, int mods)
 {
     m_currentButton = button;
     m_currentAction = action;
@@ -343,50 +422,12 @@ void SofaGLFW::mouseButtonEvent(int button, int action, int mods)
 }
 
 
-void SofaGLFW::scrollEvent(double xoffset, double yoffset)
+void SofaGLFWWindow::scrollEvent(double xoffset, double yoffset)
 {
     SOFA_UNUSED(xoffset);
     const double yFactor = 10.f;
     sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Wheel, yoffset * yFactor);
     m_currentCamera->manageEvent(&me);
-}
-
-void SofaGLFW::error_callback(int error, const char* description)
-{
-    msg_error("SofaGLFW") << "Error: " << description << ".";
-}
- 
-void SofaGLFW::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-void SofaGLFW::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    auto currentSofaWindow = s_mapWindows.find(window);
-    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-    {
-        currentSofaWindow->second->mouseMoveEvent(xpos, ypos);
-    }
-}
-
-void SofaGLFW::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    auto currentSofaWindow = s_mapWindows.find(window);
-    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-    {
-        currentSofaWindow->second->mouseButtonEvent(button, action, mods);
-    }
-}
-
-void SofaGLFW::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    auto currentSofaWindow = s_mapWindows.find(window);
-    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-    {
-        currentSofaWindow->second->scrollEvent(xoffset, yoffset);
-    }
 }
 
 } // namespace sofa::glfw

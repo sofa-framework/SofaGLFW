@@ -35,28 +35,40 @@
 #include <sofa/simulation/fwd.h>
 #include <sofa/gl/DrawToolGL.h>
 #include <SofaBaseVisual/BaseCamera.h>
+#include <sofa/gui/BaseGUI.h>
 
 namespace sofa::glfw
 {
 
-class SOFA_GLFW_API SofaGLFW
+class SofaGLFWWindow;
+
+class SOFA_GLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
 {
 public:
-    SofaGLFW();
-    virtual ~SofaGLFW();
+    SofaGLFWGUI();
+    virtual ~SofaGLFWGUI();
 
-    static bool init();
-    static void setErrorCallback();
-    static void setSimulation(sofa::simulation::NodeSPtr groot);
-    static sofa::core::visual::DrawTool* getDrawTool();
+    bool init();
+    void setErrorCallback();
+    void setSimulation(sofa::simulation::NodeSPtr groot);
+    sofa::core::visual::DrawTool* getDrawTool();
 
     bool createWindow(int width, int height, const char* title);
     void destroyWindow();
-    void makeCurrentContext();
     void initVisual();
     void runLoop();
-
     void terminate();
+
+    // BaseGUI API
+    int mainLoop() { return 0; }
+    /// Update the GUI
+    void redraw() {}
+    /// Close the GUI
+    int closeGUI() { return 0; }
+    /// Register the scene in our GUI
+    void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) {}
+    /// Get the rootNode of the sofa scene
+    sofa::simulation::Node* currentSimulation() { return nullptr; }
 
 private:
     static void error_callback(int error, const char* description);
@@ -64,31 +76,48 @@ private:
     static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    static void close_callback(GLFWwindow* window);
 
+    sofa::component::visualmodel::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
+    void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
-    void draw();
+
+    // static members
+    static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows;
+
+    //members 
+    bool m_glfwIsInitialized;
+    bool m_glewIsInitialized;
+    unsigned int m_nbInstances;
+
+    sofa::simulation::NodeSPtr m_groot;
+    sofa::gl::DrawToolGL m_glDrawTool;
+    sofa::core::visual::VisualParams* m_vparams;
+    GLFWwindow* m_firstWindow;
+
+};
+
+class SOFA_GLFW_API SofaGLFWWindow
+{
+public:
+    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera);
+    virtual ~SofaGLFWWindow();
+
+    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
+    void close();
+
     void mouseMoveEvent(int xpos, int ypos);
     void mouseButtonEvent(int button, int action, int mods);
     void scrollEvent(double xoffset, double yoffset);
 
-    //static members
-    static bool s_glfwIsInitialized;
-    static bool s_glewIsInitialized;
-    static sofa::simulation::NodeSPtr s_groot;
-    static sofa::gl::DrawToolGL s_glDrawTool;
-    static unsigned int s_nbInstances;
-    static std::map< GLFWwindow*, SofaGLFW*> s_mapWindows;
-    
-    //members 
+private:
     GLFWwindow* m_glfwWindow;
-    sofa::core::visual::VisualParams* m_vparams;
     sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
     int m_currentButton = -1;
     int m_currentAction = -1;
     int m_currentMods = -1;
     int m_currentXPos = -1;
     int m_currentYPos = -1;
-
 };
 
 } // namespace sofa::glfw

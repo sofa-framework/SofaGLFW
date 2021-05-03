@@ -55,8 +55,12 @@ int main(int argc, char** argv)
 
     sofa::simulation::graph::init();
     sofa::component::initSofaBase();
+
+    // create an instance of SofaGLFWGUI
+    // linked with the simulation
+    sofa::glfw::SofaGLFWGUI glfwGUI;
     
-    if (!sofa::glfw::SofaGLFW::init())
+    if (!glfwGUI.init())
     {
         // Initialization failed
         std::cerr << "Could not initialize GLFW, quitting..." << std::endl;
@@ -76,23 +80,22 @@ int main(int argc, char** argv)
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
 
-    sofa::glfw::SofaGLFW::setSimulation(groot);
+    glfwGUI.setSimulation(groot);
 
-    sofa::core::visual::VisualParams::defaultInstance()->drawTool() = sofa::glfw::SofaGLFW::getDrawTool();
+    sofa::core::visual::VisualParams::defaultInstance()->drawTool() = glfwGUI.getDrawTool();
 
-    // create an instance of SofaGLFW window
-    sofa::glfw::SofaGLFW glfwInstance;
-    glfwInstance.createWindow(800, 600, "SofaGLFW");
-    glfwInstance.makeCurrentContext();
+    // create a SofaGLFW window
+    glfwGUI.createWindow(800, 600, "SofaGLFW");
+    glfwGUI.createWindow(800, 600, "SofaGLFW2");
 
     sofa::simulation::getSimulation()->init(groot.get());
 
     if (startAnim)
         groot->setAnimate(true);
 
-    glfwInstance.initVisual();
+    glfwGUI.initVisual();
     // Run the main loop
-    glfwInstance.runLoop();
+    glfwGUI.runLoop();
     
     if (groot!=NULL)
         sofa::simulation::getSimulation()->unload(groot);

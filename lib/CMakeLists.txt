@@ -4,6 +4,7 @@ project(SofaGLFW)
 find_package(SofaSimulation REQUIRED)
 find_package(Sofa.GL REQUIRED)
 find_package(SofaBaseVisual REQUIRED)
+find_package(SofaGuiCommon REQUIRED)
 find_package(glfw3 QUIET)
 option(SOFA_GLFW_BUILD "Build GLFW library for SofaGLFW" OFF)
 
@@ -39,5 +40,6 @@ set(SOURCE_FILES
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} Sofa.GL SofaSimulationGraph SofaBaseVisual glfw)
+target_link_libraries(${PROJECT_NAME} SofaGuiCommon)
 target_compile_definitions(${PROJECT_NAME} PUBLIC SOFA_BUILD_SOFA_GLFW)
 target_include_directories(${PROJECT_NAME} PUBLIC .)
