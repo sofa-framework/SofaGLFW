@@ -31,15 +31,17 @@ else()
 	message(SEND_ERROR "SofaGLFW needs GLFW but it was not detected and the option to build it is OFF")
 endif()
 
+set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
+
 set(HEADER_FILES
-	config.h
-    SofaGLFWGUI.h
-	SofaGLFWWindow.h
+	${SOFAGLFW_SOURCE_DIR}/config.h
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h
+	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
 )
 
 set(SOURCE_FILES
-    SofaGLFWGUI.cpp
-	SofaGLFWWindow.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp
+	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
@@ -47,4 +49,4 @@ add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} Sofa.GL SofaSimulationGraph SofaBaseVisual glfw)
 target_link_libraries(${PROJECT_NAME} SofaGuiCommon)
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILD_SOFA_GLFW)
-target_include_directories(${PROJECT_NAME} PUBLIC .)
+target_include_directories(${PROJECT_NAME} PUBLIC src/)

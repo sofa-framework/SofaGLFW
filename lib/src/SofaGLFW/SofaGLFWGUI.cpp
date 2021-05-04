@@ -19,9 +19,9 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFWGUI.h>
+#include <SofaGLFW/SofaGLFWGUI.h>
 
-#include <SofaGLFWWindow.h>
+#include <SofaGLFW/SofaGLFWWindow.h>
 
 #include <sofa/helper/logging/Messaging.h>
 #include <sofa/helper/AdvancedTimer.h>

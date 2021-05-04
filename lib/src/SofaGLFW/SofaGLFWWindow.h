@@ -19,7 +19,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <config.h>
+#include <SofaGLFW/config.h>
 
 #include <sofa/simulation/fwd.h>
 #include <SofaBaseVisual/BaseCamera.h>

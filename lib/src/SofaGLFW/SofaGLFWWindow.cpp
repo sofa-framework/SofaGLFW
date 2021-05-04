@@ -19,7 +19,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFWWindow.h>
+#include <SofaGLFW/SofaGLFWWindow.h>
 
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/objectmodel/MouseEvent.h>
