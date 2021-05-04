@@ -39,11 +39,6 @@ std::map< GLFWwindow*, SofaGLFWWindow*> SofaGLFWGUI::s_mapWindows;
 std::map< GLFWwindow*, SofaGLFWGUI*> SofaGLFWGUI::s_mapGUIs;
 
 SofaGLFWGUI::SofaGLFWGUI()
-    : m_bGlfwIsInitialized(false)
-    , m_bGlewIsInitialized(false)
-    , m_groot()
-    , m_vparams()
-    , m_firstWindow(NULL)
 {
 }
 
@@ -59,6 +54,7 @@ bool SofaGLFWGUI::init()
 
     if (glfwInit() == GLFW_TRUE)
     {
+        m_glDrawTool = new sofa::gl::DrawToolGL();
         m_bGlfwIsInitialized = true;
         setErrorCallback();
         return true;
@@ -69,7 +65,7 @@ bool SofaGLFWGUI::init()
     }
 }
 
-void SofaGLFWGUI::setErrorCallback()
+void SofaGLFWGUI::setErrorCallback() const
 {
     glfwSetErrorCallback(error_callback);
 }
@@ -78,6 +74,8 @@ void SofaGLFWGUI::setSimulation(sofa::simulation::NodeSPtr groot, const std::str
 {
     m_groot = groot;
     m_filename = filename;
+
+    sofa::core::visual::VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
 }
 
 void SofaGLFWGUI::setSimulationIsRunning(bool running)
@@ -89,7 +87,7 @@ void SofaGLFWGUI::setSimulationIsRunning(bool running)
 }
 
 
-bool SofaGLFWGUI::simulationIsRunning()
+bool SofaGLFWGUI::simulationIsRunning() const
 {
     if (m_groot)
     {
@@ -98,12 +96,6 @@ bool SofaGLFWGUI::simulationIsRunning()
 
     return false;
 }
-
-sofa::core::visual::DrawTool* SofaGLFWGUI::getDrawTool()
-{
-    return &m_glDrawTool;
-}
-
 
 sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWGUI::findCamera(sofa::simulation::NodeSPtr groot)
 {
@@ -114,8 +106,6 @@ sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWGUI::findCamera(sofa::sim
         camera = sofa::core::objectmodel::New<component::visualmodel::InteractiveCamera>();
         camera->setName(core::objectmodel::Base::shortName(camera.get()));
         m_groot->addObject(camera);
-        //currentCamera->p_position.forceSet();
-        //currentCamera->p_orientation.forceSet();
         camera->bwdInit();
     }
 

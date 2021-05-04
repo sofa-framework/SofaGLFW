@@ -49,11 +49,10 @@ public:
     virtual ~SofaGLFWGUI();
 
     bool init();
-    void setErrorCallback();
+    void setErrorCallback() const;
     void setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename = std::string());
     void setSimulationIsRunning(bool running);
-    bool simulationIsRunning();
-    sofa::core::visual::DrawTool* getDrawTool();
+    bool simulationIsRunning() const;
 
     bool createWindow(int width, int height, const char* title);
     void destroyWindow();
@@ -62,15 +61,15 @@ public:
     void terminate();
 
     // BaseGUI API
-    int mainLoop();
+    int mainLoop() override;
     /// Update the GUI
-    void redraw();
+    void redraw() override;
     /// Close the GUI
-    int closeGUI();
+    int closeGUI() override;
     /// Register the scene in our GUI
-    void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false);
+    void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
     /// Get the rootNode of the sofa scene
-    sofa::simulation::Node* currentSimulation();
+    sofa::simulation::Node* currentSimulation() override;
 
 private:
     static void error_callback(int error, const char* description);
@@ -89,14 +88,14 @@ private:
     static std::map< GLFWwindow*, SofaGLFWGUI*> s_mapGUIs;
 
     //members 
-    bool m_bGlfwIsInitialized;
-    bool m_bGlewIsInitialized;
+    bool m_bGlfwIsInitialized = false;
+    bool m_bGlewIsInitialized = false;
 
     sofa::simulation::NodeSPtr m_groot;
     std::string m_filename;
-    sofa::gl::DrawToolGL m_glDrawTool;
-    sofa::core::visual::VisualParams* m_vparams;
-    GLFWwindow* m_firstWindow;
+    sofa::gl::DrawToolGL* m_glDrawTool = nullptr;
+    sofa::core::visual::VisualParams* m_vparams = nullptr;
+    GLFWwindow* m_firstWindow = nullptr;
 
 };
 

@@ -82,8 +82,6 @@ int main(int argc, char** argv)
 
     glfwGUI.setSimulation(groot);
 
-    sofa::core::visual::VisualParams::defaultInstance()->drawTool() = glfwGUI.getDrawTool();
-
     // create a SofaGLFW window
     glfwGUI.createWindow(800, 600, "SofaGLFW");
     //glfwGUI.createWindow(800, 600, "SofaGLFW2");
