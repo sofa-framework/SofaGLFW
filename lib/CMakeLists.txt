@@ -32,14 +32,19 @@ else()
 endif()
 
 set(HEADER_FILES
-    SofaGLFW.h)
+	config.h
+    SofaGLFWGUI.h
+	SofaGLFWWindow.h
+)
 
 set(SOURCE_FILES
-    SofaGLFW.cpp)
+    SofaGLFWGUI.cpp
+	SofaGLFWWindow.cpp
+)
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} Sofa.GL SofaSimulationGraph SofaBaseVisual glfw)
 target_link_libraries(${PROJECT_NAME} SofaGuiCommon)
-target_compile_definitions(${PROJECT_NAME} PUBLIC SOFA_BUILD_SOFA_GLFW)
+target_compile_definitions(${PROJECT_NAME} PUBLIC BUILD_SOFA_GLFW)
 target_include_directories(${PROJECT_NAME} PUBLIC .)

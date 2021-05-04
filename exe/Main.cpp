@@ -22,7 +22,7 @@
 #include <sofa/config.h>
 
 #include <cxxopts.hpp>
-#include <SofaGLFW.h>
+#include <SofaGLFWGUI.h>
 
 #include <sofa/helper/logging/ConsoleMessageHandler.h>
 #include <sofa/helper/system/FileRepository.h>

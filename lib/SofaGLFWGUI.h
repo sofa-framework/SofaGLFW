@@ -19,23 +19,13 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
-
-#ifdef SOFA_BUILD_SOFA_GLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFA_GLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFA_GLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
-
-#include <sofa/gl/gl.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
+#include <config.h>
 
 #include <sofa/simulation/fwd.h>
 #include <sofa/gl/DrawToolGL.h>
-#include <SofaBaseVisual/BaseCamera.h>
 #include <sofa/gui/BaseGUI.h>
+
+#include <SofaBaseVisual/BaseCamera.h>
 
 namespace sofa::glfw
 {
@@ -97,29 +87,6 @@ private:
     sofa::core::visual::VisualParams* m_vparams = nullptr;
     GLFWwindow* m_firstWindow = nullptr;
 
-};
-
-class SOFA_GLFW_API SofaGLFWWindow
-{
-public:
-    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera);
-    virtual ~SofaGLFWWindow();
-
-    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
-    void close();
-
-    void mouseMoveEvent(int xpos, int ypos);
-    void mouseButtonEvent(int button, int action, int mods);
-    void scrollEvent(double xoffset, double yoffset);
-
-private:
-    GLFWwindow* m_glfwWindow;
-    sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
-    int m_currentButton = -1;
-    int m_currentAction = -1;
-    int m_currentMods = -1;
-    int m_currentXPos = -1;
-    int m_currentYPos = -1;
 };
 
 } // namespace sofa::glfw
