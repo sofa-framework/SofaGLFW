@@ -21,7 +21,10 @@
 ******************************************************************************/
 #include <sofa/config.h>
 
+#define SOFAGLFW_VERSION @PROJECT_VERSION@
+
 #ifdef SOFA_BUILD_SOFAGLFW
+#  define SOFA_TARGET @PROJECT_NAME@
 #  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
 #else
 #  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY

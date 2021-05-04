@@ -52,16 +52,14 @@ public:
     void runLoop();
     void terminate();
 
-    // BaseGUI API
+    /// BaseGUI API
     int mainLoop() override;
-    /// Update the GUI
     void redraw() override;
-    /// Close the GUI
     int closeGUI() override;
-    /// Register the scene in our GUI
     void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
-    /// Get the rootNode of the sofa scene
     sofa::simulation::Node* currentSimulation() override;
+    void setViewerResolution(int width, int height) override;
+    static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
 
 private:
     static void error_callback(int error, const char* description);
@@ -88,6 +86,8 @@ private:
     sofa::gl::DrawToolGL* m_glDrawTool = nullptr;
     sofa::core::visual::VisualParams* m_vparams = nullptr;
     GLFWwindow* m_firstWindow = nullptr;
+    int m_windowWidth = 0;
+    int m_windowHeight = 0;
 
 };
 
