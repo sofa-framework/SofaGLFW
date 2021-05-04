@@ -99,7 +99,6 @@ int main(int argc, char** argv)
         sofa::simulation::getSimulation()->unload(groot);
 
     sofa::simulation::graph::cleanup();
-    glfwTerminate();
 
     return 0;
 }

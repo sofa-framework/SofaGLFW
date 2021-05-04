@@ -24,10 +24,12 @@
 #include <sofa/simulation/fwd.h>
 #include <SofaBaseVisual/BaseCamera.h>
 
+class GLFWwindow;
+
 namespace sofa::glfw
 {
 
-class SOFA_GLFW_API SofaGLFWWindow
+class SOFAGLFW_API SofaGLFWWindow
 {
 public:
     SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera);

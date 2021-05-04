@@ -21,6 +21,9 @@
 ******************************************************************************/
 #include <SofaGLFW/SofaGLFWGUI.h>
 
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
 #include <SofaGLFW/SofaGLFWWindow.h>
 
 #include <sofa/helper/logging/Messaging.h>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(SofaGLFW)
+project(SofaGLFW LANGUAGES CXX)
 
 find_package(SofaSimulation REQUIRED)
 find_package(Sofa.GL REQUIRED)
@@ -34,7 +34,7 @@ endif()
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
 set(HEADER_FILES
-	${SOFAGLFW_SOURCE_DIR}/config.h
+	${SOFAGLFW_SOURCE_DIR}/config.h.in
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h
 	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
 )
@@ -46,7 +46,14 @@ set(SOURCE_FILES
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} Sofa.GL SofaSimulationGraph SofaBaseVisual glfw)
-target_link_libraries(${PROJECT_NAME} SofaGuiCommon)
-target_compile_definitions(${PROJECT_NAME} PUBLIC BUILD_SOFA_GLFW)
-target_include_directories(${PROJECT_NAME} PUBLIC src/)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL SofaSimulationGraph SofaBaseVisual SofaGuiCommon)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+sofa_create_package_with_targets(
+    PACKAGE_NAME ${PROJECT_NAME}
+    PACKAGE_VERSION ${Sofa_VERSION}
+    TARGETS ${PROJECT_NAME} AUTO_SET_TARGET_PROPERTIES
+    INCLUDE_SOURCE_DIR "src"
+    INCLUDE_INSTALL_DIR "${PROJECT_NAME}"
+    RELOCATABLE "plugins"
+)

@@ -21,11 +21,8 @@
 ******************************************************************************/
 #include <sofa/config.h>
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-#ifdef BUILD_SOFA_GLFW
-#  define SOFA_GLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
+#ifdef SOFA_BUILD_SOFAGLFW
+#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
 #else
-#  define SOFA_GLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
+#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
 #endif

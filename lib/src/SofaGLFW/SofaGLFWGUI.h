@@ -27,12 +27,14 @@
 
 #include <SofaBaseVisual/BaseCamera.h>
 
+class GLFWwindow;
+
 namespace sofa::glfw
 {
 
 class SofaGLFWWindow;
 
-class SOFA_GLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
+class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
 {
 public:
     SofaGLFWGUI();

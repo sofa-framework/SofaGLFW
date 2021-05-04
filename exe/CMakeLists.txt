@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(runSofaGLFW)
 
-#find_package(SofaGLFW REQUIRED)
+find_package(SofaGLFW REQUIRED)
 find_package(SofaBase REQUIRED)
 
 set(SOURCE_FILES

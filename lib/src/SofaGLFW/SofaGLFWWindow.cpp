@@ -21,11 +21,15 @@
 ******************************************************************************/
 #include <SofaGLFW/SofaGLFWWindow.h>
 
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/objectmodel/MouseEvent.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/gl/gl.h>
+
 
 namespace sofa::glfw
 {
