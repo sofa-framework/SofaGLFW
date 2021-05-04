@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 
     // create a SofaGLFW window
     glfwGUI.createWindow(800, 600, "SofaGLFW");
-    glfwGUI.createWindow(800, 600, "SofaGLFW2");
+    //glfwGUI.createWindow(800, 600, "SofaGLFW2");
 
     sofa::simulation::getSimulation()->init(groot.get());
 

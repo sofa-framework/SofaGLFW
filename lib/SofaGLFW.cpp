@@ -36,11 +36,13 @@ namespace sofa::glfw
 {
 
 std::map< GLFWwindow*, SofaGLFWWindow*> SofaGLFWGUI::s_mapWindows;
+std::map< GLFWwindow*, SofaGLFWGUI*> SofaGLFWGUI::s_mapGUIs;
 
 SofaGLFWGUI::SofaGLFWGUI()
-    : m_glfwIsInitialized(false)
-    , m_glewIsInitialized(false)
+    : m_bGlfwIsInitialized(false)
+    , m_bGlewIsInitialized(false)
     , m_groot()
+    , m_vparams()
     , m_firstWindow(NULL)
 {
 }
@@ -52,12 +54,12 @@ SofaGLFWGUI::~SofaGLFWGUI()
 
 bool SofaGLFWGUI::init()
 {
-    if (m_glfwIsInitialized)
+    if (m_bGlfwIsInitialized)
         return true;
 
     if (glfwInit() == GLFW_TRUE)
     {
-        m_glfwIsInitialized = true;
+        m_bGlfwIsInitialized = true;
         setErrorCallback();
         return true;
     }
@@ -72,9 +74,29 @@ void SofaGLFWGUI::setErrorCallback()
     glfwSetErrorCallback(error_callback);
 }
 
-void SofaGLFWGUI::setSimulation(sofa::simulation::NodeSPtr groot)
+void SofaGLFWGUI::setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename)
 {
     m_groot = groot;
+    m_filename = filename;
+}
+
+void SofaGLFWGUI::setSimulationIsRunning(bool running)
+{
+    if (m_groot)
+    {
+        m_groot->setAnimate(running);
+    }
+}
+
+
+bool SofaGLFWGUI::simulationIsRunning()
+{
+    if (m_groot)
+    {
+        return m_groot->getAnimate();
+    }
+
+    return false;
 }
 
 sofa::core::visual::DrawTool* SofaGLFWGUI::getDrawTool()
@@ -124,6 +146,7 @@ bool SofaGLFWGUI::createWindow(int width, int height, const char* title)
         SofaGLFWWindow* sofaWindow = new SofaGLFWWindow(glfwWindow, camera);
 
         s_mapWindows[glfwWindow] = sofaWindow;
+        s_mapGUIs[glfwWindow] = this;
         return true;
     }
     else
@@ -139,15 +162,20 @@ void SofaGLFWGUI::destroyWindow()
 void SofaGLFWGUI::makeCurrentContext(GLFWwindow* glfwWindow)
 {
     glfwMakeContextCurrent(glfwWindow);
-    if (!m_glewIsInitialized)
+    if (!m_bGlewIsInitialized)
     {
         glewInit();
-        m_glewIsInitialized = true;
+        m_bGlewIsInitialized = true;
     }
 }
 
 void SofaGLFWGUI::runLoop()
 {
+    if (!m_groot)
+    {
+        return;
+    }
+
     m_vparams = sofa::core::visual::VisualParams::defaultInstance();
 
     while (!s_mapWindows.empty())
@@ -220,17 +248,20 @@ void SofaGLFWGUI::initVisual()
 
 void SofaGLFWGUI::runStep()
 {
-    sofa::helper::AdvancedTimer::begin("Animate");
+    if(simulationIsRunning())
+    {
+        sofa::helper::AdvancedTimer::begin("Animate");
 
-    simulation::getSimulation()->animate(m_groot.get(), m_groot->getDt());
-    simulation::getSimulation()->updateVisual(m_groot.get());
+        simulation::getSimulation()->animate(m_groot.get(), m_groot->getDt());
+        simulation::getSimulation()->updateVisual(m_groot.get());
 
-    sofa::helper::AdvancedTimer::end("Animate");
+        sofa::helper::AdvancedTimer::end("Animate");
+    }
 }
 
 void SofaGLFWGUI::terminate()
 {
-    if (!m_glfwIsInitialized)
+    if (!m_bGlfwIsInitialized)
         return;
 
     glfwTerminate();
@@ -243,8 +274,27 @@ void SofaGLFWGUI::error_callback(int error, const char* description)
  
 void SofaGLFWGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    switch (key)
+    {
+        case GLFW_KEY_ESCAPE:
+            if (action == GLFW_PRESS)
+            {
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+            }
+            break;
+        case GLFW_KEY_SPACE:
+            if (action == GLFW_PRESS)
+            {
+                auto currentGUI = s_mapGUIs.find(window);
+                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+                {
+                    currentGUI->second->setSimulationIsRunning(!currentGUI->second->simulationIsRunning());
+                }
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 void SofaGLFWGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -286,8 +336,36 @@ void SofaGLFWGUI::close_callback(GLFWwindow* window)
     }
 }
 
+int SofaGLFWGUI::mainLoop()
+{
+    this->runLoop();
+    return 0;
+}
 
+void SofaGLFWGUI::redraw() 
+{
 
+}
+
+int SofaGLFWGUI::closeGUI()
+{ 
+    terminate();
+    return 0; 
+}
+
+void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filename, bool temporaryFile)
+{
+    std::string strFilename;
+    if (filename)
+        strFilename = filename;
+
+    this->setSimulation(groot, strFilename);
+}
+
+sofa::simulation::Node* SofaGLFWGUI::currentSimulation()
+{ 
+    return m_groot.get(); 
+}
 
 SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera)
     : m_glfwWindow(glfwWindow)
