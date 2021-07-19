@@ -22,7 +22,7 @@
 #include <sofa/config.h>
 
 #include <cxxopts.hpp>
-#include <SofaGLFW/SofaGLFWGUI.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 #include <sofa/helper/logging/ConsoleMessageHandler.h>
 #include <sofa/helper/system/FileRepository.h>
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 
     // create an instance of SofaGLFWGUI
     // linked with the simulation
-    sofa::glfw::SofaGLFWGUI glfwGUI;
+    sofa::glfw::SofaGLFWBaseGUI glfwGUI;
     
     if (!glfwGUI.init())
     {

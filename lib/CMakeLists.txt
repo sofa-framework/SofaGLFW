@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(SofaGLFW LANGUAGES CXX)
 
-find_package(SofaSimulation REQUIRED)
-find_package(Sofa.GL REQUIRED)
-find_package(SofaBaseVisual REQUIRED)
-find_package(SofaGuiCommon REQUIRED)
+find_package(Sofa.Config REQUIRED)
+
+sofa_find_package(SofaSimulation REQUIRED)
+sofa_find_package(Sofa.GL REQUIRED)
+sofa_find_package(SofaBaseVisual REQUIRED)
+sofa_find_package(SofaGuiCommon QUIET)
 
 include(FetchContent)
 
@@ -29,20 +31,29 @@ set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
 set(HEADER_FILES
 	${SOFAGLFW_SOURCE_DIR}/config.h.in
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
 	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
 )
 
 set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/initSofaGLFW.cpp
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
 	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
 )
 
+if(SofaGuiCommon_FOUND)
+    LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h)
+    LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
+endif()
+
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL SofaSimulationGraph SofaBaseVisual SofaGuiCommon)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL SofaSimulationGraph SofaBaseVisual)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+if(SofaGuiCommon_FOUND)
+    target_link_libraries(${PROJECT_NAME} PUBLIC SofaGuiCommon)
+endif()
 
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
