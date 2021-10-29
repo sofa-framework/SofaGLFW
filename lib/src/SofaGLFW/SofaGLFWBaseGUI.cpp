@@ -39,13 +39,6 @@
 namespace sofa::glfw
 {
 
-std::map< GLFWwindow*, SofaGLFWWindow*> SofaGLFWBaseGUI::s_mapWindows;
-std::map< GLFWwindow*, SofaGLFWBaseGUI*> SofaGLFWBaseGUI::s_mapGUIs;
-
-SofaGLFWBaseGUI::SofaGLFWBaseGUI()
-{
-}
-
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
 {
     terminate();
@@ -118,11 +111,29 @@ sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa:
     return camera;
 }
 
-bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title)
+bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    auto glfwWindow = glfwCreateWindow(width, height, title, NULL, m_firstWindow);
+    GLFWwindow* glfwWindow = nullptr;
+    if (fullscreenAtStartup)
+    {
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+        m_lastWindowWidth = width;
+        m_lastWindowHeight = height;
+        m_lastWindowPositionX = 100;
+        m_lastWindowPositionY = 100;
+
+        glfwWindow = glfwCreateWindow(mode->width, mode->height, title, primaryMonitor, m_firstWindow);
+    }
+    else
+    {
+        glfwWindow = glfwCreateWindow(width, height, title, nullptr, m_firstWindow);
+    }
+
+
     if (!m_firstWindow)
         m_firstWindow = glfwWindow;
 
@@ -141,6 +152,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title)
 
         s_mapWindows[glfwWindow] = sofaWindow;
         s_mapGUIs[glfwWindow] = this;
+
         return true;
     }
     else
@@ -151,6 +163,59 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title)
 
 void SofaGLFWBaseGUI::destroyWindow()
 {
+}
+
+
+void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* screenID */)
+{
+    if (hasWindow())
+    {
+        // only manage the first window for now
+        // and the main screen
+        glfwWindow = (!glfwWindow) ? m_firstWindow : glfwWindow;
+
+        bool isFullScreen = glfwGetWindowMonitor(glfwWindow) != nullptr;
+
+        if (!isFullScreen)
+        {
+            // backup window position and window size
+            glfwGetWindowPos(glfwWindow, &m_lastWindowPositionX, &m_lastWindowPositionY);
+            glfwGetWindowSize(glfwWindow, &m_lastWindowWidth, &m_lastWindowHeight);
+
+            GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+            glfwSetWindowMonitor(glfwWindow, primaryMonitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+        }
+        else
+        {
+            glfwSetWindowAttrib(glfwWindow, GLFW_DECORATED, GLFW_TRUE);
+            glfwSetWindowMonitor(glfwWindow, nullptr, m_lastWindowPositionX, m_lastWindowPositionY, m_lastWindowWidth, m_lastWindowHeight, GLFW_DONT_CARE);
+        }
+    }
+    else
+    {
+        msg_error("SofaGLFWBaseGUI") << "No window to set fullscreen"; // can happen with runSofa/BaseGUI
+    }
+}
+
+void SofaGLFWBaseGUI::setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int /* windowID */)
+{
+    // only manage the first window for now
+    if (hasWindow())
+    {
+        s_mapWindows[m_firstWindow]->setBackgroundColor(newColor);
+    }
+    else
+    {
+        msg_error("SofaGLFWBaseGUI") << "No window to set the background in";// can happen with runSofa/BaseGUI
+    }
+}
+
+
+void SofaGLFWBaseGUI::setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */)
+{
+
 }
 
 void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
@@ -270,6 +335,16 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
 {
     switch (key)
     {
+        case GLFW_KEY_F:
+            if (action == GLFW_PRESS)
+            {
+                auto currentGUI = s_mapGUIs.find(window);
+                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+                {
+                    currentGUI->second->switchFullScreen(window);
+                }
+            }
+         break;
         case GLFW_KEY_ESCAPE:
             if (action == GLFW_PRESS)
             {
@@ -296,7 +371,7 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
     auto currentSofaWindow = s_mapWindows.find(window);
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
-        currentSofaWindow->second->mouseMoveEvent(xpos, ypos);
+        currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos));
     }
 }
 

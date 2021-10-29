@@ -32,6 +32,8 @@
 #include <SofaSimulationGraph/DAGSimulation.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <SofaGraphComponent/ViewerSetting.h>
+#include <SofaBaseVisual/BackgroundSetting.h>
 
 #include <SofaBase/initSofaBase.h>
 
@@ -48,6 +50,7 @@ int main(int argc, char** argv)
     options.add_options()
         ("f,file", "scene filename", cxxopts::value<std::string>()->default_value("Demos/caduceus.scn"))
         ("a,start", "start the animation loop", cxxopts::value<bool>()->default_value("true"))
+        ("s,fullscreen", "set full screen at startup", cxxopts::value<bool>()->default_value("false"))
         ;
 
 
@@ -82,8 +85,24 @@ int main(int argc, char** argv)
 
     glfwGUI.setSimulation(groot);
 
+    bool isFullScreen = result["fullscreen"].as<bool>();
+    sofa::type::Vec2i resolution{ 800, 600};
+    sofa::component::configurationsetting::ViewerSetting* viewerConf;
+    groot->get(viewerConf, sofa::core::objectmodel::BaseContext::SearchRoot);
+    if (viewerConf)
+    {
+        if (viewerConf->fullscreen.getValue())
+        {
+            isFullScreen = true;
+        }
+        else
+        {
+            resolution = viewerConf->resolution.getValue();
+        }
+    }
+
     // create a SofaGLFW window
-    glfwGUI.createWindow(800, 600, "SofaGLFW");
+    glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
     //glfwGUI.createWindow(800, 600, "SofaGLFW2");
 
     sofa::simulation::getSimulation()->init(groot.get());
@@ -92,6 +111,18 @@ int main(int argc, char** argv)
         groot->setAnimate(true);
 
     glfwGUI.initVisual();
+
+    //Background
+    sofa::component::configurationsetting::BackgroundSetting* background;
+    groot->get(background, sofa::core::objectmodel::BaseContext::SearchRoot);
+    if (background)
+    {
+        if (background->image.getValue().empty())
+            glfwGUI.setBackgroundColor(background->color.getValue());
+        else
+            glfwGUI.setBackgroundImage(background->image.getFullPath());
+    }
+
     // Run the main loop
     glfwGUI.runLoop();
     

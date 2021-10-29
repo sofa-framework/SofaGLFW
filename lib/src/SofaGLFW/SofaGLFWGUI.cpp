@@ -24,7 +24,7 @@
 #include <SofaGLFW/SofaGLFWWindow.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
-
+#include <SofaGraphComponent/ViewerSetting.h>
 
 namespace sofa::glfw
 {
@@ -58,7 +58,12 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
         strFilename = filename;
 
     m_baseGUI.setSimulation(groot, strFilename);
-    m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SofaGLFW - " + strFilename).c_str());
+
+    m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SofaGLFW - " + strFilename).c_str(), m_bCreateWithFullScreen);
+
+    // needs to be done after for background
+    this->configureGUI(groot);
+
     m_baseGUI.initVisual();
 }
 
@@ -73,10 +78,39 @@ void SofaGLFWGUI::setViewerResolution(int width, int height)
     m_baseGUI.setWindowHeight(height);
 }
 
+void SofaGLFWGUI::setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* viewerConf)
+{
+    const type::Vec<2, int>& res = viewerConf->resolution.getValue();
+
+    if (viewerConf->fullscreen.getValue())
+    {
+        m_bCreateWithFullScreen = true;
+    }
+    else
+    {
+        setViewerResolution(res[0], res[1]);
+    }
+}
+
+void SofaGLFWGUI::setFullScreen()
+{
+    m_baseGUI.switchFullScreen();
+}
+
+void SofaGLFWGUI::setBackgroundColor(const sofa::type::RGBAColor& color)
+{
+    m_baseGUI.setBackgroundColor(color);
+}
+
+void SofaGLFWGUI::setBackgroundImage(const std::string& image)
+{
+
+}
+
 sofa::gui::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
 {
     SofaGLFWGUI::mGuiName = name;
-    SofaGLFWGUI* gui = new SofaGLFWGUI();
+    auto* gui = new SofaGLFWGUI();
     if (!gui->init())
     {
         return nullptr;

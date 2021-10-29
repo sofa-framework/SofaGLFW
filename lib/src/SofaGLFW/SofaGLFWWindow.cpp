@@ -40,11 +40,6 @@ SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmo
 {
 }
 
-
-SofaGLFWWindow::~SofaGLFWWindow()
-{
-}
-
 void SofaGLFWWindow::close()
 {
     glfwDestroyWindow(m_glfwWindow);
@@ -53,7 +48,7 @@ void SofaGLFWWindow::close()
 
 void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), m_backgroundColor.a());
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -103,6 +98,11 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
 
     simulation::getSimulation()->draw(vparams, groot.get());
 
+}
+
+void SofaGLFWWindow::setBackgroundColor(const sofa::type::RGBAColor& newColor)
+{
+    m_backgroundColor = newColor;
 }
 
 void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos)
@@ -171,7 +171,7 @@ void SofaGLFWWindow::scrollEvent(double xoffset, double yoffset)
 {
     SOFA_UNUSED(xoffset);
     const double yFactor = 10.f;
-    sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Wheel, yoffset * yFactor);
+    sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Wheel, static_cast<int>(yoffset * yFactor));
     m_currentCamera->manageEvent(&me);
 }
 

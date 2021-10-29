@@ -24,8 +24,6 @@
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/gui/BaseGUI.h>
 
-class GLFWwindow;
-
 namespace sofa::glfw
 {
 
@@ -35,7 +33,7 @@ class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
 {
 public:
     SofaGLFWGUI() = default;
-    virtual ~SofaGLFWGUI() = default;
+    ~SofaGLFWGUI() override = default;
 
     bool init();
     /// BaseGUI API
@@ -45,9 +43,14 @@ public:
     void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
     sofa::simulation::Node* currentSimulation() override;
     void setViewerResolution(int width, int height) override;
+    void setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* viewerConf) override;
+    void setFullScreen() override;
+    void setBackgroundColor(const sofa::type::RGBAColor& color) override;
+    void setBackgroundImage(const std::string& image) override;
     static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
 private:
     SofaGLFWBaseGUI m_baseGUI;
+    bool m_bCreateWithFullScreen{ false };
 };
 
 } // namespace sofa::glfw

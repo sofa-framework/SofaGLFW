@@ -35,7 +35,7 @@ class SofaGLFWWindow;
 class SOFAGLFW_API SofaGLFWBaseGUI
 {
 public:
-    SofaGLFWBaseGUI();
+    SofaGLFWBaseGUI() = default;
     virtual ~SofaGLFWBaseGUI();
 
     bool init();
@@ -44,18 +44,23 @@ public:
     void setSimulationIsRunning(bool running);
     bool simulationIsRunning() const;
 
-    bool createWindow(int width, int height, const char* title);
+    bool createWindow(int width, int height, const char* title, bool fullscreenAtStartup = false);
     void destroyWindow();
     void initVisual();
     void runLoop();
     void terminate();
 
-    int getWindowWidth() { return m_windowWidth; }
+    int getWindowWidth() const { return m_windowWidth; }
     void setWindowWidth(int width) { m_windowWidth = width; }
-    int getWindowHeight() { return m_windowHeight; }
+    int getWindowHeight() const { return m_windowHeight; }
     void setWindowHeight(int height) { m_windowHeight = height; }
 
-    sofa::simulation::NodeSPtr getRootNode() { return m_groot; }
+    void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int /* screenID */ = 0);
+    void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int /* windowID */ = 0);
+    void setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */ = 0);
+
+    sofa::simulation::NodeSPtr getRootNode() const { return m_groot; }
+    bool hasWindow() const { return m_firstWindow != nullptr; }
 private:
     static void error_callback(int error, const char* description);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -69,20 +74,24 @@ private:
     void runStep();
 
     // static members
-    static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows;
-    static std::map< GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs;
+    inline static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
+    inline static std::map< GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
 
     //members 
-    bool m_bGlfwIsInitialized = false;
-    bool m_bGlewIsInitialized = false;
+    bool m_bGlfwIsInitialized{ false };
+    bool m_bGlewIsInitialized{ false };
 
     sofa::simulation::NodeSPtr m_groot;
     std::string m_filename;
-    sofa::gl::DrawToolGL* m_glDrawTool = nullptr;
-    sofa::core::visual::VisualParams* m_vparams = nullptr;
-    GLFWwindow* m_firstWindow = nullptr;
-    int m_windowWidth = 0;
-    int m_windowHeight = 0;
+    sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
+    sofa::core::visual::VisualParams* m_vparams{ nullptr };
+    GLFWwindow* m_firstWindow{ nullptr };
+    int m_windowWidth{ 0 };
+    int m_windowHeight{ 0 };
+    int m_lastWindowPositionX{ 0 };
+    int m_lastWindowPositionY{ 0 };
+    int m_lastWindowWidth{ 0 };
+    int m_lastWindowHeight{ 0 };
 
 };
 
