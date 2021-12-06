@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -19,17 +19,18 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
+#include <sofa/simulation/Simulation.h>
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+struct GLFWwindow;
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_COMPONENTS_GUI_CORE
+namespace sofa::glfw::imgui
+{
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+void imguiInit();
+void imguiInitBackend(GLFWwindow* glfwWindow);
+void imguiDraw(sofa::simulation::NodeSPtr groot);
+void imguiTerminate();
+bool dispatchMouseEvents();
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+} // namespace sofa::glfw::imgui
