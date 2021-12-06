@@ -25,7 +25,7 @@
 #include <sofa/gl/DrawToolGL.h>
 #include <SofaBaseVisual/BaseCamera.h>
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace sofa::glfw
 {
