@@ -24,7 +24,7 @@
 #include <sofa/simulation/fwd.h>
 #include <SofaBaseVisual/BaseCamera.h>
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace sofa::glfw
 {
