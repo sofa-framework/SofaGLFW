@@ -24,8 +24,6 @@
 
 #include <SofaGLFW/config.h>
 
-#include "sofa/helper/system/PluginManager.h"
-
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -35,6 +33,9 @@
 #include <sofa/helper/vector.h>
 #include <sofa/simulation/Node.h>
 #include <SofaBaseVisual/VisualStyle.h>
+#include <sofa/core/ComponentLibrary.h>
+#include <sofa/core/ObjectFactory.h>
+#include <sofa/helper/system/PluginManager.h>
 #endif
 
 namespace sofa::glfw::imgui
@@ -78,6 +79,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
     static bool isSceneGraphWindowOpen = false;
     static bool isDisplayFlagsWindowOpen = false;
     static bool isPluginsWindowOpen = false;
+    static bool isComponentsWindowOpen = false;
 
     ImVec2 mainMenuBarSize;
 
@@ -90,6 +92,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
             ImGui::Checkbox("Scene Graph", &isSceneGraphWindowOpen);
             ImGui::Checkbox("Display Flags", &isDisplayFlagsWindowOpen);
             ImGui::Checkbox("Plugins", &isPluginsWindowOpen);
+            ImGui::Checkbox("Components", &isComponentsWindowOpen);
             ImGui::EndMenu();
         }
         mainMenuBarSize = ImGui::GetWindowSize();
@@ -354,7 +357,34 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         ImGui::End();
     }
 
-    ImGui::ShowDemoWindow();
+    if (isComponentsWindowOpen)
+    {
+        if (ImGui::Begin("Components", &isComponentsWindowOpen))
+        {
+            static std::vector<core::ClassEntry::SPtr> entries;
+            entries.clear();
+            core::ObjectFactory::getInstance()->getAllEntries(entries);
+
+            static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+            if (ImGui::BeginTable("componentTable", 2, flags))
+            {
+                ImGui::TableSetupColumn("Name");
+                ImGui::TableSetupColumn("Description");
+                ImGui::TableHeadersRow();
+
+                for (const auto& entry : entries)
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text(entry->className.c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(entry->description.c_str());
+                }
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
