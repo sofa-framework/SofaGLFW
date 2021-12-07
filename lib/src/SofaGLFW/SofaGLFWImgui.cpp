@@ -24,11 +24,14 @@
 
 #include <SofaGLFW/config.h>
 
+#include "sofa/helper/system/PluginManager.h"
+
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <sofa/helper/Utils.h>
 #include <sofa/helper/vector.h>
 #include <sofa/simulation/Node.h>
 #include <SofaBaseVisual/VisualStyle.h>
@@ -45,6 +48,8 @@ void imguiInit()
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
+    static const std::string iniFile(helper::Utils::getExecutableDirectory() + "/imgui.ini");
+    io.IniFilename = iniFile.c_str();
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -72,6 +77,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
     static bool isPerformancesWindowOpen = false;
     static bool isSceneGraphWindowOpen = false;
     static bool isDisplayFlagsWindowOpen = false;
+    static bool isPluginsWindowOpen = false;
 
     ImVec2 mainMenuBarSize;
 
@@ -83,6 +89,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
             ImGui::Checkbox("Performances", &isPerformancesWindowOpen);
             ImGui::Checkbox("Scene Graph", &isSceneGraphWindowOpen);
             ImGui::Checkbox("Display Flags", &isDisplayFlagsWindowOpen);
+            ImGui::Checkbox("Plugins", &isPluginsWindowOpen);
             ImGui::EndMenu();
         }
         mainMenuBarSize = ImGui::GetWindowSize();
@@ -91,25 +98,24 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
 
     if (isControlsWindowOpen)
     {
-        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_Once);
-        ImGui::Begin("Controls", &isControlsWindowOpen);
-
-        auto& animate = sofa::helper::getWriteAccessor(groot->animate_).wref();
-        ImGui::Checkbox("Animate", &animate);
-
-        if (ImGui::Button("Reset"))
+        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin("Controls", &isControlsWindowOpen))
         {
-            groot->setTime(0.);
-            simulation::getSimulation()->reset ( groot.get() );
-        }
+            auto& animate = sofa::helper::getWriteAccessor(groot->animate_).wref();
+            ImGui::Checkbox("Animate", &animate);
 
+            if (ImGui::Button("Reset"))
+            {
+                groot->setTime(0.);
+                simulation::getSimulation()->reset ( groot.get() );
+            }
+        }
         ImGui::End();
     }
 
     if (isPerformancesWindowOpen)
     {
         static sofa::helper::vector<float> msArray;
-        ImGui::SetNextWindowPos(ImVec2(0,400), ImGuiCond_Once);
         if (ImGui::Begin("Performances", &isPerformancesWindowOpen))
         {
             const ImGuiIO& io = ImGui::GetIO();
@@ -129,186 +135,226 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
 
     if (isSceneGraphWindowOpen)
     {
-        ImGui::Begin("Scene Graph", &isSceneGraphWindowOpen);
-
-        unsigned int treeDepth {};
-        static core::objectmodel::BaseObject* clickedObject { nullptr };
-
-        std::function<void(simulation::Node*)> showNode;
-        showNode = [&showNode, &treeDepth](simulation::Node* node)
+        if (ImGui::Begin("Scene Graph", &isSceneGraphWindowOpen))
         {
-            if (node == nullptr) return;
-            if (treeDepth == 0)
-                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            const bool open = ImGui::TreeNode(node->getName().c_str());
-            ImGui::TableNextColumn();
-            ImGui::TextDisabled("Node");
-            if (open)
+            unsigned int treeDepth {};
+            static core::objectmodel::BaseObject* clickedObject { nullptr };
+
+            std::function<void(simulation::Node*)> showNode;
+            showNode = [&showNode, &treeDepth](simulation::Node* node)
             {
-                ++treeDepth;
-                for (const auto child : node->getChildren())
+                if (node == nullptr) return;
+                if (treeDepth == 0)
+                    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                const bool open = ImGui::TreeNode(node->getName().c_str());
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("Node");
+                if (open)
                 {
-                    showNode(dynamic_cast<simulation::Node*>(child));
-                }
-
-                for (const auto object : node->getNodeObjects())
-                {
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
-                    if (ImGui::IsItemClicked())
-                        clickedObject = object;
-                    ImGui::TableNextColumn();
-                    ImGui::Text(object->getClassName().c_str());
-                }
-
-                --treeDepth;
-                ImGui::TreePop();
-            }
-        };
-
-        static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-        if (ImGui::BeginTable("sceneGraphTable", 2, flags))
-        {
-            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
-            ImGui::TableSetupColumn("Class Name", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
-            ImGui::TableHeadersRow();
-
-            showNode(groot.get());
-
-            ImGui::EndTable();
-        }
-
-        static bool areDataDisplayed;
-        areDataDisplayed = clickedObject != nullptr;
-        if (clickedObject != nullptr)
-        {
-            ImGui::Separator();
-            if (ImGui::CollapsingHeader(clickedObject->getName().c_str(), &areDataDisplayed))
-            {
-                for (const auto* data : clickedObject->getDataFields())
-                {
-                    if (ImGui::CollapsingHeader(data->m_name.c_str()))
+                    ++treeDepth;
+                    for (const auto child : node->getChildren())
                     {
-                        ImGui::TextWrapped(data->getValueString().c_str());
+                        showNode(dynamic_cast<simulation::Node*>(child));
+                    }
+
+                    for (const auto object : node->getNodeObjects())
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+                        if (ImGui::IsItemClicked())
+                            clickedObject = object;
+                        ImGui::TableNextColumn();
+                        ImGui::Text(object->getClassName().c_str());
+                    }
+
+                    --treeDepth;
+                    ImGui::TreePop();
+                }
+            };
+
+            static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+            if (ImGui::BeginTable("sceneGraphTable", 2, flags))
+            {
+                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
+                ImGui::TableSetupColumn("Class Name", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
+                ImGui::TableHeadersRow();
+
+                showNode(groot.get());
+
+                ImGui::EndTable();
+            }
+
+            static bool areDataDisplayed;
+            areDataDisplayed = clickedObject != nullptr;
+            if (clickedObject != nullptr)
+            {
+                ImGui::Separator();
+                if (ImGui::CollapsingHeader(clickedObject->getName().c_str(), &areDataDisplayed))
+                {
+                    for (const auto* data : clickedObject->getDataFields())
+                    {
+                        if (ImGui::CollapsingHeader(data->m_name.c_str()))
+                        {
+                            ImGui::TextWrapped(data->getValueString().c_str());
+                        }
                     }
                 }
-            }
-            if (!areDataDisplayed)
-            {
-                clickedObject = nullptr;
+                if (!areDataDisplayed)
+                {
+                    clickedObject = nullptr;
+                }
             }
         }
-
         ImGui::End();
     }
 
     if (isDisplayFlagsWindowOpen)
     {
-        ImGui::Begin("Display Flags", &isDisplayFlagsWindowOpen);
-
-        component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
-        groot->get(visualStyle);
-        if (visualStyle)
+        if (ImGui::Begin("Display Flags", &isDisplayFlagsWindowOpen))
         {
-            auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->displayFlags).wref();
 
+            component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
+            groot->get(visualStyle);
+            if (visualStyle)
             {
-                const bool initialValue = displayFlags.getShowVisualModels();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Visual Models", &changeableValue);
-                if (changeableValue != initialValue)
-                {
-                    displayFlags.setShowVisualModels(changeableValue);
-                }
-            }
+                auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->displayFlags).wref();
 
-            {
-                const bool initialValue = displayFlags.getShowBehaviorModels();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Behavior Models", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowBehaviorModels(changeableValue);
+                    const bool initialValue = displayFlags.getShowVisualModels();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Visual Models", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowVisualModels(changeableValue);
+                    }
                 }
-            }
 
-            {
-                const bool initialValue = displayFlags.getShowForceFields();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Force Fields", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowForceFields(changeableValue);
+                    const bool initialValue = displayFlags.getShowBehaviorModels();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Behavior Models", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowBehaviorModels(changeableValue);
+                    }
                 }
-            }
 
-            {
-                const bool initialValue = displayFlags.getShowCollisionModels();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Collision Models", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowCollisionModels(changeableValue);
+                    const bool initialValue = displayFlags.getShowForceFields();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Force Fields", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowForceFields(changeableValue);
+                    }
                 }
-            }
 
-            {
-                const bool initialValue = displayFlags.getShowBoundingCollisionModels();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Bounding Collision Models", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowBoundingCollisionModels(changeableValue);
+                    const bool initialValue = displayFlags.getShowCollisionModels();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Collision Models", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowCollisionModels(changeableValue);
+                    }
                 }
-            }
 
-            {
-                const bool initialValue = displayFlags.getShowMappings();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Mappings", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowMappings(changeableValue);
+                    const bool initialValue = displayFlags.getShowBoundingCollisionModels();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Bounding Collision Models", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowBoundingCollisionModels(changeableValue);
+                    }
                 }
-            }
 
-            {
-                const bool initialValue = displayFlags.getShowMechanicalMappings();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Mechanical Mappings", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowMechanicalMappings(changeableValue);
+                    const bool initialValue = displayFlags.getShowMappings();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Mappings", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowMappings(changeableValue);
+                    }
                 }
-            }
 
-            {
-                const bool initialValue = displayFlags.getShowWireFrame();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Wire Frame", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowWireFrame(changeableValue);
+                    const bool initialValue = displayFlags.getShowMechanicalMappings();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Mechanical Mappings", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowMechanicalMappings(changeableValue);
+                    }
                 }
-            }
 
-            {
-                const bool initialValue = displayFlags.getShowNormals();
-                bool changeableValue = initialValue;
-                ImGui::Checkbox("Show Normals", &changeableValue);
-                if (changeableValue != initialValue)
                 {
-                    displayFlags.setShowNormals(changeableValue);
+                    const bool initialValue = displayFlags.getShowWireFrame();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Wire Frame", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowWireFrame(changeableValue);
+                    }
                 }
-            }
 
+                {
+                    const bool initialValue = displayFlags.getShowNormals();
+                    bool changeableValue = initialValue;
+                    ImGui::Checkbox("Show Normals", &changeableValue);
+                    if (changeableValue != initialValue)
+                    {
+                        displayFlags.setShowNormals(changeableValue);
+                    }
+                }
+
+            }
         }
-
         ImGui::End();
     }
+
+    if (isPluginsWindowOpen)
+    {
+        if (ImGui::Begin("Plugins", &isPluginsWindowOpen))
+        {
+            ImGui::Columns(2);
+
+            const auto& pluginMap = helper::system::PluginManager::getInstance().getPluginMap();
+
+            static std::map<std::string, bool> isSelected;
+            static std::string selectedPlugin;
+            for (const auto& [path, plugin] : pluginMap)
+            {
+                if (ImGui::Selectable(plugin.getModuleName(), selectedPlugin == path))
+                {
+                    selectedPlugin = path;
+                }
+            }
+
+            ImGui::NextColumn();
+
+            const auto pluginIt = pluginMap.find(selectedPlugin);
+            if (pluginIt != pluginMap.end())
+            {
+                ImGui::Text("Plugin: %s", pluginIt->second.getModuleName());
+                ImGui::Text("Version: %s", pluginIt->second.getModuleVersion());
+                ImGui::Text("License: %s", pluginIt->second.getModuleLicense());
+                ImGui::Spacing();
+                ImGui::Text("Description:");
+                ImGui::TextWrapped("%s", pluginIt->second.getModuleDescription());
+                ImGui::Spacing();
+                ImGui::Text("Components:");
+                ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
+            }
+        }
+        ImGui::End();
+    }
+
+    ImGui::ShowDemoWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
