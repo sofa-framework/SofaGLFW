@@ -141,7 +141,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         if (ImGui::Begin("Scene Graph", &isSceneGraphWindowOpen))
         {
             unsigned int treeDepth {};
-            static core::objectmodel::BaseObject* clickedObject { nullptr };
+            static core::objectmodel::Base* clickedObject { nullptr };
 
             std::function<void(simulation::Node*)> showNode;
             showNode = [&showNode, &treeDepth](simulation::Node* node)
@@ -154,6 +154,8 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
                 const bool open = ImGui::TreeNode(node->getName().c_str());
                 ImGui::TableNextColumn();
                 ImGui::TextDisabled("Node");
+                if (ImGui::IsItemClicked())
+                    clickedObject = node;
                 if (open)
                 {
                     ++treeDepth;
@@ -195,15 +197,65 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
             if (clickedObject != nullptr)
             {
                 ImGui::Separator();
+                ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                 if (ImGui::CollapsingHeader(clickedObject->getName().c_str(), &areDataDisplayed))
                 {
+                    ImGui::Indent();
+                    std::map<std::string, std::vector<const core::BaseData*> > groupMap;
                     for (const auto* data : clickedObject->getDataFields())
                     {
-                        if (ImGui::CollapsingHeader(data->m_name.c_str()))
+                        groupMap[data->getGroup()].push_back(data);
+                    }
+                    for (const auto [group, datas] : groupMap)
+                    {
+                        const auto groupName = group.empty() ? "Property" : group;
+                        ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+                        if (ImGui::CollapsingHeader(groupName.c_str()))
                         {
-                            ImGui::TextWrapped(data->getValueString().c_str());
+                            ImGui::Indent();
+                            for (const auto& data : datas)
+                            {
+                                const bool isOpen = ImGui::CollapsingHeader(data->m_name.c_str());
+                                if (ImGui::IsItemHovered())
+                                {
+                                    ImGui::BeginTooltip();
+                                    ImGui::TextDisabled(data->getHelp().c_str());
+                                    ImGui::EndTooltip();
+                                }
+                                if (isOpen)
+                                {
+                                    ImGui::TextDisabled(data->getHelp().c_str());
+                                    ImGui::TextWrapped(data->getValueString().c_str());
+                                }
+                            }
+                            ImGui::Unindent();
                         }
                     }
+                    ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+                    if (ImGui::CollapsingHeader("Links"))
+                    {
+                        ImGui::Indent();
+                        for (const auto* link : clickedObject->getLinks())
+                        {
+                            const auto linkValue = link->getValueString();
+                            const auto linkTitle = link->getName();
+
+                            const bool isOpen = ImGui::CollapsingHeader(linkTitle.c_str());
+                            if (ImGui::IsItemHovered())
+                            {
+                                ImGui::BeginTooltip();
+                                ImGui::TextDisabled(link->getHelp().c_str());
+                                ImGui::EndTooltip();
+                            }
+                            if (isOpen)
+                            {
+                                ImGui::TextDisabled(link->getHelp().c_str());
+                                ImGui::TextWrapped(linkValue.c_str());
+                            }
+                        }
+                        ImGui::Unindent();
+                    }
+                    ImGui::Unindent();
                 }
                 if (!areDataDisplayed)
                 {
