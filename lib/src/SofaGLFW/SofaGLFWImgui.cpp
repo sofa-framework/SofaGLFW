@@ -74,6 +74,8 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    const ImGuiIO& io = ImGui::GetIO();
+
     static bool isControlsWindowOpen = true;
     static bool isPerformancesWindowOpen = false;
     static bool isSceneGraphWindowOpen = false;
@@ -81,10 +83,17 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
     static bool isPluginsWindowOpen = false;
     static bool isComponentsWindowOpen = false;
 
+    static bool showFPSInMenuBar = true;
+
     ImVec2 mainMenuBarSize;
 
     if (ImGui::BeginMainMenuBar())
     {
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("Show FPS", &showFPSInMenuBar);
+            ImGui::EndMenu();
+        }
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::Checkbox("Controls", &isControlsWindowOpen);
@@ -94,6 +103,12 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
             ImGui::Checkbox("Plugins", &isPluginsWindowOpen);
             ImGui::Checkbox("Components", &isComponentsWindowOpen);
             ImGui::EndMenu();
+        }
+        if (showFPSInMenuBar)
+        {
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(std::to_string(io.Framerate).c_str()).x
+                - ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
+            ImGui::Text("%.1f FPS", io.Framerate);
         }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
@@ -121,7 +136,6 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         static sofa::helper::vector<float> msArray;
         if (ImGui::Begin("Performances", &isPerformancesWindowOpen))
         {
-            const ImGuiIO& io = ImGui::GetIO();
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices, io.MetricsRenderIndices / 3);
             ImGui::Text("%d visible windows, %d active allocations", io.MetricsRenderWindows, io.MetricsActiveAllocations);
