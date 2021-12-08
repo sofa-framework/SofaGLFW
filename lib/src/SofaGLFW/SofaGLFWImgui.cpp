@@ -54,6 +54,9 @@ void imguiInit()
     static const std::string iniFile(helper::Utils::getExecutableDirectory() + "/imgui.ini");
     io.IniFilename = iniFile.c_str();
 
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 #endif
@@ -669,7 +672,12 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
+    // Update and Render additional Platform Windows
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
 #endif
 }
 
