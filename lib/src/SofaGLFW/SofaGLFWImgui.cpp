@@ -24,6 +24,8 @@
 
 #include <SofaGLFW/config.h>
 
+#include <sofa/core/CategoryLibrary.h>
+
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -87,6 +89,9 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
 
     ImVec2 mainMenuBarSize;
 
+    /***************************************
+     * Main menu bar
+     **************************************/
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))
@@ -114,6 +119,9 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         ImGui::EndMainMenuBar();
     }
 
+    /***************************************
+     * Controls window
+     **************************************/
     if (isControlsWindowOpen)
     {
         ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
@@ -131,6 +139,9 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         ImGui::End();
     }
 
+    /***************************************
+     * Performances window
+     **************************************/
     if (isPerformancesWindowOpen)
     {
         static sofa::helper::vector<float> msArray;
@@ -150,6 +161,9 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         ImGui::End();
     }
 
+    /***************************************
+     * Scene graph window
+     **************************************/
     if (isSceneGraphWindowOpen)
     {
         if (ImGui::Begin("Scene Graph", &isSceneGraphWindowOpen))
@@ -280,6 +294,9 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         ImGui::End();
     }
 
+    /***************************************
+     * Display flags window
+     **************************************/
     if (isDisplayFlagsWindowOpen)
     {
         if (ImGui::Begin("Display Flags", &isDisplayFlagsWindowOpen))
@@ -386,6 +403,9 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         ImGui::End();
     }
 
+    /***************************************
+     * Plugins window
+     **************************************/
     if (isPluginsWindowOpen)
     {
         if (ImGui::Begin("Plugins", &isPluginsWindowOpen))
@@ -413,41 +433,235 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
                 ImGui::Text("Version: %s", pluginIt->second.getModuleVersion());
                 ImGui::Text("License: %s", pluginIt->second.getModuleLicense());
                 ImGui::Spacing();
-                ImGui::Text("Description:");
+                ImGui::TextDisabled("Description:");
                 ImGui::TextWrapped("%s", pluginIt->second.getModuleDescription());
                 ImGui::Spacing();
-                ImGui::Text("Components:");
+                ImGui::TextDisabled("Components:");
                 ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
+                ImGui::Spacing();
+                ImGui::TextDisabled("Path:");
+                ImGui::TextWrapped(selectedPlugin.c_str());
             }
         }
         ImGui::End();
     }
 
+    /***************************************
+     * Components window
+     **************************************/
     if (isComponentsWindowOpen)
     {
         if (ImGui::Begin("Components", &isComponentsWindowOpen))
         {
-            static std::vector<core::ClassEntry::SPtr> entries;
-            entries.clear();
-            core::ObjectFactory::getInstance()->getAllEntries(entries);
-
-            static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-            if (ImGui::BeginTable("componentTable", 2, flags))
+            unsigned int nbLoadedComponents = 0;
+            if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
             {
-                ImGui::TableSetupColumn("Name");
-                ImGui::TableSetupColumn("Description");
-                ImGui::TableHeadersRow();
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
 
-                for (const auto& entry : entries)
+                static core::ClassEntry::SPtr selectedEntry;
+
+                static std::vector<core::ClassEntry::SPtr> entries;
+                entries.clear();
+                core::ObjectFactory::getInstance()->getAllEntries(entries);
+                nbLoadedComponents = entries.size();
+
+                static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_Sortable;
+                if (ImGui::BeginTable("componentTable", 2, flags, ImVec2(0.f, 400.f)))
                 {
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    ImGui::Text(entry->className.c_str());
-                    ImGui::TableNextColumn();
-                    ImGui::Text(entry->description.c_str());
+                    ImGui::TableSetupColumn("Name");
+                    ImGui::TableSetupColumn("Category");
+                    ImGui::TableHeadersRow();
+
+                    struct ComponentEntry
+                    {
+                        std::string name;
+                        std::string category;
+                        core::ClassEntry::SPtr classEntry;
+                    };
+                    static std::vector<ComponentEntry> componentEntries;
+                    if (componentEntries.empty())
+                    {
+                        for (const auto& entry : entries)
+                        {
+                            std::set<std::string> categoriesSet;
+                            std::stringstream templateSs;
+                            for (const auto& [templateInstance, creator] : entry->creatorMap)
+                            {
+                                std::vector<std::string> categories;
+                                core::CategoryLibrary::getCategories(entry->creatorMap.begin()->second->getClass(), categories);
+                                categoriesSet.insert(categories.begin(), categories.end());
+                            }
+                            std::stringstream categorySs;
+                            for (const auto& c : categoriesSet)
+                                categorySs << c << ", ";
+
+                            const std::string categoriesText = categorySs.str().substr(0, categorySs.str().size()-2);
+
+                            componentEntries.push_back({entry->className, categoriesText, entry});
+                        }
+                    }
+
+                    if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
+                    {
+                        if (sorts_specs->SpecsDirty)
+                        {
+                            std::sort(componentEntries.begin(), componentEntries.end(), [sorts_specs](const ComponentEntry& lhs, const ComponentEntry& rhs)
+                            {
+                                for (int n = 0; n < sorts_specs->SpecsCount; n++)
+                                {
+                                    const ImGuiTableColumnSortSpecs* sort_spec = &sorts_specs->Specs[n];
+                                    const bool ascending = sort_spec->SortDirection == ImGuiSortDirection_Ascending;
+                                    switch (sort_spec->ColumnIndex)
+                                    {
+                                    case 0:
+                                        {
+                                            if (lhs.name < rhs.name) return ascending;
+                                            if (lhs.name > rhs.name) return !ascending;
+                                            break;
+                                        }
+                                    case 1:
+                                        {
+                                            if (lhs.category < rhs.category) return ascending;
+                                            if (lhs.category > rhs.category) return !ascending;
+                                            break;
+                                            return lhs.name < rhs.name;
+                                        }
+                                    default:
+                                        IM_ASSERT(0); break;
+                                    }
+                                }
+                                return false;
+                            });
+                        }
+                    }
+
+                    static const std::map<std::string, ImVec4> colorMap = []()
+                    {
+                        std::map<std::string, ImVec4> m;
+                        int i {};
+                        auto categories = core::CategoryLibrary::getCategories();
+                        std::sort(categories.begin(), categories.end(), std::less<std::string>());
+                        for (const auto& cat : categories)
+                        {
+                            ImVec4 color;
+                            color.w = 1.f;
+                            ImGui::ColorConvertHSVtoRGB(i++ / (static_cast<float>(categories.size())-1.f), 0.72f, 1.f, color.x, color.y, color.z);
+                            m[cat] = color;
+                        }
+                        return m;
+                    }();
+
+                    for (const auto& entry : componentEntries)
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        if (ImGui::Selectable(entry.name.c_str(), entry.classEntry == selectedEntry))
+                            selectedEntry = entry.classEntry;
+                        ImGui::TableNextColumn();
+
+                        const auto colorIt = colorMap.find(entry.category);
+                        if (colorIt != colorMap.end())
+                            ImGui::TextColored(colorIt->second, colorIt->first.c_str());
+                        else
+                            ImGui::Text(entry.category.c_str());
+                    }
+                    ImGui::EndTable();
                 }
+
+                ImGui::TableNextColumn();
+
+                if (selectedEntry)
+                {
+                    ImGui::Text("Name: %s", selectedEntry->className.c_str());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Description:");
+                    ImGui::TextWrapped(selectedEntry->description.c_str());
+                    ImGui::Spacing();
+
+                    bool hasTemplate = false;
+                    for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
+                    {
+                        if (hasTemplate |= !templateInstance.empty())
+                            break;
+                    }
+
+                    if (hasTemplate)
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Templates:");
+                        for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
+                        {
+                            ImGui::BulletText(templateInstance.c_str());
+                        }
+                    }
+
+                    if (!selectedEntry->aliases.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Aliases:");
+                        for (const auto& alias : selectedEntry->aliases)
+                        {
+                            ImGui::BulletText(alias.c_str());
+                        }
+                    }
+
+                    std::set<std::string> namespaces;
+                    for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
+                    {
+                        namespaces.insert(creator->getClass()->namespaceName);
+                    }
+                    if (!namespaces.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Namespaces:");
+                        for (const auto& nm : namespaces)
+                        {
+                            ImGui::BulletText(nm.c_str());
+                        }
+                    }
+
+                    std::set<std::string> parents;
+                    for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
+                    {
+                        for (const auto& p : creator->getClass()->parents)
+                        {
+                            parents.insert(p->className);
+                        }
+                    }
+                    if (!parents.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Parents:");
+                        for (const auto& p : parents)
+                        {
+                            ImGui::BulletText(p.c_str());
+                        }
+                    }
+
+                    std::set<std::string> targets;
+                    for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
+                    {
+                        targets.insert(creator->getTarget());
+                    }
+                    if (!targets.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Targets:");
+                        for (const auto& t : targets)
+                        {
+                            ImGui::BulletText(t.c_str());
+                        }
+                    }
+                }
+                else
+                {
+                    ImGui::Text("Select a component");
+                }
+
                 ImGui::EndTable();
             }
+            ImGui::Text("%d loaded components", nbLoadedComponents);
         }
         ImGui::End();
     }
