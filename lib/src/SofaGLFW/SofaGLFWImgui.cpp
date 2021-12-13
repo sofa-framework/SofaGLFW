@@ -32,7 +32,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include <sofa/helper/Utils.h>
-#include <sofa/helper/vector.h>
+#include <sofa/type/vector.h>
 #include <sofa/simulation/Node.h>
 #include <SofaBaseVisual/VisualStyle.h>
 #include <sofa/core/ComponentLibrary.h>
@@ -147,7 +147,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
      **************************************/
     if (isPerformancesWindowOpen)
     {
-        static sofa::helper::vector<float> msArray;
+        static sofa::type::vector<float> msArray;
         if (ImGui::Begin("Performances", &isPerformancesWindowOpen))
         {
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
