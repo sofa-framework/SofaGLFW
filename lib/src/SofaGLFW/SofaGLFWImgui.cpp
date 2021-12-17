@@ -19,12 +19,14 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#include <iomanip>
 #include <ostream>
 #include <SofaGLFW/SofaGLFWImgui.h>
 
 #include <SofaGLFW/config.h>
 
 #include <sofa/core/CategoryLibrary.h>
+#include <sofa/helper/logging/LoggingMessageHandler.h>
 
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
@@ -87,6 +89,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
     static bool isDisplayFlagsWindowOpen = false;
     static bool isPluginsWindowOpen = false;
     static bool isComponentsWindowOpen = false;
+    static bool isLogWindowOpen = false;
 
     static bool showFPSInMenuBar = true;
 
@@ -110,6 +113,7 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
             ImGui::Checkbox("Display Flags", &isDisplayFlagsWindowOpen);
             ImGui::Checkbox("Plugins", &isPluginsWindowOpen);
             ImGui::Checkbox("Components", &isComponentsWindowOpen);
+            ImGui::Checkbox("Log", &isLogWindowOpen);
             ImGui::EndMenu();
         }
         if (showFPSInMenuBar)
@@ -667,6 +671,67 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
             ImGui::Text("%d loaded components", nbLoadedComponents);
         }
         ImGui::End();
+    }
+
+    /***************************************
+     * Log window
+     **************************************/
+    if (isLogWindowOpen)
+    {
+        if (ImGui::Begin("Log", &isLogWindowOpen))
+        {
+            unsigned int i {};
+            const auto& messages = sofa::helper::logging::MainLoggingMessageHandler::getInstance().getMessages();
+            const int digits = [&messages]()
+            {
+                int d = 0;
+                auto s = messages.size();
+                while (s != 0) { s /= 10; d++; }
+                return d;
+            }();
+
+            if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_RowBg))
+            {
+                ImGui::TableSetupColumn("logId", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn("message type", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn("sender", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn("message", ImGuiTableColumnFlags_WidthStretch);
+                for (const auto& message : messages)
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+
+                    std::stringstream ss;
+                    ss << std::setfill('0') << std::setw(digits) << i++;
+                    ImGui::Text(ss.str().c_str());
+
+                    ImGui::TableNextColumn();
+
+                    constexpr auto writeMessageType = [](const helper::logging::Message::Type t)
+                    {
+                        switch (t)
+                        {
+                        case helper::logging::Message::Advice     : return ImGui::TextColored(ImVec4(0.f, 0.5686f, 0.9176f, 1.f), "[SUGGESTION]");
+                        case helper::logging::Message::Deprecated : return ImGui::TextColored(ImVec4(0.5529f, 0.4314f, 0.3882f, 1.f), "[DEPRECATED]");
+                        case helper::logging::Message::Warning    : return ImGui::TextColored(ImVec4(1.f, 0.4275f, 0.f, 1.f), "[WARNING]");
+                        case helper::logging::Message::Info       : return ImGui::Text("[INFO]");
+                        case helper::logging::Message::Error      : return ImGui::TextColored(ImVec4(0.8667f, 0.1725f, 0.f, 1.f), "[ERROR]");
+                        case helper::logging::Message::Fatal      : return ImGui::TextColored(ImVec4(0.8353, 0.f, 0.f, 1.f), "[FATAL]");
+                        case helper::logging::Message::TEmpty     : return ImGui::Text("[EMPTY]");
+                        default: return;
+                        }
+                    };
+                    writeMessageType(message.type());
+
+                    ImGui::TableNextColumn();
+                    ImGui::Text(message.sender().c_str());
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextWrapped(message.message().str().c_str());
+                }
+                ImGui::EndTable();
+            }
+        }
     }
 
     ImGui::Render();
