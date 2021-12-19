@@ -112,6 +112,14 @@ sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa:
     return camera;
 }
 
+void SofaGLFWBaseGUI::changeCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera)
+{
+    for (auto& w : s_mapWindows)
+    {
+        w.second->setCamera(newCamera);
+    }
+}
+
 bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
     imgui::imguiInit();
@@ -168,6 +176,16 @@ void SofaGLFWBaseGUI::destroyWindow()
 {
 }
 
+
+bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
+{
+    if (hasWindow())
+    {
+        glfwWindow = (!glfwWindow) ? m_firstWindow : glfwWindow;
+        return glfwGetWindowMonitor(glfwWindow) != nullptr;
+    }
+    return false;
+}
 
 void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* screenID */)
 {
@@ -252,7 +270,7 @@ void SofaGLFWBaseGUI::runLoop()
                 makeCurrentContext(window.first);
                 window.second->draw(m_groot, m_vparams);
 
-                imgui::imguiDraw(m_groot);
+                imgui::imguiDraw(this);
 
                 glfwSwapBuffers(window.first);
             }

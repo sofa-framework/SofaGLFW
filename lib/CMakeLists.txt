@@ -29,12 +29,6 @@ if(NOT glfw_POPULATED)
     add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
 endif()
 
-if (SOFA_BUILD_SOFAGLFWIMGUI)
-    add_subdirectory(SofaGLFWImgui)
-else()
-    set(SOFAGLFW_HAS_IMGUI_VALUE FALSE)
-endif()
-
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
 set(HEADER_FILES
@@ -50,6 +44,15 @@ set(SOURCE_FILES
 	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
 	${SOFAGLFW_SOURCE_DIR}/SofaGLFWImgui.cpp
 )
+
+if (SOFA_BUILD_SOFAGLFWIMGUI)
+    add_subdirectory(SofaGLFWImgui)
+    list(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/CustomImGuiFileDialogConfig.h)
+    add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG=<SofaGLFW/CustomImGuiFileDialogConfig.h>)
+else()
+    set(SOFAGLFW_HAS_IMGUI_VALUE FALSE)
+endif()
+
 
 if(SofaGuiCommon_FOUND)
     LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h)

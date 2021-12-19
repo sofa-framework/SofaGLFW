@@ -43,6 +43,8 @@ public:
     void scrollEvent(double xoffset, double yoffset);
     void setBackgroundColor(const sofa::type::RGBAColor& newColor);
 
+    void setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
+
 private:
     GLFWwindow* m_glfwWindow{nullptr};
     sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;

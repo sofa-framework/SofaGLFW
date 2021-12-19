@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -21,19 +21,9 @@
 ******************************************************************************/
 #pragma once
 
-struct GLFWwindow;
-namespace sofa::glfw
-{
-    class SofaGLFWBaseGUI;
-}
+/**
+ * This file is a configuration file for ImGuiFileDialog.
+ */
 
-namespace sofa::glfw::imgui
-{
-
-void imguiInit();
-void imguiInitBackend(GLFWwindow* glfwWindow);
-void imguiDraw(SofaGLFWBaseGUI* baseGUI);
-void imguiTerminate();
-bool dispatchMouseEvents();
-
-} // namespace sofa::glfw::imgui
+#define USE_STD_FILESYSTEM
+#define USE_BOOKMARK

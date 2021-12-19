@@ -22,14 +22,22 @@
 #include <iomanip>
 #include <ostream>
 #include <SofaGLFW/SofaGLFWImgui.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 #include <SofaGLFW/config.h>
 
 #include <sofa/core/CategoryLibrary.h>
 #include <sofa/helper/logging/LoggingMessageHandler.h>
 
+#include <sofa/core/loader/SceneLoader.h>
+#include <sofa/simulation/SceneLoaderFactory.h>
+
+#include <sofa/helper/system/FileSystem.h>
+#include <sofa/simulation/Simulation.h>
+
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
+#include <ImGuiFileDialog.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -73,8 +81,9 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
 #endif
 }
 
-void imguiDraw(sofa::simulation::NodeSPtr groot)
+void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 {
+    auto groot = baseGUI->getRootNode();
 #if SOFAGLFW_HAS_IMGUI
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -100,9 +109,89 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
      **************************************/
     if (ImGui::BeginMainMenuBar())
     {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Open Simulation"))
+            {
+                std::string filter;
+                std::string allTypesSpace, allTypesComa;
+                simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
+                for (auto it=loaders->begin(); it!=loaders->end(); ++it)
+                {
+                    filter += (*it)->getFileTypeDesc();
+                    filter += " (";
+                    sofa::simulation::SceneLoader::ExtensionList extensions;
+                    (*it)->getExtensionList(&extensions);
+                    for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
+                    {
+                        filter += "*." + *itExt;
+                        allTypesSpace += "*." + *itExt;
+                        if (itExt != extensions.end() - 1)
+                        {
+                            filter += " ";
+                            allTypesSpace += " ";
+                        }
+                    }
+                    filter+=")";
+                    filter+="{";
+                    for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
+                    {
+                        filter += "." + *itExt;
+                        allTypesComa += "." + *itExt;
+                        if (itExt != extensions.end() - 1)
+                        {
+                            filter += ",";
+                            allTypesComa += ",";
+                        }
+                    }
+                    filter+="}";
+                    if (it!=loaders->end() - 1)
+                    {
+                        filter+=",";
+                    }
+
+                }
+
+                filter = "All (" + allTypesSpace + "){" + allTypesComa + "}," + filter + ",.*";
+
+                ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", filter.c_str(), baseGUI->getFilename());
+            }
+            if (ImGui::MenuItem("Close Simulation"))
+            {
+                sofa::simulation::getSimulation()->unload(groot);
+                baseGUI->setSimulationIsRunning(false);
+                sofa::simulation::getSimulation()->init(baseGUI->getRootNode().get());
+                return;
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Exit"))
+            {
+                //TODO: brutal exit, need to clean up everything (simulation, window, opengl, imgui etc)
+                exit(EXIT_SUCCESS);
+            }
+            ImGui::EndMenu();
+        }
         if (ImGui::BeginMenu("View"))
         {
             ImGui::Checkbox("Show FPS", &showFPSInMenuBar);
+            bool isFullScreen = baseGUI->isFullScreen();
+            if (ImGui::Checkbox("Fullscreen", &isFullScreen))
+            {
+                baseGUI->switchFullScreen();
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Center Camera"))
+            {
+                sofa::component::visualmodel::BaseCamera::SPtr camera;
+                groot->get(camera);
+                if (camera)
+                {
+                    if( groot->f_bbox.getValue().isValid() && !groot->f_bbox.getValue().isFlat() )
+                    {
+                        camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+                    }
+                }
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Windows"))
@@ -124,6 +213,35 @@ void imguiDraw(sofa::simulation::NodeSPtr groot)
         }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
+    }
+
+    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+    {
+        if (ImGuiFileDialog::Instance()->IsOk())
+        {
+            const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+
+            if (helper::system::FileSystem::exists(filePathName))
+            {
+                sofa::simulation::getSimulation()->unload(groot);
+
+                groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
+                if( !groot )
+                    groot = sofa::simulation::getSimulation()->createNewGraph("");
+                baseGUI->setSimulation(groot, filePathName);
+
+                sofa::simulation::getSimulation()->init(groot.get());
+                auto camera = baseGUI->findCamera(groot);
+                if (camera)
+                {
+                    camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+                    baseGUI->changeCamera(camera);
+                }
+                baseGUI->initVisual();
+            }
+        }
+        ImGuiFileDialog::Instance()->Close();
+        return;
     }
 
     /***************************************
