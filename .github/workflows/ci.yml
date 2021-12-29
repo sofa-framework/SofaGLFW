@@ -27,7 +27,15 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
         with:
-          path: ${{ env.WORKSPACE_SRC_PATH }}        
+          path: ${{ env.WORKSPACE_SRC_PATH }}
+
+      - name: Install deps
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update
+            sudo apt-get -qq install libxrandr-dev
+          fi
       
       - name: Build and install
         shell: bash
