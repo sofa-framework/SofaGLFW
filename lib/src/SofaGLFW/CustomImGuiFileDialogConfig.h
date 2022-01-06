@@ -19,41 +19,11 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFW/config.h>
+#pragma once
 
-#include <sofa/simulation/fwd.h>
-#include <SofaBaseVisual/BaseCamera.h>
+/**
+ * This file is a configuration file for ImGuiFileDialog.
+ */
 
-struct GLFWwindow;
-
-namespace sofa::glfw
-{
-
-class SOFAGLFW_API SofaGLFWWindow
-{
-public:
-    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera);
-    virtual ~SofaGLFWWindow() = default;
-
-    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
-    void close();
-
-    void mouseMoveEvent(int xpos, int ypos);
-    void mouseButtonEvent(int button, int action, int mods);
-    void scrollEvent(double xoffset, double yoffset);
-    void setBackgroundColor(const sofa::type::RGBAColor& newColor);
-
-    void setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
-
-private:
-    GLFWwindow* m_glfwWindow{nullptr};
-    sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
-    int m_currentButton{ -1 };
-    int m_currentAction{ -1 };
-    int m_currentMods{ -1 };
-    int m_currentXPos{ -1 };
-    int m_currentYPos{ -1 };
-    sofa::type::RGBAColor m_backgroundColor{ sofa::type::RGBAColor::black() };
-};
-
-} // namespace sofa::glfw
+#define USE_STD_FILESYSTEM
+#define USE_BOOKMARK

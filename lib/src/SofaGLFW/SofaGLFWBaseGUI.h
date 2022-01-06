@@ -55,12 +55,22 @@ public:
     int getWindowHeight() const { return m_windowHeight; }
     void setWindowHeight(int height) { m_windowHeight = height; }
 
+    bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
     void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int /* screenID */ = 0);
     void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int /* windowID */ = 0);
     void setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */ = 0);
 
-    sofa::simulation::NodeSPtr getRootNode() const { return m_groot; }
+    sofa::core::sptr<sofa::simulation::Node> getRootNode() const;
     bool hasWindow() const { return m_firstWindow != nullptr; }
+
+    [[nodiscard]] std::string getFilename() const
+    {
+        return m_filename;
+    }
+
+    sofa::component::visualmodel::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
+    void changeCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
+
 private:
     static void error_callback(int error, const char* description);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -69,7 +79,6 @@ private:
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     static void close_callback(GLFWwindow* window);
 
-    sofa::component::visualmodel::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
 
@@ -77,7 +86,7 @@ private:
     inline static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
     inline static std::map< GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
 
-    //members 
+    //members
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
 

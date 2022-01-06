@@ -24,7 +24,7 @@
 #include <cxxopts.hpp>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
-#include <sofa/helper/logging/ConsoleMessageHandler.h>
+#include <sofa/helper/logging/LoggingMessageHandler.h>
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/BackTrace.h>
 #include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
@@ -39,7 +39,13 @@
 
 int main(int argc, char** argv)
 {
+    sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
+    sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainPerComponentLoggingMessageHandler::getInstance()) ;
+    sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
+
     sofa::helper::BackTrace::autodump();
+
+
 
     sofa::component::initSofaBase();
 
@@ -71,8 +77,7 @@ int main(int argc, char** argv)
     }
 
     sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
-    sofa::helper::logging::MessageDispatcher::addHandler(new sofa::helper::logging::ConsoleMessageHandler());
-    sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainPerComponentLoggingMessageHandler::getInstance()) ;
+
 
     fileName = result["file"].as<std::string>();
     startAnim = result["start"].as<bool>();

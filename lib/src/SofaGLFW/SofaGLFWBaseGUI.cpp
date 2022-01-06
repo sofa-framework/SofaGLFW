@@ -35,6 +35,7 @@
 #include <SofaBaseVisual/InteractiveCamera.h>
 #include <SofaBaseVisual/VisualStyle.h>
 
+#include <SofaGLFW/SofaGLFWImgui.h>
 
 namespace sofa::glfw
 {
@@ -42,6 +43,12 @@ namespace sofa::glfw
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
 {
     terminate();
+}
+
+
+sofa::core::sptr<sofa::simulation::Node> SofaGLFWBaseGUI::getRootNode() const
+{
+    return m_groot;
 }
 
 bool SofaGLFWBaseGUI::init()
@@ -111,10 +118,18 @@ sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa:
     return camera;
 }
 
+void SofaGLFWBaseGUI::changeCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera)
+{
+    for (auto& w : s_mapWindows)
+    {
+        w.second->setCamera(newCamera);
+    }
+}
+
 bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    imgui::imguiInit();
+
     GLFWwindow* glfwWindow = nullptr;
     if (fullscreenAtStartup)
     {
@@ -146,6 +161,8 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
         glfwSetWindowCloseCallback(glfwWindow, close_callback);
         makeCurrentContext(glfwWindow);
 
+        imgui::imguiInitBackend(glfwWindow);
+
         auto camera = findCamera(m_groot);
         
         SofaGLFWWindow* sofaWindow = new SofaGLFWWindow(glfwWindow, camera);
@@ -165,6 +182,16 @@ void SofaGLFWBaseGUI::destroyWindow()
 {
 }
 
+
+bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
+{
+    if (hasWindow())
+    {
+        glfwWindow = (!glfwWindow) ? m_firstWindow : glfwWindow;
+        return glfwGetWindowMonitor(glfwWindow) != nullptr;
+    }
+    return false;
+}
 
 void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* screenID */)
 {
@@ -248,6 +275,9 @@ void SofaGLFWBaseGUI::runLoop()
             {
                 makeCurrentContext(window.first);
                 window.second->draw(m_groot, m_vparams);
+
+                imgui::imguiDraw(this);
+
                 glfwSwapBuffers(window.first);
             }
         }
@@ -323,6 +353,8 @@ void SofaGLFWBaseGUI::terminate()
     if (!m_bGlfwIsInitialized)
         return;
 
+    imgui::imguiTerminate();
+
     glfwTerminate();
 }
 
@@ -368,6 +400,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
 
 void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    if (!imgui::dispatchMouseEvents())
+        return;
     auto currentSofaWindow = s_mapWindows.find(window);
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
@@ -377,6 +411,8 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
 
 void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    if (!imgui::dispatchMouseEvents())
+        return;
     auto currentSofaWindow = s_mapWindows.find(window);
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
@@ -386,6 +422,8 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
 
 void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    if (!imgui::dispatchMouseEvents())
+        return;
     auto currentSofaWindow = s_mapWindows.find(window);
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {

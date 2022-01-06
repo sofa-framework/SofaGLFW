@@ -105,6 +105,11 @@ void SofaGLFWWindow::setBackgroundColor(const sofa::type::RGBAColor& newColor)
     m_backgroundColor = newColor;
 }
 
+void SofaGLFWWindow::setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera)
+{
+    m_currentCamera = newCamera;
+}
+
 void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos)
 {
     switch (m_currentAction)

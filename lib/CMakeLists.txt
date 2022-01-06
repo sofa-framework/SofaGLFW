@@ -8,6 +8,8 @@ sofa_find_package(Sofa.GL REQUIRED)
 sofa_find_package(SofaBaseVisual REQUIRED)
 sofa_find_package(SofaGuiCommon QUIET)
 
+set(SOFA_BUILD_SOFAGLFWIMGUI ON CACHE BOOL "Build a GUI based on Dear ImGui" FORCE)
+
 include(FetchContent)
 
 FetchContent_Declare(glfw
@@ -30,24 +32,36 @@ endif()
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
 set(HEADER_FILES
+	${SOFAGLFW_SOURCE_DIR}/SofaGLFWImgui.h
+	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
 	${SOFAGLFW_SOURCE_DIR}/config.h.in
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
-	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
 )
 
 set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/initSofaGLFW.cpp
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
 	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
+	${SOFAGLFW_SOURCE_DIR}/SofaGLFWImgui.cpp
 )
+
+if (SOFA_BUILD_SOFAGLFWIMGUI)
+    add_subdirectory(SofaGLFWImgui)
+    list(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/CustomImGuiFileDialogConfig.h)
+    add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG=<SofaGLFW/CustomImGuiFileDialogConfig.h>)
+else()
+    set(SOFAGLFW_HAS_IMGUI_VALUE 0)
+endif()
+
 
 if(SofaGuiCommon_FOUND)
     LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h)
     LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
 endif()
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR} "${glfw_SOURCE_DIR}/include")
 target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL SofaSimulationGraph SofaBaseVisual)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
