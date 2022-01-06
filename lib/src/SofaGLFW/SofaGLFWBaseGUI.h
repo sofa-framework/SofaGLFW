@@ -24,6 +24,7 @@
 #include <sofa/simulation/fwd.h>
 #include <sofa/gl/DrawToolGL.h>
 #include <SofaBaseVisual/BaseCamera.h>
+#include <sofa/simulation/Node.h>
 
 struct GLFWwindow;
 
