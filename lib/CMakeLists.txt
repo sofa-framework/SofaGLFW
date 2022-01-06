@@ -8,7 +8,7 @@ sofa_find_package(Sofa.GL REQUIRED)
 sofa_find_package(SofaBaseVisual REQUIRED)
 sofa_find_package(SofaGuiCommon QUIET)
 
-set(SOFA_BUILD_SOFAGLFWIMGUI OFF CACHE BOOL "Build a GUI based on Dear ImGui" FORCE)
+set(SOFA_BUILD_SOFAGLFWIMGUI OFF CACHE BOOL "Build a GUI based on Dear ImGui")
 
 include(FetchContent)
 
