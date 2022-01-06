@@ -60,7 +60,7 @@ public:
     void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int /* windowID */ = 0);
     void setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */ = 0);
 
-    sofa::simulation::NodeSPtr getRootNode() const { return m_groot; }
+    sofa::core::sptr<sofa::simulation::Node> getRootNode() const;
     bool hasWindow() const { return m_firstWindow != nullptr; }
 
     [[nodiscard]] std::string getFilename() const

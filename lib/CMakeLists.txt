@@ -50,7 +50,7 @@ if (SOFA_BUILD_SOFAGLFWIMGUI)
     list(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/CustomImGuiFileDialogConfig.h)
     add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG=<SofaGLFW/CustomImGuiFileDialogConfig.h>)
 else()
-    set(SOFAGLFW_HAS_IMGUI_VALUE FALSE)
+    set(SOFAGLFW_HAS_IMGUI_VALUE 0)
 endif()
 
 
