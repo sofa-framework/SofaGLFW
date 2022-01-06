@@ -45,6 +45,12 @@ SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
     terminate();
 }
 
+
+sofa::core::sptr<sofa::simulation::Node> SofaGLFWBaseGUI::getRootNode() const
+{
+    return m_groot;
+}
+
 bool SofaGLFWBaseGUI::init()
 {
     if (m_bGlfwIsInitialized)
