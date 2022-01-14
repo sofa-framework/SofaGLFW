@@ -6,8 +6,7 @@ Integration of GLFW is automatic (automatic fetching and integration with CMake)
 
 This GUI is launchable with the standard runSofa (with the parameter "-g glfw"), or can be used with a (provided) stand-alone executable `runSofaGLFW` (which needs much less dependencies than runSofa)
 
-Lastly, this GUI was designed to support multiple windows in the same time and multiple simulations. So when multiple simulations is possible is the future, it should be easy to modify the code to support this feature.
-And multiple windows could be based on the fact having multiple Camera in the scene (feature not implemented yet)
+Lastly, this GUI was designed to support multiple windows in the same time and multiple simulations. 
 
 ### Keyboard Shortcuts
 
