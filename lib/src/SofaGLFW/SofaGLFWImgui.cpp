@@ -275,26 +275,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     }
 
     /***************************************
-     * Controls window
-     **************************************/
-    if (isControlsWindowOpen)
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("Controls", &isControlsWindowOpen))
-        {
-            auto& animate = sofa::helper::getWriteAccessor(groot->animate_).wref();
-            ImGui::Checkbox("Animate", &animate);
-
-            if (ImGui::Button("Reset"))
-            {
-                groot->setTime(0.);
-                simulation::getSimulation()->reset ( groot.get() );
-            }
-        }
-        ImGui::End();
-    }
-
-    /***************************************
      * Performances window
      **************************************/
     if (isPerformancesWindowOpen)
