@@ -293,26 +293,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     }
 
     /***************************************
-     * Controls window
-     **************************************/
-    static bool animate = groot->animate_.getValue();
-    if (isControlsWindowOpen)
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("Controls", &isControlsWindowOpen))
-        {
-            ImGui::Checkbox("Animate", &animate);
-
-            if (ImGui::Button("Reset"))
-            {
-                groot->setTime(0.);
-                simulation::getSimulation()->reset ( groot.get() );
-            }
-        }
-        ImGui::End();
-    }
-
-    /***************************************
      * Performances window
      **************************************/
     if (isPerformancesWindowOpen)
@@ -566,6 +546,30 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                         }
                     }
                 }
+            }
+        }
+        ImGui::End();
+    }
+
+    /***************************************
+     * Controls window
+     **************************************/
+    static bool animate;
+    animate = groot->animate_.getValue();
+    if (isControlsWindowOpen)
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin("Controls", &isControlsWindowOpen))
+        {
+            if (ImGui::Checkbox("Animate", &animate))
+            {
+                sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
+            }
+
+            if (ImGui::Button("Reset"))
+            {
+                groot->setTime(0.);
+                simulation::getSimulation()->reset ( groot.get() );
             }
         }
         ImGui::End();
@@ -1147,7 +1151,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::RenderPlatformWindowsDefault();
     }
 
-    sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
 #endif
 }
 
