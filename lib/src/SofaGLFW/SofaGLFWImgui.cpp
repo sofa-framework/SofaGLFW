@@ -21,6 +21,7 @@
 ******************************************************************************/
 #include <iomanip>
 #include <ostream>
+#include <unordered_set>
 #include <SofaGLFW/SofaGLFWImgui.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
@@ -35,9 +36,12 @@
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/simulation/Simulation.h>
 
+#include <sofa/helper/AdvancedTimer.h>
+
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
+#include <implot.h>
 #include <ImGuiFileDialog.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -59,6 +63,7 @@ void imguiInit()
 #if SOFAGLFW_HAS_IMGUI
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
@@ -140,6 +145,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     static bool isPluginsWindowOpen = false;
     static bool isComponentsWindowOpen = false;
     static bool isLogWindowOpen = true;
+    static bool isProfilerOpen = false;
 
     static bool showFPSInMenuBar = true;
 
@@ -239,6 +245,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         {
             ImGui::Checkbox("Controls", &isControlsWindowOpen);
             ImGui::Checkbox("Performances", &isPerformancesWindowOpen);
+            ImGui::Checkbox("Profiler", &isProfilerOpen);
             ImGui::Checkbox("Scene Graph", &isSceneGraphWindowOpen);
             ImGui::Checkbox("Display Flags", &isDisplayFlagsWindowOpen);
             ImGui::Checkbox("Plugins", &isPluginsWindowOpen);
@@ -288,12 +295,12 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Controls window
      **************************************/
+    static bool animate = groot->animate_.getValue();
     if (isControlsWindowOpen)
     {
         ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
         if (ImGui::Begin("Controls", &isControlsWindowOpen))
         {
-            auto& animate = sofa::helper::getWriteAccessor(groot->animate_).wref();
             ImGui::Checkbox("Animate", &animate);
 
             if (ImGui::Button("Reset"))
@@ -323,6 +330,243 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 msArray.erase(msArray.begin());
             }
             ImGui::PlotLines("Frame Times", msArray.data(), msArray.size(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(0, 100));
+        }
+        ImGui::End();
+    }
+    
+
+    /***************************************
+     * Profiler window
+     **************************************/
+    sofa::helper::AdvancedTimer::setEnabled("Animate", isProfilerOpen);
+    sofa::helper::AdvancedTimer::setInterval("Animate", 1);
+    sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
+    
+    if (isProfilerOpen)
+    {
+        static int selectedFrame = 0;
+
+        if (ImGui::Begin("Profiler", &isProfilerOpen))
+        {
+            const auto convertInMs = [](helper::system::thread::ctime_t t)
+            {
+                static auto timer_freqd = static_cast<SReal>(helper::system::thread::CTime::getTicksPerSec());
+                return 1000.0 * static_cast<SReal>(t) / static_cast<SReal>(timer_freqd);
+            };
+            
+            static std::deque< type::vector<helper::Record> > allRecords;
+            static int bufferSize = 500;
+            ImGui::SliderInt("Buffer size", &bufferSize, 10, 5000);
+            selectedFrame = std::min(selectedFrame, bufferSize - 1);
+
+            static bool showChart = true;
+            ImGui::Checkbox("Show Chart", &showChart);
+
+            if (groot->animate_.getValue())
+            {
+                type::vector<helper::Record> _records = sofa::helper::AdvancedTimer::getRecords("Animate");
+                allRecords.emplace_back(std::move(_records));
+
+                while (allRecords.size() >= bufferSize)
+                {
+                    allRecords.pop_front();
+                }
+            }
+
+            static std::unordered_set<int> selectedTimers;
+
+            struct Chart
+            {
+                std::string label;
+                sofa::type::vector<float> values;
+            };
+
+            sofa::type::vector<float> frameChart;
+            frameChart.reserve(allRecords.size());
+
+            sofa::type::vector<Chart> charts;
+            charts.reserve(selectedTimers.size());
+
+            if (showChart)
+            {
+                for (const auto& records : allRecords)
+                {
+                    if (records.size() >= 2)
+                    {
+                        const auto tMin = records.front().time;
+                        const auto tMax = records.back().time;
+                        const auto frameDuration = convertInMs(tMax - tMin);
+                        frameChart.push_back(frameDuration);
+                    }
+                    else
+                    {
+                        frameChart.push_back(0.);
+                    }
+                }
+
+                for (const auto timerId : selectedTimers)
+                {
+                    Chart chart;
+                    for (const auto& records : allRecords)
+                    {
+                        float value = 0.f;
+                        helper::system::thread::ctime_t t0;
+                        for (const auto& rec : records)
+                        {
+                            if (timerId == rec.id)
+                            {
+                                chart.label = rec.label;
+                                if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
+                                {
+                                    t0 = rec.time;
+                                }
+                                if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
+                                {
+                                    value += convertInMs(rec.time - t0);
+                                }
+                            }
+                        }
+                        chart.values.push_back(value);
+                    }
+                    charts.push_back(chart);
+                }
+
+                static double selectedFrameInChart = selectedFrame;
+                selectedFrameInChart = selectedFrame;
+                if (ImPlot::BeginPlot("##ProfilerChart"))
+                {
+                    static ImPlotAxisFlags xflags = ImPlotAxisFlags_None;
+                    static ImPlotAxisFlags yflags = ImPlotAxisFlags_AutoFit;
+                    ImPlot::SetupAxes("Time Step","Duration (ms)", xflags, yflags);
+                    ImPlot::SetupAxesLimits(0, bufferSize, 0, 10);
+                    if (ImPlot::DragLineX(0, &selectedFrameInChart, IMPLOT_AUTO_COL))
+                    {
+                        selectedFrame = std::round(selectedFrameInChart);
+                    }
+                    ImPlot::PlotLine("Total", frameChart.data(), frameChart.size());
+                    for (const auto& chart : charts)
+                    {
+                        ImPlot::PlotLine(chart.label.c_str(), chart.values.data(), chart.values.size());
+                    }
+                    ImPlot::EndPlot();
+                }
+            }
+
+            ImGui::SliderInt("Frame", &selectedFrame, 0, allRecords.size());
+
+
+            if (selectedFrame >= 0 && selectedFrame < allRecords.size())
+            {
+                const auto records = allRecords[selectedFrame];
+                if (!records.empty())
+                {
+                    auto tStart = records.front().time;
+                    auto tEnd = tStart;
+                    std::unordered_map<unsigned int, SReal> duration;
+                    std::stack<sofa::helper::system::thread::ctime_t> durationStack;
+                    for (const auto& rec : allRecords[selectedFrame])
+                    {
+                        tStart = std::min(tStart, rec.time);
+                        tEnd = std::max(tEnd, rec.time);
+
+                        if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
+                        {
+                            durationStack.push(rec.time);
+                        }
+                        if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
+                        {
+                            const auto t = durationStack.top();
+                            durationStack.pop();
+                            duration[rec.id] = convertInMs(rec.time - t);
+                        }
+                    }
+
+                    const auto frameDuration = convertInMs(tEnd - tStart);
+                    ImGui::Text("Frame duration (ms): %f", frameDuration);
+
+                    const bool expand = ImGui::Button("Expand");
+                    ImGui::SameLine();
+                    const bool collapse = ImGui::Button("Collapse");
+
+                    static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+                    if (ImGui::BeginTable("profilerTable", 4, flags))
+                    {
+                        std::stack<bool> openStack;
+                        
+                        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_NoHide);
+                        ImGui::TableSetupColumn("Percent (%)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
+                        ImGui::TableSetupColumn("Duration (ms)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
+                        ImGui::TableHeadersRow();
+
+                        int node_clicked = -1;
+                        static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+                        for (const auto& rec : records)
+                        {
+                            if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
+                            {
+                                if (openStack.empty() || openStack.top())
+                                {
+                                    ImGuiTreeNodeFlags node_flags = base_flags;
+                                    if (selectedTimers.find(rec.id) != selectedTimers.end())
+                                    {
+                                        node_flags |= ImGuiTreeNodeFlags_Selected;
+                                    }
+
+                                    ImGui::TableNextRow();
+                                    
+                                    ImGui::TableNextColumn();
+                                    if (expand) ImGui::SetNextItemOpen(true);
+                                    if (collapse) ImGui::SetNextItemOpen(false);
+                                    const bool isOpen = ImGui::TreeNodeEx(rec.label.c_str(), node_flags);
+                                    openStack.push(isOpen);
+
+                                    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+                                        node_clicked = rec.id;
+
+                                    const auto& d = (rec.label == "Animate") ? frameDuration : duration[rec.id];
+
+                                    ImVec4 color;
+                                    color.w = 1.f;
+                                    const auto ratio = (rec.label == "Animate") ? 1. : d/frameDuration;
+                                    constexpr auto clamp = [](double d){ return std::max(0., std::min(1., d));};
+                                    ImGui::ColorConvertHSVtoRGB(120./360. * clamp(1.-ratio*10.), 0.72f, 1.f, color.x,color.y, color.z);
+                                    ImGui::TableNextColumn();
+                                    ImGui::TextColored(color, "%.2f", 100 * ratio);
+
+                                    ImGui::TableNextColumn();
+                                    ImGui::TextColored(color, "%f", d);
+                                }
+                                else
+                                {
+                                    openStack.push(false);
+                                }
+                            }
+                            if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
+                            {
+                                if (openStack.top())
+                                {
+                                    ImGui::TreePop();
+                                }
+                                openStack.pop();
+                            }
+                        }
+                        ImGui::EndTable();
+
+                        if (node_clicked != -1)
+                        {
+                            auto it = selectedTimers.find(node_clicked);
+                            if (it == selectedTimers.end())
+                            {
+                                selectedTimers.insert(node_clicked);
+                            }
+                            else
+                            {
+                                selectedTimers.erase(it);
+                            }
+                        }
+                    }
+                }
+            }
         }
         ImGui::End();
     }
@@ -902,6 +1146,8 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
+
+    sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
 #endif
 }
 
@@ -910,6 +1156,7 @@ void imguiTerminate()
 #if SOFAGLFW_HAS_IMGUI
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 #endif
 }
