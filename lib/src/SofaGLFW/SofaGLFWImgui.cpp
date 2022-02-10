@@ -42,7 +42,6 @@
 #include <imgui.h>
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <implot.h>
-#include <ImGuiFileDialog.h>
 #include <nfd.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -275,34 +274,25 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::EndMainMenuBar();
     }
 
-    // if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-    // {
-    //     if (ImGuiFileDialog::Instance()->IsOk())
-    //     {
-    //         const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-    //
-    //         if (helper::system::FileSystem::exists(filePathName))
-    //         {
-    //             sofa::simulation::getSimulation()->unload(groot);
-    //
-    //             groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
-    //             if( !groot )
-    //                 groot = sofa::simulation::getSimulation()->createNewGraph("");
-    //             baseGUI->setSimulation(groot, filePathName);
-    //
-    //             sofa::simulation::getSimulation()->init(groot.get());
-    //             auto camera = baseGUI->findCamera(groot);
-    //             if (camera)
-    //             {
-    //                 camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
-    //                 baseGUI->changeCamera(camera);
-    //             }
-    //             baseGUI->initVisual();
-    //         }
-    //     }
-    //     ImGuiFileDialog::Instance()->Close();
-    //     return;
-    // }
+    /***************************************
+     * Controls window
+     **************************************/
+    if (isControlsWindowOpen)
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin("Controls", &isControlsWindowOpen))
+        {
+            auto& animate = sofa::helper::getWriteAccessor(groot->animate_).wref();
+            ImGui::Checkbox("Animate", &animate);
+
+            if (ImGui::Button("Reset"))
+            {
+                groot->setTime(0.);
+                simulation::getSimulation()->reset ( groot.get() );
+            }
+        }
+        ImGui::End();
+    }
 
     /***************************************
      * Performances window

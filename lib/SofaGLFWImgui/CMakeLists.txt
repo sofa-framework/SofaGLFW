@@ -9,12 +9,6 @@ FetchContent_Declare(imgui
 )
 FetchContent_MakeAvailable(imgui)
 
-FetchContent_Declare(ImGuiFileDialog
-        GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
-        GIT_TAG        9be0b2cfc57a415b7d46b33f02cd04d512bb9c69
-)
-FetchContent_MakeAvailable(ImGuiFileDialog)
-
 FetchContent_Declare(nfd
         GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
 )
@@ -32,8 +26,6 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imconfig.h
     ${imgui_SOURCE_DIR}/imgui.h
     ${imgui_SOURCE_DIR}/imgui_internal.h
-    ${imguifiledialog_SOURCE_DIR}/ImGuiFileDialog.h
-    ${imguifiledialog_SOURCE_DIR}/ImGuiFileDialogConfig.h
     ${implot_SOURCE_DIR}/implot.h
     ${implot_SOURCE_DIR}/implot_internal.h
     PARENT_SCOPE
@@ -46,10 +38,9 @@ set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/imgui_draw.cpp
     ${imgui_SOURCE_DIR}/imgui_tables.cpp
     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-    ${imguifiledialog_SOURCE_DIR}/ImGuiFileDialog.cpp
     ${implot_SOURCE_DIR}/implot.cpp
     ${implot_SOURCE_DIR}/implot_items.cpp
     PARENT_SCOPE
 )
-set(IMGUI_SOURCE_DIR ${imgui_SOURCE_DIR} ${imguifiledialog_SOURCE_DIR} ${implot_SOURCE_DIR} PARENT_SCOPE)
+set(IMGUI_SOURCE_DIR ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} PARENT_SCOPE)
 set(SOFAGLFW_HAS_IMGUI_VALUE 1 PARENT_SCOPE)
