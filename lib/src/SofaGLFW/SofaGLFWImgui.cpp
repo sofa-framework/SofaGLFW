@@ -43,6 +43,7 @@
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <implot.h>
 #include <ImGuiFileDialog.h>
+#include <nfd.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -64,6 +65,7 @@ void imguiInit()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImPlot::CreateContext();
+    NFD_Init();
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
@@ -163,6 +165,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 std::string filter;
                 std::string allTypesSpace, allTypesComa;
                 simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
+                std::vector<nfdfilteritem_t> nfd_filters = { { "XML", "scn" } };
                 for (auto it=loaders->begin(); it!=loaders->end(); ++it)
                 {
                     filter += (*it)->getFileTypeDesc();
@@ -201,7 +204,30 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 
                 filter = "All (" + allTypesSpace + "){" + allTypesComa + "}," + filter + ",.*";
 
-                ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", filter.c_str(), baseGUI->getFilename());
+                nfdchar_t *outPath;
+                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
+                if (result == NFD_OKAY)
+                {
+                    if (helper::system::FileSystem::exists(outPath))
+                    {
+                        sofa::simulation::getSimulation()->unload(groot);
+
+                        groot = sofa::simulation::getSimulation()->load(outPath);
+                        if( !groot )
+                            groot = sofa::simulation::getSimulation()->createNewGraph("");
+                        baseGUI->setSimulation(groot, outPath);
+
+                        sofa::simulation::getSimulation()->init(groot.get());
+                        auto camera = baseGUI->findCamera(groot);
+                        if (camera)
+                        {
+                            camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+                            baseGUI->changeCamera(camera);
+                        }
+                        baseGUI->initVisual();
+                    }
+                    NFD_FreePath(outPath);
+                }
             }
             if (ImGui::MenuItem("Close Simulation"))
             {
@@ -263,34 +289,34 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::EndMainMenuBar();
     }
 
-    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-    {
-        if (ImGuiFileDialog::Instance()->IsOk())
-        {
-            const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-
-            if (helper::system::FileSystem::exists(filePathName))
-            {
-                sofa::simulation::getSimulation()->unload(groot);
-
-                groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
-                if( !groot )
-                    groot = sofa::simulation::getSimulation()->createNewGraph("");
-                baseGUI->setSimulation(groot, filePathName);
-
-                sofa::simulation::getSimulation()->init(groot.get());
-                auto camera = baseGUI->findCamera(groot);
-                if (camera)
-                {
-                    camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
-                    baseGUI->changeCamera(camera);
-                }
-                baseGUI->initVisual();
-            }
-        }
-        ImGuiFileDialog::Instance()->Close();
-        return;
-    }
+    // if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+    // {
+    //     if (ImGuiFileDialog::Instance()->IsOk())
+    //     {
+    //         const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+    //
+    //         if (helper::system::FileSystem::exists(filePathName))
+    //         {
+    //             sofa::simulation::getSimulation()->unload(groot);
+    //
+    //             groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
+    //             if( !groot )
+    //                 groot = sofa::simulation::getSimulation()->createNewGraph("");
+    //             baseGUI->setSimulation(groot, filePathName);
+    //
+    //             sofa::simulation::getSimulation()->init(groot.get());
+    //             auto camera = baseGUI->findCamera(groot);
+    //             if (camera)
+    //             {
+    //                 camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+    //                 baseGUI->changeCamera(camera);
+    //             }
+    //             baseGUI->initVisual();
+    //         }
+    //     }
+    //     ImGuiFileDialog::Instance()->Close();
+    //     return;
+    // }
 
     /***************************************
      * Performances window
@@ -313,7 +339,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         }
         ImGui::End();
     }
-    
+
 
     /***************************************
      * Profiler window
@@ -321,7 +347,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     sofa::helper::AdvancedTimer::setEnabled("Animate", isProfilerOpen);
     sofa::helper::AdvancedTimer::setInterval("Animate", 1);
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
-    
+
     if (isProfilerOpen)
     {
         static int selectedFrame = 0;
@@ -333,7 +359,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 static auto timer_freqd = static_cast<SReal>(helper::system::thread::CTime::getTicksPerSec());
                 return 1000.0 * static_cast<SReal>(t) / static_cast<SReal>(timer_freqd);
             };
-            
+
             static std::deque< type::vector<helper::Record> > allRecords;
             static int bufferSize = 500;
             ImGui::SliderInt("Buffer size", &bufferSize, 10, 5000);
@@ -472,7 +498,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     if (ImGui::BeginTable("profilerTable", 4, flags))
                     {
                         std::stack<bool> openStack;
-                        
+
                         ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_NoHide);
                         ImGui::TableSetupColumn("Percent (%)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
                         ImGui::TableSetupColumn("Duration (ms)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
@@ -493,7 +519,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                                     }
 
                                     ImGui::TableNextRow();
-                                    
+
                                     ImGui::TableNextColumn();
                                     if (expand) ImGui::SetNextItemOpen(true);
                                     if (collapse) ImGui::SetNextItemOpen(false);
@@ -1157,6 +1183,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 void imguiTerminate()
 {
 #if SOFAGLFW_HAS_IMGUI
+    NFD_Quit();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImPlot::DestroyContext();

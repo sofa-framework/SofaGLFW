@@ -15,6 +15,11 @@ FetchContent_Declare(ImGuiFileDialog
 )
 FetchContent_MakeAvailable(ImGuiFileDialog)
 
+FetchContent_Declare(nfd
+        GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
+)
+FetchContent_MakeAvailable(nfd)
+
 FetchContent_Declare(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
         GIT_TAG        b47c8bacdbc78bc521691f70666f13924bb522ab
