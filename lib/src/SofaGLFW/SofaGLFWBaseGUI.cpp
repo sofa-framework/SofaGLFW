@@ -269,16 +269,26 @@ void SofaGLFWBaseGUI::runLoop()
         // Keep running
         runStep();
 
-        for (auto& window : s_mapWindows)
+        for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
         {
-            if (window.second)
+            if (sofaGlfwWindow)
             {
-                makeCurrentContext(window.first);
-                window.second->draw(m_groot, m_vparams);
+                // while user did not request to close this window (i.e press escape), draw
+                if (!glfwWindowShouldClose(glfwWindow))
+                {
+                    makeCurrentContext(glfwWindow);
+                    sofaGlfwWindow->draw(m_groot, m_vparams);
 
-                imgui::imguiDraw(this);
+                    imgui::imguiDraw(this);
 
-                glfwSwapBuffers(window.first);
+                    glfwSwapBuffers(glfwWindow);
+
+                }
+                else
+                {
+                    // otherwise close this window
+                    close_callback(glfwWindow);
+                }
             }
         }
 
