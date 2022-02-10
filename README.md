@@ -38,13 +38,16 @@ The GUI is based on dockable windows.
 Each window gathers related features.
 Here are all the available windows:
 
-* __Controls__: play/pause the simulation, reset the simulation
-* __Performances__: display metrics related to performances: ms/frame, FPS, graph
-* __Scene Graph__: show the scene graph and the Data associated to each components
-* __Display Flags__: filter which components are rendered in the 3D view
-* __Plugin__: show a list of plugins currently loaded
-* __Components__: show a detailed list of components currently loaded
-* __Log__: all the messages sent by SOFA
+| Window            | Description                                                                      |
+|-------------------|----------------------------------------------------------------------------------|
+| __Controls__      | play/pause the simulation, reset the simulation                                  |
+| __Performances__  | display simple metrics related to application performances: ms/frame, FPS, graph |
+| __Profiler__      | display detailed metrics related to the physics loop performances                |
+| __Scene Graph__   | show the scene graph and the Data associated to each components                  |
+| __Display Flags__ | filter which components are rendered in the 3D view                              |
+| __Plugin__        | show a list of plugins currently loaded                                          |
+| __Components__    | show a detailed list of components currently loaded                              |
+| __Log__           | all the messages sent by SOFA                                                    |
 
 ### Screenshots
 
