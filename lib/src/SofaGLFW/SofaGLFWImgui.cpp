@@ -162,50 +162,36 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         {
             if (ImGui::MenuItem("Open Simulation"))
             {
-                std::string filter;
-                std::string allTypesSpace, allTypesComa;
                 simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
-                std::vector<nfdfilteritem_t> nfd_filters = { { "XML", "scn" } };
+                std::vector<std::pair<std::string, std::string> > nfd_filters;
+                nfd_filters.reserve(loaders->size());
                 for (auto it=loaders->begin(); it!=loaders->end(); ++it)
                 {
-                    filter += (*it)->getFileTypeDesc();
-                    filter += " (";
+                    const auto filterName = (*it)->getFileTypeDesc();
+
                     sofa::simulation::SceneLoader::ExtensionList extensions;
                     (*it)->getExtensionList(&extensions);
+                    std::string extensionsString;
                     for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
                     {
-                        filter += "*." + *itExt;
-                        allTypesSpace += "*." + *itExt;
+                        extensionsString += *itExt;
+                        std::cout << *itExt << std::endl;
                         if (itExt != extensions.end() - 1)
                         {
-                            filter += " ";
-                            allTypesSpace += " ";
+                            extensionsString += ",";
                         }
-                    }
-                    filter+=")";
-                    filter+="{";
-                    for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
-                    {
-                        filter += "." + *itExt;
-                        allTypesComa += "." + *itExt;
-                        if (itExt != extensions.end() - 1)
-                        {
-                            filter += ",";
-                            allTypesComa += ",";
-                        }
-                    }
-                    filter+="}";
-                    if (it!=loaders->end() - 1)
-                    {
-                        filter+=",";
                     }
 
+                    nfd_filters.emplace_back(filterName, extensionsString);
+                }
+                std::vector<nfdfilteritem_t> filters;
+                for (auto& f : nfd_filters)
+                {
+                    filters.push_back({f.first.c_str(), f.second.c_str()});
                 }
 
-                filter = "All (" + allTypesSpace + "){" + allTypesComa + "}," + filter + ",.*";
-
                 nfdchar_t *outPath;
-                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
+                nfdresult_t result = NFD_OpenDialog(&outPath, filters.data(), filters.size(), NULL);
                 if (result == NFD_OKAY)
                 {
                     if (helper::system::FileSystem::exists(outPath))
