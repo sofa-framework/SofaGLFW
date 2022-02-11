@@ -44,6 +44,7 @@ public:
     void setBackgroundColor(const sofa::type::RGBAColor& newColor);
 
     void setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
+    void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
 
 private:
     GLFWwindow* m_glfwWindow{nullptr};

@@ -233,9 +233,13 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 groot->get(camera);
                 if (camera)
                 {
-                    if( groot->f_bbox.getValue().isValid() && !groot->f_bbox.getValue().isFlat() )
+                    if( groot->f_bbox.getValue().isValid())
                     {
                         camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+                    }
+                    else
+                    {
+                        msg_error_when(!groot->f_bbox.getValue().isValid(), "GUI") << "Global bounding box is invalid: " << groot->f_bbox.getValue();
                     }
                 }
             }
@@ -282,7 +286,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 auto camera = baseGUI->findCamera(groot);
                 if (camera)
                 {
-                    camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
                     baseGUI->changeCamera(camera);
                 }
                 baseGUI->initVisual();
