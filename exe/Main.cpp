@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
 
-    glfwGUI.setSimulation(groot);
+    glfwGUI.setSimulation(groot, fileName);
 
     bool isFullScreen = result["fullscreen"].as<bool>();
     sofa::type::Vec2i resolution{ 800, 600};

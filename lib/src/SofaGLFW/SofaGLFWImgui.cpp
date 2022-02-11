@@ -87,6 +87,27 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
 #endif
 }
 
+#if SOFAGLFW_HAS_IMGUI
+void loadFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
+{
+    sofa::simulation::getSimulation()->unload(groot);
+
+    groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
+    if( !groot )
+        groot = sofa::simulation::getSimulation()->createNewGraph("");
+    baseGUI->setSimulation(groot, filePathName);
+
+    sofa::simulation::getSimulation()->init(groot.get());
+    auto camera = baseGUI->findCamera(groot);
+    if (camera)
+    {
+        camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+        baseGUI->changeCamera(camera);
+    }
+    baseGUI->initVisual();
+}
+#endif
+
 void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
@@ -203,6 +224,23 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 
                 ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", filter.c_str(), baseGUI->getFilename());
             }
+
+            const auto filename = baseGUI->getFilename();
+            if (ImGui::MenuItem("Reload File"))
+            {
+                if (!filename.empty() && helper::system::FileSystem::exists(filename))
+                {
+                    msg_info("GUI") << "Reloading file " << filename;
+                    loadFile(baseGUI, groot, filename);
+                }
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextDisabled(filename.c_str());
+                ImGui::EndTooltip();
+            }
+
             if (ImGui::MenuItem("Close Simulation"))
             {
                 sofa::simulation::getSimulation()->unload(groot);
@@ -271,21 +309,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 
             if (helper::system::FileSystem::exists(filePathName))
             {
-                sofa::simulation::getSimulation()->unload(groot);
-
-                groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
-                if( !groot )
-                    groot = sofa::simulation::getSimulation()->createNewGraph("");
-                baseGUI->setSimulation(groot, filePathName);
-
-                sofa::simulation::getSimulation()->init(groot.get());
-                auto camera = baseGUI->findCamera(groot);
-                if (camera)
-                {
-                    camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
-                    baseGUI->changeCamera(camera);
-                }
-                baseGUI->initVisual();
+                loadFile(baseGUI, groot, filePathName);
             }
         }
         ImGuiFileDialog::Instance()->Close();
