@@ -162,8 +162,9 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
             if (ImGui::MenuItem("Open Simulation"))
             {
                 simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
-                std::vector<std::pair<std::string, std::string> > nfd_filters;
-                nfd_filters.reserve(loaders->size());
+                std::vector<std::pair<std::string, std::string> > filterList;
+                filterList.reserve(loaders->size());
+                std::pair<std::string, std::string> allFilters {"SOFA files", {} };
                 for (auto it=loaders->begin(); it!=loaders->end(); ++it)
                 {
                     const auto filterName = (*it)->getFileTypeDesc();
@@ -181,16 +182,24 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                         }
                     }
 
-                    nfd_filters.emplace_back(filterName, extensionsString);
+                    filterList.emplace_back(filterName, extensionsString);
+
+                    allFilters.second += extensionsString;
+                    if (it != loaders->end()-1)
+                    {
+                        allFilters.second += ",";
+                    }
                 }
-                std::vector<nfdfilteritem_t> filters;
-                for (auto& f : nfd_filters)
+                std::vector<nfdfilteritem_t> nfd_filters;
+                nfd_filters.reserve(filterList.size() + 1);
+                for (auto& f : filterList)
                 {
-                    filters.push_back({f.first.c_str(), f.second.c_str()});
+                    nfd_filters.push_back({f.first.c_str(), f.second.c_str()});
                 }
+                nfd_filters.insert(nfd_filters.begin(), {allFilters.first.c_str(), allFilters.second.c_str()});
 
                 nfdchar_t *outPath;
-                nfdresult_t result = NFD_OpenDialog(&outPath, filters.data(), filters.size(), NULL);
+                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
                 if (result == NFD_OKAY)
                 {
                     if (helper::system::FileSystem::exists(outPath))
