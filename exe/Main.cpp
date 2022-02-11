@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     std::string fileName ;
     bool        startAnim = false;
 
-    cxxopts::Options options("MyProgram", "One line description of MyProgram");
+    cxxopts::Options options("SofaGLFW", "A simple GUI based on GLFW for SOFA");
     options.add_options()
         ("f,file", "scene filename", cxxopts::value<std::string>()->default_value("Demos/caduceus.scn"))
         ("a,start", "start the animation loop", cxxopts::value<bool>()->default_value("true"))
