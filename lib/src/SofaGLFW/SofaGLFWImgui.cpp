@@ -566,6 +566,33 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
             }
 
+            //Step button
+            {
+                const bool isAnimate = groot->getAnimate();
+                if (isAnimate)
+                {
+                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                }
+                if (ImGui::Button("Step"))
+                {
+                    if (!isAnimate)
+                    {
+                        sofa::helper::AdvancedTimer::begin("Animate");
+
+                        simulation::getSimulation()->animate(groot.get(), groot->getDt());
+                        simulation::getSimulation()->updateVisual(groot.get());
+
+                        sofa::helper::AdvancedTimer::end("Animate");
+                    }
+                }
+                if (isAnimate)
+                {
+                    ImGui::PopItemFlag();
+                    ImGui::PopStyleVar();
+                }
+            }
+
             if (ImGui::Button("Reset"))
             {
                 groot->setTime(0.);
