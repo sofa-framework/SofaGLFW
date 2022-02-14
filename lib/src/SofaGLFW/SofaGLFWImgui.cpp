@@ -253,9 +253,13 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 groot->get(camera);
                 if (camera)
                 {
-                    if( groot->f_bbox.getValue().isValid() && !groot->f_bbox.getValue().isFlat() )
+                    if( groot->f_bbox.getValue().isValid())
                     {
                         camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+                    }
+                    else
+                    {
+                        msg_error_when(!groot->f_bbox.getValue().isValid(), "GUI") << "Global bounding box is invalid: " << groot->f_bbox.getValue();
                     }
                 }
             }
@@ -281,6 +285,34 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
+    }
+
+    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+    {
+        if (ImGuiFileDialog::Instance()->IsOk())
+        {
+            const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+
+            if (helper::system::FileSystem::exists(filePathName))
+            {
+                sofa::simulation::getSimulation()->unload(groot);
+
+                groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
+                if( !groot )
+                    groot = sofa::simulation::getSimulation()->createNewGraph("");
+                baseGUI->setSimulation(groot, filePathName);
+
+                sofa::simulation::getSimulation()->init(groot.get());
+                auto camera = baseGUI->findCamera(groot);
+                if (camera)
+                {
+                    baseGUI->changeCamera(camera);
+                }
+                baseGUI->initVisual();
+            }
+        }
+        ImGuiFileDialog::Instance()->Close();
+        return;
     }
 
     /***************************************
