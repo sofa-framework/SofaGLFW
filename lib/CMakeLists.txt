@@ -65,6 +65,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR} "${glfw_S
 target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL SofaSimulationGraph SofaBaseVisual)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
+if (SOFAGLFW_HAS_IMGUI_VALUE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE nfd)
+endif()
+
 if(SofaGuiCommon_FOUND)
     target_link_libraries(${PROJECT_NAME} PUBLIC SofaGuiCommon)
 endif()
