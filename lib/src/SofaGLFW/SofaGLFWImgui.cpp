@@ -88,6 +88,27 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
 #endif
 }
 
+#if SOFAGLFW_HAS_IMGUI
+void loadFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
+{
+    sofa::simulation::getSimulation()->unload(groot);
+
+    groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
+    if( !groot )
+        groot = sofa::simulation::getSimulation()->createNewGraph("");
+    baseGUI->setSimulation(groot, filePathName);
+
+    sofa::simulation::getSimulation()->init(groot.get());
+    auto camera = baseGUI->findCamera(groot);
+    if (camera)
+    {
+        camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+        baseGUI->changeCamera(camera);
+    }
+    baseGUI->initVisual();
+}
+#endif
+
 void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
@@ -223,6 +244,23 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     NFD_FreePath(outPath);
                 }
             }
+
+            const auto filename = baseGUI->getFilename();
+            if (ImGui::MenuItem("Reload File"))
+            {
+                if (!filename.empty() && helper::system::FileSystem::exists(filename))
+                {
+                    msg_info("GUI") << "Reloading file " << filename;
+                    loadFile(baseGUI, groot, filename);
+                }
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextDisabled(filename.c_str());
+                ImGui::EndTooltip();
+            }
+
             if (ImGui::MenuItem("Close Simulation"))
             {
                 sofa::simulation::getSimulation()->unload(groot);
@@ -285,34 +323,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
-    }
-
-    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-    {
-        if (ImGuiFileDialog::Instance()->IsOk())
-        {
-            const std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-
-            if (helper::system::FileSystem::exists(filePathName))
-            {
-                sofa::simulation::getSimulation()->unload(groot);
-
-                groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
-                if( !groot )
-                    groot = sofa::simulation::getSimulation()->createNewGraph("");
-                baseGUI->setSimulation(groot, filePathName);
-
-                sofa::simulation::getSimulation()->init(groot.get());
-                auto camera = baseGUI->findCamera(groot);
-                if (camera)
-                {
-                    baseGUI->changeCamera(camera);
-                }
-                baseGUI->initVisual();
-            }
-        }
-        ImGuiFileDialog::Instance()->Close();
-        return;
     }
 
     /***************************************
@@ -587,6 +597,33 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
             if (ImGui::Checkbox("Animate", &animate))
             {
                 sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
+            }
+
+            //Step button
+            {
+                const bool isAnimate = groot->getAnimate();
+                if (isAnimate)
+                {
+                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                }
+                if (ImGui::Button("Step"))
+                {
+                    if (!isAnimate)
+                    {
+                        sofa::helper::AdvancedTimer::begin("Animate");
+
+                        simulation::getSimulation()->animate(groot.get(), groot->getDt());
+                        simulation::getSimulation()->updateVisual(groot.get());
+
+                        sofa::helper::AdvancedTimer::end("Animate");
+                    }
+                }
+                if (isAnimate)
+                {
+                    ImGui::PopItemFlag();
+                    ImGui::PopStyleVar();
+                }
             }
 
             if (ImGui::Button("Reset"))
