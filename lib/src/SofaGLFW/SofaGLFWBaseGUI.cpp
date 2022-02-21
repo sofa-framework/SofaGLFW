@@ -343,6 +343,12 @@ void SofaGLFWBaseGUI::initVisual()
     glShadeModel(GL_SMOOTH);
 
     glEnable(GL_LIGHT0);
+
+    m_vparams = sofa::core::visual::VisualParams::defaultInstance();
+    for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
+    {
+        sofaGlfwWindow->centerCamera(m_groot, m_vparams);
+    }
 }
 
 void SofaGLFWBaseGUI::runStep()

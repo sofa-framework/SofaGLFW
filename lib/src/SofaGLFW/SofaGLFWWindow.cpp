@@ -110,6 +110,27 @@ void SofaGLFWWindow::setCamera(sofa::component::visualmodel::BaseCamera::SPtr ne
     m_currentCamera = newCamera;
 }
 
+void SofaGLFWWindow::centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const
+{
+    if (m_currentCamera)
+    {
+        int width, height;
+        glfwGetFramebufferSize(m_glfwWindow, &width, &height);
+        if (node->f_bbox.getValue().isValid())
+        {
+            vparams->sceneBBox() = node->f_bbox.getValue();
+            m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
+        }
+
+        // Update the visual params
+        vparams->viewport() = { 0, 0, width, height };
+        vparams->zNear() = m_currentCamera->getZNear();
+        vparams->zFar() = m_currentCamera->getZFar();
+
+        m_currentCamera->fitBoundingBox(node->f_bbox.getValue().minBBox(), node->f_bbox.getValue().maxBBox());
+    }
+}
+
 void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos)
 {
     switch (m_currentAction)
