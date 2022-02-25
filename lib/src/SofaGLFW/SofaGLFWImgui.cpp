@@ -653,6 +653,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Scene graph window
      **************************************/
+    static std::set<core::objectmodel::Base*> openedComponents;
     if (isSceneGraphWindowOpen)
     {
         if (ImGui::Begin("Scene Graph", &isSceneGraphWindowOpen))
@@ -687,7 +688,17 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                         ImGui::TableNextColumn();
                         ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
                         if (ImGui::IsItemClicked())
-                            clickedObject = object;
+                        {
+                            if (ImGui::IsMouseDoubleClicked(0))
+                            {
+                                openedComponents.insert(object);
+                                clickedObject = nullptr;
+                            }
+                            else
+                            {
+                                clickedObject = object;
+                            }
+                        }
                         ImGui::TableNextColumn();
                         ImGui::Text(object->getClassName().c_str());
                     }
@@ -723,7 +734,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     {
                         groupMap[data->getGroup()].push_back(data);
                     }
-                    for (const auto [group, datas] : groupMap)
+                    for (const auto& [group, datas] : groupMap)
                     {
                         const auto groupName = group.empty() ? "Property" : group;
                         ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
@@ -783,6 +794,88 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::End();
     }
 
+    sofa::type::vector<core::objectmodel::Base*> toRemove;
+    for (auto* component : openedComponents)
+    {
+        bool isOpen = true;
+        if (ImGui::Begin((component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
+        {
+            std::map<std::string, std::vector<const core::BaseData*> > groupMap;
+            for (const auto* data : component->getDataFields())
+            {
+                groupMap[data->getGroup()].push_back(data);
+            }
+            if (ImGui::BeginTabBar(("##tabs"+component->getName()).c_str(), ImGuiTabBarFlags_None))
+            {
+                for (const auto& [group, datas] : groupMap)
+                {
+                    const auto groupName = group.empty() ? "Property" : group;
+                    // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+                    if (ImGui::BeginTabItem(groupName.c_str()))
+                    {
+                        for (const auto& data : datas)
+                        {
+                            const bool isOpenData = ImGui::CollapsingHeader(data->m_name.c_str());
+                            if (ImGui::IsItemHovered())
+                            {
+                                ImGui::BeginTooltip();
+                                ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::EndTooltip();
+                            }
+                            if (isOpenData)
+                            {
+                                ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::TextWrapped(data->getValueString().c_str());
+                            }
+                        }
+                        ImGui::EndTabItem();
+                    }
+                }
+                // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+                if (ImGui::BeginTabItem("Links"))
+                {
+                    ImGui::Indent();
+                    for (const auto* link : component->getLinks())
+                    {
+                        const auto linkValue = link->getValueString();
+                        const auto linkTitle = link->getName();
+
+                        const bool isOpenData = ImGui::CollapsingHeader(linkTitle.c_str());
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::BeginTooltip();
+                            ImGui::TextDisabled(link->getHelp().c_str());
+                            ImGui::EndTooltip();
+                        }
+                        if (isOpenData)
+                        {
+                            ImGui::TextDisabled(link->getHelp().c_str());
+                            ImGui::TextWrapped(linkValue.c_str());
+                        }
+                    }
+                    ImGui::EndTabItem();
+                }
+
+                ImGui::EndTabBar();
+            }
+        }
+        ImGui::End();
+        if (!isOpen)
+        {
+            toRemove.push_back(component);
+        }
+    }
+    while(!toRemove.empty())
+    {
+        auto it = openedComponents.find(toRemove.back());
+        if (it != openedComponents.end())
+        {
+            openedComponents.erase(it);
+        }
+        toRemove.pop_back();
+    }
+
+
     /***************************************
      * Display flags window
      **************************************/
@@ -790,7 +883,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     {
         if (ImGui::Begin("Display Flags", &isDisplayFlagsWindowOpen))
         {
-
             component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
             groot->get(visualStyle);
             if (visualStyle)
