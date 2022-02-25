@@ -37,6 +37,7 @@
 #include <sofa/simulation/Simulation.h>
 
 #include <sofa/helper/AdvancedTimer.h>
+#include "GLFW/glfw3.h"
 
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
@@ -85,6 +86,20 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
     ImGui_ImplOpenGL3_Init(nullptr);
+
+    GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+    if (!monitor)
+    {
+        monitor = glfwGetPrimaryMonitor();
+    }
+    if (monitor)
+    {
+        float xscale, yscale;
+        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.FontGlobalScale = yscale;
+    }
 #endif
 }
 
