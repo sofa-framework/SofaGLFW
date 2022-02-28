@@ -37,6 +37,7 @@
 #include <sofa/simulation/Simulation.h>
 
 #include <sofa/helper/AdvancedTimer.h>
+#include "GLFW/glfw3.h"
 
 #if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
@@ -75,7 +76,86 @@ void imguiInit()
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
+    ImVec4* colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_PopupBg]                = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
+    colors[ImGuiCol_Border]                 = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
+    colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.24f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.19f, 0.19f, 0.19f, 0.54f);
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
+    colors[ImGuiCol_TitleBg]                = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
+    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
+    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.40f, 0.40f, 0.40f, 0.54f);
+    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
+    colors[ImGuiCol_CheckMark]              = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+    colors[ImGuiCol_SliderGrab]             = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
+    colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
+    colors[ImGuiCol_Button]                 = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.19f, 0.19f, 0.19f, 0.54f);
+    colors[ImGuiCol_ButtonActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
+    colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
+    colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
+    colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
+    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
+    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]             = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
+    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
+    colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
+    colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+    colors[ImGuiCol_TabHovered]             = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[ImGuiCol_TabActive]              = ImVec4(0.20f, 0.20f, 0.20f, 0.36f);
+    colors[ImGuiCol_TabUnfocused]           = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[ImGuiCol_DockingPreview]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+    colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+    colors[ImGuiCol_TableBorderLight]       = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
+    colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+    colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
+    colors[ImGuiCol_DragDropTarget]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+    colors[ImGuiCol_NavHighlight]           = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
+    colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
+    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowPadding                     = ImVec2(8.00f, 8.00f);
+    style.FramePadding                      = ImVec2(5.00f, 2.00f);
+    style.CellPadding                       = ImVec2(6.00f, 6.00f);
+    style.ItemSpacing                       = ImVec2(6.00f, 6.00f);
+    style.ItemInnerSpacing                  = ImVec2(6.00f, 6.00f);
+    style.TouchExtraPadding                 = ImVec2(0.00f, 0.00f);
+    style.IndentSpacing                     = 25;
+    style.ScrollbarSize                     = 15;
+    style.GrabMinSize                       = 10;
+    style.WindowBorderSize                  = 1;
+    style.ChildBorderSize                   = 1;
+    style.PopupBorderSize                   = 1;
+    style.FrameBorderSize                   = 1;
+    style.TabBorderSize                     = 1;
+    style.WindowRounding                    = 7;
+    style.ChildRounding                     = 4;
+    style.FrameRounding                     = 3;
+    style.PopupRounding                     = 4;
+    style.ScrollbarRounding                 = 9;
+    style.GrabRounding                      = 3;
+    style.LogSliderDeadzone                 = 4;
+    style.TabRounding                       = 4;
 #endif
 }
 
@@ -85,6 +165,20 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
     ImGui_ImplOpenGL3_Init(nullptr);
+
+    GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
+    if (!monitor)
+    {
+        monitor = glfwGetPrimaryMonitor();
+    }
+    if (monitor)
+    {
+        float xscale, yscale;
+        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.FontGlobalScale = yscale;
+    }
 #endif
 }
 
@@ -638,6 +732,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Scene graph window
      **************************************/
+    static std::set<core::objectmodel::Base*> openedComponents;
     if (isSceneGraphWindowOpen)
     {
         if (ImGui::Begin("Scene Graph", &isSceneGraphWindowOpen))
@@ -672,7 +767,17 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                         ImGui::TableNextColumn();
                         ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
                         if (ImGui::IsItemClicked())
-                            clickedObject = object;
+                        {
+                            if (ImGui::IsMouseDoubleClicked(0))
+                            {
+                                openedComponents.insert(object);
+                                clickedObject = nullptr;
+                            }
+                            else
+                            {
+                                clickedObject = object;
+                            }
+                        }
                         ImGui::TableNextColumn();
                         ImGui::Text(object->getClassName().c_str());
                     }
@@ -708,7 +813,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     {
                         groupMap[data->getGroup()].push_back(data);
                     }
-                    for (const auto [group, datas] : groupMap)
+                    for (const auto& [group, datas] : groupMap)
                     {
                         const auto groupName = group.empty() ? "Property" : group;
                         ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
@@ -768,6 +873,88 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::End();
     }
 
+    sofa::type::vector<core::objectmodel::Base*> toRemove;
+    for (auto* component : openedComponents)
+    {
+        bool isOpen = true;
+        if (ImGui::Begin((component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
+        {
+            std::map<std::string, std::vector<const core::BaseData*> > groupMap;
+            for (const auto* data : component->getDataFields())
+            {
+                groupMap[data->getGroup()].push_back(data);
+            }
+            if (ImGui::BeginTabBar(("##tabs"+component->getName()).c_str(), ImGuiTabBarFlags_None))
+            {
+                for (const auto& [group, datas] : groupMap)
+                {
+                    const auto groupName = group.empty() ? "Property" : group;
+                    // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+                    if (ImGui::BeginTabItem(groupName.c_str()))
+                    {
+                        for (const auto& data : datas)
+                        {
+                            const bool isOpenData = ImGui::CollapsingHeader(data->m_name.c_str());
+                            if (ImGui::IsItemHovered())
+                            {
+                                ImGui::BeginTooltip();
+                                ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::EndTooltip();
+                            }
+                            if (isOpenData)
+                            {
+                                ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::TextWrapped(data->getValueString().c_str());
+                            }
+                        }
+                        ImGui::EndTabItem();
+                    }
+                }
+                // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+                if (ImGui::BeginTabItem("Links"))
+                {
+                    ImGui::Indent();
+                    for (const auto* link : component->getLinks())
+                    {
+                        const auto linkValue = link->getValueString();
+                        const auto linkTitle = link->getName();
+
+                        const bool isOpenData = ImGui::CollapsingHeader(linkTitle.c_str());
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::BeginTooltip();
+                            ImGui::TextDisabled(link->getHelp().c_str());
+                            ImGui::EndTooltip();
+                        }
+                        if (isOpenData)
+                        {
+                            ImGui::TextDisabled(link->getHelp().c_str());
+                            ImGui::TextWrapped(linkValue.c_str());
+                        }
+                    }
+                    ImGui::EndTabItem();
+                }
+
+                ImGui::EndTabBar();
+            }
+        }
+        ImGui::End();
+        if (!isOpen)
+        {
+            toRemove.push_back(component);
+        }
+    }
+    while(!toRemove.empty())
+    {
+        auto it = openedComponents.find(toRemove.back());
+        if (it != openedComponents.end())
+        {
+            openedComponents.erase(it);
+        }
+        toRemove.pop_back();
+    }
+
+
     /***************************************
      * Display flags window
      **************************************/
@@ -775,7 +962,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     {
         if (ImGui::Begin("Display Flags", &isDisplayFlagsWindowOpen))
         {
-
             component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
             groot->get(visualStyle);
             if (visualStyle)
