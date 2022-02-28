@@ -267,8 +267,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
         ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
-        auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.2f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow("Controls", dock_id_left);
         ImGui::DockBuilderFinish(dockspace_id);
     }
     ImGui::End();
@@ -276,7 +274,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 
     const ImGuiIO& io = ImGui::GetIO();
 
-    static bool isControlsWindowOpen = true;
     static bool isPerformancesWindowOpen = false;
     static bool isSceneGraphWindowOpen = true;
     static bool isDisplayFlagsWindowOpen = false;
@@ -289,6 +286,9 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     static bool showFPSInMenuBar = true;
 
     ImVec2 mainMenuBarSize;
+
+    static bool animate;
+    animate = groot->animate_.getValue();
 
     /***************************************
      * Main menu bar
@@ -422,7 +422,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         }
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::Checkbox("Controls", &isControlsWindowOpen);
             ImGui::Checkbox(windowNamePerformances, &isPerformancesWindowOpen);
             ImGui::Checkbox(windowNameProfiler, &isProfilerOpen);
             ImGui::Checkbox(windowNameSceneGraph, &isSceneGraphWindowOpen);
@@ -434,6 +433,42 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(windowNameSettings, &isSettingsOpen);
             ImGui::EndMenu();
         }
+
+        ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
+        if (ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY))
+        {
+            sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = !animate;
+        }
+        ImGui::SameLine();
+        if (animate)
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+        }
+        if (ImGui::Button(ICON_FA_STEP_FORWARD))
+        {
+            if (!animate)
+            {
+                sofa::helper::AdvancedTimer::begin("Animate");
+
+                simulation::getSimulation()->animate(groot.get(), groot->getDt());
+                simulation::getSimulation()->updateVisual(groot.get());
+
+                sofa::helper::AdvancedTimer::end("Animate");
+            }
+        }
+        if (animate)
+        {
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_REDO_ALT))
+        {
+            groot->setTime(0.);
+            simulation::getSimulation()->reset ( groot.get() );
+        }
+
         if (showFPSInMenuBar)
         {
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(std::to_string(io.Framerate).c_str()).x
@@ -698,57 +733,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                         }
                     }
                 }
-            }
-        }
-        ImGui::End();
-    }
-
-    /***************************************
-     * Controls window
-     **************************************/
-    static bool animate;
-    animate = groot->animate_.getValue();
-    if (isControlsWindowOpen)
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("Controls", &isControlsWindowOpen))
-        {
-            if (ImGui::Checkbox("Animate", &animate))
-            {
-                sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
-            }
-
-            //Step button
-            {
-                const bool isAnimate = groot->getAnimate();
-                if (isAnimate)
-                {
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-                }
-                if (ImGui::Button("Step"))
-                {
-                    if (!isAnimate)
-                    {
-                        sofa::helper::AdvancedTimer::begin("Animate");
-
-                        simulation::getSimulation()->animate(groot.get(), groot->getDt());
-                        simulation::getSimulation()->updateVisual(groot.get());
-
-                        sofa::helper::AdvancedTimer::end("Animate");
-                    }
-                }
-                if (isAnimate)
-                {
-                    ImGui::PopItemFlag();
-                    ImGui::PopStyleVar();
-                }
-            }
-
-            if (ImGui::Button("Reset"))
-            {
-                groot->setTime(0.);
-                simulation::getSimulation()->reset ( groot.get() );
             }
         }
         ImGui::End();
