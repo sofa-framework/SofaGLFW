@@ -931,7 +931,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                 if (ImGui::BeginTabItem("Links"))
                 {
-                    ImGui::Indent();
                     for (const auto* link : component->getLinks())
                     {
                         const auto linkValue = link->getValueString();
@@ -950,6 +949,26 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                             ImGui::TextWrapped(linkValue.c_str());
                         }
                     }
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Infos"))
+                {
+                    ImGui::Text("Name: %s", component->getClassName().c_str());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Template:");
+                    ImGui::TextWrapped(component->getClass()->templateName.c_str());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Namespace:");
+                    ImGui::TextWrapped(component->getClass()->namespaceName.c_str());
+
+                    core::ObjectFactory::ClassEntry entry = core::ObjectFactory::getInstance()->getEntry(component->getClassName());
+                    if (! entry.creatorMap.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Description:");
+                        ImGui::TextWrapped(entry.description.c_str());
+                    }
+
                     ImGui::EndTabItem();
                 }
 
