@@ -746,15 +746,24 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     {
         if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
         {
+            const bool expand = ImGui::Button(ICON_FA_EXPAND);
+            ImGui::SameLine();
+            const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
+
+
             unsigned int treeDepth {};
             static core::objectmodel::Base* clickedObject { nullptr };
 
             std::function<void(simulation::Node*)> showNode;
-            showNode = [&showNode, &treeDepth](simulation::Node* node)
+            showNode = [&showNode, &treeDepth, expand, collapse](simulation::Node* node)
             {
                 if (node == nullptr) return;
                 if (treeDepth == 0)
                     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (expand)
+                    ImGui::SetNextItemOpen(true);
+                if (collapse)
+                    ImGui::SetNextItemOpen(false);
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
                 const bool open = ImGui::TreeNode(node->getName().c_str());
