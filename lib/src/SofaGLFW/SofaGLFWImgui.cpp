@@ -766,24 +766,18 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     ImGui::SetNextItemOpen(false);
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                const bool open = ImGui::TreeNode(node->getName().c_str());
+                const bool open = ImGui::TreeNode(std::string(ICON_FA_CUBES "  " + node->getName()).c_str());
                 ImGui::TableNextColumn();
                 ImGui::TextDisabled("Node");
                 if (ImGui::IsItemClicked())
                     clickedObject = node;
                 if (open)
                 {
-                    ++treeDepth;
-                    for (const auto child : node->getChildren())
-                    {
-                        showNode(dynamic_cast<simulation::Node*>(child));
-                    }
-
                     for (const auto object : node->getNodeObjects())
                     {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+                        ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + object->getName()).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
                         if (ImGui::IsItemClicked())
                         {
                             if (ImGui::IsMouseDoubleClicked(0))
@@ -797,7 +791,12 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                             }
                         }
                         ImGui::TableNextColumn();
-                        ImGui::Text(object->getClassName().c_str());
+                        ImGui::TextDisabled(object->getClassName().c_str());
+                    }
+                    ++treeDepth;
+                    for (const auto child : node->getChildren())
+                    {
+                        showNode(dynamic_cast<simulation::Node*>(child));
                     }
 
                     --treeDepth;
