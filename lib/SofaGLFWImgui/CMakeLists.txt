@@ -20,6 +20,12 @@ FetchContent_Declare(ImPlot
 )
 FetchContent_MakeAvailable(ImPlot)
 
+FetchContent_Declare(IconFontCppHeaders
+        GIT_REPOSITORY https://github.com/juliettef/IconFontCppHeaders
+        GIT_TAG        1856754666dff0db6c1af489a977f0ea2269f520
+)
+FetchContent_MakeAvailable(IconFontCppHeaders)
+
 set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
@@ -28,6 +34,10 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imgui_internal.h
     ${implot_SOURCE_DIR}/implot.h
     ${implot_SOURCE_DIR}/implot_internal.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome5.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/fa-regular-400.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/fa-solid-900.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/Roboto-Medium.h
     PARENT_SCOPE
 )
 set(IMGUI_SOURCE_FILES
@@ -42,5 +52,5 @@ set(IMGUI_SOURCE_FILES
     ${implot_SOURCE_DIR}/implot_items.cpp
     PARENT_SCOPE
 )
-set(IMGUI_SOURCE_DIR ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} PARENT_SCOPE)
+set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} PARENT_SCOPE)
 set(SOFAGLFW_HAS_IMGUI_VALUE 1 PARENT_SCOPE)

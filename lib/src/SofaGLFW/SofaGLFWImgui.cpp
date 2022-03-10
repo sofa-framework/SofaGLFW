@@ -46,6 +46,10 @@
 #include <nfd.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <IconsFontAwesome5.h>
+#include <fa-regular-400.h>
+#include <fa-solid-900.h>
+#include <Roboto-Medium.h>
 
 #include <sofa/helper/Utils.h>
 #include <sofa/type/vector.h>
@@ -156,6 +160,7 @@ void imguiInit()
     style.GrabRounding                      = 3;
     style.LogSliderDeadzone                 = 4;
     style.TabRounding                       = 4;
+
 #endif
 }
 
@@ -177,7 +182,15 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
         glfwGetMonitorContentScale(monitor, &xscale, &yscale);
 
         ImGuiIO& io = ImGui::GetIO();
-        io.FontGlobalScale = yscale;
+
+        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, 16 * yscale);
+
+        ImFontConfig config;
+        config.MergeMode = true;
+        config.GlyphMinAdvanceX = 16.0f; // Use if you want to make the icon monospaced
+        static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+        io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 16 * yscale, &config, icon_ranges);
+        io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 16 * yscale, &config, icon_ranges);
     }
 #endif
 }
@@ -232,6 +245,15 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode);
 
+    static constexpr auto windowNamePerformances = ICON_FA_CHART_LINE "  Performances";
+    static constexpr auto windowNameProfiler = ICON_FA_HOURGLASS "  Profiler";
+    static constexpr auto windowNameSceneGraph = ICON_FA_SITEMAP "  Scene Graph";
+    static constexpr auto windowNameDisplayFlags = ICON_FA_EYE "  Display Flags";
+    static constexpr auto windowNamePlugins = ICON_FA_PLUS_CIRCLE "  Plugins";
+    static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
+    static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
+    static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
+
     static auto first_time = true;
     if (first_time)
     {
@@ -242,11 +264,9 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow("Scene Graph", dock_id_right);
+        ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow("Log", dock_id_down);
-        auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.2f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow("Controls", dock_id_left);
+        ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
         ImGui::DockBuilderFinish(dockspace_id);
     }
     ImGui::End();
@@ -254,7 +274,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 
     const ImGuiIO& io = ImGui::GetIO();
 
-    static bool isControlsWindowOpen = true;
     static bool isPerformancesWindowOpen = false;
     static bool isSceneGraphWindowOpen = true;
     static bool isDisplayFlagsWindowOpen = false;
@@ -262,10 +281,14 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     static bool isComponentsWindowOpen = false;
     static bool isLogWindowOpen = true;
     static bool isProfilerOpen = false;
+    static bool isSettingsOpen = false;
 
     static bool showFPSInMenuBar = true;
 
     ImVec2 mainMenuBarSize;
+
+    static bool animate;
+    animate = groot->animate_.getValue();
 
     /***************************************
      * Main menu bar
@@ -274,7 +297,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Open Simulation"))
+            if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN "  Open Simulation"))
             {
                 simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
                 std::vector<std::pair<std::string, std::string> > filterList;
@@ -340,7 +363,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
             }
 
             const auto filename = baseGUI->getFilename();
-            if (ImGui::MenuItem("Reload File"))
+            if (ImGui::MenuItem(ICON_FA_REDO "  Reload File"))
             {
                 if (!filename.empty() && helper::system::FileSystem::exists(filename))
                 {
@@ -355,7 +378,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 ImGui::EndTooltip();
             }
 
-            if (ImGui::MenuItem("Close Simulation"))
+            if (ImGui::MenuItem(ICON_FA_TIMES_CIRCLE "  Close Simulation"))
             {
                 sofa::simulation::getSimulation()->unload(groot);
                 baseGUI->setSimulationIsRunning(false);
@@ -374,12 +397,12 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         {
             ImGui::Checkbox("Show FPS", &showFPSInMenuBar);
             bool isFullScreen = baseGUI->isFullScreen();
-            if (ImGui::Checkbox("Fullscreen", &isFullScreen))
+            if (ImGui::Checkbox(ICON_FA_EXPAND "  Fullscreen", &isFullScreen))
             {
                 baseGUI->switchFullScreen();
             }
             ImGui::Separator();
-            if (ImGui::MenuItem("Center Camera"))
+            if (ImGui::MenuItem(ICON_FA_CAMERA "  Center Camera"))
             {
                 sofa::component::visualmodel::BaseCamera::SPtr camera;
                 groot->get(camera);
@@ -399,16 +422,53 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         }
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::Checkbox("Controls", &isControlsWindowOpen);
-            ImGui::Checkbox("Performances", &isPerformancesWindowOpen);
-            ImGui::Checkbox("Profiler", &isProfilerOpen);
-            ImGui::Checkbox("Scene Graph", &isSceneGraphWindowOpen);
-            ImGui::Checkbox("Display Flags", &isDisplayFlagsWindowOpen);
-            ImGui::Checkbox("Plugins", &isPluginsWindowOpen);
-            ImGui::Checkbox("Components", &isComponentsWindowOpen);
-            ImGui::Checkbox("Log", &isLogWindowOpen);
+            ImGui::Checkbox(windowNamePerformances, &isPerformancesWindowOpen);
+            ImGui::Checkbox(windowNameProfiler, &isProfilerOpen);
+            ImGui::Checkbox(windowNameSceneGraph, &isSceneGraphWindowOpen);
+            ImGui::Checkbox(windowNameDisplayFlags, &isDisplayFlagsWindowOpen);
+            ImGui::Checkbox(windowNamePlugins, &isPluginsWindowOpen);
+            ImGui::Checkbox(windowNameComponents, &isComponentsWindowOpen);
+            ImGui::Checkbox(windowNameLog, &isLogWindowOpen);
+            ImGui::Separator();
+            ImGui::Checkbox(windowNameSettings, &isSettingsOpen);
             ImGui::EndMenu();
         }
+
+        ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
+        if (ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY))
+        {
+            sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = !animate;
+        }
+        ImGui::SameLine();
+        if (animate)
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+        }
+        if (ImGui::Button(ICON_FA_STEP_FORWARD))
+        {
+            if (!animate)
+            {
+                sofa::helper::AdvancedTimer::begin("Animate");
+
+                simulation::getSimulation()->animate(groot.get(), groot->getDt());
+                simulation::getSimulation()->updateVisual(groot.get());
+
+                sofa::helper::AdvancedTimer::end("Animate");
+            }
+        }
+        if (animate)
+        {
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_REDO_ALT))
+        {
+            groot->setTime(0.);
+            simulation::getSimulation()->reset ( groot.get() );
+        }
+
         if (showFPSInMenuBar)
         {
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(std::to_string(io.Framerate).c_str()).x
@@ -425,7 +485,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     if (isPerformancesWindowOpen)
     {
         static sofa::type::vector<float> msArray;
-        if (ImGui::Begin("Performances", &isPerformancesWindowOpen))
+        if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen))
         {
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices, io.MetricsRenderIndices / 3);
@@ -453,7 +513,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     {
         static int selectedFrame = 0;
 
-        if (ImGui::Begin("Profiler", &isProfilerOpen))
+        if (ImGui::Begin(windowNameProfiler, &isProfilerOpen))
         {
             const auto convertInMs = [](helper::system::thread::ctime_t t)
             {
@@ -679,93 +739,45 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     }
 
     /***************************************
-     * Controls window
-     **************************************/
-    static bool animate;
-    animate = groot->animate_.getValue();
-    if (isControlsWindowOpen)
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y), ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("Controls", &isControlsWindowOpen))
-        {
-            if (ImGui::Checkbox("Animate", &animate))
-            {
-                sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
-            }
-
-            //Step button
-            {
-                const bool isAnimate = groot->getAnimate();
-                if (isAnimate)
-                {
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-                }
-                if (ImGui::Button("Step"))
-                {
-                    if (!isAnimate)
-                    {
-                        sofa::helper::AdvancedTimer::begin("Animate");
-
-                        simulation::getSimulation()->animate(groot.get(), groot->getDt());
-                        simulation::getSimulation()->updateVisual(groot.get());
-
-                        sofa::helper::AdvancedTimer::end("Animate");
-                    }
-                }
-                if (isAnimate)
-                {
-                    ImGui::PopItemFlag();
-                    ImGui::PopStyleVar();
-                }
-            }
-
-            if (ImGui::Button("Reset"))
-            {
-                groot->setTime(0.);
-                simulation::getSimulation()->reset ( groot.get() );
-            }
-        }
-        ImGui::End();
-    }
-
-    /***************************************
      * Scene graph window
      **************************************/
     static std::set<core::objectmodel::Base*> openedComponents;
     if (isSceneGraphWindowOpen)
     {
-        if (ImGui::Begin("Scene Graph", &isSceneGraphWindowOpen))
+        if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
         {
+            const bool expand = ImGui::Button(ICON_FA_EXPAND);
+            ImGui::SameLine();
+            const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
+
+
             unsigned int treeDepth {};
             static core::objectmodel::Base* clickedObject { nullptr };
 
             std::function<void(simulation::Node*)> showNode;
-            showNode = [&showNode, &treeDepth](simulation::Node* node)
+            showNode = [&showNode, &treeDepth, expand, collapse](simulation::Node* node)
             {
                 if (node == nullptr) return;
                 if (treeDepth == 0)
                     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (expand)
+                    ImGui::SetNextItemOpen(true);
+                if (collapse)
+                    ImGui::SetNextItemOpen(false);
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                const bool open = ImGui::TreeNode(node->getName().c_str());
+                const bool open = ImGui::TreeNode(std::string(ICON_FA_CUBES "  " + node->getName()).c_str());
                 ImGui::TableNextColumn();
                 ImGui::TextDisabled("Node");
                 if (ImGui::IsItemClicked())
                     clickedObject = node;
                 if (open)
                 {
-                    ++treeDepth;
-                    for (const auto child : node->getChildren())
-                    {
-                        showNode(dynamic_cast<simulation::Node*>(child));
-                    }
-
                     for (const auto object : node->getNodeObjects())
                     {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::TreeNodeEx(object->getName().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+                        ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + object->getName()).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
                         if (ImGui::IsItemClicked())
                         {
                             if (ImGui::IsMouseDoubleClicked(0))
@@ -779,7 +791,12 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                             }
                         }
                         ImGui::TableNextColumn();
-                        ImGui::Text(object->getClassName().c_str());
+                        ImGui::TextDisabled(object->getClassName().c_str());
+                    }
+                    ++treeDepth;
+                    for (const auto child : node->getChildren())
+                    {
+                        showNode(dynamic_cast<simulation::Node*>(child));
                     }
 
                     --treeDepth;
@@ -913,7 +930,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                 if (ImGui::BeginTabItem("Links"))
                 {
-                    ImGui::Indent();
                     for (const auto* link : component->getLinks())
                     {
                         const auto linkValue = link->getValueString();
@@ -932,6 +948,26 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                             ImGui::TextWrapped(linkValue.c_str());
                         }
                     }
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Infos"))
+                {
+                    ImGui::Text("Name: %s", component->getClassName().c_str());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Template:");
+                    ImGui::TextWrapped(component->getClass()->templateName.c_str());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Namespace:");
+                    ImGui::TextWrapped(component->getClass()->namespaceName.c_str());
+
+                    core::ObjectFactory::ClassEntry entry = core::ObjectFactory::getInstance()->getEntry(component->getClassName());
+                    if (! entry.creatorMap.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Description:");
+                        ImGui::TextWrapped(entry.description.c_str());
+                    }
+
                     ImGui::EndTabItem();
                 }
 
@@ -960,7 +996,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
      **************************************/
     if (isDisplayFlagsWindowOpen)
     {
-        if (ImGui::Begin("Display Flags", &isDisplayFlagsWindowOpen))
+        if (ImGui::Begin(windowNameDisplayFlags, &isDisplayFlagsWindowOpen))
         {
             component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
             groot->get(visualStyle);
@@ -1068,7 +1104,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
      **************************************/
     if (isPluginsWindowOpen)
     {
-        if (ImGui::Begin("Plugins", &isPluginsWindowOpen))
+        if (ImGui::Begin(windowNamePlugins, &isPluginsWindowOpen))
         {
             ImGui::Columns(2);
 
@@ -1111,7 +1147,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
      **************************************/
     if (isComponentsWindowOpen)
     {
-        if (ImGui::Begin("Components", &isComponentsWindowOpen))
+        if (ImGui::Begin(windowNameComponents, &isComponentsWindowOpen))
         {
             unsigned int nbLoadedComponents = 0;
             if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
@@ -1331,7 +1367,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
      **************************************/
     if (isLogWindowOpen)
     {
-        if (ImGui::Begin("Log", &isLogWindowOpen))
+        if (ImGui::Begin(windowNameLog, &isLogWindowOpen))
         {
             unsigned int i {};
             const auto& messages = sofa::helper::logging::MainLoggingMessageHandler::getInstance().getMessages();
@@ -1385,6 +1421,22 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 ImGui::EndTable();
             }
         }
+        ImGui::End();
+    }
+
+    /***************************************
+     * Settings window
+     **************************************/
+    if (isSettingsOpen)
+    {
+        if (ImGui::Begin(windowNameSettings, &isSettingsOpen))
+        {
+            ImGuiIO& io = ImGui::GetIO();
+            const float MIN_SCALE = 0.3f;
+            const float MAX_SCALE = 2.0f;
+            ImGui::DragFloat("global scale", &io.FontGlobalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
+        }
+        ImGui::End();
     }
 
     ImGui::Render();
