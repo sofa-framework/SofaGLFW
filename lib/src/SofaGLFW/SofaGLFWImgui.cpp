@@ -629,8 +629,10 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 {
                     auto tStart = records.front().time;
                     auto tEnd = tStart;
-                    std::unordered_map<unsigned int, SReal> duration;
+                    std::unordered_map<unsigned int, SReal > duration;
                     std::stack<sofa::helper::system::thread::ctime_t> durationStack;
+                    std::stack<unsigned int> timerIdStack;
+                    unsigned int timerIdCounter {};
                     for (const auto& rec : allRecords[selectedFrame])
                     {
                         tStart = std::min(tStart, rec.time);
@@ -639,12 +641,14 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                         if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
                         {
                             durationStack.push(rec.time);
+                            timerIdStack.push(timerIdCounter++);
                         }
                         if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
                         {
                             const auto t = durationStack.top();
                             durationStack.pop();
-                            duration[rec.id] = convertInMs(rec.time - t);
+                            duration[timerIdStack.top()] = convertInMs(rec.time - t);
+                            timerIdStack.pop();
                         }
                     }
 
@@ -667,8 +671,10 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 
                         int node_clicked = -1;
                         static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-                        for (const auto& rec : records)
+                        timerIdCounter = 0;
+                        for (auto it = records.begin(); it != records.end(); ++it)
                         {
+                            const auto& rec = *it;
                             if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
                             {
                                 if (openStack.empty() || openStack.top())
@@ -679,18 +685,34 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                                         node_flags |= ImGuiTreeNodeFlags_Selected;
                                     }
 
+                                    if (it + 1 != records.end())
+                                    {
+                                        const auto& nextRec = *(it + 1);
+                                        if (it->label == nextRec.label && (nextRec.type == helper::Record::REND || nextRec.type == helper::Record::RSTEP_END))
+                                        {
+                                            node_flags |= ImGuiTreeNodeFlags_Leaf;
+                                        }
+                                    }
+
                                     ImGui::TableNextRow();
 
                                     ImGui::TableNextColumn();
                                     if (expand) ImGui::SetNextItemOpen(true);
                                     if (collapse) ImGui::SetNextItemOpen(false);
                                     const bool isOpen = ImGui::TreeNodeEx(rec.label.c_str(), node_flags);
+                                    if (ImGui::IsItemHovered())
+                                    {
+                                        ImGui::BeginTooltip();
+                                        ImGui::TextDisabled(rec.label.c_str());
+                                        ImGui::TextDisabled("ID: %s", std::to_string(rec.id).c_str());
+                                        ImGui::EndTooltip();
+                                    }
                                     openStack.push(isOpen);
 
                                     if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
                                         node_clicked = rec.id;
 
-                                    const auto& d = (rec.label == "Animate") ? frameDuration : duration[rec.id];
+                                    const auto& d = (rec.label == "Animate") ? frameDuration : duration[timerIdCounter];
 
                                     ImVec4 color;
                                     color.w = 1.f;
@@ -707,6 +729,7 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                                 {
                                     openStack.push(false);
                                 }
+                                ++timerIdCounter;
                             }
                             if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
                             {
