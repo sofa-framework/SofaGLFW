@@ -188,6 +188,46 @@ void SofaGLFWBaseGUI::destroyWindow()
 {
 }
 
+GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
+{
+    auto mini = [](int x, int y){ return x < y ? x : y; };
+    auto maxi = [](int x, int y){ return x > y ? x : y; };
+
+    int num_monitors, i;
+    int wx, wy, ww, wh;
+    int mx, my, mw, mh;
+    int overlap, best_overlap;
+    GLFWmonitor *best_monitor;
+    GLFWmonitor **monitors;
+    const GLFWvidmode *mode;
+
+    best_overlap = 0;
+    best_monitor = nullptr;
+
+    glfwGetWindowPos(glfwWindow, &wx, &wy);
+    glfwGetWindowSize(glfwWindow, &ww, &wh);
+    monitors = glfwGetMonitors(&num_monitors);
+
+    for (i=0; i < num_monitors; i++)
+    {
+        mode = glfwGetVideoMode(monitors[i]);
+        glfwGetMonitorPos(monitors[i], &mx, &my);
+        mw = mode->width;
+        mh = mode->height;
+
+        overlap = maxi(0, mini(wx + ww, mx + mw) - maxi(wx, mx)) *
+                  maxi(0, mini(wy + wh, my + mh) - maxi(wy, my));
+
+        if (best_overlap < overlap)
+        {
+            best_overlap = overlap;
+            best_monitor = monitors[i];
+        }
+    }
+
+    return best_monitor;
+}
+
 
 bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
 {
@@ -215,10 +255,10 @@ void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* s
             glfwGetWindowPos(glfwWindow, &m_lastWindowPositionX, &m_lastWindowPositionY);
             glfwGetWindowSize(glfwWindow, &m_lastWindowWidth, &m_lastWindowHeight);
 
-            GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+            GLFWmonitor* monitor = getCurrentMonitor(glfwWindow);
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-            glfwSetWindowMonitor(glfwWindow, primaryMonitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+            glfwSetWindowMonitor(glfwWindow, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
         }
         else
         {
