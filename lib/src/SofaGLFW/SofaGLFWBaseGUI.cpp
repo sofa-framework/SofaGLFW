@@ -130,6 +130,12 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
 {
     imgui::imguiInit();
 
+    if (m_groot == nullptr)
+    {
+        msg_error("SofaGLFWBaseGUI") << "No simulation root has been defined. Quitting.";
+        return false;
+    }
+
     GLFWwindow* glfwWindow = nullptr;
     if (fullscreenAtStartup)
     {
