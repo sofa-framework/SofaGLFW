@@ -782,7 +782,6 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
             ImGui::SameLine();
             const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
 
-
             unsigned int treeDepth {};
             static core::objectmodel::Base* clickedObject { nullptr };
 
@@ -809,7 +808,23 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + object->getName()).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+
+                        ImGuiTreeNodeFlags objectFlags = ImGuiTreeNodeFlags_SpanFullWidth;
+
+                        const auto& slaves = object->getSlaves();
+                        if (slaves.empty())
+                        {
+                            objectFlags |= ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
+                        }
+                        else
+                        {
+                            if (expand)
+                                ImGui::SetNextItemOpen(true);
+                            if (collapse)
+                                ImGui::SetNextItemOpen(false);
+                        }
+
+                        const auto objectOpen = ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + object->getName()).c_str(), objectFlags);
                         if (ImGui::IsItemClicked())
                         {
                             if (ImGui::IsMouseDoubleClicked(0))
@@ -824,6 +839,31 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                         }
                         ImGui::TableNextColumn();
                         ImGui::TextDisabled(object->getClassName().c_str());
+
+                        if (objectOpen && !slaves.empty())
+                        {
+                            for (const auto slave : slaves)
+                            {
+                                ImGui::TableNextRow();
+                                ImGui::TableNextColumn();
+                                ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + slave->getName()).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+                                if (ImGui::IsItemClicked())
+                                {
+                                    if (ImGui::IsMouseDoubleClicked(0))
+                                    {
+                                        openedComponents.insert(slave.get());
+                                        clickedObject = nullptr;
+                                    }
+                                    else
+                                    {
+                                        clickedObject = slave.get();
+                                    }
+                                }
+                                ImGui::TableNextColumn();
+                                ImGui::TextDisabled(slave->getClassName().c_str());
+                            }
+                            ImGui::TreePop();
+                        }
                     }
                     ++treeDepth;
                     for (const auto child : node->getChildren())
