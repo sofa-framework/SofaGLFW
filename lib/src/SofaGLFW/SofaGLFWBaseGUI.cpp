@@ -37,6 +37,8 @@
 
 #include <SofaGLFW/SofaGLFWImgui.h>
 
+#include <algorithm>
+
 namespace sofa::glfw
 {
 
@@ -190,42 +192,39 @@ void SofaGLFWBaseGUI::destroyWindow()
 
 GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
 {
-    auto mini = [](int x, int y){ return x < y ? x : y; };
-    auto maxi = [](int x, int y){ return x > y ? x : y; };
-
-    int num_monitors, i;
-    int wx, wy, ww, wh;
-    int mx, my, mw, mh;
-    int overlap, best_overlap;
-    GLFWmonitor *best_monitor;
+    int monitorsCount, i;
+    int windowsX, windowsY, windowsWidth, windowsHeight;
+    int monitorX, monitorY, monitorWidth, monitorHeight;
+    int overlap, bestOverlap;
+    GLFWmonitor *bestMonitor;
     GLFWmonitor **monitors;
     const GLFWvidmode *mode;
 
-    best_overlap = 0;
-    best_monitor = nullptr;
+    bestOverlap = 0;
+    bestMonitor = nullptr;
 
-    glfwGetWindowPos(glfwWindow, &wx, &wy);
-    glfwGetWindowSize(glfwWindow, &ww, &wh);
-    monitors = glfwGetMonitors(&num_monitors);
+    glfwGetWindowPos(glfwWindow, &windowsX, &windowsY);
+    glfwGetWindowSize(glfwWindow, &windowsWidth, &windowsHeight);
+    monitors = glfwGetMonitors(&monitorsCount);
 
-    for (i=0; i < num_monitors; i++)
+    for (i=0; i<monitorsCount; i++)
     {
         mode = glfwGetVideoMode(monitors[i]);
-        glfwGetMonitorPos(monitors[i], &mx, &my);
-        mw = mode->width;
-        mh = mode->height;
+        glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
+        monitorWidth = mode->width;
+        monitorHeight = mode->height;
 
-        overlap = maxi(0, mini(wx + ww, mx + mw) - maxi(wx, mx)) *
-                  maxi(0, mini(wy + wh, my + mh) - maxi(wy, my));
+        overlap = std::max(0, std::min(windowsX + windowsWidth, monitorX + monitorWidth) - std::max(windowsX, monitorX)) *
+                  std::max(0, std::min(windowsY + windowsHeight, monitorY + monitorHeight) - std::max(windowsY, monitorY));
 
-        if (best_overlap < overlap)
+        if (bestOverlap < overlap)
         {
-            best_overlap = overlap;
-            best_monitor = monitors[i];
+            bestOverlap = overlap;
+            bestMonitor = monitors[i];
         }
     }
 
-    return best_monitor;
+    return bestMonitor;
 }
 
 
