@@ -456,12 +456,14 @@ void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double
 void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
 {
     auto currentSofaWindow = s_mapWindows.find(window);
-    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    if (currentSofaWindow != s_mapWindows.end())
     {
-        currentSofaWindow->second->close();
+        if (SofaGLFWWindow* glfwWindow = currentSofaWindow->second)
+        {
+            glfwWindow->close();
+            delete glfwWindow;
+        }
         s_mapWindows.erase(window);
-
-        delete currentSofaWindow->second;
     }
 }
 

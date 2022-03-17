@@ -655,12 +655,12 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     const auto frameDuration = convertInMs(tEnd - tStart);
                     ImGui::Text("Frame duration (ms): %f", frameDuration);
 
-                    const bool expand = ImGui::Button("Expand");
+                    const bool expand = ImGui::Button(ICON_FA_EXPAND);
                     ImGui::SameLine();
-                    const bool collapse = ImGui::Button("Collapse");
+                    const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
 
                     static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-                    if (ImGui::BeginTable("profilerTable", 4, flags))
+                    if (ImGui::BeginTable("profilerTable", 3, flags))
                     {
                         std::stack<bool> openStack;
 
@@ -740,6 +740,15 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                                 openStack.pop();
                             }
                         }
+                        while(!openStack.empty())
+                        {
+                            if (openStack.top())
+                            {
+                                ImGui::TreePop();
+                            }
+                            openStack.pop();
+                        }
+
                         ImGui::EndTable();
 
                         if (node_clicked != -1)
