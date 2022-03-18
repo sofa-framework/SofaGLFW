@@ -37,6 +37,8 @@
 
 #include <SofaGLFW/SofaGLFWImgui.h>
 
+#include <algorithm>
+
 namespace sofa::glfw
 {
 
@@ -188,6 +190,43 @@ void SofaGLFWBaseGUI::destroyWindow()
 {
 }
 
+GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
+{
+    int monitorsCount, i;
+    int windowsX, windowsY, windowsWidth, windowsHeight;
+    int monitorX, monitorY, monitorWidth, monitorHeight;
+    int overlap, bestOverlap;
+    GLFWmonitor *bestMonitor;
+    GLFWmonitor **monitors;
+    const GLFWvidmode *mode;
+
+    bestOverlap = 0;
+    bestMonitor = nullptr;
+
+    glfwGetWindowPos(glfwWindow, &windowsX, &windowsY);
+    glfwGetWindowSize(glfwWindow, &windowsWidth, &windowsHeight);
+    monitors = glfwGetMonitors(&monitorsCount);
+
+    for (i=0; i<monitorsCount; i++)
+    {
+        mode = glfwGetVideoMode(monitors[i]);
+        glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
+        monitorWidth = mode->width;
+        monitorHeight = mode->height;
+
+        overlap = std::max(0, std::min(windowsX + windowsWidth, monitorX + monitorWidth) - std::max(windowsX, monitorX)) *
+                  std::max(0, std::min(windowsY + windowsHeight, monitorY + monitorHeight) - std::max(windowsY, monitorY));
+
+        if (bestOverlap < overlap)
+        {
+            bestOverlap = overlap;
+            bestMonitor = monitors[i];
+        }
+    }
+
+    return bestMonitor;
+}
+
 
 bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
 {
@@ -215,10 +254,10 @@ void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* s
             glfwGetWindowPos(glfwWindow, &m_lastWindowPositionX, &m_lastWindowPositionY);
             glfwGetWindowSize(glfwWindow, &m_lastWindowWidth, &m_lastWindowHeight);
 
-            GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+            GLFWmonitor* monitor = getCurrentMonitor(glfwWindow);
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-            glfwSetWindowMonitor(glfwWindow, primaryMonitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+            glfwSetWindowMonitor(glfwWindow, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
         }
         else
         {

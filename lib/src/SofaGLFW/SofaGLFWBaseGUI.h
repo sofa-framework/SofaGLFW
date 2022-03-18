@@ -27,6 +27,7 @@
 #include <sofa/simulation/Node.h>
 
 struct GLFWwindow;
+struct GLFWmonitor;
 
 namespace sofa::glfw
 {
@@ -55,6 +56,8 @@ public:
     void setWindowWidth(int width) { m_windowWidth = width; }
     int getWindowHeight() const { return m_windowHeight; }
     void setWindowHeight(int height) { m_windowHeight = height; }
+
+    GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
 
     bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
     void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int /* screenID */ = 0);
