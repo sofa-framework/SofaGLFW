@@ -40,7 +40,6 @@ Here are all the available windows:
 
 | Window            | Description                                                                      |
 |-------------------|----------------------------------------------------------------------------------|
-| __Controls__      | play/pause the simulation, reset the simulation                                  |
 | __Performances__  | display simple metrics related to application performances: ms/frame, FPS, graph |
 | __Profiler__      | display detailed metrics related to the physics loop performances                |
 | __Scene Graph__   | show the scene graph and the Data associated to each components                  |
@@ -51,4 +50,4 @@ Here are all the available windows:
 
 ### Screenshots
 
-![MainGUI](https://user-images.githubusercontent.com/10572752/146729448-1e329bca-d01c-45cb-80c2-8dba545b054d.png)
+![MainGUI](doc/screenshot.png)
