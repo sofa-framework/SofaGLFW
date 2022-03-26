@@ -20,6 +20,7 @@ Lastly, this GUI was designed to support multiple windows in the same time and m
 * `-f` or `--file` to specify the scene file to load. If not defined, the default scene file `Demos/caduceus.scn` is loaded.
 * `-a` or `--start`: if true, starts the simulation just after opening. True by default.
 * `-s` or `--fullscreen`: set full screen at startup. False by default.
+* `-l` or `--load`: load given plugins as a comma-separated list. Example: -l SofaPython3
 
 ## Dear ImGui
 
