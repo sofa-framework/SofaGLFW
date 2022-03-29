@@ -37,30 +37,36 @@
 
 #include <SofaBase/initSofaBase.h>
 
+#include <sofa/helper/system/PluginManager.h>
+
 int main(int argc, char** argv)
 {
+    std::vector<std::string> pluginsToLoad;
+
+    cxxopts::Options options("SofaGLFW", "A simple GUI based on GLFW for SOFA");
+    options.add_options()
+        ("f,file", "scene filename. If not provided, the default scene will be loaded", cxxopts::value<std::string>()->default_value("Demos/caduceus.scn"))
+        ("a,start", "start the animation loop", cxxopts::value<bool>()->default_value("false"))
+        ("s,fullscreen", "set full screen at startup", cxxopts::value<bool>()->default_value("false"))
+        ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
+        ("h,help", "print usage")
+        ;
+
+    const auto result = options.parse(argc, argv);
+
+    if (result.count("help"))
+    {
+        std::cout << options.help() << std::endl;
+        exit(0);
+    }
+
     sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
     sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainPerComponentLoggingMessageHandler::getInstance()) ;
     sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
 
     sofa::helper::BackTrace::autodump();
 
-
-
     sofa::component::initSofaBase();
-
-    std::string fileName ;
-    bool        startAnim = false;
-
-    cxxopts::Options options("SofaGLFW", "A simple GUI based on GLFW for SOFA");
-    options.add_options()
-        ("f,file", "scene filename", cxxopts::value<std::string>()->default_value("Demos/caduceus.scn"))
-        ("a,start", "start the animation loop", cxxopts::value<bool>()->default_value("true"))
-        ("s,fullscreen", "set full screen at startup", cxxopts::value<bool>()->default_value("false"))
-        ;
-
-
-    auto result = options.parse(argc, argv);
 
     sofa::simulation::graph::init();
     sofa::component::initSofaBase();
@@ -76,11 +82,16 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    for (const auto& plugin : pluginsToLoad)
+    {
+        sofa::helper::system::PluginManager::getInstance().loadPlugin(plugin);
+    }
+
     sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
 
 
-    fileName = result["file"].as<std::string>();
-    startAnim = result["start"].as<bool>();
+    std::string fileName = result["file"].as<std::string>();
+    const bool startAnim = result["start"].as<bool>();
 
     fileName = sofa::helper::system::DataRepository.getFile(fileName);
 
