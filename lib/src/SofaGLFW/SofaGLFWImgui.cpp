@@ -717,6 +717,18 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
             const bool expand = ImGui::Button(ICON_FA_EXPAND);
             ImGui::SameLine();
             const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
+            ImGui::SameLine();
+            static bool showSearch = false;
+            if (ImGui::Button(ICON_FA_SEARCH))
+            {
+                showSearch = !showSearch;
+            }
+
+            static ImGuiTextFilter filter;
+            if (showSearch)
+            {
+                filter.Draw("Search");
+            }
 
             unsigned int treeDepth {};
             static core::objectmodel::Base* clickedObject { nullptr };
@@ -733,9 +745,21 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                     ImGui::SetNextItemOpen(false);
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                const bool open = ImGui::TreeNode(std::string(ICON_FA_CUBES "  " + node->getName()).c_str());
+
+                const auto& nodeName = node->getName();
+                const bool isNodeHighlighted = !filter.Filters.empty() && filter.PassFilter(nodeName.c_str());
+                if (isNodeHighlighted)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+                }
+
+                const bool open = ImGui::TreeNode(std::string(ICON_FA_CUBES "  " + nodeName).c_str());
                 ImGui::TableNextColumn();
                 ImGui::TextDisabled("Node");
+                if (isNodeHighlighted)
+                {
+                    ImGui::PopStyleColor();
+                }
                 if (ImGui::IsItemClicked())
                     clickedObject = node;
                 if (open)
@@ -760,6 +784,14 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                                 ImGui::SetNextItemOpen(false);
                         }
 
+                        const auto& objectName = object->getName();
+                        const auto objectClassName = object->getClassName();
+                        const bool isObjectHighlighted = !filter.Filters.empty() && (filter.PassFilter(objectName.c_str()) || filter.PassFilter(objectClassName.c_str()));
+                        if (isObjectHighlighted)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+                        }
+
                         const auto objectOpen = ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + object->getName()).c_str(), objectFlags);
                         if (ImGui::IsItemClicked())
                         {
@@ -774,7 +806,12 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                             }
                         }
                         ImGui::TableNextColumn();
-                        ImGui::TextDisabled(object->getClassName().c_str());
+                        ImGui::TextDisabled(objectClassName.c_str());
+
+                        if (isObjectHighlighted)
+                        {
+                            ImGui::PopStyleColor();
+                        }
 
                         if (objectOpen && !slaves.empty())
                         {
@@ -782,6 +819,15 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                             {
                                 ImGui::TableNextRow();
                                 ImGui::TableNextColumn();
+
+                                const auto& slaveName = slave->getName();
+                                const auto slaveClassName = slave->getClassName();
+                                const bool isSlaveHighlighted = !filter.Filters.empty() && (filter.PassFilter(slaveName.c_str()) || filter.PassFilter(slaveClassName.c_str()));
+                                if (isSlaveHighlighted)
+                                {
+                                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+                                }
+
                                 ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + slave->getName()).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
                                 if (ImGui::IsItemClicked())
                                 {
@@ -797,6 +843,11 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                                 }
                                 ImGui::TableNextColumn();
                                 ImGui::TextDisabled(slave->getClassName().c_str());
+
+                                if (isSlaveHighlighted)
+                                {
+                                    ImGui::PopStyleColor();
+                                }
                             }
                             ImGui::TreePop();
                         }
@@ -812,9 +863,12 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 }
             };
 
-            static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-            if (ImGui::BeginTable("sceneGraphTable", 2, flags))
+            static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+
+            ImVec2 outer_size = ImVec2(0.0f, static_cast<bool>(clickedObject) * ImGui::GetTextLineHeightWithSpacing() * 20);
+            if (ImGui::BeginTable("sceneGraphTable", 2, flags, outer_size))
             {
+                ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
                 ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
                 ImGui::TableSetupColumn("Class Name", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
                 ImGui::TableHeadersRow();
