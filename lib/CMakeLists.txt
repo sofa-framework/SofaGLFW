@@ -9,6 +9,12 @@ sofa_find_package(SofaBaseVisual REQUIRED)
 sofa_find_package(SofaGuiCommon QUIET)
 
 set(SOFA_BUILD_SOFAGLFWIMGUI OFF CACHE BOOL "Build a GUI based on Dear ImGui")
+if(SOFA_BUILD_SOFAGLFWIMGUI)
+    option(SOFAGLFWIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(SOFAGLFWIMGUI_FORCE_OPENGL2 ON CACHE BOOL FORCE)
+    endif()
+endif()
 
 include(FetchContent)
 
@@ -51,6 +57,7 @@ if (SOFA_BUILD_SOFAGLFWIMGUI)
     add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG=<SofaGLFW/CustomImGuiFileDialogConfig.h>)
 else()
     set(SOFAGLFW_HAS_IMGUI_VALUE 0)
+    set(SOFAGLFWIMGUI_FORCE_OPENGL2 0)
 endif()
 
 

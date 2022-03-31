@@ -130,6 +130,7 @@ void SofaGLFWBaseGUI::changeCamera(sofa::component::visualmodel::BaseCamera::SPt
 
 bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
+
     imgui::imguiInit();
 
     if (m_groot == nullptr)
@@ -167,6 +168,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
         glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
         glfwSetScrollCallback(glfwWindow, scroll_callback);
         glfwSetWindowCloseCallback(glfwWindow, close_callback);
+
         makeCurrentContext(glfwWindow);
 
         imgui::imguiInitBackend(glfwWindow);

@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -47,6 +47,7 @@
 #include <nfd.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_opengl2.h>
 #include <IconsFontAwesome5.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
@@ -92,7 +93,12 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
 #if SOFAGLFW_HAS_IMGUI
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+
+#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+    ImGui_ImplOpenGL2_Init();
+#else
     ImGui_ImplOpenGL3_Init(nullptr);
+#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
 
     GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
     if (!monitor)
@@ -143,8 +149,14 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
 #if SOFAGLFW_HAS_IMGUI
+
     // Start the Dear ImGui frame
+#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+    ImGui_ImplOpenGL2_NewFrame();
+#else
     ImGui_ImplOpenGL3_NewFrame();
+#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
+
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
@@ -1448,7 +1460,11 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     }
 
     ImGui::Render();
+#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+#else
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
 
     // Update and Render additional Platform Windows
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -1464,7 +1480,13 @@ void imguiTerminate()
 {
 #if SOFAGLFW_HAS_IMGUI
     NFD_Quit();
+
+#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+    ImGui_ImplOpenGL2_Shutdown();
+#else
     ImGui_ImplOpenGL3_Shutdown();
+#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
+
     ImGui_ImplGlfw_Shutdown();
     ImPlot::DestroyContext();
     ImGui::DestroyContext();
