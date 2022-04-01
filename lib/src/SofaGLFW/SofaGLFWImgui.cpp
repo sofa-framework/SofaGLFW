@@ -94,11 +94,11 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 
-#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_Init();
 #else
     ImGui_ImplOpenGL3_Init(nullptr);
-#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
+#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
 
     GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
     if (!monitor)
@@ -151,11 +151,11 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
 #if SOFAGLFW_HAS_IMGUI
 
     // Start the Dear ImGui frame
-#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_NewFrame();
 #else
     ImGui_ImplOpenGL3_NewFrame();
-#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
+#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
 
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -1460,11 +1460,11 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     }
 
     ImGui::Render();
-#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 #else
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
+#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
 
     // Update and Render additional Platform Windows
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -1481,11 +1481,11 @@ void imguiTerminate()
 #if SOFAGLFW_HAS_IMGUI
     NFD_Quit();
 
-#ifdef SOFAGLFW_FORCE_IMGUI_OPENGL2
+#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_Shutdown();
 #else
     ImGui_ImplOpenGL3_Shutdown();
-#endif // SOFAGLFW_FORCE_IMGUI_OPENGL2
+#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
 
     ImGui_ImplGlfw_Shutdown();
     ImPlot::DestroyContext();
