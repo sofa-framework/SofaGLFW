@@ -53,13 +53,18 @@ sofa::core::sptr<sofa::simulation::Node> SofaGLFWBaseGUI::getRootNode() const
     return m_groot;
 }
 
-bool SofaGLFWBaseGUI::init()
+bool SofaGLFWBaseGUI::init(int nbMSAASamples)
 {
     if (m_bGlfwIsInitialized)
         return true;
 
     if (glfwInit() == GLFW_TRUE)
     {
+        // defined samples for MSAA
+        // min = 0  (no MSAA Anti-aliasing)
+        // max = 32 (MSAA with 32 samples)
+        glfwWindowHint(GLFW_SAMPLES, std::clamp(nbMSAASamples, 0, 32) );
+        
         m_glDrawTool = new sofa::gl::DrawToolGL();
         m_bGlfwIsInitialized = true;
         setErrorCallback();

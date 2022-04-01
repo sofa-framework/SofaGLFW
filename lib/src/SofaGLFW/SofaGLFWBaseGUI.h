@@ -37,10 +37,11 @@ class SofaGLFWWindow;
 class SOFAGLFW_API SofaGLFWBaseGUI
 {
 public:
+    
     SofaGLFWBaseGUI() = default;
     virtual ~SofaGLFWBaseGUI();
 
-    bool init();
+    bool init(int nbMSAASamples = 0);
     void setErrorCallback() const;
     void setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename = std::string());
     void setSimulationIsRunning(bool running);

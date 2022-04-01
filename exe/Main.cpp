@@ -49,6 +49,7 @@ int main(int argc, char** argv)
         ("a,start", "start the animation loop", cxxopts::value<bool>()->default_value("false"))
         ("s,fullscreen", "set full screen at startup", cxxopts::value<bool>()->default_value("false"))
         ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
+        ("m,msaa_samples", "set number of samples for MSAA", cxxopts::value<unsigned short>()->default_value("0"))
         ("h,help", "print usage")
         ;
 
@@ -75,7 +76,8 @@ int main(int argc, char** argv)
     // linked with the simulation
     sofa::glfw::SofaGLFWBaseGUI glfwGUI;
     
-    if (!glfwGUI.init())
+    auto nbMSAASamples = result["msaa_samples"].as<unsigned short>();
+    if (!glfwGUI.init(nbMSAASamples))
     {
         // Initialization failed
         std::cerr << "Could not initialize GLFW, quitting..." << std::endl;
