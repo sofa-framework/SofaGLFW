@@ -429,7 +429,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     switch (key)
     {
         case GLFW_KEY_F:
-            if (action == GLFW_PRESS)
+            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
             {
                 auto currentGUI = s_mapGUIs.find(window);
                 if (currentGUI != s_mapGUIs.end() && currentGUI->second)
