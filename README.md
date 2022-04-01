@@ -10,7 +10,7 @@ Lastly, this GUI was designed to support multiple windows in the same time and m
 
 ### Keyboard Shortcuts
 
-* F: switch to fullscreen
+* CTRL+F: switch to fullscreen
 * Escape: close the app
 * Space: play/pause the simulation
 
