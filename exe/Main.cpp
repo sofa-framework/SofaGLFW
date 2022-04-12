@@ -49,7 +49,7 @@ int main(int argc, char** argv)
         ("a,start", "start the animation loop", cxxopts::value<bool>()->default_value("false"))
         ("s,fullscreen", "set full screen at startup", cxxopts::value<bool>()->default_value("false"))
         ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
-        ("m,msaa_samples", "set number of samples for MSAA", cxxopts::value<unsigned short>()->default_value("0"))
+        ("m,msaa_samples", "set number of samples for multisample anti-aliasing (MSAA)", cxxopts::value<unsigned short>()->default_value("0"))
         ("h,help", "print usage")
         ;
 
