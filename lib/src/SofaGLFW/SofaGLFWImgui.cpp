@@ -53,6 +53,7 @@
 #include <fa-solid-900.h>
 #include <Roboto-Medium.h>
 #include <Style.h>
+#include <ImGuiDataWidget.h>
 
 #include <sofa/helper/Utils.h>
 #include <sofa/type/vector.h>
@@ -899,31 +900,32 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
                 if (ImGui::CollapsingHeader(clickedObject->getName().c_str(), &areDataDisplayed))
                 {
                     ImGui::Indent();
-                    std::map<std::string, std::vector<const core::BaseData*> > groupMap;
-                    for (const auto* data : clickedObject->getDataFields())
+                    std::map<std::string, std::vector<core::BaseData*> > groupMap;
+                    for (auto* data : clickedObject->getDataFields())
                     {
                         groupMap[data->getGroup()].push_back(data);
                     }
-                    for (const auto& [group, datas] : groupMap)
+                    for (auto& [group, datas] : groupMap)
                     {
                         const auto groupName = group.empty() ? "Property" : group;
                         ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                         if (ImGui::CollapsingHeader(groupName.c_str()))
                         {
                             ImGui::Indent();
-                            for (const auto& data : datas)
+                            for (auto& data : datas)
                             {
                                 const bool isOpen = ImGui::CollapsingHeader(data->m_name.c_str());
                                 if (ImGui::IsItemHovered())
                                 {
                                     ImGui::BeginTooltip();
                                     ImGui::TextDisabled(data->getHelp().c_str());
+                                    ImGui::TextDisabled("Type: %s", data->getValueTypeString().c_str());
                                     ImGui::EndTooltip();
                                 }
                                 if (isOpen)
                                 {
                                     ImGui::TextDisabled(data->getHelp().c_str());
-                                    ImGui::TextWrapped(data->getValueString().c_str());
+                                    showWidget(*data);
                                 }
                             }
                             ImGui::Unindent();
@@ -970,32 +972,33 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         bool isOpen = true;
         if (ImGui::Begin((component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
         {
-            std::map<std::string, std::vector<const core::BaseData*> > groupMap;
-            for (const auto* data : component->getDataFields())
+            std::map<std::string, std::vector<core::BaseData*> > groupMap;
+            for (auto* data : component->getDataFields())
             {
                 groupMap[data->getGroup()].push_back(data);
             }
             if (ImGui::BeginTabBar(("##tabs"+component->getName()).c_str(), ImGuiTabBarFlags_None))
             {
-                for (const auto& [group, datas] : groupMap)
+                for (auto& [group, datas] : groupMap)
                 {
                     const auto groupName = group.empty() ? "Property" : group;
                     // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                     if (ImGui::BeginTabItem(groupName.c_str()))
                     {
-                        for (const auto& data : datas)
+                        for (auto& data : datas)
                         {
                             const bool isOpenData = ImGui::CollapsingHeader(data->m_name.c_str());
                             if (ImGui::IsItemHovered())
                             {
                                 ImGui::BeginTooltip();
                                 ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::TextDisabled("Type: %s", data->getValueTypeString().c_str());
                                 ImGui::EndTooltip();
                             }
                             if (isOpenData)
                             {
                                 ImGui::TextDisabled(data->getHelp().c_str());
-                                ImGui::TextWrapped(data->getValueString().c_str());
+                                showWidget(*data);
                             }
                         }
                         ImGui::EndTabItem();

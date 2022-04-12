@@ -40,6 +40,7 @@ set(IMGUI_HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/fa-solid-900.h
     ${CMAKE_CURRENT_SOURCE_DIR}/Roboto-Medium.h
     ${CMAKE_CURRENT_SOURCE_DIR}/Style.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiDataWidget.h
     PARENT_SCOPE
 )
 set(IMGUI_SOURCE_FILES
@@ -54,6 +55,7 @@ set(IMGUI_SOURCE_FILES
     ${implot_SOURCE_DIR}/implot.cpp
     ${implot_SOURCE_DIR}/implot_items.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Style.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiDataWidget.cpp
     PARENT_SCOPE
 )
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} PARENT_SCOPE)
