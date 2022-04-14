@@ -262,6 +262,109 @@ void DataWidget<sofa::type::vector<sofa::type::Vec<4, float> > >::showWidget(MyD
 }
 
 /***********************************************************************************************************************
+ * Vectors of RigidCoord
+ **********************************************************************************************************************/
+
+template< sofa::Size N, typename ValueType>
+void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<N, ValueType> > >&)
+{
+    ImGui::TableSetupColumn("");
+    for (unsigned int i = 0; i < sofa::defaulttype::RigidCoord<N, ValueType>::total_size; ++i)
+    {
+        ImGui::TableSetupColumn(std::to_string(i).c_str());
+    }
+}
+
+template<typename ValueType>
+void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<3, ValueType> > >&)
+{
+    ImGui::TableSetupColumn("");
+    ImGui::TableSetupColumn("X");
+    ImGui::TableSetupColumn("Y");
+    ImGui::TableSetupColumn("Z");
+
+    ImGui::TableSetupColumn("qX");
+    ImGui::TableSetupColumn("qY");
+    ImGui::TableSetupColumn("qZ");
+    ImGui::TableSetupColumn("qW");
+}
+
+template<typename ValueType>
+void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<2, ValueType> > >&)
+{
+    ImGui::TableSetupColumn("");
+    ImGui::TableSetupColumn("X");
+    ImGui::TableSetupColumn("Y");
+
+    ImGui::TableSetupColumn("w");
+}
+
+template< sofa::Size N, typename ValueType>
+void showWidgetT(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<N, ValueType> > >& data)
+{
+    static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
+    if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), sofa::defaulttype::RigidCoord<N, ValueType>::total_size + 1, flags))
+    {
+        showVecTableHeader(data);
+
+        ImGui::TableHeadersRow();
+
+        unsigned int counter {};
+        for (const auto& vec : *sofa::helper::getReadAccessor(data))
+        {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", counter++);
+            for (const auto& v : vec.getCenter())
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("%f", v);
+            }
+            if constexpr (std::is_scalar_v<std::decay_t<decltype(vec.getOrientation())> >)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("%f", vec.getOrientation());
+            }
+            else
+            {
+                for (unsigned int i = 0 ; i < 4; ++i)
+                {
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%f", vec.getOrientation()[i]);
+                }
+            }
+
+        }
+
+        ImGui::EndTable();
+    }
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<3, double> > >::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<3, float> > >::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<2, double> > >::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<2, float> > >::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+/***********************************************************************************************************************
  * Topology elements
  **********************************************************************************************************************/
 
@@ -412,6 +515,12 @@ const bool dw_vector_vec6f = DataWidgetFactory::Add<sofa::type::vector<sofa::typ
 
 const bool dw_vector_vec8d = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<8, double> > >();
 const bool dw_vector_vec8f = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<8, float> > >();
+
+const bool dw_vector_rigid2d = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<2, double> > >();
+const bool dw_vector_rigid2f = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<2, float> > >();
+
+const bool dw_vector_rigid3d = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<3, double> > >();
+const bool dw_vector_rigid3f = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<3, float> > >();
 
 const bool dw_vector_edge = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Edge > >();
 const bool dw_vector_hexa = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Hexahedron > >();
