@@ -283,10 +283,10 @@ void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<3,
     ImGui::TableSetupColumn("Y");
     ImGui::TableSetupColumn("Z");
 
-    ImGui::TableSetupColumn("a");
-    ImGui::TableSetupColumn("b");
-    ImGui::TableSetupColumn("c");
-    ImGui::TableSetupColumn("d");
+    ImGui::TableSetupColumn("qX");
+    ImGui::TableSetupColumn("qY");
+    ImGui::TableSetupColumn("qZ");
+    ImGui::TableSetupColumn("qW");
 }
 
 template<typename ValueType>
@@ -296,7 +296,7 @@ void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<2,
     ImGui::TableSetupColumn("X");
     ImGui::TableSetupColumn("Y");
 
-    ImGui::TableSetupColumn("a");
+    ImGui::TableSetupColumn("w");
 }
 
 template< sofa::Size N, typename ValueType>
