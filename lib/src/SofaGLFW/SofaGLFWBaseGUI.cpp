@@ -300,6 +300,7 @@ void SofaGLFWBaseGUI::setBackgroundImage(const std::string& /* filename */, unsi
 void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
 {
     glfwMakeContextCurrent(glfwWindow);
+    glfwSwapInterval( 0 ); //request disabling vsync
     if (!m_bGlewIsInitialized)
     {
         glewInit();
