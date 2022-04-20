@@ -19,59 +19,26 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFW/config.h>
+#pragma once
 
-#include <sofa/simulation/Node.h>
-#include <sofa/gui/GUIManager.h>
-#include <SofaGLFW/SofaGLFWGUI.h>
+#include <SofaGLFW/config.h>
+#include <SofaGLFW/BaseGUIEngine.h>
 
 namespace sofaglfw
 {
 
-extern "C" {
-    SOFAGLFW_API void initExternalModule();
-    SOFAGLFW_API const char* getModuleName();
-    SOFAGLFW_API const char* getModuleVersion();
-    SOFAGLFW_API const char* getModuleLicense();
-    SOFAGLFW_API const char* getModuleDescription();
-    SOFAGLFW_API const char* getModuleComponentList();
-}
-
-void initExternalModule()
+class NullGUIEngine : public BaseGUIEngine
 {
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-
-        sofa::gui::GUIManager::RegisterGUI("glfw", &sofaglfw::SofaGLFWGUI::CreateGUI);
-    }
-}
-
-const char* getModuleName()
-{
-    return sofa_tostring(SOFA_TARGET);
-}
-
-const char* getModuleVersion()
-{
-    return sofa_tostring(SOFAGLFW_VERSION);
-}
-
-const char* getModuleLicense()
-{
-    return "GPL";
-}
-
-const char* getModuleDescription()
-{
-    return "A GLFW Gui for SOFA.";
-}
-
-const char* getModuleComponentList()
-{
-    //no Components in this plugin
-    return "";
-}
+public:
+    NullGUIEngine() = default;
+    ~NullGUIEngine() = default;
+    
+    void init() override;
+    void initBackend(GLFWwindow*) override;
+    void startFrame(SofaGLFWBaseGUI*) override;
+    void endFrame() override;
+    void terminate() override;
+    bool dispatchMouseEvents() override;
+};
 
 } // namespace sofaglfw

@@ -19,59 +19,26 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#pragma once
 #include <SofaGLFW/config.h>
 
-#include <sofa/simulation/Node.h>
-#include <sofa/gui/GUIManager.h>
-#include <SofaGLFW/SofaGLFWGUI.h>
+struct GLFWwindow;
 
 namespace sofaglfw
 {
 
-extern "C" {
-    SOFAGLFW_API void initExternalModule();
-    SOFAGLFW_API const char* getModuleName();
-    SOFAGLFW_API const char* getModuleVersion();
-    SOFAGLFW_API const char* getModuleLicense();
-    SOFAGLFW_API const char* getModuleDescription();
-    SOFAGLFW_API const char* getModuleComponentList();
-}
+class SofaGLFWBaseGUI;
 
-void initExternalModule()
+class BaseGUIEngine
 {
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-
-        sofa::gui::GUIManager::RegisterGUI("glfw", &sofaglfw::SofaGLFWGUI::CreateGUI);
-    }
-}
-
-const char* getModuleName()
-{
-    return sofa_tostring(SOFA_TARGET);
-}
-
-const char* getModuleVersion()
-{
-    return sofa_tostring(SOFAGLFW_VERSION);
-}
-
-const char* getModuleLicense()
-{
-    return "GPL";
-}
-
-const char* getModuleDescription()
-{
-    return "A GLFW Gui for SOFA.";
-}
-
-const char* getModuleComponentList()
-{
-    //no Components in this plugin
-    return "";
-}
+public:
+    
+    virtual void init() = 0;
+    virtual void initBackend(GLFWwindow*) = 0;
+    virtual void startFrame(SofaGLFWBaseGUI*) = 0;
+    virtual void endFrame() = 0;
+    virtual void terminate() = 0;
+    virtual bool dispatchMouseEvents() = 0;
+};
 
 } // namespace sofaglfw

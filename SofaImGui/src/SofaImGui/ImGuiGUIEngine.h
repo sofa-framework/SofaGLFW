@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -21,19 +21,29 @@
 ******************************************************************************/
 #pragma once
 
+#include <SofaGLFW/BaseGUIEngine.h>
+
 struct GLFWwindow;
 namespace sofa::glfw
 {
     class SofaGLFWBaseGUI;
 }
 
-namespace sofa::glfw::imgui
+namespace sofaimgui
 {
 
-void imguiInit();
-void imguiInitBackend(GLFWwindow* glfwWindow);
-void imguiDraw(SofaGLFWBaseGUI* baseGUI);
-void imguiTerminate();
-bool dispatchMouseEvents();
+class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
+{
+public:
+    ImGuiGUIEngine() = default;
+    ~ImGuiGUIEngine() = default;
+    
+    void init() override;
+    void initBackend(GLFWwindow*) override;
+    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
+    void endFrame() override {}
+    void terminate() override;
+    bool dispatchMouseEvents() override;
+};
 
-} // namespace sofa::glfw::imgui
+} // namespace sofaimgui

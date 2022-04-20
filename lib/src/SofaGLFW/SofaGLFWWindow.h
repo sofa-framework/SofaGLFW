@@ -19,6 +19,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#pragma once
 #include <SofaGLFW/config.h>
 
 #include <sofa/simulation/fwd.h>
@@ -26,7 +27,7 @@
 
 struct GLFWwindow;
 
-namespace sofa::glfw
+namespace sofaglfw
 {
 
 class SOFAGLFW_API SofaGLFWWindow
@@ -57,4 +58,4 @@ private:
     sofa::type::RGBAColor m_backgroundColor{ sofa::type::RGBAColor::black() };
 };
 
-} // namespace sofa::glfw
+} // namespace sofaglfw

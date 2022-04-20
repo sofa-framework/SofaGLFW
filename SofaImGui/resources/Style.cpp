@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -22,7 +22,7 @@
 #include <Style.h>
 #include <imgui.h>
 
-namespace sofa::glfw::imgui
+namespace sofaimgui
 {
 
 void setDeepDarkStyle()
