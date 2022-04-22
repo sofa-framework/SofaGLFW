@@ -24,13 +24,13 @@
 
 #include <imgui.h>
 
-namespace sofa::glfw::imgui
+namespace sofaimgui
 {
 
 struct BaseDataWidget
 {
     virtual ~BaseDataWidget() = default;
-    virtual void showWidget(core::objectmodel::BaseData&) = 0;
+    virtual void showWidget(sofa::core::objectmodel::BaseData&) = 0;
 };
 
 template<class T>
@@ -44,7 +44,7 @@ struct DataWidget : BaseDataWidget
         return d.getValueTypeString();
     }
 
-    void showWidget(core::objectmodel::BaseData& data) override
+    void showWidget(sofa::core::objectmodel::BaseData& data) override
     {
         if (MyData* d = dynamic_cast<MyData*>(&data))
         {
@@ -71,7 +71,7 @@ struct DataWidgetFactory
         return it.second;
     }
 
-    static BaseDataWidget* GetWidget(core::objectmodel::BaseData& data)
+    static BaseDataWidget* GetWidget(sofa::core::objectmodel::BaseData& data)
     {
         const auto it = factoryMap.find(data.getValueTypeString());
         if (it != factoryMap.end())
@@ -83,7 +83,7 @@ private:
     inline static std::unordered_map<std::string, std::unique_ptr<BaseDataWidget> > factoryMap;
 };
 
-inline void showWidget(core::objectmodel::BaseData& data)
+inline void showWidget(sofa::core::objectmodel::BaseData& data)
 {
     auto* widget = DataWidgetFactory::GetWidget(data);
     if (widget)

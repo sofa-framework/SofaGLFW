@@ -82,12 +82,10 @@ set(SOURCE_FILES
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR})
 
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG=<SofaGLFW/CustomImGuiFileDialogConfig.h>)
-
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW)
-target_link_libraries(${PROJECT_NAME} PRIVATE nfd)
+target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw)
 
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}

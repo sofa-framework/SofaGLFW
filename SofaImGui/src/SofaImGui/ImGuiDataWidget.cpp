@@ -20,14 +20,16 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-#include <ImGuiDataWidget.h>
+#include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/core/objectmodel/Base.h>
 
 #include <implot.h>
 #include <sofa/helper/map.h>
 
-namespace sofa::glfw::imgui
+namespace sofaimgui
 {
+
+using namespace sofa;
 
 template<>
 void DataWidget<bool>::showWidget(MyData& data)

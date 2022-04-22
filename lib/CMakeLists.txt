@@ -51,9 +51,12 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${glfw_SOURCE_DIR}/include")
 target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL SofaSimulationGraph SofaBaseVisual)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_include_directories(${PROJECT_NAME} PUBLIC 
+    $<BUILD_INTERFACE:${glfw_SOURCE_DIR}/include>  
+    $<INSTALL_INTERFACE:include>
+)
 
 if(SofaGuiCommon_FOUND)
     target_link_libraries(${PROJECT_NAME} PUBLIC SofaGuiCommon)
