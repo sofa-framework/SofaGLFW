@@ -44,10 +44,7 @@ class SOFAGLFW_API SofaGLFWBaseGUI
 {
 public:
     
-    SofaGLFWBaseGUI()
-    {
-        m_guiEngine = std::make_shared<NullGUIEngine>();
-    }
+    SofaGLFWBaseGUI();
     
     virtual ~SofaGLFWBaseGUI();
 

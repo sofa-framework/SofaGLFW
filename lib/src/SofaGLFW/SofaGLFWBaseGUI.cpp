@@ -42,11 +42,15 @@ using namespace sofa;
 namespace sofaglfw
 {
 
+SofaGLFWBaseGUI::SofaGLFWBaseGUI()
+{
+    m_guiEngine = std::make_shared<NullGUIEngine>();
+}
+
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
 {
     terminate();
 }
-
 
 sofa::core::sptr<sofa::simulation::Node> SofaGLFWBaseGUI::getRootNode() const
 {

@@ -20,6 +20,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+#include <SofaImGui/config.h>
 
 #include <SofaGLFW/BaseGUIEngine.h>
 
