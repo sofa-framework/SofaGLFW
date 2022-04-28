@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -19,10 +19,23 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#pragma once
-namespace sofa::glfw::imgui
+#include <SofaImGui/config.h>
+
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
+#include <SofaGLFW/SofaGLFWGUI.h>
+#include <sofa/gui/BaseGUI.h>
+
+namespace sofaimgui
 {
 
-void setDeepDarkStyle();
+class SOFAIMGUI_API ImGuiGUI : public sofaglfw::SofaGLFWGUI
+{
+public:
+    ImGuiGUI();
+    
+    ~ImGuiGUI() override = default;
 
-}
+    static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+};
+
+} // namespace sofaimgui

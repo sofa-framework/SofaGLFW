@@ -19,22 +19,22 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFW/config.h>
+#include <SofaImGui/config.h>
 
 #include <sofa/simulation/Node.h>
 #include <sofa/gui/GUIManager.h>
-#include <SofaGLFW/SofaGLFWGUI.h>
+#include <SofaImGui/ImGuiGUI.h>
 
-namespace sofa::component
+namespace sofaimgui
 {
 
 extern "C" {
-    SOFAGLFW_API void initExternalModule();
-    SOFAGLFW_API const char* getModuleName();
-    SOFAGLFW_API const char* getModuleVersion();
-    SOFAGLFW_API const char* getModuleLicense();
-    SOFAGLFW_API const char* getModuleDescription();
-    SOFAGLFW_API const char* getModuleComponentList();
+    SOFAIMGUI_API void initExternalModule();
+    SOFAIMGUI_API const char* getModuleName();
+    SOFAIMGUI_API const char* getModuleVersion();
+    SOFAIMGUI_API const char* getModuleLicense();
+    SOFAIMGUI_API const char* getModuleDescription();
+    SOFAIMGUI_API const char* getModuleComponentList();
 }
 
 void initExternalModule()
@@ -44,7 +44,7 @@ void initExternalModule()
     {
         first = false;
 
-        sofa::gui::GUIManager::RegisterGUI("glfw", &sofa::glfw::SofaGLFWGUI::CreateGUI);
+        sofa::gui::GUIManager::RegisterGUI("imgui", &sofaimgui::ImGuiGUI::CreateGUI);
     }
 }
 
@@ -55,7 +55,7 @@ const char* getModuleName()
 
 const char* getModuleVersion()
 {
-    return sofa_tostring(SOFAGLFW_VERSION);
+    return sofa_tostring(SOFAIMGUI_VERSION);
 }
 
 const char* getModuleLicense()
@@ -65,7 +65,7 @@ const char* getModuleLicense()
 
 const char* getModuleDescription()
 {
-    return "A GLFW Gui for SOFA.";
+    return "A ImGui Gui for SOFA.";
 }
 
 const char* getModuleComponentList()
@@ -74,4 +74,4 @@ const char* getModuleComponentList()
     return "";
 }
 
-} // namespace sofa::component
+} // namespace sofaimgui

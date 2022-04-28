@@ -20,80 +20,31 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <sofa/core/objectmodel/Data.h>
+#include <SofaImGui/config.h>
 
-#include <imgui.h>
+#include <SofaGLFW/BaseGUIEngine.h>
 
-namespace sofa::glfw::imgui
+struct GLFWwindow;
+namespace sofa::glfw
 {
-
-struct BaseDataWidget
-{
-    virtual ~BaseDataWidget() = default;
-    virtual void showWidget(core::objectmodel::BaseData&) = 0;
-};
-
-template<class T>
-struct DataWidget : BaseDataWidget
-{
-    using MyData = sofa::core::objectmodel::Data<T>;
-
-    static std::string getType()
-    {
-        MyData d;
-        return d.getValueTypeString();
-    }
-
-    void showWidget(core::objectmodel::BaseData& data) override
-    {
-        if (MyData* d = dynamic_cast<MyData*>(&data))
-        {
-            showWidget(*d);
-        }
-    }
-
-    void showWidget(MyData& data)
-    {
-        ImGui::TextWrapped(data.getValueString().c_str());
-    }
-
-    ~DataWidget() override = default;
-};
-
-struct DataWidgetFactory
-{
-    template<class T>
-    static bool Add()
-    {
-        using Widget = DataWidget<T>;
-        const auto it = factoryMap.emplace(Widget::getType(), std::make_unique<Widget>());
-        msg_error_when(!it.second, "DataWidgetFactory")<< "Cannot add into the factory";
-        return it.second;
-    }
-
-    static BaseDataWidget* GetWidget(core::objectmodel::BaseData& data)
-    {
-        const auto it = factoryMap.find(data.getValueTypeString());
-        if (it != factoryMap.end())
-            return it->second.get();
-        return nullptr;
-    }
-
-private:
-    inline static std::unordered_map<std::string, std::unique_ptr<BaseDataWidget> > factoryMap;
-};
-
-inline void showWidget(core::objectmodel::BaseData& data)
-{
-    auto* widget = DataWidgetFactory::GetWidget(data);
-    if (widget)
-    {
-        widget->showWidget(data);
-    }
-    else
-    {
-        ImGui::TextWrapped(data.getValueString().c_str());
-    }
+    class SofaGLFWBaseGUI;
 }
 
-}
+namespace sofaimgui
+{
+
+class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
+{
+public:
+    ImGuiGUIEngine() = default;
+    ~ImGuiGUIEngine() = default;
+    
+    void init() override;
+    void initBackend(GLFWwindow*) override;
+    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
+    void endFrame() override {}
+    void terminate() override;
+    bool dispatchMouseEvents() override;
+};
+
+} // namespace sofaimgui

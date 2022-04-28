@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 
     // create an instance of SofaGLFWGUI
     // linked with the simulation
-    sofa::glfw::SofaGLFWBaseGUI glfwGUI;
+    sofaglfw::SofaGLFWBaseGUI glfwGUI;
     
     auto nbMSAASamples = result["msaa_samples"].as<unsigned short>();
     if (!glfwGUI.init(nbMSAASamples))

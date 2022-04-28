@@ -31,7 +31,7 @@
 #include <sofa/gl/gl.h>
 
 
-namespace sofa::glfw
+namespace sofaglfw
 {
 
 SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera)
@@ -96,7 +96,7 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
     vparams->setProjectionMatrix(projectionMatrix);
     vparams->setModelViewMatrix(mvMatrix);
 
-    simulation::getSimulation()->draw(vparams, groot.get());
+    sofa::simulation::getSimulation()->draw(vparams, groot.get());
 
 }
 
@@ -201,4 +201,4 @@ void SofaGLFWWindow::scrollEvent(double xoffset, double yoffset)
     m_currentCamera->manageEvent(&me);
 }
 
-} // namespace sofa::glfw
+} // namespace sofaglfw

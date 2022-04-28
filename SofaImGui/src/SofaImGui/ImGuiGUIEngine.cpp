@@ -19,13 +19,12 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#include <SofaImGui/ImGuiGUIEngine.h>
+
 #include <iomanip>
 #include <ostream>
 #include <unordered_set>
-#include <SofaGLFW/SofaGLFWImgui.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
-
-#include <SofaGLFW/config.h>
 
 #include <sofa/core/CategoryLibrary.h>
 #include <sofa/helper/logging/LoggingMessageHandler.h>
@@ -38,9 +37,8 @@
 
 #include <sofa/helper/AdvancedTimer.h>
 
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
-#if SOFAGLFW_HAS_IMGUI
 #include <imgui.h>
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <implot.h>
@@ -53,7 +51,7 @@
 #include <fa-solid-900.h>
 #include <Roboto-Medium.h>
 #include <Style.h>
-#include <ImGuiDataWidget.h>
+#include <SofaImGui/ImGuiDataWidget.h>
 
 #include <sofa/helper/Utils.h>
 #include <sofa/type/vector.h>
@@ -62,14 +60,14 @@
 #include <sofa/core/ComponentLibrary.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/PluginManager.h>
-#endif
 
-namespace sofa::glfw::imgui
+using namespace sofa;
+
+namespace sofaimgui
 {
 
-void imguiInit()
+void ImGuiGUIEngine::init()
 {
-#if SOFAGLFW_HAS_IMGUI
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImPlot::CreateContext();
@@ -77,7 +75,7 @@ void imguiInit()
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    static const std::string iniFile(helper::Utils::getExecutableDirectory() + "/imgui.ini");
+    static const std::string iniFile(sofa::helper::Utils::getExecutableDirectory() + "/imgui.ini");
     io.IniFilename = iniFile.c_str();
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -85,21 +83,18 @@ void imguiInit()
 
     // Setup Dear ImGui style
     setDeepDarkStyle();
-
-#endif
 }
 
-void imguiInitBackend(GLFWwindow* glfwWindow)
+void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 {
-#if SOFAGLFW_HAS_IMGUI
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 
-#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#if SOFAIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_Init();
 #else
     ImGui_ImplOpenGL3_Init(nullptr);
-#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
     GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
     if (!monitor)
@@ -122,11 +117,9 @@ void imguiInitBackend(GLFWwindow* glfwWindow)
         io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 16 * yscale, &config, icon_ranges);
         io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 16 * yscale, &config, icon_ranges);
     }
-#endif
 }
 
-#if SOFAGLFW_HAS_IMGUI
-void loadFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
+void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
 {
     sofa::simulation::getSimulation()->unload(groot);
 
@@ -144,19 +137,17 @@ void loadFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>
     }
     baseGUI->initVisual();
 }
-#endif
 
-void imguiDraw(SofaGLFWBaseGUI* baseGUI)
+void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
-#if SOFAGLFW_HAS_IMGUI
 
     // Start the Dear ImGui frame
-#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#if SOFAIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_NewFrame();
 #else
     ImGui_ImplOpenGL3_NewFrame();
-#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -1517,11 +1508,11 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
     }
 
     ImGui::Render();
-#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#if SOFAIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 #else
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
     // Update and Render additional Platform Windows
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -1529,34 +1520,26 @@ void imguiDraw(SofaGLFWBaseGUI* baseGUI)
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
-
-#endif
 }
 
-void imguiTerminate()
+void ImGuiGUIEngine::terminate()
 {
-#if SOFAGLFW_HAS_IMGUI
     NFD_Quit();
 
-#if SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#if SOFAIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_Shutdown();
 #else
     ImGui_ImplOpenGL3_Shutdown();
-#endif // SOFAGLFWIMGUI_FORCE_OPENGL2 == 1
+#endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
     ImGui_ImplGlfw_Shutdown();
     ImPlot::DestroyContext();
     ImGui::DestroyContext();
-#endif
 }
 
-bool dispatchMouseEvents()
+bool ImGuiGUIEngine::dispatchMouseEvents()
 {
-#if SOFAGLFW_HAS_IMGUI
     return !ImGui::GetIO().WantCaptureMouse;
-#else
-    return true;
-#endif
-
 }
-} //namespace sofa::glfw::imgui
+
+} //namespace sofaimgui
