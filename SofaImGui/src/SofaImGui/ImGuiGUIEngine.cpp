@@ -915,7 +915,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 }
                                 if (isOpen)
                                 {
-                                    ImGui::TextDisabled(data->getHelp().c_str());
+                                    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+                                    ImGui::TextWrapped(data->getHelp().c_str());
+                                    ImGui::PopStyleColor();
                                     showWidget(*data);
                                 }
                             }
@@ -988,7 +990,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                             }
                             if (isOpenData)
                             {
-                                ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+                                ImGui::TextWrapped(data->getHelp().c_str());
+                                ImGui::PopStyleColor();
                                 showWidget(*data);
                             }
                         }
