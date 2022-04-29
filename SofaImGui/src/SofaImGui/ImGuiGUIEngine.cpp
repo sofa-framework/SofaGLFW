@@ -1100,6 +1100,42 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                     ImGui::EndTabItem();
                 }
+                if (ImGui::BeginTabItem("Messages"))
+                {
+                    const auto& messages = component->getLoggedMessages();
+                    if (ImGui::BeginTable(std::string("logTableComponent"+component->getName()).c_str(), 2, ImGuiTableFlags_RowBg))
+                    {
+                        ImGui::TableSetupColumn("message type", ImGuiTableColumnFlags_WidthFixed);
+                        ImGui::TableSetupColumn("message", ImGuiTableColumnFlags_WidthStretch);
+                        for (const auto& message : messages)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+
+                            constexpr auto writeMessageType = [](const helper::logging::Message::Type t)
+                            {
+                                switch (t)
+                                {
+                                case helper::logging::Message::Advice     : return ImGui::TextColored(ImVec4(0.f, 0.5686f, 0.9176f, 1.f), "[SUGGESTION]");
+                                case helper::logging::Message::Deprecated : return ImGui::TextColored(ImVec4(0.5529f, 0.4314f, 0.3882f, 1.f), "[DEPRECATED]");
+                                case helper::logging::Message::Warning    : return ImGui::TextColored(ImVec4(1.f, 0.4275f, 0.f, 1.f), "[WARNING]");
+                                case helper::logging::Message::Info       : return ImGui::Text("[INFO]");
+                                case helper::logging::Message::Error      : return ImGui::TextColored(ImVec4(0.8667f, 0.1725f, 0.f, 1.f), "[ERROR]");
+                                case helper::logging::Message::Fatal      : return ImGui::TextColored(ImVec4(0.8353, 0.f, 0.f, 1.f), "[FATAL]");
+                                case helper::logging::Message::TEmpty     : return ImGui::Text("[EMPTY]");
+                                default: return;
+                                }
+                            };
+                            writeMessageType(message.type());
+
+                            ImGui::TableNextColumn();
+                            ImGui::TextWrapped(message.message().str().c_str());
+                        }
+                        ImGui::EndTable();
+                    }
+
+                }
+                ImGui::EndTabItem();
 
                 ImGui::EndTabBar();
             }
