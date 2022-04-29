@@ -475,7 +475,8 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
     auto currentGUI = s_mapGUIs.find(window);
     if (currentGUI != s_mapGUIs.end() && currentGUI->second)
     {
-        currentGUI->second->getGUIEngine()->dispatchMouseEvents();
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
     }
     
     auto currentSofaWindow = s_mapWindows.find(window);
@@ -490,7 +491,8 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
     auto currentGUI = s_mapGUIs.find(window);
     if (currentGUI != s_mapGUIs.end() && currentGUI->second)
     {
-        currentGUI->second->getGUIEngine()->dispatchMouseEvents();
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
     }
     
     auto currentSofaWindow = s_mapWindows.find(window);
@@ -505,7 +507,8 @@ void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double
     auto currentGUI = s_mapGUIs.find(window);
     if (currentGUI != s_mapGUIs.end() && currentGUI->second)
     {
-        currentGUI->second->getGUIEngine()->dispatchMouseEvents();
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
     }
     
     auto currentSofaWindow = s_mapWindows.find(window);
