@@ -333,9 +333,13 @@ void SofaGLFWBaseGUI::runLoop()
                 if (!glfwWindowShouldClose(glfwWindow))
                 {
                     makeCurrentContext(glfwWindow);
+
+                    m_guiEngine->beforeDraw(glfwWindow);
                     sofaGlfwWindow->draw(m_groot, m_vparams);
+                    m_guiEngine->afterDraw();
 
                     m_guiEngine->startFrame(this);
+                    m_guiEngine->endFrame();
 
                     glfwSwapBuffers(glfwWindow);
 

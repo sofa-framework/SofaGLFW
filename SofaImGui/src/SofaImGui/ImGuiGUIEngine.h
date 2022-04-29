@@ -22,7 +22,9 @@
 #pragma once
 #include <SofaImGui/config.h>
 
+#include <memory>
 #include <SofaGLFW/BaseGUIEngine.h>
+#include <sofa/gl/FrameBufferObject.h>
 
 struct GLFWwindow;
 namespace sofa::glfw
@@ -43,8 +45,16 @@ public:
     void initBackend(GLFWwindow*) override;
     void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
     void endFrame() override {}
+    void beforeDraw(GLFWwindow* window) override;
+    void afterDraw() override;
     void terminate() override;
     bool dispatchMouseEvents() override;
+
+protected:
+    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
+    std::pair<unsigned int, unsigned int> m_currentFBOSize;
+    std::pair<float, float> m_viewportWindowSize;
+    bool isMouseOnViewport { false };
 };
 
 } // namespace sofaimgui

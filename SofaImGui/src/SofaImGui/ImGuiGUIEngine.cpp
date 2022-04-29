@@ -61,6 +61,7 @@
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/PluginManager.h>
 #include <SofaImGui/ObjectColor.h>
+#include <sofa/core/visual/VisualParams.h>
 
 using namespace sofa;
 
@@ -173,6 +174,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode);
 
+    static constexpr auto windowNameViewport = ICON_FA_DICE_D6 "  Viewport";
     static constexpr auto windowNamePerformances = ICON_FA_CHART_LINE "  Performances";
     static constexpr auto windowNameProfiler = ICON_FA_HOURGLASS "  Profiler";
     static constexpr auto windowNameSceneGraph = ICON_FA_SITEMAP "  Scene Graph";
@@ -195,6 +197,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
         ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
+        ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
         ImGui::DockBuilderFinish(dockspace_id);
     }
     ImGui::End();
@@ -202,6 +205,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     const ImGuiIO& io = ImGui::GetIO();
 
+    static bool isViewportWindowOpen = true;
     static bool isPerformancesWindowOpen = false;
     static bool isSceneGraphWindowOpen = true;
     static bool isDisplayFlagsWindowOpen = false;
@@ -351,6 +355,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         if (ImGui::BeginMenu("Windows"))
         {
+            ImGui::Checkbox(windowNameViewport, &isViewportWindowOpen);
             ImGui::Checkbox(windowNamePerformances, &isPerformancesWindowOpen);
             ImGui::Checkbox(windowNameProfiler, &isProfilerOpen);
             ImGui::Checkbox(windowNameSceneGraph, &isSceneGraphWindowOpen);
@@ -418,6 +423,25 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
+    }
+
+    /***************************************
+     * Viewport window
+     **************************************/
+    if (isViewportWindowOpen)
+    {
+        if (ImGui::Begin(windowNameViewport, &isViewportWindowOpen))
+        {
+            ImGui::BeginChild("Render");
+            ImVec2 wsize = ImGui::GetWindowSize();
+            m_viewportWindowSize = { wsize.x, wsize.y};
+
+            ImGui::Image((ImTextureID)m_fbo->getColorTexture(), wsize, ImVec2(0, 1), ImVec2(1, 0));
+
+            isMouseOnViewport = ImGui::IsItemHovered();
+            ImGui::EndChild();
+        }
+        ImGui::End();
     }
 
     /***************************************
@@ -1564,6 +1588,36 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 }
 
+void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
+{
+    glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    if (!m_fbo)
+    {
+        m_fbo = std::make_unique<sofa::gl::FrameBufferObject>();
+        m_currentFBOSize = {500, 500};
+        m_fbo->init(m_currentFBOSize.first, m_currentFBOSize.second);
+    }
+    else
+    {
+        if (m_currentFBOSize.first != static_cast<unsigned int>(m_viewportWindowSize.first)
+            || m_currentFBOSize.second != static_cast<unsigned int>(m_viewportWindowSize.second))
+        {
+            m_fbo->setSize(static_cast<unsigned int>(m_viewportWindowSize.first), static_cast<unsigned int>(m_viewportWindowSize.second));
+            m_currentFBOSize = {static_cast<unsigned int>(m_viewportWindowSize.first), static_cast<unsigned int>(m_viewportWindowSize.second)};
+        }
+    }
+    sofa::core::visual::VisualParams::defaultInstance()->viewport() = {0,0,m_currentFBOSize.first, m_currentFBOSize.second};
+
+    m_fbo->start();
+}
+
+void ImGuiGUIEngine::afterDraw()
+{
+    m_fbo->stop();
+}
+
 void ImGuiGUIEngine::terminate()
 {
     NFD_Quit();
@@ -1581,7 +1635,7 @@ void ImGuiGUIEngine::terminate()
 
 bool ImGuiGUIEngine::dispatchMouseEvents()
 {
-    return !ImGui::GetIO().WantCaptureMouse;
+    return !ImGui::GetIO().WantCaptureMouse || isMouseOnViewport;
 }
 
 } //namespace sofaimgui

@@ -21,6 +21,8 @@
 ******************************************************************************/
 #include <SofaGLFW/config.h>
 #include <SofaGLFW/NullGUIEngine.h>
+#include <GLFW/glfw3.h>
+#include <sofa/core/visual/VisualParams.h>
 
 namespace sofaglfw
 {
@@ -41,6 +43,14 @@ void NullGUIEngine::endFrame()
 {
     
 }
+
+void NullGUIEngine::beforeDraw(GLFWwindow* window)
+{
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    sofa::core::visual::VisualParams::defaultInstance()->viewport() = {0, 0, width, height};
+}
+
 void NullGUIEngine::terminate()
 {
 
