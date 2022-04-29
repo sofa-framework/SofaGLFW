@@ -37,6 +37,8 @@ public:
     virtual void initBackend(GLFWwindow*) = 0;
     virtual void startFrame(SofaGLFWBaseGUI*) = 0;
     virtual void endFrame() = 0;
+    virtual void beforeDraw(GLFWwindow* window) = 0;
+    virtual void afterDraw() = 0;
     virtual void terminate() = 0;
     virtual bool dispatchMouseEvents() = 0;
 };
