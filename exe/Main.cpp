@@ -61,9 +61,7 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
     sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainPerComponentLoggingMessageHandler::getInstance()) ;
-    sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
 
     sofa::helper::BackTrace::autodump();
 

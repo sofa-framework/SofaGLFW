@@ -24,6 +24,7 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/gui/GUIManager.h>
 #include <SofaImGui/ImGuiGUI.h>
+#include <sofa/helper/logging/LoggingMessageHandler.h>
 
 namespace sofaimgui
 {
@@ -43,6 +44,9 @@ void initExternalModule()
     if (first)
     {
         first = false;
+
+        sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
+        sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
 
         sofa::gui::GUIManager::RegisterGUI("imgui", &sofaimgui::ImGuiGUI::CreateGUI);
     }
