@@ -60,6 +60,7 @@
 #include <sofa/core/ComponentLibrary.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/PluginManager.h>
+#include <SofaImGui/ObjectColor.h>
 
 using namespace sofa;
 
@@ -713,7 +714,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Scene graph window
      **************************************/
-    static std::set<core::objectmodel::Base*> openedComponents;
+    static std::set<core::objectmodel::BaseObject*> openedComponents;
     if (isSceneGraphWindowOpen)
     {
         if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
@@ -791,12 +792,34 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         const auto& objectName = object->getName();
                         const auto objectClassName = object->getClassName();
                         const bool isObjectHighlighted = !filter.Filters.empty() && (filter.PassFilter(objectName.c_str()) || filter.PassFilter(objectClassName.c_str()));
-                        if (isObjectHighlighted)
+
+                        ImVec4 objectColor;
+
+                        auto icon = ICON_FA_CUBE;
+                        if (object->countLoggedMessages({helper::logging::Message::Error, helper::logging::Message::Fatal})!=0)
                         {
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+                            icon = ICON_FA_BUG;
+                            objectColor = ImVec4(1.f, 0.f, 0.f, 1.f); //red
+                        }
+                        else if (object->countLoggedMessages({helper::logging::Message::Warning})!=0)
+                        {
+                            icon = ICON_FA_EXCLAMATION_TRIANGLE;
+                            objectColor = ImVec4(1.f, 0.5f, 0.f, 1.f); //orange
+                        }
+                        else if (object->countLoggedMessages({helper::logging::Message::Info, helper::logging::Message::Deprecated, helper::logging::Message::Advice})!=0)
+                        {
+                            objectColor = getObjectColor(object);
+                            icon = ICON_FA_COMMENT;
+                        }
+                        else
+                        {
+                            objectColor = getObjectColor(object);
                         }
 
-                        const auto objectOpen = ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + object->getName()).c_str(), objectFlags);
+                        ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
+                        const auto objectOpen = ImGui::TreeNodeEx(icon, objectFlags);
+                        ImGui::PopStyleColor();
+
                         if (ImGui::IsItemClicked())
                         {
                             if (ImGui::IsMouseDoubleClicked(0))
@@ -809,6 +832,15 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 clickedObject = object;
                             }
                         }
+
+                        ImGui::SameLine();
+
+                        if (isObjectHighlighted)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+                        }
+                        ImGui::Text(object->getName().c_str());
+
                         ImGui::TableNextColumn();
                         ImGui::TextDisabled(objectClassName.c_str());
 
@@ -888,7 +920,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 ImGui::Separator();
                 ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-                if (ImGui::CollapsingHeader(clickedObject->getName().c_str(), &areDataDisplayed))
+                if (ImGui::CollapsingHeader((ICON_FA_CUBE "  " + clickedObject->getName()).c_str(), &areDataDisplayed))
                 {
                     ImGui::Indent();
                     std::map<std::string, std::vector<core::BaseData*> > groupMap;
@@ -915,7 +947,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 }
                                 if (isOpen)
                                 {
-                                    ImGui::TextDisabled(data->getHelp().c_str());
+                                    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+                                    ImGui::TextWrapped(data->getHelp().c_str());
+                                    ImGui::PopStyleColor();
                                     showWidget(*data);
                                 }
                             }
@@ -957,12 +991,14 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::End();
     }
 
-    sofa::type::vector<core::objectmodel::Base*> toRemove;
+    sofa::type::vector<core::objectmodel::BaseObject*> toRemove;
     for (auto* component : openedComponents)
     {
         bool isOpen = true;
-        if (ImGui::Begin((component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
+        ImGui::PushStyleColor(ImGuiCol_Text, getObjectColor(component));
+        if (ImGui::Begin((ICON_FA_CUBE "  " + component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
         {
+            ImGui::PopStyleColor();
             std::map<std::string, std::vector<core::BaseData*> > groupMap;
             for (auto* data : component->getDataFields())
             {
@@ -988,7 +1024,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                             }
                             if (isOpenData)
                             {
-                                ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+                                ImGui::TextWrapped(data->getHelp().c_str());
+                                ImGui::PopStyleColor();
                                 showWidget(*data);
                             }
                         }
@@ -1041,6 +1079,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                 ImGui::EndTabBar();
             }
+        }
+        else
+        {
+            ImGui::PopStyleColor();
         }
         ImGui::End();
         if (!isOpen)

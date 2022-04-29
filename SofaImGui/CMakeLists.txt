@@ -66,17 +66,19 @@ set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
 
 set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/config.h.in
-    ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
-    ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
-    ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/CustomImGuiFileDialogConfig.h
+    ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
+    ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
+    ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
+    ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.h
 )
 
 set(SOURCE_FILES
-    ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
 )
 
 
