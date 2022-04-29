@@ -793,9 +793,31 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         const auto objectClassName = object->getClassName();
                         const bool isObjectHighlighted = !filter.Filters.empty() && (filter.PassFilter(objectName.c_str()) || filter.PassFilter(objectClassName.c_str()));
 
-                        const auto objectColor = getObjectColor(object);
+                        ImVec4 objectColor;
+
+                        auto icon = ICON_FA_CUBE;
+                        if (object->countLoggedMessages({helper::logging::Message::Error, helper::logging::Message::Fatal})!=0)
+                        {
+                            icon = ICON_FA_BUG;
+                            objectColor = ImVec4(1.f, 0.f, 0.f, 1.f); //red
+                        }
+                        else if (object->countLoggedMessages({helper::logging::Message::Warning})!=0)
+                        {
+                            icon = ICON_FA_EXCLAMATION_TRIANGLE;
+                            objectColor = ImVec4(1.f, 0.5f, 0.f, 1.f); //orange
+                        }
+                        else if (object->countLoggedMessages({helper::logging::Message::Info, helper::logging::Message::Deprecated, helper::logging::Message::Advice})!=0)
+                        {
+                            objectColor = getObjectColor(object);
+                            icon = ICON_FA_COMMENT;
+                        }
+                        else
+                        {
+                            objectColor = getObjectColor(object);
+                        }
+
                         ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
-                        const auto objectOpen = ImGui::TreeNodeEx(ICON_FA_CUBE, objectFlags);
+                        const auto objectOpen = ImGui::TreeNodeEx(icon, objectFlags);
                         ImGui::PopStyleColor();
 
                         if (ImGui::IsItemClicked())
