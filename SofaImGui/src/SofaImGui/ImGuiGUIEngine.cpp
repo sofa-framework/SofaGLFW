@@ -60,6 +60,7 @@
 #include <sofa/core/ComponentLibrary.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/PluginManager.h>
+#include <SofaImGui/ObjectColor.h>
 
 using namespace sofa;
 
@@ -713,7 +714,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Scene graph window
      **************************************/
-    static std::set<core::objectmodel::Base*> openedComponents;
+    static std::set<core::objectmodel::BaseObject*> openedComponents;
     if (isSceneGraphWindowOpen)
     {
         if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
@@ -791,12 +792,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         const auto& objectName = object->getName();
                         const auto objectClassName = object->getClassName();
                         const bool isObjectHighlighted = !filter.Filters.empty() && (filter.PassFilter(objectName.c_str()) || filter.PassFilter(objectClassName.c_str()));
-                        if (isObjectHighlighted)
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
-                        }
 
-                        const auto objectOpen = ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + object->getName()).c_str(), objectFlags);
+                        const auto objectColor = getObjectColor(object);
+                        ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
+                        const auto objectOpen = ImGui::TreeNodeEx(ICON_FA_CUBE, objectFlags);
+                        ImGui::PopStyleColor();
+
                         if (ImGui::IsItemClicked())
                         {
                             if (ImGui::IsMouseDoubleClicked(0))
@@ -809,6 +810,15 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 clickedObject = object;
                             }
                         }
+
+                        ImGui::SameLine();
+
+                        if (isObjectHighlighted)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+                        }
+                        ImGui::Text(object->getName().c_str());
+
                         ImGui::TableNextColumn();
                         ImGui::TextDisabled(objectClassName.c_str());
 
@@ -888,7 +898,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 ImGui::Separator();
                 ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-                if (ImGui::CollapsingHeader(clickedObject->getName().c_str(), &areDataDisplayed))
+                if (ImGui::CollapsingHeader((ICON_FA_CUBE "  " + clickedObject->getName()).c_str(), &areDataDisplayed))
                 {
                     ImGui::Indent();
                     std::map<std::string, std::vector<core::BaseData*> > groupMap;
@@ -959,12 +969,14 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::End();
     }
 
-    sofa::type::vector<core::objectmodel::Base*> toRemove;
+    sofa::type::vector<core::objectmodel::BaseObject*> toRemove;
     for (auto* component : openedComponents)
     {
         bool isOpen = true;
-        if (ImGui::Begin((component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
+        ImGui::PushStyleColor(ImGuiCol_Text, getObjectColor(component));
+        if (ImGui::Begin((ICON_FA_CUBE "  " + component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
         {
+            ImGui::PopStyleColor();
             std::map<std::string, std::vector<core::BaseData*> > groupMap;
             for (auto* data : component->getDataFields())
             {
@@ -1045,6 +1057,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                 ImGui::EndTabBar();
             }
+        }
+        else
+        {
+            ImGui::PopStyleColor();
         }
         ImGui::End();
         if (!isOpen)
