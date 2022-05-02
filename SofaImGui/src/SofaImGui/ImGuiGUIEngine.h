@@ -26,6 +26,9 @@
 #include <SofaGLFW/BaseGUIEngine.h>
 #include <sofa/gl/FrameBufferObject.h>
 
+#include <imgui.h>
+#include <sofa/simulation/Node.h>
+
 struct GLFWwindow;
 namespace sofa::glfw
 {
@@ -55,6 +58,20 @@ protected:
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
+
+    void showViewport(const char* const& windowNameViewport, bool& isViewportWindowOpen);
+    void showPerformances(const char* const& windowNamePerformances, const ImGuiIO& io, bool& isPerformancesWindowOpen);
+    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler,
+                      bool& isProfilerOpen);
+    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph,
+                        bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                        std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
+    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags,
+                          bool& isDisplayFlagsWindowOpen);
+    void showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen);
+    void showComponents(const char* const& windowNameComponents, bool& isComponentsWindowOpen);
+    void showLog(const char* const& windowNameLog, bool& isLogWindowOpen);
+    void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen);
 };
 
 } // namespace sofaimgui
