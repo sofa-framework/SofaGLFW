@@ -25,6 +25,8 @@
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/gui/BaseGUI.h>
 
+#include <SofaGraphComponent/ViewerSetting.h>
+
 namespace sofaglfw
 {
 

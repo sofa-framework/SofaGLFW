@@ -35,8 +35,6 @@
 #include <SofaGraphComponent/ViewerSetting.h>
 #include <SofaBaseVisual/BackgroundSetting.h>
 
-#include <SofaBase/initSofaBase.h>
-
 #include <sofa/helper/system/PluginManager.h>
 
 int main(int argc, char** argv)
@@ -65,10 +63,7 @@ int main(int argc, char** argv)
 
     sofa::helper::BackTrace::autodump();
 
-    sofa::component::initSofaBase();
-
     sofa::simulation::graph::init();
-    sofa::component::initSofaBase();
 
     // create an instance of SofaGLFWGUI
     // linked with the simulation

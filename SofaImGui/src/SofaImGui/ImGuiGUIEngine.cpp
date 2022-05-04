@@ -447,6 +447,12 @@ void ImGuiGUIEngine::showProfiler(sofa::core::sptr<sofa::simulation::Node> groot
 
 void ImGuiGUIEngine::showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph, bool& isSceneGraphWindowOpen, std::set<core::objectmodel::BaseObject*>& openedComponents, std::set<core::objectmodel::BaseObject*>& focusedComponents)
 {
+    /***************************************
+     * Scene graph window
+     **************************************/
+    static std::set<core::objectmodel::BaseObject*> openedComponents;
+    static std::set<core::objectmodel::BaseObject*> focusedComponents;
+
     if (isSceneGraphWindowOpen)
     {
         if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
