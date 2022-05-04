@@ -739,6 +739,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      * Scene graph window
      **************************************/
     static std::set<core::objectmodel::BaseObject*> openedComponents;
+    static std::set<core::objectmodel::BaseObject*> focusedComponents;
     if (isSceneGraphWindowOpen)
     {
         if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
@@ -973,6 +974,25 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 {
                                     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
                                     ImGui::TextWrapped(data->getHelp().c_str());
+
+                                    if (data->getParent())
+                                    {
+                                        const auto linkPath = data->getLinkPath();
+                                        if (!linkPath.empty())
+                                        {
+                                            ImGui::TextWrapped(linkPath.c_str());
+                                            if (ImGui::IsItemHovered())
+                                            {
+                                                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                                            }
+                                            if (ImGui::IsItemClicked())
+                                            {
+                                                auto* owner = dynamic_cast<core::objectmodel::BaseObject*>(data->getParent()->getOwner());
+                                                focusedComponents.insert(owner);
+                                            }
+                                        }
+                                    }
+
                                     ImGui::PopStyleColor();
                                     showWidget(*data);
                                 }
@@ -1015,6 +1035,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::End();
     }
 
+    openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
+    focusedComponents.clear();
+
     sofa::type::vector<core::objectmodel::BaseObject*> toRemove;
     for (auto* component : openedComponents)
     {
@@ -1050,6 +1073,26 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                             {
                                 ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
                                 ImGui::TextWrapped(data->getHelp().c_str());
+
+                                if (data->getParent())
+                                {
+                                    const auto linkPath = data->getLinkPath();
+                                    if (!linkPath.empty())
+                                    {
+                                        ImGui::TextWrapped(linkPath.c_str());
+
+                                        if (ImGui::IsItemHovered())
+                                        {
+                                            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                                        }
+                                        if (ImGui::IsItemClicked())
+                                        {
+                                            auto* owner = dynamic_cast<core::objectmodel::BaseObject*>(data->getParent()->getOwner());
+                                            focusedComponents.insert(owner);
+                                        }
+                                    }
+                                }
+
                                 ImGui::PopStyleColor();
                                 showWidget(*data);
                             }
