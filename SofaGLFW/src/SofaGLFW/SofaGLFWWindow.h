@@ -19,38 +19,43 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#pragma once
 #include <SofaGLFW/config.h>
 
-#include <SofaGLFW/SofaGLFWBaseGUI.h>
-#include <sofa/gui/BaseGUI.h>
+#include <sofa/simulation/fwd.h>
+#include <SofaBaseVisual/BaseCamera.h>
 
-namespace sofa::glfw
+struct GLFWwindow;
+
+namespace sofaglfw
 {
 
-class SofaGLFWWindow;
-
-class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
+class SOFAGLFW_API SofaGLFWWindow
 {
 public:
-    SofaGLFWGUI() = default;
-    ~SofaGLFWGUI() override = default;
+    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera);
+    virtual ~SofaGLFWWindow() = default;
 
-    bool init();
-    /// BaseGUI API
-    int mainLoop() override;
-    void redraw() override;
-    int closeGUI() override;
-    void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
-    sofa::simulation::Node* currentSimulation() override;
-    void setViewerResolution(int width, int height) override;
-    void setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* viewerConf) override;
-    void setFullScreen() override;
-    void setBackgroundColor(const sofa::type::RGBAColor& color) override;
-    void setBackgroundImage(const std::string& image) override;
-    static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
+    void close();
+
+    void mouseMoveEvent(int xpos, int ypos);
+    void mouseButtonEvent(int button, int action, int mods);
+    void scrollEvent(double xoffset, double yoffset);
+    void setBackgroundColor(const sofa::type::RGBAColor& newColor);
+
+    void setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
+    void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
+
 private:
-    SofaGLFWBaseGUI m_baseGUI;
-    bool m_bCreateWithFullScreen{ false };
+    GLFWwindow* m_glfwWindow{nullptr};
+    sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
+    int m_currentButton{ -1 };
+    int m_currentAction{ -1 };
+    int m_currentMods{ -1 };
+    int m_currentXPos{ -1 };
+    int m_currentYPos{ -1 };
+    sofa::type::RGBAColor m_backgroundColor{ sofa::type::RGBAColor::black() };
 };
 
-} // namespace sofa::glfw
+} // namespace sofaglfw

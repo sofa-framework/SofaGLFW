@@ -26,7 +26,9 @@
 #include <sofa/simulation/Simulation.h>
 #include <SofaGraphComponent/ViewerSetting.h>
 
-namespace sofa::glfw
+using namespace sofa;
+
+namespace sofaglfw
 {
 
 bool SofaGLFWGUI::init()
@@ -118,4 +120,4 @@ sofa::gui::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simulation::N
     return gui;
 }
 
-} // namespace sofa::glfw
+} // namespace sofaglfw

@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -20,9 +20,41 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-namespace sofa::glfw::imgui
+#include <SofaImGui/config.h>
+
+#include <memory>
+#include <SofaGLFW/BaseGUIEngine.h>
+#include <sofa/gl/FrameBufferObject.h>
+
+struct GLFWwindow;
+namespace sofa::glfw
+{
+    class SofaGLFWBaseGUI;
+}
+
+namespace sofaimgui
 {
 
-void setDeepDarkStyle();
+class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
+{
+public:
+    ImGuiGUIEngine() = default;
+    ~ImGuiGUIEngine() = default;
+    
+    void init() override;
+    void initBackend(GLFWwindow*) override;
+    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
+    void endFrame() override {}
+    void beforeDraw(GLFWwindow* window) override;
+    void afterDraw() override;
+    void terminate() override;
+    bool dispatchMouseEvents() override;
 
-}
+protected:
+    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
+    std::pair<unsigned int, unsigned int> m_currentFBOSize;
+    std::pair<float, float> m_viewportWindowSize;
+    bool isMouseOnViewport { false };
+};
+
+} // namespace sofaimgui

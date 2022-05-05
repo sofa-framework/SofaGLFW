@@ -31,7 +31,7 @@
 #include <sofa/gl/gl.h>
 
 
-namespace sofa::glfw
+namespace sofaglfw
 {
 
 SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera)
@@ -63,16 +63,14 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
         return;
     }
 
-    int width, height;
-    glfwGetFramebufferSize(m_glfwWindow, &width, &height);
     if (groot->f_bbox.getValue().isValid())
     {
         vparams->sceneBBox() = groot->f_bbox.getValue();
         m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
     }
     m_currentCamera->computeZ();
-    m_currentCamera->p_widthViewport.setValue(width);
-    m_currentCamera->p_heightViewport.setValue(height);
+    m_currentCamera->p_widthViewport.setValue(vparams->viewport()[2]);
+    m_currentCamera->p_heightViewport.setValue(vparams->viewport()[3]);
 
     // matrices
     double projectionMatrix[16];
@@ -80,7 +78,7 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
     m_currentCamera->getOpenGLProjectionMatrix(projectionMatrix);
     m_currentCamera->getOpenGLModelViewMatrix(mvMatrix);
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, vparams->viewport()[2], vparams->viewport()[3]);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glMultMatrixd(projectionMatrix);
@@ -90,13 +88,12 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
     glMultMatrixd(mvMatrix);
 
     // Update the visual params
-    vparams->viewport() = { 0, 0, width, height };
     vparams->zNear() = m_currentCamera->getZNear();
     vparams->zFar() = m_currentCamera->getZFar();
     vparams->setProjectionMatrix(projectionMatrix);
     vparams->setModelViewMatrix(mvMatrix);
 
-    simulation::getSimulation()->draw(vparams, groot.get());
+    sofa::simulation::getSimulation()->draw(vparams, groot.get());
 
 }
 
@@ -201,4 +198,4 @@ void SofaGLFWWindow::scrollEvent(double xoffset, double yoffset)
     m_currentCamera->manageEvent(&me);
 }
 
-} // namespace sofa::glfw
+} // namespace sofaglfw

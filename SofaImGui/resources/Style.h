@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -20,20 +20,9 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-
-struct GLFWwindow;
-namespace sofa::glfw
+namespace sofaimgui
 {
-    class SofaGLFWBaseGUI;
+
+void setDeepDarkStyle();
+
 }
-
-namespace sofa::glfw::imgui
-{
-
-void imguiInit();
-void imguiInitBackend(GLFWwindow* glfwWindow);
-void imguiDraw(SofaGLFWBaseGUI* baseGUI);
-void imguiTerminate();
-bool dispatchMouseEvents();
-
-} // namespace sofa::glfw::imgui

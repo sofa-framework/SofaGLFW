@@ -20,58 +20,45 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <SofaGLFW/config.h>
+#include <SofaGLFW/NullGUIEngine.h>
+#include <GLFW/glfw3.h>
+#include <sofa/core/visual/VisualParams.h>
 
-#include <sofa/simulation/Node.h>
-#include <sofa/gui/GUIManager.h>
-#include <SofaGLFW/SofaGLFWGUI.h>
-
-namespace sofa::component
+namespace sofaglfw
 {
-
-extern "C" {
-    SOFAGLFW_API void initExternalModule();
-    SOFAGLFW_API const char* getModuleName();
-    SOFAGLFW_API const char* getModuleVersion();
-    SOFAGLFW_API const char* getModuleLicense();
-    SOFAGLFW_API const char* getModuleDescription();
-    SOFAGLFW_API const char* getModuleComponentList();
+    
+void NullGUIEngine::init()
+{
+    
+}
+void NullGUIEngine::initBackend(GLFWwindow*)
+{
+    
+}
+void NullGUIEngine::startFrame(SofaGLFWBaseGUI*)
+{
+    
+}
+void NullGUIEngine::endFrame()
+{
+    
 }
 
-void initExternalModule()
+void NullGUIEngine::beforeDraw(GLFWwindow* window)
 {
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-
-        sofa::gui::GUIManager::RegisterGUI("glfw", &sofa::glfw::SofaGLFWGUI::CreateGUI);
-    }
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    sofa::core::visual::VisualParams::defaultInstance()->viewport() = {0, 0, width, height};
 }
 
-const char* getModuleName()
+void NullGUIEngine::terminate()
 {
-    return sofa_tostring(SOFA_TARGET);
+
 }
 
-const char* getModuleVersion()
+bool NullGUIEngine::dispatchMouseEvents()
 {
-    return sofa_tostring(SOFAGLFW_VERSION);
+    return true;
 }
 
-const char* getModuleLicense()
-{
-    return "GPL";
-}
-
-const char* getModuleDescription()
-{
-    return "A GLFW Gui for SOFA.";
-}
-
-const char* getModuleComponentList()
-{
-    //no Components in this plugin
-    return "";
-}
-
-} // namespace sofa::component
+} // namespace sofaglfw

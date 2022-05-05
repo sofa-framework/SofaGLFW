@@ -35,8 +35,6 @@
 #include <SofaGraphComponent/ViewerSetting.h>
 #include <SofaBaseVisual/BackgroundSetting.h>
 
-#include <SofaBase/initSofaBase.h>
-
 #include <sofa/helper/system/PluginManager.h>
 
 int main(int argc, char** argv)
@@ -49,6 +47,7 @@ int main(int argc, char** argv)
         ("a,start", "start the animation loop", cxxopts::value<bool>()->default_value("false"))
         ("s,fullscreen", "set full screen at startup", cxxopts::value<bool>()->default_value("false"))
         ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
+        ("m,msaa_samples", "set number of samples for multisample anti-aliasing (MSAA)", cxxopts::value<unsigned short>()->default_value("0"))
         ("h,help", "print usage")
         ;
 
@@ -60,22 +59,18 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
     sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainPerComponentLoggingMessageHandler::getInstance()) ;
-    sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
 
     sofa::helper::BackTrace::autodump();
 
-    sofa::component::initSofaBase();
-
     sofa::simulation::graph::init();
-    sofa::component::initSofaBase();
 
     // create an instance of SofaGLFWGUI
     // linked with the simulation
-    sofa::glfw::SofaGLFWBaseGUI glfwGUI;
+    sofaglfw::SofaGLFWBaseGUI glfwGUI;
     
-    if (!glfwGUI.init())
+    auto nbMSAASamples = result["msaa_samples"].as<unsigned short>();
+    if (!glfwGUI.init(nbMSAASamples))
     {
         // Initialization failed
         std::cerr << "Could not initialize GLFW, quitting..." << std::endl;
