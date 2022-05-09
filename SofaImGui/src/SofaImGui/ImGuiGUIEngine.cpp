@@ -1332,13 +1332,19 @@ void ImGuiGUIEngine::showLog(const char* const& windowNameLog, bool& isLogWindow
                     writeMessageType(message.type());
 
                     auto sender = message.sender();
-                    if (auto* nfo = dynamic_cast<helper::logging::SofaComponentInfo*>(message.componentInfo().get()))
+                    auto* nfo = dynamic_cast<helper::logging::SofaComponentInfo*>(message.componentInfo().get());
+                    if (nfo)
                     {
                         sender.append("(" + nfo->name() + ")");
                     }
 
                     ImGui::TableNextColumn();
                     ImGui::Text(sender.c_str());
+
+                    if (nfo && ImGui::IsItemHovered() && nfo->m_component)
+                    {
+                        ImGui::SetTooltip("Path: %s", nfo->m_component->getPathName().c_str());
+                    }
 
                     ImGui::TableNextColumn();
                     ImGui::TextWrapped(message.message().str().c_str());
