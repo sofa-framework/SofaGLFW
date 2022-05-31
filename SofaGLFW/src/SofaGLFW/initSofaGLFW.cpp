@@ -22,7 +22,7 @@
 #include <SofaGLFW/config.h>
 
 #include <sofa/simulation/Node.h>
-#include <sofa/gui/GUIManager.h>
+#include <sofa/gui/common/GUIManager.h>
 #include <SofaGLFW/SofaGLFWGUI.h>
 
 namespace sofaglfw
@@ -43,7 +43,7 @@ void initExternalModule()
     if (first)
     {
         first = false;
-        sofa::gui::GUIManager::RegisterGUI("glfw", &sofaglfw::SofaGLFWGUI::CreateGUI);
+        sofa::gui::common::GUIManager::RegisterGUI("glfw", &sofaglfw::SofaGLFWGUI::CreateGUI);
     }
 }
 
