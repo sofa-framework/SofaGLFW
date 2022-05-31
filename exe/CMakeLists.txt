@@ -18,7 +18,7 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} Sofa.SimulationCore SofaGLFW)
+target_link_libraries(${PROJECT_NAME} Sofa.Simulation.Core SofaGLFW)
 target_include_directories(${PROJECT_NAME} PRIVATE extlibs/cxxopts-2.2.1/include)
 
 sofa_add_targets_to_package(
