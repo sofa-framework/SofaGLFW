@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.12)
 project(SofaGLFW LANGUAGES CXX)
 
+include(cmake/environment.cmake)
+
 find_package(Sofa.Config REQUIRED)
 
-sofa_find_package(SofaSimulation REQUIRED)
+sofa_find_package(Sofa.Simulation REQUIRED)
 sofa_find_package(Sofa.GL REQUIRED)
-sofa_find_package(SofaBaseVisual REQUIRED)
+sofa_find_package(Sofa.Component.Visual REQUIRED)
 sofa_find_package(SofaGuiCommon QUIET)
 
 include(FetchContent)
@@ -71,3 +73,5 @@ sofa_create_package_with_targets(
     INCLUDE_INSTALL_DIR "${PROJECT_NAME}"
     RELOCATABLE "plugins"
 )
+
+include(cmake/packaging.cmake)

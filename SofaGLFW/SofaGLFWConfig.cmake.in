@@ -3,9 +3,10 @@
 @PACKAGE_GUARD@
 @PACKAGE_INIT@
 
-find_package(SofaSimulation REQUIRED)
+find_package(Sofa.Config REQUIRED)
+find_package(Sofa.Simulation REQUIRED)
 find_package(Sofa.GL REQUIRED)
-find_package(SofaBaseVisual REQUIRED)
+find_package(Sofa.Component.Visual REQUIRED)
 find_package(SofaGuiCommon REQUIRED)
 
 if(NOT TARGET @PROJECT_NAME@)
