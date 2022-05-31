@@ -26,9 +26,8 @@
 #if __has_include(<sofa/gui/common/GUIManager.h>)
 #define HAS_SOFA_GUI_COMMON
 #include <sofa/gui/common/GUIManager.h>
-#endif
-
 #include <SofaGLFW/SofaGLFWGUI.h>
+#endif
 
 namespace sofaglfw
 {
