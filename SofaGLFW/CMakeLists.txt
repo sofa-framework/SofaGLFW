@@ -8,7 +8,7 @@ find_package(Sofa.Config REQUIRED)
 sofa_find_package(Sofa.Simulation REQUIRED)
 sofa_find_package(Sofa.GL REQUIRED)
 sofa_find_package(Sofa.Component.Visual REQUIRED)
-sofa_find_package(Sofa.GUI.Common QUIET)
+sofa_find_package(Sofa.GUI.Common REQUIRED)
 
 include(FetchContent)
 
