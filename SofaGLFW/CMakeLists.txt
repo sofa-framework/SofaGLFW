@@ -8,7 +8,7 @@ find_package(Sofa.Config REQUIRED)
 sofa_find_package(Sofa.Simulation REQUIRED)
 sofa_find_package(Sofa.GL REQUIRED)
 sofa_find_package(Sofa.Component.Visual REQUIRED)
-sofa_find_package(Sofa.GUI.Common REQUIRED)
+sofa_find_package(Sofa.GUI.Common QUIET)
 
 include(FetchContent)
 
@@ -47,7 +47,7 @@ set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
 )
 
-if(Sofa.Gui.Common_FOUND)
+if(Sofa.GUI.Common_FOUND)
     LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h)
     LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
 endif()
@@ -61,8 +61,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-if(Sofa.Gui.Common_FOUND)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Gui.Common)
+if(Sofa.GUI.Common_FOUND)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GUI.Common)
 endif()
 
 sofa_create_package_with_targets(
