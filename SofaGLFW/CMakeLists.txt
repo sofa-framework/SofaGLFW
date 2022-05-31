@@ -8,7 +8,7 @@ find_package(Sofa.Config REQUIRED)
 sofa_find_package(Sofa.Simulation REQUIRED)
 sofa_find_package(Sofa.GL REQUIRED)
 sofa_find_package(Sofa.Component.Visual REQUIRED)
-sofa_find_package(SofaGuiCommon QUIET)
+sofa_find_package(Sofa.GUI.Common REQUIRED)
 
 include(FetchContent)
 
@@ -34,17 +34,19 @@ set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
 set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/config.h.in
-	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h
 )
 
 set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/initSofaGLFW.cpp
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
-	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp
 )
 
 if(SofaGuiCommon_FOUND)
