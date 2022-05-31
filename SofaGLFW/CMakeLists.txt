@@ -38,7 +38,6 @@ set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h
 )
 
 set(SOURCE_FILES
@@ -46,25 +45,24 @@ set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.cpp
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp
 )
 
-if(SofaGuiCommon_FOUND)
+if(Sofa.Gui.Common_FOUND)
     LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h)
     LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Simulation.Core Sofa.Component.Visual Sofa.GUI.Common)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Simulation.Core Sofa.Component.Visual)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC 
     $<BUILD_INTERFACE:${glfw_SOURCE_DIR}/include>  
     $<INSTALL_INTERFACE:include>
 )
 
-if(SofaGuiCommon_FOUND)
-    target_link_libraries(${PROJECT_NAME} PUBLIC SofaGuiCommon)
+if(Sofa.Gui.Common_FOUND)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Gui.Common)
 endif()
 
 sofa_create_package_with_targets(
