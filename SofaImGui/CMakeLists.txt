@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 project(SofaImGui LANGUAGES CXX)
 
+# needed to find SofaGLFWConfig.cmake
+# if building both of them out-of-tree
+list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib/cmake)
+
 find_package(SofaGLFW REQUIRED)
 
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
