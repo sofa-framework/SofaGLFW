@@ -23,11 +23,10 @@
 
 #include <sofa/simulation/Node.h>
 
-#if __has_include(<sofa/gui/common/GUIManager.h>)
-#define HAS_SOFA_GUI_COMMON
+#if SOFAGLFW_HAVE_SOFA_GUI_COMMON
 #include <sofa/gui/common/GUIManager.h>
 #include <SofaGLFW/SofaGLFWGUI.h>
-#endif
+#endif // SOFAGLFW_HAVE_SOFA_GUI_COMMON
 
 namespace sofaglfw
 {
@@ -47,9 +46,9 @@ void initExternalModule()
     if (first)
     {
         first = false;
-#ifdef HAS_SOFA_GUI_COMMON
+#if SOFAGLFW_HAVE_SOFA_GUI_COMMON
         sofa::gui::common::GUIManager::RegisterGUI("glfw", &sofaglfw::SofaGLFWGUI::CreateGUI);
-#endif
+#endif // SOFAGLFW_HAVE_SOFA_GUI_COMMON
     }
 }
 
@@ -80,7 +79,3 @@ const char* getModuleComponentList()
 }
 
 } // namespace sofaglfw
-
-#ifdef HAS_SOFA_GUI_COMMON
-#undef HAS_SOFA_GUI_COMMON
-#endif
