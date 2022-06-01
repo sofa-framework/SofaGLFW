@@ -10,7 +10,7 @@ if(NOT TARGET SofaGLFW)
 endif()
 
 if(NOT TARGET Sofa.Helper) # temporary fix about aliases problem
-    sofa_find_package(Sofa.SimulationCore REQUIRED)
+    sofa_find_package(Sofa.Simulation.Core REQUIRED)
 endif()
 
 set(SOURCE_FILES

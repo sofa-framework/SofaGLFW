@@ -4,8 +4,7 @@ project(SofaGLFW LANGUAGES CXX)
 include(cmake/environment.cmake)
 
 find_package(Sofa.Config REQUIRED)
-
-sofa_find_package(Sofa.Simulation REQUIRED)
+sofa_find_package(Sofa.Simulation.Graph REQUIRED)
 sofa_find_package(Sofa.GL REQUIRED)
 sofa_find_package(Sofa.Component.Visual REQUIRED)
 sofa_find_package(Sofa.GUI.Common QUIET)
@@ -35,9 +34,9 @@ set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/config.h.in
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
 )
 
 set(SOURCE_FILES
@@ -54,7 +53,7 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Simulation.Core Sofa.Component.Visual)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Component.Visual)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC 
     $<BUILD_INTERFACE:${glfw_SOURCE_DIR}/include>  

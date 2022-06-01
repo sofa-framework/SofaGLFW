@@ -22,8 +22,8 @@
 #pragma once
 #include <SofaGLFW/config.h>
 
-#include <sofa/simulation/Simulation.h>
-#include <SofaBaseVisual/BaseCamera.h>
+#include <sofa/simulation/fwd.h>
+#include <sofa/component/visual/BaseCamera.h>
 
 struct GLFWwindow;
 
@@ -33,7 +33,7 @@ namespace sofaglfw
 class SOFAGLFW_API SofaGLFWWindow
 {
 public:
-    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera);
+    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera);
     virtual ~SofaGLFWWindow() = default;
 
     void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
@@ -44,12 +44,12 @@ public:
     void scrollEvent(double xoffset, double yoffset);
     void setBackgroundColor(const sofa::type::RGBAColor& newColor);
 
-    void setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
+    void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
     void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
 
 private:
     GLFWwindow* m_glfwWindow{nullptr};
-    sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
+    sofa::component::visual::BaseCamera::SPtr m_currentCamera;
     int m_currentButton{ -1 };
     int m_currentAction{ -1 };
     int m_currentMods{ -1 };
