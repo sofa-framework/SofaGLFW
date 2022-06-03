@@ -22,9 +22,9 @@
 #pragma once
 #include <SofaGLFW/config.h>
 
-#include <sofa/simulation/fwd.h>
+#include <sofa/simulation/Simulation.h>
 #include <sofa/gl/DrawToolGL.h>
-#include <SofaBaseVisual/BaseCamera.h>
+#include <sofa/component/visual/BaseCamera.h>
 #include <sofa/simulation/Node.h>
 
 #include <SofaGLFW/BaseGUIEngine.h>
@@ -80,8 +80,8 @@ public:
         return m_filename;
     }
 
-    sofa::component::visualmodel::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
-    void changeCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
+    sofa::component::visual::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
+    void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
 
     void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine)
     {

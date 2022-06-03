@@ -25,7 +25,7 @@
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/gui/BaseGUI.h>
 
-#include <SofaGraphComponent/ViewerSetting.h>
+#include <sofa/component/setting/ViewerSetting.h>
 
 namespace sofaglfw
 {
@@ -46,7 +46,7 @@ public:
     void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
     sofa::simulation::Node* currentSimulation() override;
     void setViewerResolution(int width, int height) override;
-    void setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* viewerConf) override;
+    void setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf) override;
     void setFullScreen() override;
     void setBackgroundColor(const sofa::type::RGBAColor& color) override;
     void setBackgroundImage(const std::string& image) override;

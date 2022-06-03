@@ -24,6 +24,8 @@
 
 #include <imgui.h>
 
+#include <unordered_map>
+
 namespace sofaimgui
 {
 

@@ -34,7 +34,7 @@
 namespace sofaglfw
 {
 
-SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera)
+SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera)
     : m_glfwWindow(glfwWindow)
     , m_currentCamera(camera)
 {
@@ -102,7 +102,7 @@ void SofaGLFWWindow::setBackgroundColor(const sofa::type::RGBAColor& newColor)
     m_backgroundColor = newColor;
 }
 
-void SofaGLFWWindow::setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera)
+void SofaGLFWWindow::setCamera(sofa::component::visual::BaseCamera::SPtr newCamera)
 {
     m_currentCamera = newCamera;
 }

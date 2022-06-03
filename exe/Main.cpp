@@ -28,12 +28,12 @@
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/BackTrace.h>
 #include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
-#include <SofaSimulationGraph/init.h>
-#include <SofaSimulationGraph/DAGSimulation.h>
+#include <sofa/simulation/graph/init.h>
+#include <sofa/simulation/graph/DAGSimulation.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <SofaGraphComponent/ViewerSetting.h>
-#include <SofaBaseVisual/BackgroundSetting.h>
+#include <sofa/component/setting/ViewerSetting.h>
+#include <sofa/component/setting/BackgroundSetting.h>
 
 #include <sofa/helper/system/PluginManager.h>
 
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 
     bool isFullScreen = result["fullscreen"].as<bool>();
     sofa::type::Vec2i resolution{ 800, 600};
-    sofa::component::configurationsetting::ViewerSetting* viewerConf;
+    sofa::component::setting::ViewerSetting* viewerConf;
     groot->get(viewerConf, sofa::core::objectmodel::BaseContext::SearchRoot);
     if (viewerConf)
     {
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     glfwGUI.initVisual();
 
     //Background
-    sofa::component::configurationsetting::BackgroundSetting* background;
+    sofa::component::setting::BackgroundSetting* background;
     groot->get(background, sofa::core::objectmodel::BaseContext::SearchRoot);
     if (background)
     {
