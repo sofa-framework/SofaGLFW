@@ -34,7 +34,7 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get -qq install xorg-dev
+            sudo apt-get -qq install xorg-dev gtk+-3.0
           fi
       
       - name: Build and install
