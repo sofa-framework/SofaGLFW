@@ -24,7 +24,7 @@
 #include <SofaGLFW/SofaGLFWWindow.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
-#include <SofaGraphComponent/ViewerSetting.h>
+#include <sofa/component/setting/ViewerSetting.h>
 
 using namespace sofa;
 
@@ -80,7 +80,7 @@ void SofaGLFWGUI::setViewerResolution(int width, int height)
     m_baseGUI.setWindowHeight(height);
 }
 
-void SofaGLFWGUI::setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* viewerConf)
+void SofaGLFWGUI::setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf)
 {
     const type::Vec<2, int>& res = viewerConf->resolution.getValue();
 

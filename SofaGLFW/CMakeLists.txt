@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.12)
 project(SofaGLFW LANGUAGES CXX)
 
-find_package(Sofa.Config REQUIRED)
+include(cmake/environment.cmake)
 
-sofa_find_package(SofaSimulation REQUIRED)
+find_package(Sofa.Config REQUIRED)
+sofa_find_package(Sofa.Simulation.Graph REQUIRED)
 sofa_find_package(Sofa.GL REQUIRED)
-sofa_find_package(SofaBaseVisual REQUIRED)
-sofa_find_package(SofaGuiCommon QUIET)
+sofa_find_package(Sofa.Component.Visual REQUIRED)
+sofa_find_package(Sofa.GUI.Common QUIET)
 
 include(FetchContent)
 
@@ -32,7 +33,7 @@ set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
 set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/config.h.in
-	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
@@ -40,27 +41,27 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/initSofaGLFW.cpp
-    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
-	${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
 )
 
-if(SofaGuiCommon_FOUND)
+if(Sofa.GUI.Common_FOUND)
     LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h)
     LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL SofaSimulationGraph SofaBaseVisual)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Component.Visual)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC 
     $<BUILD_INTERFACE:${glfw_SOURCE_DIR}/include>  
     $<INSTALL_INTERFACE:include>
 )
 
-if(SofaGuiCommon_FOUND)
-    target_link_libraries(${PROJECT_NAME} PUBLIC SofaGuiCommon)
+if(Sofa.GUI.Common_FOUND)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GUI.Common)
 endif()
 
 sofa_create_package_with_targets(
@@ -71,3 +72,5 @@ sofa_create_package_with_targets(
     INCLUDE_INSTALL_DIR "${PROJECT_NAME}"
     RELOCATABLE "plugins"
 )
+
+include(cmake/packaging.cmake)

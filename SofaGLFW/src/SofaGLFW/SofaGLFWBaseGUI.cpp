@@ -32,8 +32,8 @@
 #include <sofa/simulation/Simulation.h>
 #include <sofa/core/visual/VisualParams.h>
 
-#include <SofaBaseVisual/InteractiveCamera.h>
-#include <SofaBaseVisual/VisualStyle.h>
+#include <sofa/component/visual/InteractiveCamera.h>
+#include <sofa/component/visual/VisualStyle.h>
 
 #include <algorithm>
 
@@ -112,13 +112,13 @@ bool SofaGLFWBaseGUI::simulationIsRunning() const
     return false;
 }
 
-sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa::simulation::NodeSPtr groot)
+sofa::component::visual::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa::simulation::NodeSPtr groot)
 {
-    sofa::component::visualmodel::BaseCamera::SPtr camera;
+    sofa::component::visual::BaseCamera::SPtr camera;
     groot->get(camera);
     if (!camera)
     {
-        camera = sofa::core::objectmodel::New<component::visualmodel::InteractiveCamera>();
+        camera = sofa::core::objectmodel::New<component::visual::InteractiveCamera>();
         camera->setName(core::objectmodel::Base::shortName(camera.get()));
         m_groot->addObject(camera);
         camera->bwdInit();
@@ -129,7 +129,7 @@ sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa:
     return camera;
 }
 
-void SofaGLFWBaseGUI::changeCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera)
+void SofaGLFWBaseGUI::changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera)
 {
     for (auto& w : s_mapWindows)
     {
@@ -360,11 +360,11 @@ void SofaGLFWBaseGUI::initVisual()
 {
     sofa::simulation::getSimulation()->initTextures(m_groot.get());
 
-    component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
+    component::visual::VisualStyle::SPtr visualStyle = nullptr;
     m_groot->get(visualStyle);
     if (!visualStyle)
     {
-        visualStyle = sofa::core::objectmodel::New<component::visualmodel::VisualStyle>();
+        visualStyle = sofa::core::objectmodel::New<component::visual::VisualStyle>();
         visualStyle->setName(sofa::helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
 
         core::visual::DisplayFlags* displayFlags = visualStyle->displayFlags.beginEdit();

@@ -56,7 +56,7 @@
 #include <sofa/helper/Utils.h>
 #include <sofa/type/vector.h>
 #include <sofa/simulation/Node.h>
-#include <SofaBaseVisual/VisualStyle.h>
+#include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/ComponentLibrary.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/PluginManager.h>
@@ -917,7 +917,7 @@ void ImGuiGUIEngine::showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> g
     {
         if (ImGui::Begin(windowNameDisplayFlags, &isDisplayFlagsWindowOpen))
         {
-            component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
+            component::visual::VisualStyle::SPtr visualStyle = nullptr;
             groot->get(visualStyle);
             if (visualStyle)
             {
@@ -1568,7 +1568,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Separator();
             if (ImGui::MenuItem(ICON_FA_CAMERA "  Center Camera"))
             {
-                sofa::component::visualmodel::BaseCamera::SPtr camera;
+                sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
                 if (camera)
                 {
