@@ -19,17 +19,23 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#pragma once
 #include <SofaGLFW/config.h>
 
-#include <sofa/simulation/fwd.h>
+#include <sofa/simulation/Simulation.h>
 #include <sofa/gl/DrawToolGL.h>
-#include <SofaBaseVisual/BaseCamera.h>
+#include <sofa/component/visual/BaseCamera.h>
 #include <sofa/simulation/Node.h>
+
+#include <SofaGLFW/BaseGUIEngine.h>
+#include <SofaGLFW/NullGUIEngine.h>
+
+#include <memory>
 
 struct GLFWwindow;
 struct GLFWmonitor;
 
-namespace sofa::glfw
+namespace sofaglfw
 {
 
 class SofaGLFWWindow;
@@ -37,10 +43,12 @@ class SofaGLFWWindow;
 class SOFAGLFW_API SofaGLFWBaseGUI
 {
 public:
-    SofaGLFWBaseGUI() = default;
+    
+    SofaGLFWBaseGUI();
+    
     virtual ~SofaGLFWBaseGUI();
 
-    bool init();
+    bool init(int nbMSAASamples = 0);
     void setErrorCallback() const;
     void setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename = std::string());
     void setSimulationIsRunning(bool running);
@@ -72,9 +80,19 @@ public:
         return m_filename;
     }
 
-    sofa::component::visualmodel::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
-    void changeCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
+    sofa::component::visual::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
+    void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
 
+    void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine)
+    {
+        m_guiEngine = guiEngine;
+    }
+    
+    std::shared_ptr<BaseGUIEngine> getGUIEngine()
+    {
+        return m_guiEngine;
+    }
+    
 private:
     static void error_callback(int error, const char* description);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -105,7 +123,9 @@ private:
     int m_lastWindowPositionY{ 0 };
     int m_lastWindowWidth{ 0 };
     int m_lastWindowHeight{ 0 };
+    
+    std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;
 
 };
 
-} // namespace sofa::glfw
+} // namespace sofaglfw

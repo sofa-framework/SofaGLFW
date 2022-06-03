@@ -19,38 +19,37 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFW/config.h>
+#include <SofaImGui/ImGuiGUI.h>
 
-#include <SofaGLFW/SofaGLFWBaseGUI.h>
+#include <sofa/simulation/Node.h>
+#include <sofa/simulation/Simulation.h>
+
+#include <SofaImGui/ImGuiGUIEngine.h>
 #include <sofa/gui/BaseGUI.h>
 
-namespace sofa::glfw
+#include <memory>
+
+namespace sofaimgui
 {
 
-class SofaGLFWWindow;
-
-class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
+ImGuiGUI::ImGuiGUI()
+: sofaglfw::SofaGLFWGUI()
 {
-public:
-    SofaGLFWGUI() = default;
-    ~SofaGLFWGUI() override = default;
+    auto guiEngine = std::make_shared<ImGuiGUIEngine>();
+    this->m_baseGUI.setGUIEngine(guiEngine);
+}
 
-    bool init();
-    /// BaseGUI API
-    int mainLoop() override;
-    void redraw() override;
-    int closeGUI() override;
-    void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
-    sofa::simulation::Node* currentSimulation() override;
-    void setViewerResolution(int width, int height) override;
-    void setViewerConfiguration(sofa::component::configurationsetting::ViewerSetting* viewerConf) override;
-    void setFullScreen() override;
-    void setBackgroundColor(const sofa::type::RGBAColor& color) override;
-    void setBackgroundImage(const std::string& image) override;
-    static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
-private:
-    SofaGLFWBaseGUI m_baseGUI;
-    bool m_bCreateWithFullScreen{ false };
-};
 
-} // namespace sofa::glfw
+sofa::gui::BaseGUI* ImGuiGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
+{
+    ImGuiGUI::mGuiName = name;
+    auto* gui = new ImGuiGUI();
+
+    if (!gui->init())
+    {
+        return nullptr;
+    }
+    return gui;
+}
+
+} // namespace sofaimgui

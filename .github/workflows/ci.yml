@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, macos-10.15, windows-2019]
-        sofa_branch: [master, v21.12]
+        sofa_branch: [master]
 
     steps:
       - name: Setup SOFA and environment
@@ -34,7 +34,7 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get -qq install xorg-dev
+            sudo apt-get -qq install xorg-dev gtk+-3.0
           fi
       
       - name: Build and install
@@ -50,6 +50,7 @@ jobs:
                   -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
                   -DAPPLICATION_RUNSOFAGLFW=ON \
                   -DPLUGIN_SOFAGLFW=ON \
+                  -DPLUGIN_SOFAIMGUI=ON \
                   ../src \
               && ninja -v install"
           else
@@ -64,6 +65,7 @@ jobs:
               -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
               -DAPPLICATION_RUNSOFAGLFW=ON \
               -DPLUGIN_SOFAGLFW=ON \
+              -DPLUGIN_SOFAIMGUI=ON \
               ../src
             ninja -v install
             echo ${CCACHE_BASEDIR}

@@ -19,42 +19,23 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFW/config.h>
+#include <SofaImGui/config.h>
 
-#include <sofa/simulation/fwd.h>
-#include <SofaBaseVisual/BaseCamera.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
+#include <SofaGLFW/SofaGLFWGUI.h>
+#include <sofa/gui/BaseGUI.h>
 
-struct GLFWwindow;
-
-namespace sofa::glfw
+namespace sofaimgui
 {
 
-class SOFAGLFW_API SofaGLFWWindow
+class SOFAIMGUI_API ImGuiGUI : public sofaglfw::SofaGLFWGUI
 {
 public:
-    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visualmodel::BaseCamera::SPtr camera);
-    virtual ~SofaGLFWWindow() = default;
+    ImGuiGUI();
+    
+    ~ImGuiGUI() override = default;
 
-    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
-    void close();
-
-    void mouseMoveEvent(int xpos, int ypos);
-    void mouseButtonEvent(int button, int action, int mods);
-    void scrollEvent(double xoffset, double yoffset);
-    void setBackgroundColor(const sofa::type::RGBAColor& newColor);
-
-    void setCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera);
-    void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
-
-private:
-    GLFWwindow* m_glfwWindow{nullptr};
-    sofa::component::visualmodel::BaseCamera::SPtr m_currentCamera;
-    int m_currentButton{ -1 };
-    int m_currentAction{ -1 };
-    int m_currentMods{ -1 };
-    int m_currentXPos{ -1 };
-    int m_currentYPos{ -1 };
-    sofa::type::RGBAColor m_backgroundColor{ sofa::type::RGBAColor::black() };
+    static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
 };
 
-} // namespace sofa::glfw
+} // namespace sofaimgui

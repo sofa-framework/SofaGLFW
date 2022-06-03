@@ -3,33 +3,44 @@
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
-* under the terms of the GNU General Public License as published by the Free  *
-* Software Foundation; either version 2 of the License, or (at your option)   *
-* any later version.                                                          *
+* under the terms of the GNU Lesser General Public License as published by    *
+* the Free Software Foundation; either version 2.1 of the License, or (at     *
+* your option) any later version.                                             *
 *                                                                             *
 * This program is distributed in the hope that it will be useful, but WITHOUT *
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    *
-* more details.                                                               *
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License *
+* for more details.                                                           *
 *                                                                             *
-* You should have received a copy of the GNU General Public License along     *
-* with this program. If not, see <http://www.gnu.org/licenses/>.              *
+* You should have received a copy of the GNU Lesser General Public License    *
+* along with this program. If not, see <http://www.gnu.org/licenses/>.        *
 *******************************************************************************
 * Authors: The SOFA Team and external contributors (see Authors.txt)          *
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
+#include <SofaGLFW/config.h>
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+struct GLFWwindow;
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_COMPONENTS_GUI_CORE
+namespace sofaglfw
+{
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+class SofaGLFWBaseGUI;
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+class BaseGUIEngine
+{
+public:
+    
+    virtual void init() = 0;
+    virtual void initBackend(GLFWwindow*) = 0;
+    virtual void startFrame(SofaGLFWBaseGUI*) = 0;
+    virtual void endFrame() = 0;
+    virtual void beforeDraw(GLFWwindow* window) = 0;
+    virtual void afterDraw() = 0;
+    virtual void terminate() = 0;
+    virtual bool dispatchMouseEvents() = 0;
+};
+
+} // namespace sofaglfw

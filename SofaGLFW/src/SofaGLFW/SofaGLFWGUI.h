@@ -20,10 +20,40 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+#include <SofaGLFW/config.h>
 
-/**
- * This file is a configuration file for ImGuiFileDialog.
- */
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
+#include <sofa/gui/BaseGUI.h>
 
-#define USE_STD_FILESYSTEM
-#define USE_BOOKMARK
+#include <sofa/component/setting/ViewerSetting.h>
+
+namespace sofaglfw
+{
+
+class SofaGLFWWindow;
+
+class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
+{
+public:
+    SofaGLFWGUI() = default;
+    ~SofaGLFWGUI() override = default;
+
+    bool init();
+    /// BaseGUI API
+    int mainLoop() override;
+    void redraw() override;
+    int closeGUI() override;
+    void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
+    sofa::simulation::Node* currentSimulation() override;
+    void setViewerResolution(int width, int height) override;
+    void setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf) override;
+    void setFullScreen() override;
+    void setBackgroundColor(const sofa::type::RGBAColor& color) override;
+    void setBackgroundImage(const std::string& image) override;
+    static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+protected:
+    SofaGLFWBaseGUI m_baseGUI;
+    bool m_bCreateWithFullScreen{ false };
+};
+
+} // namespace sofaglfw

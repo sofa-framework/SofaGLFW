@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
@@ -19,10 +19,15 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#pragma once
-namespace sofa::glfw::imgui
-{
+#include <sofa/config.h>
 
-void setDeepDarkStyle();
+#define SOFAIMGUI_VERSION @PROJECT_VERSION@
 
-}
+#cmakedefine01 SOFAIMGUI_FORCE_OPENGL2
+
+#ifdef SOFA_BUILD_SOFAIMGUI
+#  define SOFA_TARGET @PROJECT_NAME@
+#  define SOFAIMGUI_API SOFA_EXPORT_DYNAMIC_LIBRARY
+#else
+#  define SOFAIMGUI_API SOFA_IMPORT_DYNAMIC_LIBRARY
+#endif

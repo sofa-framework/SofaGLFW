@@ -32,34 +32,43 @@
 #include <sofa/simulation/Simulation.h>
 #include <sofa/core/visual/VisualParams.h>
 
-#include <SofaBaseVisual/InteractiveCamera.h>
-#include <SofaBaseVisual/VisualStyle.h>
-
-#include <SofaGLFW/SofaGLFWImgui.h>
+#include <sofa/component/visual/InteractiveCamera.h>
+#include <sofa/component/visual/VisualStyle.h>
 
 #include <algorithm>
 
-namespace sofa::glfw
+using namespace sofa;
+
+namespace sofaglfw
 {
+
+SofaGLFWBaseGUI::SofaGLFWBaseGUI()
+{
+    m_guiEngine = std::make_shared<NullGUIEngine>();
+}
 
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
 {
     terminate();
 }
 
-
 sofa::core::sptr<sofa::simulation::Node> SofaGLFWBaseGUI::getRootNode() const
 {
     return m_groot;
 }
 
-bool SofaGLFWBaseGUI::init()
+bool SofaGLFWBaseGUI::init(int nbMSAASamples)
 {
     if (m_bGlfwIsInitialized)
         return true;
 
     if (glfwInit() == GLFW_TRUE)
     {
+        // defined samples for MSAA
+        // min = 0  (no MSAA Anti-aliasing)
+        // max = 32 (MSAA with 32 samples)
+        glfwWindowHint(GLFW_SAMPLES, std::clamp(nbMSAASamples, 0, 32) );
+        
         m_glDrawTool = new sofa::gl::DrawToolGL();
         m_bGlfwIsInitialized = true;
         setErrorCallback();
@@ -103,13 +112,13 @@ bool SofaGLFWBaseGUI::simulationIsRunning() const
     return false;
 }
 
-sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa::simulation::NodeSPtr groot)
+sofa::component::visual::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa::simulation::NodeSPtr groot)
 {
-    sofa::component::visualmodel::BaseCamera::SPtr camera;
+    sofa::component::visual::BaseCamera::SPtr camera;
     groot->get(camera);
     if (!camera)
     {
-        camera = sofa::core::objectmodel::New<component::visualmodel::InteractiveCamera>();
+        camera = sofa::core::objectmodel::New<component::visual::InteractiveCamera>();
         camera->setName(core::objectmodel::Base::shortName(camera.get()));
         m_groot->addObject(camera);
         camera->bwdInit();
@@ -120,7 +129,7 @@ sofa::component::visualmodel::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa:
     return camera;
 }
 
-void SofaGLFWBaseGUI::changeCamera(sofa::component::visualmodel::BaseCamera::SPtr newCamera)
+void SofaGLFWBaseGUI::changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera)
 {
     for (auto& w : s_mapWindows)
     {
@@ -130,7 +139,7 @@ void SofaGLFWBaseGUI::changeCamera(sofa::component::visualmodel::BaseCamera::SPt
 
 bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
-    imgui::imguiInit();
+    m_guiEngine->init();
 
     if (m_groot == nullptr)
     {
@@ -167,9 +176,10 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
         glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
         glfwSetScrollCallback(glfwWindow, scroll_callback);
         glfwSetWindowCloseCallback(glfwWindow, close_callback);
+
         makeCurrentContext(glfwWindow);
 
-        imgui::imguiInitBackend(glfwWindow);
+        m_guiEngine->initBackend(glfwWindow);
 
         auto camera = findCamera(m_groot);
         
@@ -293,6 +303,7 @@ void SofaGLFWBaseGUI::setBackgroundImage(const std::string& /* filename */, unsi
 void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
 {
     glfwMakeContextCurrent(glfwWindow);
+    glfwSwapInterval( 0 ); //request disabling vsync
     if (!m_bGlewIsInitialized)
     {
         glewInit();
@@ -322,9 +333,13 @@ void SofaGLFWBaseGUI::runLoop()
                 if (!glfwWindowShouldClose(glfwWindow))
                 {
                     makeCurrentContext(glfwWindow);
-                    sofaGlfwWindow->draw(m_groot, m_vparams);
 
-                    imgui::imguiDraw(this);
+                    m_guiEngine->beforeDraw(glfwWindow);
+                    sofaGlfwWindow->draw(m_groot, m_vparams);
+                    m_guiEngine->afterDraw();
+
+                    m_guiEngine->startFrame(this);
+                    m_guiEngine->endFrame();
 
                     glfwSwapBuffers(glfwWindow);
 
@@ -345,11 +360,11 @@ void SofaGLFWBaseGUI::initVisual()
 {
     sofa::simulation::getSimulation()->initTextures(m_groot.get());
 
-    component::visualmodel::VisualStyle::SPtr visualStyle = nullptr;
+    component::visual::VisualStyle::SPtr visualStyle = nullptr;
     m_groot->get(visualStyle);
     if (!visualStyle)
     {
-        visualStyle = sofa::core::objectmodel::New<component::visualmodel::VisualStyle>();
+        visualStyle = sofa::core::objectmodel::New<component::visual::VisualStyle>();
         visualStyle->setName(sofa::helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
 
         core::visual::DisplayFlags* displayFlags = visualStyle->displayFlags.beginEdit();
@@ -414,7 +429,7 @@ void SofaGLFWBaseGUI::terminate()
     if (!m_bGlfwIsInitialized)
         return;
 
-    imgui::imguiTerminate();
+    m_guiEngine->terminate();
 
     glfwTerminate();
 }
@@ -429,7 +444,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     switch (key)
     {
         case GLFW_KEY_F:
-            if (action == GLFW_PRESS)
+            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
             {
                 auto currentGUI = s_mapGUIs.find(window);
                 if (currentGUI != s_mapGUIs.end() && currentGUI->second)
@@ -461,8 +476,13 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
 
 void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (!imgui::dispatchMouseEvents())
-        return;
+    auto currentGUI = s_mapGUIs.find(window);
+    if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+    {
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
+    }
+    
     auto currentSofaWindow = s_mapWindows.find(window);
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
@@ -472,8 +492,13 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
 
 void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    if (!imgui::dispatchMouseEvents())
-        return;
+    auto currentGUI = s_mapGUIs.find(window);
+    if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+    {
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
+    }
+    
     auto currentSofaWindow = s_mapWindows.find(window);
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
@@ -483,8 +508,13 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
 
 void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    if (!imgui::dispatchMouseEvents())
-        return;
+    auto currentGUI = s_mapGUIs.find(window);
+    if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+    {
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
+    }
+    
     auto currentSofaWindow = s_mapWindows.find(window);
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
@@ -506,4 +536,4 @@ void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
     }
 }
 
-} // namespace sofa::glfw
+} // namespace sofaglfw
