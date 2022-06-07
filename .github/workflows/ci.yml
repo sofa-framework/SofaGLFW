@@ -111,3 +111,111 @@ jobs:
             artifacts/SofaGLFW_*_Linux.zip
             artifacts/SofaGLFW_*_Windows.zip
             artifacts/SofaGLFW_*_macOS.zip
+
+  build-and-test-with-imgui:
+    name: Run on ${{ matrix.os }} with SOFA ${{ matrix.sofa_branch }} and imgui
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macos-10.15, windows-2019]
+        sofa_branch: [master]
+
+    steps:
+      - name: Setup SOFA and environment
+        id: sofa
+        uses: sofa-framework/sofa-setup-action@v3
+        with:
+          sofa_root: ${{ github.workspace }}/sofa
+          sofa_version: ${{ matrix.sofa_branch }}
+          sofa_scope: 'standard'
+
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.WORKSPACE_SRC_PATH }}
+
+      - name: Install deps
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update
+            sudo apt-get -qq install xorg-dev gtk+-3.0
+          fi
+
+      - name: Build and install
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmd //c "${{ steps.sofa.outputs.vs_vsdevcmd }} \
+              && cd /d $WORKSPACE_BUILD_PATH \
+              && cmake \
+                  -GNinja \
+                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake" \
+                  -DCMAKE_BUILD_TYPE=Release \
+                  -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
+                  -DAPPLICATION_RUNSOFAGLFW=ON \
+                  -DPLUGIN_SOFAGLFW=ON \
+                  -DPLUGIN_SOFAIMGUI=ON \
+                  ../src \
+              && ninja -v install"
+          else
+            cd "$WORKSPACE_BUILD_PATH"
+            ccache -z
+            cmake \
+              -GNinja \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_PREFIX_PATH=$SOFA_ROOT/lib/cmake \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
+              -DAPPLICATION_RUNSOFAGLFW=ON \
+              -DPLUGIN_SOFAGLFW=ON \
+              -DPLUGIN_SOFAIMGUI=ON \ 
+              ../src
+            ninja -v install
+            echo ${CCACHE_BASEDIR}
+            ccache -s
+          fi
+      - name: Create artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: SofaGLFW_${{ steps.sofa.outputs.run_branch }}_with_imgui_for-SOFA-${{ steps.sofa.outputs.sofa_version }}_${{ runner.os }}
+          path: ${{ env.WORKSPACE_INSTALL_PATH }}
+
+      - name: Install artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: SofaGLFW_${{ steps.sofa.outputs.run_branch }}_with_imgui_for-SOFA-${{ steps.sofa.outputs.sofa_version }}_${{ runner.os }}
+          path: ${{ env.WORKSPACE_ARTIFACT_PATH }}
+
+
+  deploy-with-imgui:
+    name: Deploy artifacts
+    if: always() && startsWith(github.ref, 'refs/heads/') # we are on a branch (not a PR)
+    needs: [build-and-test-with-imgui]
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Get artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Zip artifacts
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE/artifacts
+          for artifact in *; do
+            zip $artifact.zip -r $artifact/*
+          done
+      - name: Upload release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ github.ref_name }}-with-imgui
+          tag_name: release-${{ github.ref_name }}-with-imgui
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/SofaGLFW_*_Linux.zip
+            artifacts/SofaGLFW_*_Windows.zip
+            artifacts/SofaGLFW_*_macOS.zip
