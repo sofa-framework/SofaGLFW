@@ -161,8 +161,6 @@ jobs:
               && ninja -v install"
           else
             cd "$WORKSPACE_BUILD_PATH"
-            pwd
-            echo "$WORKSPACE_SRC_PATH"
             ccache -z
             cmake \
               -GNinja \
@@ -173,7 +171,7 @@ jobs:
               -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
               -DAPPLICATION_RUNSOFAGLFW=ON \
               -DPLUGIN_SOFAGLFW=ON \
-              -DPLUGIN_SOFAIMGUI=ON \
+              -DPLUGIN_SOFAIMGUI=ON \ 
               ../src
             ninja -v install
             echo ${CCACHE_BASEDIR}
