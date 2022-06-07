@@ -171,7 +171,7 @@ jobs:
               -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
               -DAPPLICATION_RUNSOFAGLFW=ON \
               -DPLUGIN_SOFAGLFW=ON \
-              -DPLUGIN_SOFAIMGUI=ON \ 
+              -DPLUGIN_SOFAIMGUI=ON \
               ../src
             ninja -v install
             echo ${CCACHE_BASEDIR}
