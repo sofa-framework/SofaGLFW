@@ -28,6 +28,7 @@
 
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
+#include <SimpleIni.h>
 
 struct GLFWwindow;
 namespace sofa::glfw
@@ -58,6 +59,7 @@ protected:
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
+    CSimpleIniA ini;
 
     void showViewport(const char* const& windowNameViewport, bool& isViewportWindowOpen);
     void showPerformances(const char* const& windowNamePerformances, const ImGuiIO& io, bool& isPerformancesWindowOpen);
@@ -72,6 +74,8 @@ protected:
     void showComponents(const char* const& windowNameComponents, bool& isComponentsWindowOpen);
     void showLog(const char* const& windowNameLog, bool& isLogWindowOpen);
     void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen);
+
+    static const std::string& getAppIniFile();
 };
 
 } // namespace sofaimgui
