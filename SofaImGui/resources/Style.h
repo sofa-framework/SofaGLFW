@@ -20,9 +20,15 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+
+#include <string>
+#include <array>
 namespace sofaimgui
 {
 
-void setDeepDarkStyle();
+void setStyle(const std::string& style);
+
+inline const std::array<const char*, 7> listStyles = {"deep_dark", "default_dark", "default_light", "classic", "light_green", "yet_another_dark", "cherry"};
+inline const std::string defaultStyle = listStyles[0];
 
 }

@@ -62,6 +62,7 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <SofaImGui/ObjectColor.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <sofa/helper/io/File.h>
 
 using namespace sofa;
 
@@ -77,14 +78,31 @@ void ImGuiGUIEngine::init()
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    static const std::string iniFile(sofa::helper::Utils::getExecutableDirectory() + "/imgui.ini");
-    io.IniFilename = iniFile.c_str();
+    static const std::string imguiIniFile(sofa::helper::Utils::getExecutableDirectory() + "/imgui.ini");
+    io.IniFilename = imguiIniFile.c_str();
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
+
+    ini.SetUnicode();
+    if (sofa::helper::system::FileSystem::exists(getAppIniFile()))
+    {
+        SI_Error rc = ini.LoadFile(getAppIniFile().c_str());
+        assert(rc == SI_OK);
+    }
+
+    const char* pv;
+    pv = ini.GetValue("Style", "theme");
+    if (!pv)
+    {
+        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "Preset of colors and properties to change the theme of the application");
+        SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
+        pv = sofaimgui::defaultStyle.c_str();
+    }
+
     // Setup Dear ImGui style
-    setDeepDarkStyle();
+    sofaimgui::setStyle(pv);
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
@@ -1362,6 +1380,29 @@ void ImGuiGUIEngine::showSettings(const char* const& windowNameSettings, bool& i
     {
         if (ImGui::Begin(windowNameSettings, &isSettingsOpen))
         {
+            const char* theme = ini.GetValue("Style", "theme", sofaimgui::defaultStyle.c_str());
+            static std::size_t styleCurrent = std::distance(std::begin(sofaimgui::listStyles), std::find_if(std::begin(sofaimgui::listStyles), std::end(sofaimgui::listStyles),
+                [&theme](const char* el){return std::string(el) == std::string(theme); }));
+            if (ImGui::BeginCombo("Theme",  sofaimgui::listStyles[styleCurrent]))
+            {
+                for (std::size_t n = 0 ; n < sofaimgui::listStyles.size(); ++n)
+                {
+                    const bool isSelected = styleCurrent == n;
+                    if (ImGui::Selectable(sofaimgui::listStyles[n], isSelected))
+                    {
+                        styleCurrent = n;
+
+                        sofaimgui::setStyle(sofaimgui::listStyles[styleCurrent]);
+                        ini.SetValue("Style", "theme", sofaimgui::listStyles[styleCurrent], "Preset of colors and properties to change the theme of the application");
+                        SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
+                    }
+                    if (isSelected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+
             ImGuiIO& io = ImGui::GetIO();
             const float MIN_SCALE = 0.3f;
             const float MAX_SCALE = 2.0f;
@@ -1369,6 +1410,12 @@ void ImGuiGUIEngine::showSettings(const char* const& windowNameSettings, bool& i
         }
         ImGui::End();
     }
+}
+
+const std::string& ImGuiGUIEngine::getAppIniFile()
+{
+    static const std::string appIniFile(sofa::helper::Utils::getExecutableDirectory() + "/settings.ini");
+    return appIniFile;
 }
 
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)

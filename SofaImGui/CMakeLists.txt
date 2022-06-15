@@ -37,6 +37,12 @@ FetchContent_Declare(IconFontCppHeaders
 )
 FetchContent_MakeAvailable(IconFontCppHeaders)
 
+FetchContent_Declare(simpleini
+        GIT_REPOSITORY https://github.com/brofield/simpleini
+        GIT_TAG        9b3ed7ec815997bc8c5b9edf140d6bde653e1458
+)
+FetchContent_MakeAvailable(simpleini)
+
 set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
@@ -47,6 +53,7 @@ set(IMGUI_HEADER_FILES
     ${implot_SOURCE_DIR}/implot.h
     ${implot_SOURCE_DIR}/implot_internal.h
     ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome5.h
+    ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h
     resources/Roboto-Medium.h
@@ -85,7 +92,7 @@ set(SOURCE_FILES
 )
 
 
-set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR})
+set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
