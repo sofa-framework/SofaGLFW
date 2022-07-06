@@ -63,6 +63,7 @@
 #include <SofaImGui/ObjectColor.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/io/File.h>
+#include <sofa/gui/common/BaseGUI.h>
 
 using namespace sofa;
 
@@ -103,6 +104,10 @@ void ImGuiGUIEngine::init()
 
     // Setup Dear ImGui style
     sofaimgui::setStyle(pv);
+
+    type::vector<std::string> loadedPlugins;
+    sofa::helper::system::PluginManager::getInstance().readFromIniFile(
+        sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini", loadedPlugins);
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
@@ -1055,11 +1060,11 @@ void ImGuiGUIEngine::showPlugins(const char* const& windowNamePlugins, bool& isP
                     if (helper::system::FileSystem::exists(outPath))
                     {
                         helper::system::PluginManager::getInstance().loadPluginByPath(outPath);
+                        helper::system::PluginManager::getInstance().writeToIniFile(
+                            sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
                     }
                 }
             }
-
-
 
             ImGui::BeginChild("Plugins", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
 
