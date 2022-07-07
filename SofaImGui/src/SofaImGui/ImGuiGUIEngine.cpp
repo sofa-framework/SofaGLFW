@@ -105,9 +105,8 @@ void ImGuiGUIEngine::init()
     // Setup Dear ImGui style
     sofaimgui::setStyle(pv);
 
-    type::vector<std::string> loadedPlugins;
     sofa::helper::system::PluginManager::getInstance().readFromIniFile(
-        sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini", loadedPlugins);
+        sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
