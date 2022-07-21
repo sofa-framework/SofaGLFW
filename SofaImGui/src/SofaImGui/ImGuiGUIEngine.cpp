@@ -63,8 +63,8 @@
 #include <SofaImGui/ObjectColor.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/io/File.h>
-#include <sofa/gl/component/rendering3d/OglGrid.h>
-#include <sofa/gl/component/rendering3d/OglLineAxis.h>
+#include <sofa/component/visual/VisualGrid.h>
+#include <sofa/component/visual/LineAxis.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 
 using namespace sofa;
@@ -200,10 +200,10 @@ void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot
                 {
                     if (ImGui::Selectable(ICON_FA_BORDER_ALL "  Show Grid"))
                     {
-                        auto grid = groot->get<sofa::gl::component::rendering3d::OglGrid>();
+                        auto grid = groot->get<sofa::component::visual::VisualGrid>();
                         if (!grid)
                         {
-                            auto newGrid = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglGrid>();
+                            auto newGrid = sofa::core::objectmodel::New<sofa::component::visual::VisualGrid>();
                             groot->addObject(newGrid);
                             newGrid->setName("viewportGrid");
                             newGrid->addTag(core::objectmodel::Tag("createdByGUI"));
@@ -219,10 +219,10 @@ void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot
                     }
                     if (ImGui::Selectable(ICON_FA_ARROWS_ALT "  Show Axis"))
                     {
-                        auto axis = groot->get<sofa::gl::component::rendering3d::OglLineAxis>();
+                        auto axis = groot->get<sofa::component::visual::LineAxis>();
                         if (!axis)
                         {
-                            auto newAxis = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglLineAxis>();
+                            auto newAxis = sofa::core::objectmodel::New<sofa::component::visual::LineAxis>();
                             groot->addObject(newAxis);
                             newAxis->setName("viewportAxis");
                             newAxis->addTag(core::objectmodel::Tag("createdByGUI"));
