@@ -61,7 +61,7 @@ protected:
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
 
-    void showViewport(const char* const& windowNameViewport, bool& isViewportWindowOpen);
+    void showViewport(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen);
     void showPerformances(const char* const& windowNamePerformances, const ImGuiIO& io, bool& isPerformancesWindowOpen);
     void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler,
                       bool& isProfilerOpen);
@@ -76,6 +76,8 @@ protected:
     void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen);
 
     static const std::string& getAppIniFile();
+
+    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
 };
 
 } // namespace sofaimgui
