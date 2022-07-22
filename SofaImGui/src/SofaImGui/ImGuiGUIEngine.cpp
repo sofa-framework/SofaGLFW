@@ -66,6 +66,7 @@
 #include <sofa/component/visual/VisualGrid.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
+#include <sofa/gui/common/BaseGUI.h>
 
 using namespace sofa;
 
@@ -106,6 +107,9 @@ void ImGuiGUIEngine::init()
 
     // Setup Dear ImGui style
     sofaimgui::setStyle(pv);
+
+    sofa::helper::system::PluginManager::getInstance().readFromIniFile(
+        sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
@@ -1127,7 +1131,25 @@ void ImGuiGUIEngine::showPlugins(const char* const& windowNamePlugins, bool& isP
     {
         if (ImGui::Begin(windowNamePlugins, &isPluginsWindowOpen))
         {
-            ImGui::Columns(2);
+            if (ImGui::Button("Load"))
+            {
+                std::vector<nfdfilteritem_t> nfd_filters {
+                    {"SOFA plugin", helper::system::DynamicLibrary::extension.c_str() } };
+
+                nfdchar_t *outPath;
+                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
+                if (result == NFD_OKAY)
+                {
+                    if (helper::system::FileSystem::exists(outPath))
+                    {
+                        helper::system::PluginManager::getInstance().loadPluginByPath(outPath);
+                        helper::system::PluginManager::getInstance().writeToIniFile(
+                            sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
+                    }
+                }
+            }
+
+            ImGui::BeginChild("Plugins", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
 
             const auto& pluginMap = helper::system::PluginManager::getInstance().getPluginMap();
 
@@ -1141,24 +1163,32 @@ void ImGuiGUIEngine::showPlugins(const char* const& windowNamePlugins, bool& isP
                 }
             }
 
-            ImGui::NextColumn();
+            ImGui::EndChild();
+            ImGui::SameLine();
 
-            const auto pluginIt = pluginMap.find(selectedPlugin);
-            if (pluginIt != pluginMap.end())
+            if (!selectedPlugin.empty())
             {
-                ImGui::Text("Plugin: %s", pluginIt->second.getModuleName());
-                ImGui::Text("Version: %s", pluginIt->second.getModuleVersion());
-                ImGui::Text("License: %s", pluginIt->second.getModuleLicense());
-                ImGui::Spacing();
-                ImGui::TextDisabled("Description:");
-                ImGui::TextWrapped("%s", pluginIt->second.getModuleDescription());
-                ImGui::Spacing();
-                ImGui::TextDisabled("Components:");
-                ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
-                ImGui::Spacing();
-                ImGui::TextDisabled("Path:");
-                ImGui::TextWrapped(selectedPlugin.c_str());
+                ImGui::BeginChild("selectedPlugin", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+                const auto pluginIt = pluginMap.find(selectedPlugin);
+                if (pluginIt != pluginMap.end())
+                {
+                    ImGui::Text("Plugin: %s", pluginIt->second.getModuleName());
+                    ImGui::Text("Version: %s", pluginIt->second.getModuleVersion());
+                    ImGui::Text("License: %s", pluginIt->second.getModuleLicense());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Description:");
+                    ImGui::TextWrapped("%s", pluginIt->second.getModuleDescription());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Components:");
+                    ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
+                    ImGui::Spacing();
+                    ImGui::TextDisabled("Path:");
+                    ImGui::TextWrapped(selectedPlugin.c_str());
+                }
             }
+
+            ImGui::EndChild();
         }
         ImGui::End();
     }
