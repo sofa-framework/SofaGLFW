@@ -100,7 +100,7 @@ void ImGuiGUIEngine::init()
     pv = ini.GetValue("Style", "theme");
     if (!pv)
     {
-        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "Preset of colors and properties to change the theme of the application");
+        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
         SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
         pv = sofaimgui::defaultStyle.c_str();
     }
