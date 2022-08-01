@@ -990,8 +990,8 @@ void ImGuiGUIEngine::showSceneGraph(sofa::core::sptr<sofa::simulation::Node> gro
                         ImGui::EndTable();
                     }
 
+                    ImGui::EndTabItem();
                 }
-                ImGui::EndTabItem();
 
                 ImGui::EndTabBar();
             }
