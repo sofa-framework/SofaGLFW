@@ -22,8 +22,8 @@ target_link_libraries(${PROJECT_NAME} Sofa.Simulation.Core SofaGLFW)
 target_include_directories(${PROJECT_NAME} PRIVATE extlibs/cxxopts-2.2.1/include)
 
 sofa_add_targets_to_package(
-    PACKAGE_NAME SofaGui
+    PACKAGE_NAME Sofa.GUI
     TARGETS ${PROJECT_NAME} AUTO_SET_TARGET_PROPERTIES
     INCLUDE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
-    INCLUDE_INSTALL_DIR "SofaGui/runSofaGLFW"
+    INCLUDE_INSTALL_DIR "Sofa.GUI/runSofaGLFW"
     )
