@@ -23,6 +23,7 @@ FetchContent_MakeAvailable(imgui)
 
 FetchContent_Declare(nfd
         GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
+        GIT_TAG        d4df2b6ad5420f5300c00f418bf28d86291fa675                # v1.0.0
 )
 FetchContent_MakeAvailable(nfd)
 
