@@ -85,6 +85,7 @@ template< sofa::Size N, typename ValueType>
 void showWidgetT(Data<sofa::type::Vec<N, ValueType> >& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
+    ImGui::Text("%d elements", data.getValue().size());
     if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), N, flags))
     {
         showVecTableHeader(data);
@@ -192,6 +193,7 @@ template< sofa::Size N, typename ValueType>
 void showWidgetT(Data<sofa::type::vector<sofa::type::Vec<N, ValueType> > >& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
+    ImGui::Text("%d elements", data.getValue().size());
     if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), N + 1, flags))
     {
         showVecTableHeader(data);
@@ -305,6 +307,7 @@ template< sofa::Size N, typename ValueType>
 void showWidgetT(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<N, ValueType> > >& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
+    ImGui::Text("%d elements", data.getValue().size());
     if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), sofa::defaulttype::RigidCoord<N, ValueType>::total_size + 1, flags))
     {
         showVecTableHeader(data);
@@ -375,6 +378,7 @@ void showWidgetT(Data<sofa::type::vector<sofa::topology::Element<GeometryElement
 {
     constexpr auto N = sofa::topology::Element<GeometryElement>::static_size;
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
+    ImGui::Text("%d elements", data.getValue().size());
     if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), N + 1, flags))
     {
         ImGui::TableSetupColumn("");
