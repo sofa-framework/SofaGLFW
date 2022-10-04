@@ -42,8 +42,12 @@ struct DataWidget : BaseDataWidget
 
     static std::string getType()
     {
-        MyData d;
-        return d.getValueTypeString();
+        static const std::string type = []()
+        {
+            MyData d;
+            return d.getValueTypeString();
+        }();
+        return type;
     }
 
     void showWidget(sofa::core::objectmodel::BaseData& data) override
@@ -69,7 +73,7 @@ struct DataWidgetFactory
     {
         using Widget = DataWidget<T>;
         const auto it = factoryMap.emplace(Widget::getType(), std::make_unique<Widget>());
-        msg_error_when(!it.second, "DataWidgetFactory")<< "Cannot add into the factory";
+        msg_error_when(!it.second, "DataWidgetFactory")<< "Cannot add widget " << Widget::getType() << " into the factory";
         return it.second;
     }
 
