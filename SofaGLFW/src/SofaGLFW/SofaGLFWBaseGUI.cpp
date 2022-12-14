@@ -177,6 +177,14 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
         glfwSetScrollCallback(glfwWindow, scroll_callback);
         glfwSetWindowCloseCallback(glfwWindow, close_callback);
 
+        // this set empty callbacks
+        // solve a crash when glfw is quitting and tries to use nullptr callbacks
+        // could be potentially useful in the future anyway
+        glfwSetWindowFocusCallback(glfwWindow, window_focus_callback);
+        glfwSetCursorEnterCallback(glfwWindow, cursor_enter_callback);
+        glfwSetMonitorCallback(monitor_callback);
+        glfwSetCharCallback(glfwWindow, character_callback);
+
         makeCurrentContext(glfwWindow);
 
         m_guiEngine->initBackend(glfwWindow);
@@ -534,6 +542,46 @@ void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
         }
         s_mapWindows.erase(window);
     }
+}
+
+void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
+{
+    //if (focused)
+    //{
+    //    // The window gained input focus
+    //}
+    //else
+    //{
+    //    // The window lost input focus
+    //}
+}
+void SofaGLFWBaseGUI::cursor_enter_callback(GLFWwindow* window, int entered)
+{
+    //if (entered)
+    //{
+    //    // The cursor entered the content area of the window
+    //}
+    //else
+    //{
+    //    // The cursor left the content area of the window
+    //}
+}
+void SofaGLFWBaseGUI::monitor_callback(GLFWmonitor* monitor, int event)
+{
+    //if (event == GLFW_CONNECTED)
+    //{
+    //    // The monitor was connected
+    //}
+    //else if (event == GLFW_DISCONNECTED)
+    //{
+    //    // The monitor was disconnected
+    //}
+}
+
+void SofaGLFWBaseGUI::character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+    // The callback function receives Unicode code points for key events
+    // that would have led to regular text input and generally behaves as a standard text field on that platform.
 }
 
 } // namespace sofaglfw
