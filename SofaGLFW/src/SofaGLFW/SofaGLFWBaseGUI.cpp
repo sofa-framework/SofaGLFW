@@ -319,7 +319,7 @@ void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
     }
 }
 
-void SofaGLFWBaseGUI::runLoop()
+void SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 {
     if (!m_groot)
     {
@@ -328,7 +328,9 @@ void SofaGLFWBaseGUI::runLoop()
 
     m_vparams = sofa::core::visual::VisualParams::defaultInstance();
 
-    while (!s_mapWindows.empty())
+    bool running = true;
+    m_currentNbIterations = 0;
+    while (!s_mapWindows.empty() && running)
     {
         // Keep running
         runStep();
@@ -361,6 +363,8 @@ void SofaGLFWBaseGUI::runLoop()
         }
 
         glfwPollEvents();
+        m_currentNbIterations++;
+        running = (targetNbIterations > 0) ? m_currentNbIterations < targetNbIterations : true;
     }
 }
 

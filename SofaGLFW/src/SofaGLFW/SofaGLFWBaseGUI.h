@@ -57,7 +57,7 @@ public:
     bool createWindow(int width, int height, const char* title, bool fullscreenAtStartup = false);
     void destroyWindow();
     void initVisual();
-    void runLoop();
+    void runLoop(std::size_t targetNbIterations = 0);
     void terminate();
 
     int getWindowWidth() const { return m_windowWidth; }
@@ -131,6 +131,7 @@ private:
     int m_lastWindowHeight{ 0 };
     
     std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;
+    std::size_t m_currentNbIterations{ 0 };
 
 };
 
