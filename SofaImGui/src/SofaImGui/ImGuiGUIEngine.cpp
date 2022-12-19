@@ -1762,10 +1762,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                 }
             }
-            ImGui::Separator();
+
+            const std::string viewFileName = baseGUI->getFilename() + VIEW_FILE_EXTENSION;
             if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_RIGHT"  Save Camera"))
             {
-                std::string viewFileName = baseGUI->getFilename() + VIEW_FILE_EXTENSION;
                 sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
                 if (camera)
@@ -1780,10 +1780,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                 }
             }
-            ImGui::Separator();
+            bool fileExists = sofa::helper::system::FileSystem::exists(viewFileName);
+            ImGui::BeginDisabled(!fileExists);
             if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_LEFT"  Restore Camera"))
             {
-                std::string viewFileName = baseGUI->getFilename() + VIEW_FILE_EXTENSION;
                 sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
                 if (camera)
@@ -1798,6 +1798,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                 }
             }
+
+            ImGui::EndDisabled();
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Windows"))
