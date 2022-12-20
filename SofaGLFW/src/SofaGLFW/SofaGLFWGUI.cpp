@@ -109,7 +109,7 @@ void SofaGLFWGUI::setBackgroundImage(const std::string& image)
 
 }
 
-sofa::gui::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
+sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
 {
     SofaGLFWGUI::mGuiName = name;
     auto* gui = new SofaGLFWGUI();

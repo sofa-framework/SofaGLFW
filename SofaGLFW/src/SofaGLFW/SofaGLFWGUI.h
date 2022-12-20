@@ -23,7 +23,7 @@
 #include <SofaGLFW/config.h>
 
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
-#include <sofa/gui/BaseGUI.h>
+#include <sofa/gui/common/BaseGUI.h>
 
 #include <sofa/component/setting/ViewerSetting.h>
 
@@ -32,7 +32,7 @@ namespace sofaglfw
 
 class SofaGLFWWindow;
 
-class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::BaseGUI
+class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::common::BaseGUI
 {
 public:
     SofaGLFWGUI() = default;
@@ -50,7 +50,7 @@ public:
     void setFullScreen() override;
     void setBackgroundColor(const sofa::type::RGBAColor& color) override;
     void setBackgroundImage(const std::string& image) override;
-    static sofa::gui::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+    static sofa::gui::common::BaseGUI * CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
 protected:
     SofaGLFWBaseGUI m_baseGUI;
     bool m_bCreateWithFullScreen{ false };

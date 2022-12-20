@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 
 
     std::string fileName = result["file"].as<std::string>();
-    const bool startAnim = result["start"].as<bool>();
+    bool startAnim = result["start"].as<bool>();
 
     fileName = sofa::helper::system::DataRepository.getFile(fileName);
 
@@ -118,12 +118,17 @@ int main(int argc, char** argv)
 
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
-    //glfwGUI.createWindow(800, 600, "SofaGLFW2");
 
     sofa::simulation::getSimulation()->init(groot.get());
 
-    auto nbIterations = result["nb_iterations"].as<std::size_t>();
-    if (startAnim || nbIterations > 0)
+    auto targetNbIterations = result["nb_iterations"].as<std::size_t>();
+    if (targetNbIterations > 0)
+    {
+        msg_info("SofaGLFW") << "Computing " << targetNbIterations << " iterations.";
+        startAnim = true;
+    }
+
+    if (startAnim)
         groot->setAnimate(true);
 
     glfwGUI.initVisual();
@@ -141,14 +146,10 @@ int main(int argc, char** argv)
 
     // Run the main loop
     std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-    glfwGUI.runLoop(nbIterations);
+    const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);
 
-    if (nbIterations > 0)
-    {
-        const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
-        msg_info("SofaGLFW") << nbIterations << " iterations done in " << totalTime << " s ( " << ( static_cast<double>(nbIterations) / totalTime) << " FPS)." << msgendl;
-    }
-    
+    const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
+    msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << ( static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
     
     if (groot != nullptr)
         sofa::simulation::getSimulation()->unload(groot);

@@ -22,7 +22,7 @@
 #include <SofaImGui/config.h>
 
 #include <sofa/simulation/Node.h>
-#include <sofa/gui/GUIManager.h>
+#include <sofa/gui/common/GUIManager.h>
 #include <SofaImGui/ImGuiGUI.h>
 #include <sofa/helper/logging/LoggingMessageHandler.h>
 
@@ -48,7 +48,7 @@ void initExternalModule()
         sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
         sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
 
-        sofa::gui::GUIManager::RegisterGUI("imgui", &sofaimgui::ImGuiGUI::CreateGUI);
+        sofa::gui::common::GUIManager::RegisterGUI("imgui", &sofaimgui::ImGuiGUI::CreateGUI);
     }
 }
 
