@@ -16,6 +16,17 @@ jobs:
         sofa_branch: [master]
 
     steps:
+      # https://github.com/actions/runner-images/issues/6817
+      - name: (Mac) Workaround for homebrew # https://github.com/rancher-sandbox/lima-and-qemu/pull/20
+        shell: bash
+        if: runner.os == 'macOS'
+        run: |
+            rm /usr/local/bin/2to3
+            rm /usr/local/bin/idle3
+            rm /usr/local/bin/pydoc3
+            rm /usr/local/bin/python3
+            rm /usr/local/bin/python3-config
+
       - name: Setup SOFA and environment
         id: sofa
         uses: sofa-framework/sofa-setup-action@v4
@@ -118,10 +129,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-10.15, windows-2019]
+        os: [ubuntu-20.04, macos-11, windows-2019]
         sofa_branch: [master]
 
     steps:
+      # https://github.com/actions/runner-images/issues/6817
+      - name: (Mac) Workaround for homebrew # https://github.com/rancher-sandbox/lima-and-qemu/pull/20
+        shell: bash
+        if: runner.os == 'macOS'
+        run: |
+            rm /usr/local/bin/2to3
+            rm /usr/local/bin/idle3
+            rm /usr/local/bin/pydoc3
+            rm /usr/local/bin/python3
+            rm /usr/local/bin/python3-config
+            
       - name: Setup SOFA and environment
         id: sofa
         uses: sofa-framework/sofa-setup-action@v4
