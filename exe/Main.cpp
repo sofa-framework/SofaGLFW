@@ -145,7 +145,7 @@ int main(int argc, char** argv)
     }
 
     // Run the main loop
-    std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+    const auto currentTime = std::chrono::steady_clock::now();
     const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);
 
     const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
