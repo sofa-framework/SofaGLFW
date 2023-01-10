@@ -1,7 +1,7 @@
 ## SofaGLFW
 This SOFA plugin brings a simple GUI based on GLFW (a spiritual successor of Glut).
 
-It only needs SofaGUICommon, SofaBaseVisual and Sofa.GL as dependencies.
+It only needs Sofa.Simulation.Graph, Sofa.Component.Visual, Sofa.GUI.Common and Sofa.GL as dependencies.
 Integration of GLFW is automatic (automatic fetching and integration with CMake), and linked statically (does not need a glfw.dll to be shipped with)
 
 This GUI is launchable with the standard runSofa (with the parameter "-g glfw"), or can be used with a (provided) stand-alone executable `runSofaGLFW` (which needs much less dependencies than runSofa)
