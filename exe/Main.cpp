@@ -51,6 +51,7 @@ int main(int argc, char** argv)
         ("h,help", "print usage")
         ;
 
+    options.parse_positional("file");
     const auto result = options.parse(argc, argv);
 
     if (result.count("help"))
