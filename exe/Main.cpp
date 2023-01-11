@@ -37,6 +37,8 @@
 
 #include <sofa/helper/system/PluginManager.h>
 
+#include <chrono>
+
 int main(int argc, char** argv)
 {
     std::vector<std::string> pluginsToLoad;
@@ -48,6 +50,7 @@ int main(int argc, char** argv)
         ("s,fullscreen", "set full screen at startup", cxxopts::value<bool>()->default_value("false"))
         ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
         ("m,msaa_samples", "set number of samples for multisample anti-aliasing (MSAA)", cxxopts::value<unsigned short>()->default_value("0"))
+        ("n,nb_iterations", "set number of iterations to run (batch mode)", cxxopts::value<std::size_t>()->default_value("0"))
         ("h,help", "print usage")
         ;
 
@@ -87,7 +90,7 @@ int main(int argc, char** argv)
 
 
     std::string fileName = result["file"].as<std::string>();
-    const bool startAnim = result["start"].as<bool>();
+    bool startAnim = result["start"].as<bool>();
 
     fileName = sofa::helper::system::DataRepository.getFile(fileName);
 
@@ -115,9 +118,15 @@ int main(int argc, char** argv)
 
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
-    //glfwGUI.createWindow(800, 600, "SofaGLFW2");
 
     sofa::simulation::getSimulation()->init(groot.get());
+
+    auto targetNbIterations = result["nb_iterations"].as<std::size_t>();
+    if (targetNbIterations > 0)
+    {
+        msg_info("SofaGLFW") << "Computing " << targetNbIterations << " iterations.";
+        startAnim = true;
+    }
 
     if (startAnim)
         groot->setAnimate(true);
@@ -136,9 +145,13 @@ int main(int argc, char** argv)
     }
 
     // Run the main loop
-    glfwGUI.runLoop();
+    const auto currentTime = std::chrono::steady_clock::now();
+    const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);
+
+    const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
+    msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << ( static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
     
-    if (groot!=NULL)
+    if (groot != nullptr)
         sofa::simulation::getSimulation()->unload(groot);
 
     sofa::simulation::graph::cleanup();

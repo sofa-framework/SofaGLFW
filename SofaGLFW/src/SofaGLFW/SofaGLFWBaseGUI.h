@@ -57,7 +57,7 @@ public:
     bool createWindow(int width, int height, const char* title, bool fullscreenAtStartup = false);
     void destroyWindow();
     void initVisual();
-    void runLoop();
+    std::size_t runLoop(std::size_t targetNbIterations = 0);
     void terminate();
 
     int getWindowWidth() const { return m_windowWidth; }

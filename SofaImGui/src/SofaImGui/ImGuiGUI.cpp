@@ -25,7 +25,7 @@
 #include <sofa/simulation/Simulation.h>
 
 #include <SofaImGui/ImGuiGUIEngine.h>
-#include <sofa/gui/BaseGUI.h>
+#include <sofa/gui/common/BaseGUI.h>
 
 #include <memory>
 
@@ -40,7 +40,7 @@ ImGuiGUI::ImGuiGUI()
 }
 
 
-sofa::gui::BaseGUI* ImGuiGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
+sofa::gui::common::BaseGUI* ImGuiGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
 {
     ImGuiGUI::mGuiName = name;
     auto* gui = new ImGuiGUI();
