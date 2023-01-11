@@ -73,6 +73,8 @@ using namespace sofa;
 namespace sofaimgui
 {
 
+constexpr const char* VIEW_FILE_EXTENSION = ".view";
+
 void ImGuiGUIEngine::init()
 {
     IMGUI_CHECKVERSION();
@@ -1744,7 +1746,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 baseGUI->switchFullScreen();
             }
             ImGui::Separator();
-            if (ImGui::MenuItem(ICON_FA_CAMERA "  Center Camera"))
+            if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_CROSSHAIRS"  Center Camera"))
             {
                 sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
@@ -1760,6 +1762,44 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                 }
             }
+
+            const std::string viewFileName = baseGUI->getFilename() + VIEW_FILE_EXTENSION;
+            if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_RIGHT"  Save Camera"))
+            {
+                sofa::component::visual::BaseCamera::SPtr camera;
+                groot->get(camera);
+                if (camera)
+                {
+                    if (camera->exportParametersInFile(viewFileName))
+                    {
+                        msg_info("GUI") << "Current camera parameters have been exported to "<< viewFileName << " .";
+                    }
+                    else
+                    {
+                        msg_error("GUI") << "Could not export camera parameters to " << viewFileName << " .";
+                    }
+                }
+            }
+            bool fileExists = sofa::helper::system::FileSystem::exists(viewFileName);
+            ImGui::BeginDisabled(!fileExists);
+            if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_LEFT"  Restore Camera"))
+            {
+                sofa::component::visual::BaseCamera::SPtr camera;
+                groot->get(camera);
+                if (camera)
+                {
+                    if (camera->importParametersFromFile(viewFileName))
+                    {
+                        msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
+                    }
+                    else
+                    {
+                        msg_error("GUI") << "Could not import camera parameters from " << viewFileName << " .";
+                    }
+                }
+            }
+
+            ImGui::EndDisabled();
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Windows"))
