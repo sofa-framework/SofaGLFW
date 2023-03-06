@@ -323,6 +323,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 {
     if (!m_groot)
     {
+        msg_error("SofaGLFWBaseGUI") << "Cannot start main loop: root node is invalid";
         return 0;
     }
 
