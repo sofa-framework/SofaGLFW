@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     auto targetNbIterations = result["nb_iterations"].as<std::size_t>();
     if (targetNbIterations > 0)
     {
-        msg_info("SofaGLFW") << "Computing " << targetNbIterations << " iterations.";
+        msg_info("SofaGLFW") << "Batch mode: computing " << targetNbIterations << " iterations.";
         startAnim = true;
     }
 
@@ -149,7 +149,12 @@ int main(int argc, char** argv)
     const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);
 
     const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
-    msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << ( static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
+
+    // measurements only make sense in batch mode
+    if (targetNbIterations > 0)
+    {
+        msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << (static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
+    }
     
     if (groot != nullptr)
         sofa::simulation::getSimulation()->unload(groot);
