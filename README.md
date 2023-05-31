@@ -8,6 +8,22 @@ This GUI is launchable with the standard runSofa (with the parameter "-g glfw"),
 
 Lastly, this GUI was designed to support multiple windows in the same time and multiple simulations. 
 
+### Dependencies
+
+#### Linux
+
+Unix-like systems such as Linux need a few extra packages for GLFW. Read the documentation on the [GLFW website (section `Installing dependencies`)](https://www.glfw.org/docs/latest/compile_guide.html).
+**For example**, if you are on Ubuntu running X11, you need to do:
+
+```
+sudo apt install xorg-dev
+```
+
+
+#### Others
+
+No dependencies
+
 ### Keyboard Shortcuts
 
 * CTRL+F: switch to fullscreen
@@ -32,6 +48,11 @@ By default, this interface is not compiled.
 The CMake variable `SOFA_BUILD_SOFAGLFWIMGUI` must be set to `ON`.
 
 Integration of Dear ImGui is automatic (automatic fetching and integration with CMake), and linked statically.
+
+### Dependencies
+
+The GUI relies on the [NFD-extended library](https://github.com/btzy/nativefiledialog-extended).
+Therefore, it comes with its dependencies. See the list on [GitHub](https://github.com/btzy/nativefiledialog-extended#dependencies).
 
 ### Windows
 
