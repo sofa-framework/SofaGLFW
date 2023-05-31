@@ -49,6 +49,7 @@
 #include <IconsFontAwesome5.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
+#include <fstream>
 #include <Roboto-Medium.h>
 #include <Style.h>
 #include <SofaImGui/ImGuiDataWidget.h>
@@ -1432,6 +1433,52 @@ void ImGuiGUIEngine::showLog(const char* const& windowNameLog, bool& isLogWindow
                 return d;
             }();
 
+            static bool showInfo { true };
+            ImGui::Checkbox("Show Info", &showInfo);
+            ImGui::SameLine();
+
+            if (ImGui::Button(ICON_FA_SAVE" "))
+            {
+                nfdchar_t *outPath;
+                const nfdresult_t result = NFD_SaveDialog(&outPath, nullptr, 0, nullptr, "log.txt");
+                if (result == NFD_OKAY)
+                {
+                    std::ofstream outputFile;
+                    outputFile.open(outPath, std::ios::out);
+
+                    if (outputFile.is_open())
+                    {
+                        for (const auto& message : messages)
+                        {
+                            static std::unordered_map<helper::logging::Message::Type, std::string> labelMap {
+                                {helper::logging::Message::Advice, "SUGGESTION"},
+                                {helper::logging::Message::Deprecated, "DEPRECATED"},
+                                {helper::logging::Message::Warning, "WARNING"},
+                                {helper::logging::Message::Info, "INFO"},
+                                {helper::logging::Message::Error, "ERROR"},
+                                {helper::logging::Message::Fatal, "FATAL"},
+                                {helper::logging::Message::TEmpty, "EMPTY"},
+                            };
+                            outputFile << "[" << labelMap[message.type()] << "]";
+                            if (const auto* nfo = dynamic_cast<helper::logging::SofaComponentInfo*>(message.componentInfo().get()))
+                            {
+                                outputFile << " " << nfo->name();
+                                if (nfo->m_component)
+                                {
+                                    outputFile << " (" << nfo->m_component->getPathName() << ")";
+                                }
+                            }
+                            outputFile << " " << message.messageAsString() << std::endl;
+                        }
+                        outputFile.close();
+                    } else
+                    {
+                        std::cout << "Failed to open the file " << outPath << std::endl;
+                    }
+                    NFD_FreePath(outPath);
+                }
+            }
+
             if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_RowBg))
             {
                 ImGui::TableSetupColumn("logId", ImGuiTableColumnFlags_WidthFixed);
@@ -1440,6 +1487,11 @@ void ImGuiGUIEngine::showLog(const char* const& windowNameLog, bool& isLogWindow
                 ImGui::TableSetupColumn("message", ImGuiTableColumnFlags_WidthStretch);
                 for (const auto& message : messages)
                 {
+                    if (!showInfo && message.type() == helper::logging::Message::Info)
+                    {
+                        continue;
+                    }
+
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
 
