@@ -64,6 +64,8 @@ if(Sofa.GUI.Common_FOUND)
     target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GUI.Common)
 endif()
 
+add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
+
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
     PACKAGE_VERSION ${Sofa_VERSION}

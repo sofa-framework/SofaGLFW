@@ -82,6 +82,7 @@ public:
 
     sofa::component::visual::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
     void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
+    void setWindowIcon(GLFWwindow* glfwWindow);
 
     void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine)
     {
