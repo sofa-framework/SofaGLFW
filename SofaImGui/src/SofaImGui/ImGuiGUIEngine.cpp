@@ -957,6 +957,14 @@ void ImGuiGUIEngine::showSceneGraph(sofa::core::sptr<sofa::simulation::Node> gro
                         ImGui::TextWrapped(entry.description.c_str());
                     }
 
+                    const std::string instantiationSourceFilename = component->getInstanciationSourceFileName();
+                    if (!instantiationSourceFilename.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Definition:");
+                        ImGui::TextWrapped(component->getInstanciationSourceFileName().c_str());
+                    }
+
                     ImGui::EndTabItem();
                 }
                 if (ImGui::BeginTabItem("Messages"))
