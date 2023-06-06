@@ -35,7 +35,10 @@
 #include <sofa/component/visual/InteractiveCamera.h>
 #include <sofa/component/visual/VisualStyle.h>
 
+#include <sofa/helper/io/STBImage.h>
+
 #include <algorithm>
+#include <sofa/helper/system/FileRepository.h>
 
 using namespace sofa;
 
@@ -137,6 +140,23 @@ void SofaGLFWBaseGUI::changeCamera(sofa::component::visual::BaseCamera::SPtr new
     }
 }
 
+void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
+{
+    //STBImage relies on DataRepository to find files: it must be extended with the resource files from this plugin
+    sofa::helper::system::DataRepository.addFirstPath(SOFAGLFW_RESOURCES_DIR);
+
+    sofa::helper::io::STBImage img;
+    if (img.load("SOFA.png"))
+    {
+        GLFWimage images[1];
+        images[0].height = img.getHeight();
+        images[0].width = img.getWidth();
+        images[0].pixels = img.getPixels();
+        glfwSetWindowIcon(glfwWindow, 1, images);
+    }
+    sofa::helper::system::DataRepository.removePath(SOFAGLFW_RESOURCES_DIR);
+}
+
 bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
     m_guiEngine->init();
@@ -165,6 +185,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
         glfwWindow = glfwCreateWindow(width, height, title, nullptr, m_firstWindow);
     }
 
+    setWindowIcon(glfwWindow);
 
     if (!m_firstWindow)
         m_firstWindow = glfwWindow;
