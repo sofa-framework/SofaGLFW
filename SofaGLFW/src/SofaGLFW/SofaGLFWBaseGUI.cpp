@@ -506,7 +506,28 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                     currentGUI->second->setSimulationIsRunning(!currentGUI->second->simulationIsRunning());
                 }
             }
-            break;
+        break;
+        case GLFW_KEY_LEFT_CONTROL:
+        case GLFW_KEY_RIGHT_CONTROL:
+            if (action == GLFW_PRESS)
+            {
+                auto currentGUI = s_mapGUIs.find(window);
+                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+                {
+                    currentGUI->second->m_isMouseInteractionEnabled = true;
+                    msg_warning("SofaGLFWBaseGUI") << "Mouse interaction is not yet available";
+
+                }
+            }
+            else if (action == GLFW_RELEASE)
+            {
+                auto currentGUI = s_mapGUIs.find(window);
+                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+                {
+                    currentGUI->second->m_isMouseInteractionEnabled = false;
+                }
+            }
+        break;
         default:
             break;
     }
@@ -520,11 +541,14 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
         if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
             return;
     }
-    
-    auto currentSofaWindow = s_mapWindows.find(window);
-    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+
+    if (!currentGUI->second->m_isMouseInteractionEnabled)
     {
-        currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos));
+        auto currentSofaWindow = s_mapWindows.find(window);
+        if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+        {
+            currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos));
+        }
     }
 }
 

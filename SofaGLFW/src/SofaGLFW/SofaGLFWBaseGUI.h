@@ -130,6 +130,8 @@ private:
     int m_lastWindowPositionY{ 0 };
     int m_lastWindowWidth{ 0 };
     int m_lastWindowHeight{ 0 };
+
+    bool m_isMouseInteractionEnabled { false };
     
     std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;
 
