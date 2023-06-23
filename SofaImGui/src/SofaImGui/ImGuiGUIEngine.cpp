@@ -1243,7 +1243,6 @@ void ImGuiGUIEngine::showComponents(const char* const& windowNameComponents, boo
                         for (const auto& entry : entries)
                         {
                             std::set<std::string> categoriesSet;
-                            std::stringstream templateSs;
                             for (const auto& [templateInstance, creator] : entry->creatorMap)
                             {
                                 std::vector<std::string> categories;
@@ -1420,6 +1419,66 @@ void ImGuiGUIEngine::showComponents(const char* const& windowNameComponents, boo
                 ImGui::EndTable();
             }
             ImGui::Text("%d loaded components", nbLoadedComponents);
+
+            if (ImGui::Button(ICON_FA_SAVE" "))
+            {
+                nfdchar_t *outPath;
+                const nfdresult_t result = NFD_SaveDialog(&outPath, nullptr, 0, nullptr, "log.txt");
+                if (result == NFD_OKAY)
+                {
+                    static std::vector<core::ClassEntry::SPtr> entries;
+                    entries.clear();
+                    core::ObjectFactory::getInstance()->getAllEntries(entries);
+
+                    if (!entries.empty())
+                    {
+                        std::ofstream outputFile;
+                        outputFile.open(outPath, std::ios::out);
+
+
+
+                        if (outputFile.is_open())
+                        {
+                            for (const auto& entry : entries)
+                            {
+                                struct EntryProperty
+                                {
+                                    std::set<std::string> categories;
+                                    std::string target;
+                                    bool operator<(const EntryProperty& other) const { return target < other.target && categories < other.categories; }
+                                };
+                                std::set<EntryProperty> entryProperties;
+
+                                for (const auto& [templateInstance, creator] : entry->creatorMap)
+                                {
+                                    EntryProperty property;
+
+                                    std::vector<std::string> categories;
+                                    core::CategoryLibrary::getCategories(entry->creatorMap.begin()->second->getClass(), categories);
+                                    property.categories.insert(categories.begin(), categories.end());
+                                    property.target = creator->getTarget();
+
+                                    entryProperties.insert(property);
+                                }
+
+                                for (const auto& [categories, target] : entryProperties)
+                                {
+                                    outputFile
+                                            << entry->className << ','
+                                            << sofa::helper::join(categories.begin(), categories.end(), ';') << ','
+                                            << target << ','
+                                            << '\n';
+                                }
+                            }
+
+                            outputFile.close();
+                        }
+                    }
+
+
+                }
+
+            }
         }
         ImGui::End();
     }
