@@ -151,14 +151,14 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 
 void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
 {
-    sofa::simulation::getSimulation()->unload(groot);
+    sofa::simulation::node::unload(groot);
 
-    groot = sofa::simulation::getSimulation()->load(filePathName.c_str());
+    groot = sofa::simulation::node::load(filePathName.c_str());
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
     baseGUI->setSimulation(groot, filePathName);
 
-    sofa::simulation::getSimulation()->init(groot.get());
+    sofa::simulation::node::initRoot(groot.get());
     auto camera = baseGUI->findCamera(groot);
     if (camera)
     {
@@ -1843,9 +1843,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             if (ImGui::MenuItem(ICON_FA_TIMES_CIRCLE "  Close Simulation"))
             {
-                sofa::simulation::getSimulation()->unload(groot);
+                sofa::simulation::node::unload(groot);
                 baseGUI->setSimulationIsRunning(false);
-                sofa::simulation::getSimulation()->init(baseGUI->getRootNode().get());
+                sofa::simulation::node::initRoot(baseGUI->getRootNode().get());
                 return;
             }
             ImGui::Separator();
@@ -1953,8 +1953,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 sofa::helper::AdvancedTimer::begin("Animate");
 
-                simulation::getSimulation()->animate(groot.get(), groot->getDt());
-                simulation::getSimulation()->updateVisual(groot.get());
+                sofa::simulation::node::animate(groot.get(), groot->getDt());
+                sofa::simulation::node::updateVisual(groot.get());
 
                 sofa::helper::AdvancedTimer::end("Animate");
             }
@@ -1968,7 +1968,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::Button(ICON_FA_REDO_ALT))
         {
             groot->setTime(0.);
-            simulation::getSimulation()->reset ( groot.get() );
+            sofa::simulation::node::reset ( groot.get() );
         }
 
         const auto posX = ImGui::GetCursorPosX();
