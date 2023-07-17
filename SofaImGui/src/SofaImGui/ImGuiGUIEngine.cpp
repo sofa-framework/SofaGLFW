@@ -214,14 +214,14 @@ void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot
                             groot->addObject(newGrid);
                             newGrid->setName("viewportGrid");
                             newGrid->addTag(core::objectmodel::Tag("createdByGUI"));
-                            newGrid->d_draw.setValue(true);
+                            newGrid->d_enable.setValue(true);
                             auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
                             newGrid->d_size.setValue(*std::max_element(box.begin(), box.end()));
                             newGrid->init();
                         }
                         else
                         {
-                            grid->d_draw.setValue(!grid->d_draw.getValue());
+                            grid->d_enable.setValue(!grid->d_enable.getValue());
                         }
                     }
                     if (ImGui::Selectable(ICON_FA_ARROWS_ALT "  Show Axis"))
@@ -233,14 +233,14 @@ void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot
                             groot->addObject(newAxis);
                             newAxis->setName("viewportAxis");
                             newAxis->addTag(core::objectmodel::Tag("createdByGUI"));
-                            newAxis->d_draw.setValue(true);
+                            newAxis->d_enable.setValue(true);
                             auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
                             newAxis->d_size.setValue(*std::max_element(box.begin(), box.end()));
                             newAxis->init();
                         }
                         else
                         {
-                            axis->d_draw.setValue(!axis->d_draw.getValue());
+                            axis->d_enable.setValue(!axis->d_enable.getValue());
                         }
                     }
                     if (ImGui::Selectable(ICON_FA_SQUARE_FULL "  Show Frame"))
