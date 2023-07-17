@@ -396,7 +396,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
 void SofaGLFWBaseGUI::initVisual()
 {
-    sofa::simulation::getSimulation()->initTextures(m_groot.get());
+    sofa::simulation::node::initTextures(m_groot.get());
 
     component::visual::VisualStyle::SPtr visualStyle = nullptr;
     m_groot->get(visualStyle);
@@ -455,8 +455,8 @@ void SofaGLFWBaseGUI::runStep()
     {
         sofa::helper::AdvancedTimer::begin("Animate");
 
-        simulation::getSimulation()->animate(m_groot.get(), m_groot->getDt());
-        simulation::getSimulation()->updateVisual(m_groot.get());
+        simulation::node::animate(m_groot.get(), m_groot->getDt());
+        simulation::node::updateVisual(m_groot.get());
 
         sofa::helper::AdvancedTimer::end("Animate");
     }

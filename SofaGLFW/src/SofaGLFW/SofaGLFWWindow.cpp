@@ -93,7 +93,7 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
     vparams->setProjectionMatrix(projectionMatrix);
     vparams->setModelViewMatrix(mvMatrix);
 
-    sofa::simulation::getSimulation()->draw(vparams, groot.get());
+    sofa::simulation::node::draw(vparams, groot.get());
 
 }
 
