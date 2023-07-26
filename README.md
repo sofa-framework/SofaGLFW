@@ -24,6 +24,11 @@ sudo apt install xorg-dev
 
 No dependencies
 
+
+### Compilation
+
+As any plugin, to compile SofaGLFW, follow the instructions on the [SOFA documentation website](https://www.sofa-framework.org/community/doc/plugins/build-a-plugin-from-sources/).
+
 ### Keyboard Shortcuts
 
 * CTRL+F: switch to fullscreen
@@ -42,17 +47,36 @@ No dependencies
 
 By default, SofaGLFW does not show any user interface.
 Only the keyboard allows limited interactions with the simulation.
-That is why a user interface based on [Dear ImGui](https://github.com/ocornut/imgui) is provided.
+That is why a user interface based on [Dear ImGui](https://github.com/ocornut/imgui) is provided, in the form of a SOFA plugin.
 
 By default, this interface is not compiled.
-The CMake variable `SOFA_BUILD_SOFAGLFWIMGUI` must be set to `ON`.
+The CMake variable `PLUGIN_SOFAIMGUI` must be set to `ON`.
 
 Integration of Dear ImGui is automatic (automatic fetching and integration with CMake), and linked statically.
 
 ### Dependencies
 
+SofaImGui depends on SofaGLFW, so it must also be activated.
+
 The GUI relies on the [NFD-extended library](https://github.com/btzy/nativefiledialog-extended).
 Therefore, it comes with its dependencies. See the list on [GitHub](https://github.com/btzy/nativefiledialog-extended#dependencies).
+
+### Compilation
+
+As any plugin, to compile SofaImGui, follow the instructions on the [SOFA documentation website](https://www.sofa-framework.org/community/doc/plugins/build-a-plugin-from-sources/).
+
+### Usage
+
+To run SOFA with the GUI from SofaImGui, execute the following command:
+
+```bash
+runSofa -l SofaImGui -g imgui
+```
+
+- `-l SofaImGui`: loads the plugin in order to be able to use the GUI (see the [documentation](https://www.sofa-framework.org/community/doc/plugins/what-is-a-plugin/))
+- `-g imgui`: selects the `runSofa` GUI to be the one from SofaImGui
+
+It is possible to run the Dear ImGui-based GUI by default when running the command `./runSofa` (without the `-l` and `-g` arguments). To do so, add the SofaImGui plugin into the list of loaded plugin in the `plugin_list.conf` file (see the [documentation](https://www.sofa-framework.org/community/doc/plugins/what-is-a-plugin/)). Then, run `runSofa -g imgui` at least once so that `runSofa` save the last used GUI. After that, `./runSofa` will load the imgui GUI.
 
 ### Windows
 
