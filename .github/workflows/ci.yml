@@ -249,7 +249,7 @@ jobs:
 
 
   deploy-with-imgui:
-    name: Deploy artifacts
+    name: Deploy artifacts (with imgui)
     if: always() && startsWith(github.ref, 'refs/heads/') # we are on a branch (not a PR)
     needs: [build-and-test-with-imgui]
     runs-on: ubuntu-latest
