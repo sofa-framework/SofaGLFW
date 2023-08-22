@@ -134,9 +134,8 @@ jobs:
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           tag_name: ${{ env.RELEASE_TAGNAME }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create new release
         if: success() || failure()
@@ -282,9 +281,8 @@ jobs:
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           tag_name: ${{ env.RELEASE_TAGNAME }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create new release
         if: success() || failure()
