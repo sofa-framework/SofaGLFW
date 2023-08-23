@@ -297,6 +297,6 @@ jobs:
           body: |
             Last updated on ${{ env.RELEASE_DATE }}
           files: |
-            artifacts/${{ env.PROJECT_NAME }}_*_Linux.zip
-            artifacts/${{ env.PROJECT_NAME }}_*_Windows.zip
-            artifacts/${{ env.PROJECT_NAME }}_*_macOS.zip
+            artifacts/${{ env.PROJECT_NAME }}_*_with_imgui_*_Linux.zip
+            artifacts/${{ env.PROJECT_NAME }}_*_with_imgui_*_Windows.zip
+            artifacts/${{ env.PROJECT_NAME }}_*_with_imgui_*_macOS.zip
