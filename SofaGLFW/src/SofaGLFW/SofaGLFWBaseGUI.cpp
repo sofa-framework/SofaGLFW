@@ -39,6 +39,9 @@
 
 #include <algorithm>
 #include <sofa/helper/system/FileRepository.h>
+#ifdef TRACY_ENABLE
+#include <tracy/Tracy.hpp>
+#endif
 
 using namespace sofa;
 
@@ -355,6 +358,10 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
     std::stringstream tmpStr;
     while (!s_mapWindows.empty() && running)
     {
+#ifdef TRACY_ENABLE
+        FrameMark;
+#endif
+
         // Keep running
         runStep();
 
