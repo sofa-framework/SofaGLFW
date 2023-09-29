@@ -39,6 +39,7 @@
 
 #include <algorithm>
 #include <sofa/helper/system/FileRepository.h>
+#include <sofa/simulation/SimulationLoop.h>
 
 using namespace sofa;
 
@@ -355,6 +356,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
     std::stringstream tmpStr;
     while (!s_mapWindows.empty() && running)
     {
+        SIMULATION_LOOP_SCOPE
+
         // Keep running
         runStep();
 
