@@ -68,6 +68,7 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/gui/common/BaseGUI.h>
+#include <sofa/helper/io/STBImage.h>
 
 using namespace sofa;
 
@@ -1919,6 +1920,30 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
 
             ImGui::EndDisabled();
+
+            ImGui::Separator();
+            if (ImGui::MenuItem(ICON_FA_SAVE"  Save Screenshot"))
+            {
+                nfdchar_t *outPath;
+                std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
+                nfdresult_t result = NFD_SaveDialog(&outPath,
+                    filterItem.data(), filterItem.size(), nullptr, nullptr);
+                if (result == NFD_OKAY)
+                {
+                    helper::io::STBImage image;
+                    image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
+
+                    glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
+
+                    // Read the pixel data from the OpenGL texture
+                    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
+
+                    glBindTexture(GL_TEXTURE_2D, 0);
+
+                    image.save(outPath);
+                }
+            }
+
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Windows"))
