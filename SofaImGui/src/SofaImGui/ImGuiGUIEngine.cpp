@@ -49,6 +49,7 @@
 #include <IconsFontAwesome5.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
+#include <filesystem>
 #include <fstream>
 #include <Roboto-Medium.h>
 #include <Style.h>
@@ -1926,8 +1927,16 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 nfdchar_t *outPath;
                 std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
+                auto sceneFilename = baseGUI->getFilename();
+                if (!sceneFilename.empty())
+                {
+                    std::filesystem::path path(sceneFilename);
+                    path = path.replace_extension(".png");
+                    sceneFilename = path.filename().string();
+                }
+
                 nfdresult_t result = NFD_SaveDialog(&outPath,
-                    filterItem.data(), filterItem.size(), nullptr, nullptr);
+                    filterItem.data(), filterItem.size(), nullptr, sceneFilename.c_str());
                 if (result == NFD_OKAY)
                 {
                     helper::io::STBImage image;
