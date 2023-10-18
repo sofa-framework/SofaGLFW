@@ -1949,7 +1949,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                     glBindTexture(GL_TEXTURE_2D, 0);
 
-                    image.save(outPath);
+                    image.save(outPath, 90);
                 }
             }
 
