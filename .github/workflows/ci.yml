@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Setup SOFA and environment
         id: sofa
-        uses: fredroy/sofa-setup-action@v4_no_brew_upgrade
+        uses: sofa-framework/sofa-setup-action@v4
         with:
           sofa_root: ${{ github.workspace }}/sofa
           sofa_version: ${{ matrix.sofa_branch }}
@@ -150,7 +150,7 @@ jobs:
     steps:          
       - name: Setup SOFA and environment
         id: sofa
-        uses: fredroy/sofa-setup-action@v4_no_brew_upgrade
+        uses: sofa-framework/sofa-setup-action@v4
         with:
           sofa_root: ${{ github.workspace }}/sofa
           sofa_version: ${{ matrix.sofa_branch }}
