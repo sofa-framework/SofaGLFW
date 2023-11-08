@@ -58,7 +58,6 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
     std::string strFilename;
     if (filename)
         strFilename = filename;
-
     m_baseGUI.setSimulation(groot, strFilename);
 
     m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SofaGLFW - " + strFilename).c_str(), m_bCreateWithFullScreen);
@@ -78,6 +77,10 @@ void SofaGLFWGUI::setViewerResolution(int width, int height)
 {
     m_baseGUI.setWindowWidth(width);
     m_baseGUI.setWindowHeight(height);
+
+    //if already spawned, apply
+    m_baseGUI.resizeWindow(width, height);
+
 }
 
 void SofaGLFWGUI::setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf)
@@ -117,6 +120,9 @@ sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simul
     {
         return nullptr;
     }
+
+    gui->setScene(groot, filename);
+
     return gui;
 }
 

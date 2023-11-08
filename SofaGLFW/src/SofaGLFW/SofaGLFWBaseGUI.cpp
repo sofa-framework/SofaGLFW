@@ -183,7 +183,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     }
     else
     {
-        glfwWindow = glfwCreateWindow(width, height, title, nullptr, m_firstWindow);
+        glfwWindow = glfwCreateWindow(width > 0 ? width : 100, height > 0 ? height : 100, title, nullptr, m_firstWindow);
     }
 
     setWindowIcon(glfwWindow);
@@ -223,6 +223,14 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     else
     {
         return false;
+    }
+}
+
+void SofaGLFWBaseGUI::resizeWindow(int width, int height)
+{
+    if (hasWindow())
+    {
+        glfwSetWindowSize(m_firstWindow, width, height);
     }
 }
 
