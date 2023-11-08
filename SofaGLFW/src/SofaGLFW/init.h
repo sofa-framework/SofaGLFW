@@ -19,68 +19,11 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFW/init.h>
+#pragma once
 
-#include <sofa/simulation/Node.h>
-
-#if SOFAGLFW_HAVE_SOFA_GUI_COMMON
-#include <sofa/gui/common/GUIManager.h>
-#include <SofaGLFW/SofaGLFWGUI.h>
-#endif // SOFAGLFW_HAVE_SOFA_GUI_COMMON
+#include <SofaGLFW/config.h>
 
 namespace sofaglfw
 {
-
-extern "C" {
-    SOFAGLFW_API void initExternalModule();
-    SOFAGLFW_API const char* getModuleName();
-    SOFAGLFW_API const char* getModuleVersion();
-    SOFAGLFW_API const char* getModuleLicense();
-    SOFAGLFW_API const char* getModuleDescription();
-    SOFAGLFW_API const char* getModuleComponentList();
-}
-
-void initExternalModule()
-{
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-#if SOFAGLFW_HAVE_SOFA_GUI_COMMON
-        sofa::gui::common::GUIManager::RegisterGUI("glfw", &sofaglfw::SofaGLFWGUI::CreateGUI);
-#endif // SOFAGLFW_HAVE_SOFA_GUI_COMMON
-    }
-}
-
-const char* getModuleName()
-{
-    return sofa_tostring(SOFA_TARGET);
-}
-
-const char* getModuleVersion()
-{
-    return sofa_tostring(SOFAGLFW_VERSION);
-}
-
-const char* getModuleLicense()
-{
-    return "GPL";
-}
-
-const char* getModuleDescription()
-{
-    return "A GLFW Gui for SOFA.";
-}
-
-const char* getModuleComponentList()
-{
-    //no Components in this plugin
-    return "";
-}
-
-void init()
-{
-    initExternalModule();
-}
-
+    SOFAGLFW_API void init();
 } // namespace sofaglfw
