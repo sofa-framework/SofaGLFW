@@ -19,7 +19,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaImGui/config.h>
+#include <SofaImGui/init.h>
 
 #include <sofa/simulation/Node.h>
 #include <sofa/gui/common/GUIManager.h>
@@ -76,6 +76,11 @@ const char* getModuleComponentList()
 {
     //no Components in this plugin
     return "";
+}
+
+void init()
+{
+    initExternalModule();
 }
 
 } // namespace sofaimgui
