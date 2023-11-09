@@ -20,7 +20,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include <SofaImgui/init.h>
+#include <SofaImGui/init.h>
 
 
 namespace py { using namespace pybind11; }
