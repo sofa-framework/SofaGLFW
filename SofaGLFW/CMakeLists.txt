@@ -65,6 +65,11 @@ if(Sofa.GUI.Common_FOUND)
     target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GUI.Common)
 endif()
 
+find_package(SofaPython3 QUIET)
+if(SofaPython3_FOUND)
+    add_subdirectory(bindings)
+endif()
+
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
 
 sofa_create_package_with_targets(
