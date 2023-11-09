@@ -49,6 +49,9 @@ sofa::gui::common::BaseGUI* ImGuiGUI::CreateGUI(const char* name, sofa::simulati
     {
         return nullptr;
     }
+
+    gui->setScene(groot, filename);
+
     return gui;
 }
 

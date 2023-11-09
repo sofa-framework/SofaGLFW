@@ -19,68 +19,11 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaImGui/init.h>
+#pragma once
 
-#include <sofa/simulation/Node.h>
-#include <sofa/gui/common/GUIManager.h>
-#include <SofaImGui/ImGuiGUI.h>
-#include <sofa/helper/logging/LoggingMessageHandler.h>
+#include <SofaImGui/config.h>
 
 namespace sofaimgui
 {
-
-extern "C" {
-    SOFAIMGUI_API void initExternalModule();
-    SOFAIMGUI_API const char* getModuleName();
-    SOFAIMGUI_API const char* getModuleVersion();
-    SOFAIMGUI_API const char* getModuleLicense();
-    SOFAIMGUI_API const char* getModuleDescription();
-    SOFAIMGUI_API const char* getModuleComponentList();
-}
-
-void initExternalModule()
-{
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-
-        sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
-        sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
-
-        sofa::gui::common::GUIManager::RegisterGUI("imgui", &sofaimgui::ImGuiGUI::CreateGUI);
-    }
-}
-
-const char* getModuleName()
-{
-    return sofa_tostring(SOFA_TARGET);
-}
-
-const char* getModuleVersion()
-{
-    return sofa_tostring(SOFAIMGUI_VERSION);
-}
-
-const char* getModuleLicense()
-{
-    return "GPL";
-}
-
-const char* getModuleDescription()
-{
-    return "A ImGui Gui for SOFA.";
-}
-
-const char* getModuleComponentList()
-{
-    //no Components in this plugin
-    return "";
-}
-
-void init()
-{
-    initExternalModule();
-}
-
+    SOFAIMGUI_API void init();
 } // namespace sofaimgui
