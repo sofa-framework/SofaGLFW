@@ -103,6 +103,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Renderin
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw)
 
+find_package(SofaPython3 QUIET)
+if(SofaPython3_FOUND)
+    add_subdirectory(bindings)
+endif()
+
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
     PACKAGE_VERSION ${Sofa_VERSION}
