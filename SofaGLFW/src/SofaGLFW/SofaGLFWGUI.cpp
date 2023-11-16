@@ -120,9 +120,12 @@ sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simul
     {
         return nullptr;
     }
-
-    gui->setScene(groot, filename);
-
+    
+    if(groot)
+    {
+        gui->setScene(groot, filename);
+    }
+    
     return gui;
 }
 
