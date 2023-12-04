@@ -11,30 +11,14 @@ jobs:
   build-and-test:
     name: Run on ${{ matrix.os }} with SOFA ${{ matrix.sofa_branch }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: true # as macos is always failing...
+    continue-on-error: false
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-11, windows-2019]
+        os: [ubuntu-20.04, macos-12, windows-2019]
         sofa_branch: [master]
 
     steps:
-      # https://github.com/actions/runner-images/issues/6817
-      - name: (Mac) Workaround for homebrew # https://github.com/rancher-sandbox/lima-and-qemu/pull/20
-        shell: bash
-        if: runner.os == 'macOS'
-        run: |
-            rm -f /usr/local/bin/2to3
-            rm -f /usr/local/bin/idle3
-            rm -f /usr/local/bin/pydoc3
-            rm -f /usr/local/bin/python3
-            rm -f /usr/local/bin/python3-config
-            rm -f /usr/local/bin/2to3-3.11
-            rm -f /usr/local/bin/idle3.11
-            rm -f /usr/local/bin/pydoc3.11
-            rm -f /usr/local/bin/python3.11
-            rm -f /usr/local/bin/python3.11-config
-
       - name: Setup SOFA and environment
         id: sofa
         uses: sofa-framework/sofa-setup-action@v4
@@ -156,30 +140,14 @@ jobs:
   build-and-test-with-imgui:
     name: Run on ${{ matrix.os }} with SOFA ${{ matrix.sofa_branch }} and imgui
     runs-on: ${{ matrix.os }}
-    continue-on-error: true # as macos is always failing...
+    continue-on-error: false
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-11, windows-2019]
+        os: [ubuntu-20.04, macos-12, windows-2019]
         sofa_branch: [master]
 
-    steps:
-      # https://github.com/actions/runner-images/issues/6817
-      - name: (Mac) Workaround for homebrew # https://github.com/rancher-sandbox/lima-and-qemu/pull/20
-        shell: bash
-        if: runner.os == 'macOS'
-        run: |
-            rm -f /usr/local/bin/2to3
-            rm -f /usr/local/bin/idle3
-            rm -f /usr/local/bin/pydoc3
-            rm -f /usr/local/bin/python3
-            rm -f /usr/local/bin/python3-config
-            rm -f /usr/local/bin/2to3-3.11
-            rm -f /usr/local/bin/idle3.11
-            rm -f /usr/local/bin/pydoc3.11
-            rm -f /usr/local/bin/python3.11
-            rm -f /usr/local/bin/python3.11-config
-            
+    steps:          
       - name: Setup SOFA and environment
         id: sofa
         uses: sofa-framework/sofa-setup-action@v4
