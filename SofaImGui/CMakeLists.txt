@@ -7,6 +7,7 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib/cmake)
 
 sofa_find_package(SofaGLFW REQUIRED)
 sofa_find_package(Sofa.GL.Component.Rendering3D REQUIRED)
+sofa_find_package(Sofa.Component.Playback REQUIRED)
 
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -78,15 +79,21 @@ set(IMGUI_SOURCE_FILES
 set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
 
 set(HEADER_FILES
-    ${SOFAIMGUI_SOURCE_DIR}/config.h.in
-    ${SOFAIMGUI_SOURCE_DIR}/init.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
+
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.h
+    ${SOFAIMGUI_SOURCE_DIR}/config.h.in
+    ${SOFAIMGUI_SOURCE_DIR}/init.h
 )
 
 set(SOURCE_FILES
+    ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
+
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.cpp
@@ -97,9 +104,10 @@ set(SOURCE_FILES
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES}
+    src/SofaImGui/windows/ViewportWindow.h src/SofaImGui/windows/ViewportWindow.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${CMAKE_DL_LIBS})
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw)
 

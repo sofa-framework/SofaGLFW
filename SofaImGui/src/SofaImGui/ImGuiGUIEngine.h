@@ -62,18 +62,10 @@ protected:
     CSimpleIniA ini;
 
     void showViewport(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen);
-    void showPerformances(const char* const& windowNamePerformances, const ImGuiIO& io, bool& isPerformancesWindowOpen);
-    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler,
-                      bool& isProfilerOpen);
     void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph,
                         bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
-    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags,
-                          bool& isDisplayFlagsWindowOpen);
-    void showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen);
-    void showComponents(const char* const& windowNameComponents, bool& isComponentsWindowOpen);
-    void showLog(const char* const& windowNameLog, bool& isLogWindowOpen);
-    void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen);
+    void showROS(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameROS, bool& isROSWindowOpen);
 
     static const std::string& getAppIniFile();
 
