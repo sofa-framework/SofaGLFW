@@ -86,17 +86,16 @@ int main(int argc, char** argv)
         sofa::helper::system::PluginManager::getInstance().loadPlugin(plugin);
     }
 
-    sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
-
-
     std::string fileName = result["file"].as<std::string>();
     bool startAnim = result["start"].as<bool>();
 
     fileName = sofa::helper::system::DataRepository.getFile(fileName);
 
-    auto groot = sofa::simulation::getSimulation()->load(fileName.c_str());
+    auto groot = sofa::simulation::node::load(fileName.c_str());
     if( !groot )
+    {
         groot = sofa::simulation::getSimulation()->createNewGraph("");
+    }
 
     glfwGUI.setSimulation(groot, fileName);
 
@@ -119,7 +118,7 @@ int main(int argc, char** argv)
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
 
-    sofa::simulation::getSimulation()->init(groot.get());
+    sofa::simulation::node::init(groot.get());
 
     auto targetNbIterations = result["nb_iterations"].as<std::size_t>();
     if (targetNbIterations > 0)
@@ -157,7 +156,9 @@ int main(int argc, char** argv)
     }
     
     if (groot != nullptr)
-        sofa::simulation::getSimulation()->unload(groot);
+    {
+        sofa::simulation::node::unload(groot);
+    }
 
     sofa::simulation::graph::cleanup();
 
