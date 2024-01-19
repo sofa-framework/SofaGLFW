@@ -19,25 +19,51 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
-#pragma once
 
-#include <SofaImGui/config.h>
-#include <string>
+#include <SofaImGui/windows/ROSWindow.h>
 
-#include <sofa/simulation/Node.h>
 
 namespace sofaimgui::windows {
 
-class BaseWindow
+ROSWindow::ROSWindow(const std::string& name, const bool& isWindowOpen)
 {
-   public:
-    BaseWindow() = default;
-    ~BaseWindow() = default;
+    m_name = name;
+    m_isWindowOpen = isWindowOpen;
 
-    std::string m_name;
-    bool m_isWindowOpen{false};
+    // rclcpp::init(0, nullptr);
+    // rclcpp::spin(std::make_shared<ROSPublisher>());
+}
 
-};
+ROSWindow::~ROSWindow()
+{
+    // rclcpp::shutdown();
+}
+
+void ROSWindow::init()
+{
+}
+
+void ROSWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot)
+{
+    if (m_isWindowOpen)
+    {
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        {
+            ImGui::BeginChild("Sub", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+            ImGui::Text("Topic: ");
+
+            ImGui::EndChild();
+
+            ImGui::BeginChild("Pub", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+            ImGui::Text("Topic: ");
+
+            ImGui::EndChild();
+        }
+        ImGui::End();
+    }
+}
 
 }
 

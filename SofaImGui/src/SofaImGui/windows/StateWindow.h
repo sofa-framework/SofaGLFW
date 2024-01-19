@@ -21,23 +21,23 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/config.h>
-#include <string>
-
-#include <sofa/simulation/Node.h>
+#include <SofaImGui/windows/BaseWindow.h>
+#include <imgui.h>
 
 namespace sofaimgui::windows {
 
-class BaseWindow
+class StateWindow : public BaseWindow
 {
    public:
-    BaseWindow() = default;
-    ~BaseWindow() = default;
+    StateWindow(const std::string& name, const bool& isWindowOpen);
+    ~StateWindow() = default;
 
-    std::string m_name;
-    bool m_isWindowOpen{false};
+    using BaseWindow::m_name;
+    using BaseWindow::m_isWindowOpen;
 
+    void showWindow(sofa::core::sptr<sofa::simulation::Node> groot);
 };
 
 }
+
 

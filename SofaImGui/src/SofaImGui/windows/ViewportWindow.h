@@ -22,7 +22,7 @@
 #pragma once
 
 #include <SofaImGui/windows/BaseWindow.h>
-#include <sofa/gl/FrameBufferObject.h>
+#include <imgui.h>
 
 namespace sofaimgui::windows {
 
@@ -30,16 +30,15 @@ class ViewportWindow : public BaseWindow
 {
    public:
     ViewportWindow(const std::string& name, const bool& isWindowOpen);
-    ~ViewportWindow();
+    ~ViewportWindow() = default;
 
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    void showWindow(sofa::core::sptr<sofa::simulation::Node> groot) override;
+    void showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
+                    const ImTextureID& texture);
 
-    std::pair<float, float> m_viewportWindowSize;
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
+    std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};
 };
 

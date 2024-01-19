@@ -20,35 +20,48 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
-#include <SofaImGui/windows/ViewportWindow.h>
+#include <SofaImGui/windows/StateWindow.h>
 
 namespace sofaimgui::windows {
 
-ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen)
+StateWindow::StateWindow(const std::string& name, const bool& isWindowOpen)
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
 }
 
-void ViewportWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
-                                const ImTextureID& texture)
+void StateWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot)
 {
-    SOFA_UNUSED(groot);
     if (m_isWindowOpen)
     {
-        ImVec2 pos;
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
         {
-            pos = ImGui::GetWindowPos();
-
-            ImGui::BeginChild("Render");
-            ImVec2 wsize = ImGui::GetWindowSize();
-            m_windowSize = { wsize.x, wsize.y};
-
-            ImGui::Image(texture, wsize, ImVec2(0, 1), ImVec2(1, 0));
-            m_isMouseOnViewport = ImGui::IsItemHovered();
-            ImGui::EndChild();
-
+            const auto& modelling = groot->getChild("Modelling");
+            if(modelling != nullptr)
+            {
+                const auto& state = modelling->getChild("State");
+                if(state != nullptr)
+                {
+                    const auto& data = state->getDataFields();
+                    ImGui::BeginTable("", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+                    for(auto d: data)
+                    {
+                        auto value = d->getValueString();
+                        auto name = d->getName();
+                        if(name.find("effector") != std::string::npos || name.find("actuator") != std::string::npos)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%s", name.c_str());
+                            ImGui::TableNextColumn();
+                            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(value.c_str()).x
+                                                 - ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
+                            ImGui::Text("%s", value.c_str());
+                        }
+                    }
+                    ImGui::EndTable();
+                }
+            }
         }
         ImGui::End();
     }

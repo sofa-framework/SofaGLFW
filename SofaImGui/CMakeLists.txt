@@ -4,10 +4,13 @@ project(SofaImGui LANGUAGES CXX)
 # needed to find SofaGLFWConfig.cmake
 # if building both of them out-of-tree
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib/cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 sofa_find_package(SofaGLFW REQUIRED)
 sofa_find_package(Sofa.GL.Component.Rendering3D REQUIRED)
 sofa_find_package(Sofa.Component.Playback REQUIRED)
+
+find_package(ROS REQUIRED)
 
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -81,6 +84,9 @@ set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
 set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.h
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
@@ -93,6 +99,9 @@ set(HEADER_FILES
 set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.cpp
@@ -104,10 +113,13 @@ set(SOURCE_FILES
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES}
-    src/SofaImGui/windows/ViewportWindow.h src/SofaImGui/windows/ViewportWindow.cpp)
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${CMAKE_DL_LIBS})
+
+include_directories(${ROS_INCLUDE_DIRS})
+
+message("ROS_LIBRARIES: ${ROS_LIBRARIES}")
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${ROS_LIBRARIES} ${CMAKE_DL_LIBS})
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw)
 

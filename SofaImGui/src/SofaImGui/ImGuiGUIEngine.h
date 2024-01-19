@@ -30,6 +30,11 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
+#include <SofaImGui/windows/ViewportWindow.h>
+#include <SofaImGui/windows/SceneGraphWindow.h>
+#include <SofaImGui/windows/StateWindow.h>
+#include <SofaImGui/windows/ROSWindow.h>
+
 struct GLFWwindow;
 namespace sofa::glfw
 {
@@ -57,11 +62,14 @@ public:
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
+
+    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("Viewport", true);
+    windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
+    windows::StateWindow m_stateWindow = windows::StateWindow("State", true);
+    windows::ROSWindow m_ROSWindow = windows::ROSWindow("ROS", false);
+
     CSimpleIniA ini;
 
-    void showViewport(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen);
     void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph,
                         bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);

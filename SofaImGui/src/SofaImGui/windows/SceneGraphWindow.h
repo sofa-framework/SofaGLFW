@@ -21,23 +21,25 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/config.h>
-#include <string>
-
-#include <sofa/simulation/Node.h>
+#include <SofaImGui/windows/BaseWindow.h>
+#include <imgui.h>
 
 namespace sofaimgui::windows {
 
-class BaseWindow
+class SceneGraphWindow : public BaseWindow
 {
    public:
-    BaseWindow() = default;
-    ~BaseWindow() = default;
+    SceneGraphWindow(const std::string& name, const bool& isWindowOpen);
+    ~SceneGraphWindow() = default;
 
-    std::string m_name;
-    bool m_isWindowOpen{false};
+    using BaseWindow::m_name;
+    using BaseWindow::m_isWindowOpen;
 
+    void showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
+                    std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                    std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
 };
 
 }
+
 
