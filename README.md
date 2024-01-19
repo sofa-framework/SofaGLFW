@@ -1,4 +1,12 @@
 ## SofaGLFW
+
+[![Gitter](https://img.shields.io/badge/chat-on_Gitter-ff69b4.svg)](https://app.gitter.im/#/room/#sofa-framework_sofa:gitter.im)
+[![Support](https://img.shields.io/badge/support-on_GitHub_Discussions-blue.svg)](https://github.com/sofa-framework/sofa/discussions/categories/sofaglfw-imgui)
+
+![download](https://img.shields.io/github/downloads/sofa-framework/SofaGLFW/total.svg)
+![forks](https://img.shields.io/github/forks/sofa-framework/SofaGLFW.svg)
+![stars](https://img.shields.io/github/stars/sofa-framework/SofaGLFW.svg)
+
 This SOFA plugin brings a simple GUI based on GLFW (a spiritual successor of Glut).
 
 It only needs Sofa.Simulation.Graph, Sofa.Component.Visual, Sofa.GUI.Common and Sofa.GL as dependencies.
