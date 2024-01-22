@@ -37,7 +37,8 @@ class SceneGraphWindow : public BaseWindow
 
     void showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
                     std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
-                    std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
+                    std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                    ImGuiWindowFlags windowFlags);
 };
 
 }

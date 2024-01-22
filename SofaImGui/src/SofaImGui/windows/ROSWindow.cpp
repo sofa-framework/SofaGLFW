@@ -43,11 +43,11 @@ void ROSWindow::init()
 {
 }
 
-void ROSWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot)
+void ROSWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot, ImGuiWindowFlags windowFlags)
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             ImGui::BeginChild("Sub", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
 

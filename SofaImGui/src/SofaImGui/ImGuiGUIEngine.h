@@ -66,7 +66,7 @@ protected:
     windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("Viewport", true);
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
     windows::StateWindow m_stateWindow = windows::StateWindow("State", true);
-    windows::ROSWindow m_ROSWindow = windows::ROSWindow("ROS", false);
+    windows::ROSWindow m_ROSWindow = windows::ROSWindow("ROS", true);
 
     CSimpleIniA ini;
 

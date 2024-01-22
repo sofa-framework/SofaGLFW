@@ -36,11 +36,12 @@ SceneGraphWindow::SceneGraphWindow(const std::string& name, const bool& isWindow
 
 void SceneGraphWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
                                   std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
-                                  std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents)
+                                  std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                                  ImGuiWindowFlags windowFlags)
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             const bool expand = ImGui::Button(ICON_FA_EXPAND);
             ImGui::SameLine();

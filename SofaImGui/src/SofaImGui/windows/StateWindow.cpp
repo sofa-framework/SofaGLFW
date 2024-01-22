@@ -22,6 +22,7 @@
 
 #include <SofaImGui/windows/StateWindow.h>
 
+
 namespace sofaimgui::windows {
 
 StateWindow::StateWindow(const std::string& name, const bool& isWindowOpen)
@@ -30,11 +31,11 @@ StateWindow::StateWindow(const std::string& name, const bool& isWindowOpen)
     m_isWindowOpen = isWindowOpen;
 }
 
-void StateWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot)
+void StateWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot, ImGuiWindowFlags windowFlags)
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             const auto& modelling = groot->getChild("Modelling");
             if(modelling != nullptr)
@@ -52,11 +53,11 @@ void StateWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot)
                         {
                             ImGui::TableNextRow();
                             ImGui::TableNextColumn();
-                            ImGui::Text("%s", name.c_str());
+                            ImGui::TextDisabled("%s", name.c_str());
                             ImGui::TableNextColumn();
                             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(value.c_str()).x
                                                  - ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
-                            ImGui::Text("%s", value.c_str());
+                            ImGui::TextDisabled("%s", value.c_str());
                         }
                     }
                     ImGui::EndTable();

@@ -140,17 +140,16 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     {
         float xscale, yscale;
         glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-
         ImGuiIO& io = ImGui::GetIO();
 
-        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_REGULAR_compressed_data, ROBOTO_REGULAR_compressed_size, 16 * yscale);
+        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_REGULAR_compressed_data, ROBOTO_REGULAR_compressed_size, 15 * yscale);
 
         ImFontConfig config;
         config.MergeMode = true;
         config.GlyphMinAdvanceX = 16.0f; // Use if you want to make the icon monospaced
         static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 16 * yscale, &config, icon_ranges);
-        io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 16 * yscale, &config, icon_ranges);
+        io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 12 * yscale, &config, icon_ranges);
+        io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 12 * yscale, &config, icon_ranges);
     }
 }
 
@@ -217,19 +216,19 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui::NewFrame();
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    windowFlags |= ImGuiWindowFlags_NoBackground;
 
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    window_flags |= ImGuiWindowFlags_NoBackground;
-
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace", nullptr, window_flags);
+
+    ImGui::Begin("DockSpace", nullptr, windowFlags);
     ImGui::PopStyleVar();
     ImGui::PopStyleVar(2);
 
@@ -248,14 +247,16 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.4f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow(m_stateWindow.m_name.c_str(), dock_id_down);
+        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
+        ImGui::DockBuilderDockWindow(m_stateWindow.m_name.c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_ROSWindow.m_name.c_str(), dock_id_right);
 
         ImGui::DockBuilderDockWindow(m_viewportWindow.m_name.c_str(), dockspace_id);
         ImGui::DockBuilderGetNode(dockspace_id)->WantHiddenTabBarToggle = true;
 
         ImGui::DockBuilderFinish(dockspace_id);
     }
+
     ImGui::End();
 
 
@@ -499,11 +500,16 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
 
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
-        if (ImGui::Checkbox("Animate", &animate))
-        {
-            sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
-        }
+
+        ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip(animate ? "Stop simulation" : "Start simulation");
+
+        if (ImGui::IsItemClicked())
+            sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = !animate;
+
         ImGui::SameLine();
+
         if (animate)
         {
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -516,9 +522,15 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         ImGui::SameLine();
 
-        if (ImGui::Checkbox("Record", &record))
-        {
-        }
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0,0,1));
+        ImGui::Button((record ? ICON_FA_STOP : ICON_FA_DOT_CIRCLE));
+        ImGui::PopStyleColor();
+
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip(record ? "Stop recording and save trajectory" : "Record trajectory");
+
+        if (ImGui::IsItemClicked())
+            record = !record;
 
         const auto posX = ImGui::GetCursorPosX();
         if (showTime)
@@ -545,12 +557,13 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Windows
      **************************************/
-    m_viewportWindow.showWindow(groot, (ImTextureID)m_fbo->getColorTexture());
+    windowFlags = ImGuiWindowFlags_None;
+    m_viewportWindow.showWindow(groot, (ImTextureID)m_fbo->getColorTexture(), windowFlags);
+    m_ROSWindow.showWindow(groot, windowFlags);
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
-    m_sceneGraphWindow.showWindow(groot, openedComponents, focusedComponents);
-    m_stateWindow.showWindow(groot);
-    m_ROSWindow.showWindow(groot);
+    m_sceneGraphWindow.showWindow(groot, openedComponents, focusedComponents, windowFlags);
+    m_stateWindow.showWindow(groot, windowFlags);
 
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1

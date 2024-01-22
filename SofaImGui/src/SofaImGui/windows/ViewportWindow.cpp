@@ -31,13 +31,14 @@ ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen
 }
 
 void ViewportWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
-                                const ImTextureID& texture)
+                                const ImTextureID& texture,
+                                ImGuiWindowFlags windowFlags)
 {
     SOFA_UNUSED(groot);
     if (m_isWindowOpen)
     {
         ImVec2 pos;
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             pos = ImGui::GetWindowPos();
 

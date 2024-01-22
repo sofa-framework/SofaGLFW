@@ -70,7 +70,7 @@ class ROSWindow : public BaseWindow
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    void showWindow(sofa::core::sptr<sofa::simulation::Node> groot);
+    void showWindow(sofa::core::sptr<sofa::simulation::Node> groot, ImGuiWindowFlags windowFlags);
 
    protected:
     void init();
