@@ -63,6 +63,7 @@ set(IMGUI_HEADER_FILES
     resources/fa-regular-400.h
     resources/fa-solid-900.h
     resources/Roboto-Medium.h
+    resources/Roboto-Regular.h
     resources/Style.h
 )
 set(IMGUI_SOURCE_FILES

@@ -69,6 +69,7 @@
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
 #include <Roboto-Medium.h>
+#include <Roboto-Regular.h>
 #include <Style.h>
 
 
@@ -142,7 +143,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 
         ImGuiIO& io = ImGui::GetIO();
 
-        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, 16 * yscale);
+        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_REGULAR_compressed_data, ROBOTO_REGULAR_compressed_size, 16 * yscale);
 
         ImFontConfig config;
         config.MergeMode = true;
