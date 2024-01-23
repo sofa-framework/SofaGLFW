@@ -39,31 +39,28 @@ void StateWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& gro
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            const auto& modelling = groot->getChild("Modelling");
-            if(modelling != nullptr)
+            const auto& node = groot->getChild("UserInterface");
+            if(node != nullptr)
             {
-                const auto& state = modelling->getChild("State");
-                if(state != nullptr)
+                const auto& data = node->getDataFields();
+                ImGui::BeginTable("", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+                for(auto d: data)
                 {
-                    const auto& data = state->getDataFields();
-                    ImGui::BeginTable("", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
-                    for(auto d: data)
+                    const std::string& value = d->getValueString();
+                    const std::string& name = d->getName();
+                    const std::string& group = d->getGroup();
+                    if(group.find("state") != std::string::npos)
                     {
-                        auto value = d->getValueString();
-                        auto name = d->getName();
-                        if(name.find("effector") != std::string::npos || name.find("actuator") != std::string::npos)
-                        {
-                            ImGui::TableNextRow();
-                            ImGui::TableNextColumn();
-                            ImGui::TextDisabled("%s", name.c_str());
-                            ImGui::TableNextColumn();
-                            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(value.c_str()).x
-                                                 - ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
-                            ImGui::TextDisabled("%s", value.c_str());
-                        }
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::TextDisabled("%s", name.c_str());
+                        ImGui::TableNextColumn();
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(value.c_str()).x
+                                             - ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
+                        ImGui::TextDisabled("%s", value.c_str());
                     }
-                    ImGui::EndTable();
                 }
+                ImGui::EndTable();
             }
         }
         ImGui::End();
