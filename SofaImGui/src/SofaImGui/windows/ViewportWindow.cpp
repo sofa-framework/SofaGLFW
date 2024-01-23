@@ -30,11 +30,9 @@ ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen
     m_isWindowOpen = isWindowOpen;
 }
 
-void ViewportWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
-                                const ImTextureID& texture,
-                                ImGuiWindowFlags windowFlags)
+void ViewportWindow::showWindow(const ImTextureID& texture,
+                                const ImGuiWindowFlags& windowFlags)
 {
-    SOFA_UNUSED(groot);
     if (m_isWindowOpen)
     {
         ImVec2 pos;

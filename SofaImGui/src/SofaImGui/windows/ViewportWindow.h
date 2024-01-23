@@ -35,9 +35,8 @@ class ViewportWindow : public BaseWindow
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    void showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
-                    const ImTextureID& texture,
-                    ImGuiWindowFlags windowFlags);
+    void showWindow(const ImTextureID& texture,
+                    const ImGuiWindowFlags &windowFlags);
 
     std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};

@@ -86,6 +86,9 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
 
+    ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.h
+    ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.h
+
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
@@ -99,6 +102,9 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
+
+    ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.cpp
@@ -125,8 +131,8 @@ set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw)
 
 if(ROS_FOUND)
-    include_directories(${ROS_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${ROS_LIBRARIES})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${ROS_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${ROS_LIBRARIES})
 endif(ROS_FOUND)
 
 find_package(SofaPython3 QUIET)

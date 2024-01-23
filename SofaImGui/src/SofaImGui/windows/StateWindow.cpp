@@ -25,13 +25,15 @@
 
 namespace sofaimgui::windows {
 
-StateWindow::StateWindow(const std::string& name, const bool& isWindowOpen)
+StateWindow::StateWindow(const std::string& name,
+                         const bool& isWindowOpen)
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
 }
 
-void StateWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot, ImGuiWindowFlags windowFlags)
+void StateWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& groot,
+                             const ImGuiWindowFlags& windowFlags)
 {
     if (m_isWindowOpen)
     {

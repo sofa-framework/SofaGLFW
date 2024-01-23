@@ -76,14 +76,11 @@ protected:
 
     CSimpleIniA ini;
 
-    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph,
-                        bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
-                        std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
-    void showROS(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameROS, bool& isROSWindowOpen);
-
     static const std::string& getAppIniFile();
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
+    void alwaysShowFrame(sofaglfw::SofaGLFWBaseGUI *baseGUI);
+    void initialWindow(ImGuiViewport *viewport);
+    void optionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
 };
 
 } // namespace sofaimgui

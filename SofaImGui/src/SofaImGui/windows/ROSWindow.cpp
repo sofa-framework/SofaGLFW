@@ -43,7 +43,8 @@ void ROSWindow::init()
 {
 }
 
-void ROSWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot, ImGuiWindowFlags windowFlags)
+void ROSWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& groot,
+                           const ImGuiWindowFlags& windowFlags)
 {
     if (m_isWindowOpen)
     {

@@ -34,10 +34,10 @@ SceneGraphWindow::SceneGraphWindow(const std::string& name, const bool& isWindow
     m_isWindowOpen = isWindowOpen;
 }
 
-void SceneGraphWindow::showWindow(sofa::core::sptr<sofa::simulation::Node> groot,
+void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& groot,
                                   std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                                   std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
-                                  ImGuiWindowFlags windowFlags)
+                                  const ImGuiWindowFlags& windowFlags)
 {
     if (m_isWindowOpen)
     {

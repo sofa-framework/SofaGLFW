@@ -21,62 +21,31 @@
  ******************************************************************************/
 #pragma once
 
-#include <chrono>
-#include <functional>
-#include <memory>
-#include <string>
-
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
-
-using namespace std::chrono_literals;
-
-#include <SofaImGui/windows/BaseWindow.h>
+#include <SofaImGui/config.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <imgui.h>
 
-namespace sofaimgui::windows {
 
-// class ROSPublisher: public rclcpp::Node {
+namespace sofaimgui::menus {
 
-//    public:
-//     ROSPublisher(): Node("SofaComplianceRoboticsNode"), m_count(0)
-//     {
-//         m_publisher = this->create_publisher<std_msgs::msg::String>("Positions", 10);
-//         m_timer = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&ROSPublisher::callback, this));
-//     }
-
-//    protected:
-//     void callback()
-//     {
-//         auto message = std_msgs::msg::String();
-//         message.data = "Hello, world! " + std::to_string(m_count++);
-//         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-//         m_publisher->publish(message);
-//     }
-
-//     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_publisher;
-//     rclcpp::TimerBase::SharedPtr m_timer;
-//     size_t m_count;
-
-// };
-
-
-class ROSWindow : public BaseWindow
+class ViewMenu
 {
    public:
-    ROSWindow(const std::string& name, const bool& isWindowOpen);
-    ~ROSWindow();
+    ViewMenu(sofaglfw::SofaGLFWBaseGUI *baseGUI);
+    ~ViewMenu();
 
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
-    void showWindow(const sofa::core::sptr<sofa::simulation::Node> &groot,
-                    const ImGuiWindowFlags &windowFlags);
+    void addMenu(bool &showFPSInMenuBar,
+                 const std::pair<unsigned int, unsigned int>& fboSize,
+                 const GLuint &texture);
+    sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
    protected:
-    void init();
+    void addShowFPS(bool &showFPSInMenuBar);
+    void addCenterCamera();
+    void addSaveCamera();
+    void addRestoreCamera();
+    void addSaveScreenShot(const std::pair<unsigned int, unsigned int>& fboSize,
+                           const GLuint& texture);
 };
 
 }
-
-
