@@ -10,8 +10,6 @@ sofa_find_package(SofaGLFW REQUIRED)
 sofa_find_package(Sofa.GL.Component.Rendering3D REQUIRED)
 sofa_find_package(Sofa.Component.Playback REQUIRED)
 
-find_package(ROS REQUIRED)
-
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(SOFAGLFWIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
@@ -87,7 +85,6 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.h
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
@@ -102,7 +99,6 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.cpp
@@ -111,18 +107,27 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
 )
 
+find_package(ROS QUIET)
+set(SOFAIMGUI_WITH_ROS ${ROS_FOUND})
+message("SOFAIMGUI_WITH_ROS = " ${SOFAIMGUI_WITH_ROS})
+if(ROS_FOUND)
+    list(APPEND HEADER_FILES ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.h)
+    list(APPEND SOURCE_FILES ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.cpp)
+endif(ROS_FOUND)
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
 
-include_directories(${ROS_INCLUDE_DIRS})
-
-message("ROS_LIBRARIES: ${ROS_LIBRARIES}")
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${ROS_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${CMAKE_DL_LIBS})
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw)
+
+if(ROS_FOUND)
+    include_directories(${ROS_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${ROS_LIBRARIES})
+endif(ROS_FOUND)
 
 find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)

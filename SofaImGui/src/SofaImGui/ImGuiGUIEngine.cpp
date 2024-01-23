@@ -249,8 +249,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
         ImGui::DockBuilderDockWindow(m_stateWindow.m_name.c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_ROSWindow.m_name.c_str(), dock_id_right);
 
+#if SOFAIMGUI_WITH_ROS == 1
+        ImGui::DockBuilderDockWindow(m_ROSWindow.m_name.c_str(), dock_id_right);
+#endif
         ImGui::DockBuilderDockWindow(m_viewportWindow.m_name.c_str(), dockspace_id);
         ImGui::DockBuilderGetNode(dockspace_id)->WantHiddenTabBarToggle = true;
 
@@ -494,7 +496,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Checkbox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
             ImGui::Checkbox(m_stateWindow.m_name.c_str(), &m_stateWindow.m_isWindowOpen);
+
+#if SOFAIMGUI_WITH_ROS == 1
             ImGui::Checkbox(m_ROSWindow.m_name.c_str(), &m_ROSWindow.m_isWindowOpen);
+#endif
+
             ImGui::Separator();
             ImGui::EndMenu();
         }
@@ -559,7 +565,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      **************************************/
     windowFlags = ImGuiWindowFlags_None;
     m_viewportWindow.showWindow(groot, (ImTextureID)m_fbo->getColorTexture(), windowFlags);
+
+#if SOFAIMGUI_WITH_ROS == 1
     m_ROSWindow.showWindow(groot, windowFlags);
+#endif
+
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     m_sceneGraphWindow.showWindow(groot, openedComponents, focusedComponents, windowFlags);
