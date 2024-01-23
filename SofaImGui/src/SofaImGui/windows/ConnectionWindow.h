@@ -75,7 +75,7 @@ class ConnectionWindow : public BaseWindow
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    bool m_isConnected = false;
+    bool m_isConnectable = false;
 
     void showWindow();
 

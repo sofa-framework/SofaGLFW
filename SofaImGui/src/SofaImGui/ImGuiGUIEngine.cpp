@@ -295,9 +295,9 @@ void ImGuiGUIEngine::initialWindow(ImGuiViewport* viewport)
         ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
+        ImGui::DockBuilderDockWindow(m_connectionWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_stateWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_connectionWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_viewportWindow.m_name.c_str(), dockspace_id);
         ImGui::DockBuilderGetNode(dockspace_id)->WantHiddenTabBarToggle = true;
 
@@ -313,12 +313,12 @@ void ImGuiGUIEngine::optionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
     m_viewportWindow.showWindow((ImTextureID)m_fbo->getColorTexture(), windowFlags);
-    m_connectionWindow.showWindow();
 
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     m_sceneGraphWindow.showWindow(groot, openedComponents, focusedComponents, windowFlags);
     m_stateWindow.showWindow(groot, windowFlags);
+    m_connectionWindow.showWindow();
 }
 
 void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -355,10 +355,22 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
 
         { // Connection button
-            if (!m_connectionWindow.m_isConnected)
+            if (!m_connectionWindow.m_isConnectable)
+            {
+                connected = false;
                 ImGui::BeginDisabled();
-            ImGui::Button(ICON_FA_POWER_OFF);
-            if (!m_connectionWindow.m_isConnected)
+            }
+            if (connected)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.27f, 0.44f, 0.70f, 1.00f));
+                ImGui::Button(ICON_FA_POWER_OFF);
+                ImGui::PopStyleColor();
+            }
+            else
+            {
+                ImGui::Button(ICON_FA_POWER_OFF);
+            }
+            if (!m_connectionWindow.m_isConnectable)
                 ImGui::EndDisabled();
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Connect simulation and robot");
@@ -368,37 +380,6 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         ImGui::SameLine();
 
-        { // Send button
-            if (connected)
-            {
-                ImVec4 color(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
-                if (sending)
-                    color = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
-                ImGui::BeginDisabled();
-                ImGui::PushStyleColor(ImGuiCol_Text, color);
-                ImGui::Button(ICON_FA_ARROW_UP);
-                ImGui::PopStyleColor();
-                ImGui::EndDisabled();
-            }
-        }
-
-        ImGui::SameLine();
-
-        { // Receive button
-            if (connected)
-            {
-                ImVec4 color(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
-                if (receiving)
-                    color = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
-                ImGui::BeginDisabled();
-                ImGui::PushStyleColor(ImGuiCol_Text, color);
-                ImGui::Button(ICON_FA_ARROW_DOWN);
-                ImGui::PopStyleColor();
-                ImGui::EndDisabled();
-            }
-        }
-
-        ImGui::SameLine();
         ImGui::Separator();
         ImGui::Separator();
 
@@ -434,6 +415,7 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
 
         ImGui::SameLine();
+
         ImGui::Separator();
         ImGui::Separator();
 

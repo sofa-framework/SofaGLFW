@@ -58,29 +58,41 @@ void ConnectionWindow::showWindow()
             ImGui::Combo("Connection method", &method, items, IM_ARRAYSIZE(items));
 
             ImGui::Separator();
+            ImGui::Spacing();
 
             if (method == 0) // ROS
             {
-                static char nodeBuf[16];
-                static char topicBuf[16];
-                ImGui::Text("Send");
-                ImGui::InputText("Node", nodeBuf, 16, ImGuiInputTextFlags_CharsNoBlank);
-                ImGui::InputText("Topic", topicBuf, 16, ImGuiInputTextFlags_CharsNoBlank);
+                static char nodeBuf[30];
+                static char topicBuf[30];
 
-                ImGui::Text("Receive");
-                static int node = -1;
-                static const char* nodes[]{"Node1", "Node2"};
-                ImGui::Combo("Choose a node", &node, nodes, IM_ARRAYSIZE(nodes));
-                static int topic = -1;
-                static const char* topics[]{"Topic1", "Topic2"};
-                ImGui::Combo("Choose a topic", &topic, topics, IM_ARRAYSIZE(topics));
+                {
+                    ImGui::Text("Send");
 
-                // If everything is okay
-                m_isConnected = true;
+                    ImGui::InputTextWithHint("Node##Send", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+                    ImGui::InputTextWithHint("Topic##Send", "Enter a topic name", topicBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+                }
+
+                ImGui::Spacing();
+                ImGui::Spacing();
+
+                {
+                    ImGui::Text("Receive");
+
+                    static int node = -1;
+                    static const char* nodes[]{"Node1", "Node2"};
+                    ImGui::Combo("Node##Receive", &node, nodes, IM_ARRAYSIZE(nodes));
+
+                    static int topic = -1;
+                    static const char* topics[]{"Topic1", "Topic2"};
+                    ImGui::Combo("Topic##Receive", &topic, topics, IM_ARRAYSIZE(topics));
+                }
+
+                // Test if everything is okay and then set isConnectable to true
+                m_isConnectable = true;
             }
             else
             {
-                m_isConnected = false;
+                m_isConnectable = false;
             }
         }
     }
