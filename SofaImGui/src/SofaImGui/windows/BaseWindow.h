@@ -21,10 +21,10 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/config.h>
 #include <string>
 
 #include <sofa/simulation/Node.h>
+#include <SofaImGui/config.h>
 
 namespace sofaimgui::windows {
 

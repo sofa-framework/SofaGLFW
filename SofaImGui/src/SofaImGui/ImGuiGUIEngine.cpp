@@ -177,8 +177,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
     initialWindow(viewport);
-    mainMenuBar(baseGUI);
     optionWindows(baseGUI);
+    mainMenuBar(baseGUI);
 
     ImGui::Render();
 
@@ -297,11 +297,7 @@ void ImGuiGUIEngine::initialWindow(ImGuiViewport* viewport)
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
         ImGui::DockBuilderDockWindow(m_stateWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
-
-#if SOFAIMGUI_WITH_ROS == 1
-        ImGui::DockBuilderDockWindow(m_ROSWindow.m_name.c_str(), dock_id_right);
-#endif
-
+        ImGui::DockBuilderDockWindow(m_connectionWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_viewportWindow.m_name.c_str(), dockspace_id);
         ImGui::DockBuilderGetNode(dockspace_id)->WantHiddenTabBarToggle = true;
 
@@ -317,10 +313,7 @@ void ImGuiGUIEngine::optionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
     m_viewportWindow.showWindow((ImTextureID)m_fbo->getColorTexture(), windowFlags);
-
-#if SOFAIMGUI_WITH_ROS == 1
-    m_ROSWindow.showWindow(groot, windowFlags);
-#endif
+    m_connectionWindow.showWindow();
 
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
@@ -336,10 +329,12 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     ImVec2 mainMenuBarSize;
 
-    static bool animate;
     auto groot = baseGUI->getRootNode();
-    animate = groot->animate_.getValue();
-    static bool record;
+    static bool animate = groot->animate_.getValue();
+    static bool record = false;
+    static bool sending = false;
+    static bool receiving = false;
+    static bool connected = false;
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -351,10 +346,7 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Checkbox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
             ImGui::Checkbox(m_stateWindow.m_name.c_str(), &m_stateWindow.m_isWindowOpen);
-
-#if SOFAIMGUI_WITH_ROS == 1
-            ImGui::Checkbox(m_ROSWindow.m_name.c_str(), &m_ROSWindow.m_isWindowOpen);
-#endif
+            ImGui::Checkbox(m_connectionWindow.m_name.c_str(), &m_connectionWindow.m_isWindowOpen);
 
             ImGui::Separator();
             ImGui::EndMenu();
@@ -362,36 +354,99 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
 
-        ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY);
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip(animate ? "Stop simulation" : "Start simulation");
-
-        if (ImGui::IsItemClicked())
-            sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = !animate;
+        { // Connection button
+            if (!m_connectionWindow.m_isConnected)
+                ImGui::BeginDisabled();
+            ImGui::Button(ICON_FA_POWER_OFF);
+            if (!m_connectionWindow.m_isConnected)
+                ImGui::EndDisabled();
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("Connect simulation and robot");
+            if (ImGui::IsItemClicked())
+                connected = !connected;
+        }
 
         ImGui::SameLine();
 
-        if (animate)
-        {
-            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+        { // Send button
+            if (connected)
+            {
+                ImVec4 color(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+                if (sending)
+                    color = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
+                ImGui::BeginDisabled();
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Button(ICON_FA_ARROW_UP);
+                ImGui::PopStyleColor();
+                ImGui::EndDisabled();
+            }
         }
-        if (animate)
-        {
-            ImGui::PopItemFlag();
-            ImGui::PopStyleVar();
-        }
+
         ImGui::SameLine();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0,0,1));
-        ImGui::Button((record ? ICON_FA_STOP : ICON_FA_DOT_CIRCLE));
-        ImGui::PopStyleColor();
+        { // Receive button
+            if (connected)
+            {
+                ImVec4 color(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+                if (receiving)
+                    color = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
+                ImGui::BeginDisabled();
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Button(ICON_FA_ARROW_DOWN);
+                ImGui::PopStyleColor();
+                ImGui::EndDisabled();
+            }
+        }
 
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip(record ? "Stop recording and save trajectory" : "Record trajectory");
+        ImGui::SameLine();
+        ImGui::Separator();
+        ImGui::Separator();
 
-        if (ImGui::IsItemClicked())
-            record = !record;
+        { // Animate button
+            ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY);
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip(animate ? "Stop simulation" : "Start simulation");
+
+            if (ImGui::IsItemClicked())
+            {
+                animate = !animate;
+                sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
+            }
+        }
+
+        ImGui::SameLine();
+
+        { // Step button
+            ImGui::Button(ICON_FA_STEP_FORWARD);
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("One step of simulation");
+
+            if (ImGui::IsItemClicked())
+            {
+                if (!animate)
+                {
+                    sofa::helper::AdvancedTimer::begin("Animate");
+                    sofa::simulation::node::animate(groot.get(), groot->getDt());
+                    sofa::simulation::node::updateVisual(groot.get());
+                    sofa::helper::AdvancedTimer::end("Animate");
+                }
+            }
+        }
+
+        ImGui::SameLine();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        { // Record button
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0,0,1));
+            ImGui::Button((record ? ICON_FA_STOP : ICON_FA_DOT_CIRCLE));
+            ImGui::PopStyleColor();
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip(record ? "Stop recording and save trajectory" : "Record trajectory");
+
+            if (ImGui::IsItemClicked())
+                record = !record;
+        }
 
         const auto posX = ImGui::GetCursorPosX();
         if (showTime)

@@ -20,49 +20,69 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
-#include <SofaImGui/windows/ROSWindow.h>
+#include <SofaImGui/windows/ConnectionWindow.h>
 
 
 namespace sofaimgui::windows {
 
-ROSWindow::ROSWindow(const std::string& name, const bool& isWindowOpen)
+ConnectionWindow::ConnectionWindow(const std::string& name, const bool& isWindowOpen)
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
 
+#if SOFAIMGUI_WITH_ROS == 1
     // rclcpp::init(0, nullptr);
     // rclcpp::spin(std::make_shared<ROSPublisher>());
+#endif
 }
 
-ROSWindow::~ROSWindow()
+ConnectionWindow::~ConnectionWindow()
 {
+#if SOFAIMGUI_WITH_ROS == 1
     // rclcpp::shutdown();
+#endif
 }
 
-void ROSWindow::init()
+void ConnectionWindow::init()
 {
 }
 
-void ROSWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& groot,
-                           const ImGuiWindowFlags& windowFlags)
+void ConnectionWindow::showWindow()
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
         {
-            ImGui::BeginChild("Sub", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
+            static int method = -1;
+            static const char* items[]{"ROS", "Method1", "Method2"};
+            ImGui::Combo("Connection method", &method, items, IM_ARRAYSIZE(items));
 
-            ImGui::Text("Topic: ");
+            ImGui::Separator();
 
-            ImGui::EndChild();
+            if (method == 0) // ROS
+            {
+                static char nodeBuf[16];
+                static char topicBuf[16];
+                ImGui::Text("Send");
+                ImGui::InputText("Node", nodeBuf, 16, ImGuiInputTextFlags_CharsNoBlank);
+                ImGui::InputText("Topic", topicBuf, 16, ImGuiInputTextFlags_CharsNoBlank);
 
-            ImGui::BeginChild("Pub", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
+                ImGui::Text("Receive");
+                static int node = -1;
+                static const char* nodes[]{"Node1", "Node2"};
+                ImGui::Combo("Choose a node", &node, nodes, IM_ARRAYSIZE(nodes));
+                static int topic = -1;
+                static const char* topics[]{"Topic1", "Topic2"};
+                ImGui::Combo("Choose a topic", &topic, topics, IM_ARRAYSIZE(topics));
 
-            ImGui::Text("Topic: ");
-
-            ImGui::EndChild();
+                // If everything is okay
+                m_isConnected = true;
+            }
+            else
+            {
+                m_isConnected = false;
+            }
         }
-        ImGui::End();
     }
 }
 

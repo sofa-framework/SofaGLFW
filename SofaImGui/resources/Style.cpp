@@ -31,7 +31,7 @@ void setDeepDarkStyle()
 {
     ImVec4* colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.75f, 0.75f, 0.75f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
     colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
     colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_PopupBg]                = ImVec4(0.10f, 0.10f, 0.10f, 0.90f);
@@ -57,7 +57,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.55f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
     colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 0.25f);
-    colors[ImGuiCol_Separator]              = ImVec4(0.54f, 0.54f, 0.54f, 0.25f);
+    colors[ImGuiCol_Separator]              = ImVec4(0.54f, 0.54f, 0.54f, 0.55f);
     colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.54f, 0.54f, 0.54f, 0.55f);
     colors[ImGuiCol_SeparatorActive]        = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_ResizeGrip]             = ImVec4(0.28f, 0.28f, 0.28f, 0.25f);
@@ -87,12 +87,12 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
 
     ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowPadding                     = ImVec2(12.00f, 12.00f);
+    style.WindowPadding                     = ImVec2(6.00f, 6.00f);
     style.FramePadding                      = ImVec2(6.00f, 6.00f);
     style.CellPadding                       = ImVec2(6.00f, 6.00f);
+    style.TouchExtraPadding                 = ImVec2(0.00f, 0.00f);
     style.ItemSpacing                       = ImVec2(6.00f, 6.00f);
     style.ItemInnerSpacing                  = ImVec2(12.00f, 12.00f);
-    style.TouchExtraPadding                 = ImVec2(0.00f, 0.00f);
     style.IndentSpacing                     = 26;
     style.ScrollbarSize                     = 16;
     style.GrabMinSize                       = 10;

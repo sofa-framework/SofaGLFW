@@ -85,6 +85,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.h
 
     ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.h
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.h
@@ -102,6 +103,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.cpp
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.cpp
@@ -116,10 +118,6 @@ set(SOURCE_FILES
 find_package(ROS QUIET)
 set(SOFAIMGUI_WITH_ROS ${ROS_FOUND})
 message("SOFAIMGUI_WITH_ROS = " ${SOFAIMGUI_WITH_ROS})
-if(ROS_FOUND)
-    list(APPEND HEADER_FILES ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.h)
-    list(APPEND SOURCE_FILES ${SOFAIMGUI_SOURCE_DIR}/windows/ROSWindow.cpp)
-endif(ROS_FOUND)
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 

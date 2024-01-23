@@ -33,10 +33,8 @@
 #include <SofaImGui/windows/ViewportWindow.h>
 #include <SofaImGui/windows/SceneGraphWindow.h>
 #include <SofaImGui/windows/StateWindow.h>
+#include <SofaImGui/windows/ConnectionWindow.h>
 
-#if SOFAIMGUI_WITH_ROS == 1
-#include <SofaImGui/windows/ROSWindow.h>
-#endif
 
 struct GLFWwindow;
 namespace sofa::glfw
@@ -69,10 +67,7 @@ protected:
     windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("Viewport", true);
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
     windows::StateWindow m_stateWindow = windows::StateWindow("State", true);
-
-#if SOFAIMGUI_WITH_ROS == 1
-    windows::ROSWindow m_ROSWindow = windows::ROSWindow("ROS", true);
-#endif
+    windows::ConnectionWindow m_connectionWindow = windows::ConnectionWindow("Connection", true);
 
     CSimpleIniA ini;
 

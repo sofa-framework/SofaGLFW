@@ -201,8 +201,8 @@ void FileMenu::addImportTrajectory()
                     }
                     NFD_FreePath(outPath);
                 }
-                return;
             }
+            return;
         }
     }
 

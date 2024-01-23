@@ -26,16 +26,20 @@
 #include <memory>
 #include <string>
 
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
-
-using namespace std::chrono_literals;
-
+#include <SofaImGui/config.h>
 #include <SofaImGui/windows/BaseWindow.h>
 #include <imgui.h>
 
+#if SOFAIMGUI_WITH_ROS == 1
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/string.hpp>
+#endif
+
+using namespace std::chrono_literals;
+
 namespace sofaimgui::windows {
 
+#if SOFAIMGUI_WITH_ROS == 1
 // class ROSPublisher: public rclcpp::Node {
 
 //    public:
@@ -59,19 +63,21 @@ namespace sofaimgui::windows {
 //     size_t m_count;
 
 // };
+#endif
 
 
-class ROSWindow : public BaseWindow
+class ConnectionWindow : public BaseWindow
 {
    public:
-    ROSWindow(const std::string& name, const bool& isWindowOpen);
-    ~ROSWindow();
+    ConnectionWindow(const std::string& name, const bool& isWindowOpen);
+    ~ConnectionWindow();
 
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    void showWindow(const sofa::core::sptr<sofa::simulation::Node> &groot,
-                    const ImGuiWindowFlags &windowFlags);
+    bool m_isConnected = false;
+
+    void showWindow();
 
    protected:
     void init();
