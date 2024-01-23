@@ -22,6 +22,9 @@
 
 #include <SofaImGui/windows/ConnectionWindow.h>
 
+#if SOFAIMGUI_WITH_ROS == 1
+#include <rclcpp/node.hpp>
+#endif
 
 namespace sofaimgui::windows {
 
@@ -31,15 +34,15 @@ ConnectionWindow::ConnectionWindow(const std::string& name, const bool& isWindow
     m_isWindowOpen = isWindowOpen;
 
 #if SOFAIMGUI_WITH_ROS == 1
-    // rclcpp::init(0, nullptr);
-    // rclcpp::spin(std::make_shared<ROSPublisher>());
+    rclcpp::init(0, nullptr);
+    m_rosnode = std::make_shared<ROSPublisher>("SofaComplianceRoboticsNode");
 #endif
 }
 
 ConnectionWindow::~ConnectionWindow()
 {
 #if SOFAIMGUI_WITH_ROS == 1
-    // rclcpp::shutdown();
+    rclcpp::shutdown();
 #endif
 }
 
@@ -78,15 +81,21 @@ void ConnectionWindow::showWindow()
                 {
                     ImGui::Text("Receive");
 
-                    static int node = -1;
-                    static const char* nodes[]{"Node1", "Node2"};
-                    ImGui::Combo("Node##Receive", &node, nodes, IM_ARRAYSIZE(nodes));
+                    const std::vector<std::string>& nodelist = m_rosnode->get_node_names();
+                    static int nodeID = -1;
+                    int nbNodes = nodelist.size();
+                    const char* nodes[nbNodes];
+                    for (int i=0; i<nbNodes; i++)
+                        nodes[i] = nodelist[i].c_str();
+                    ImGui::Combo("Node##Receive", &nodeID, nodes, IM_ARRAYSIZE(nodes));
 
-                    static int topic = -1;
-                    static const char* topics[]{"Topic1", "Topic2"};
-                    ImGui::Combo("Topic##Receive", &topic, topics, IM_ARRAYSIZE(topics));
+                    static int topicID = -1;
+                    const char* topics[]{"Topic1", "Topic2"};
+                    ImGui::Combo("Topic##Receive", &topicID, topics, IM_ARRAYSIZE(topics));
                 }
 
+                { // Check entries
+                }
                 // Test if everything is okay and then set isConnectable to true
                 m_isConnectable = true;
             }

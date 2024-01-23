@@ -23,7 +23,6 @@
 
 #include <chrono>
 #include <functional>
-#include <memory>
 #include <string>
 
 #include <SofaImGui/config.h>
@@ -40,29 +39,28 @@ using namespace std::chrono_literals;
 namespace sofaimgui::windows {
 
 #if SOFAIMGUI_WITH_ROS == 1
-// class ROSPublisher: public rclcpp::Node {
+class ROSPublisher: public rclcpp::Node {
 
-//    public:
-//     ROSPublisher(): Node("SofaComplianceRoboticsNode"), m_count(0)
-//     {
-//         m_publisher = this->create_publisher<std_msgs::msg::String>("Positions", 10);
-//         m_timer = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&ROSPublisher::callback, this));
-//     }
+   public:
+    ROSPublisher(const std::string& name): Node(name), m_count(0)
+    {
+        m_publisher = this->create_publisher<std_msgs::msg::String>(name + "/Publisher", 10);
+    }
 
-//    protected:
-//     void callback()
-//     {
-//         auto message = std_msgs::msg::String();
-//         message.data = "Hello, world! " + std::to_string(m_count++);
-//         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-//         m_publisher->publish(message);
-//     }
+   protected:
+    void callback()
+    {
+        auto message = std_msgs::msg::String();
+        message.data = "Hello, world! " + std::to_string(m_count++);
+        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+        m_publisher->publish(message);
+    }
 
-//     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_publisher;
-//     rclcpp::TimerBase::SharedPtr m_timer;
-//     size_t m_count;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_publisher;
+    rclcpp::TimerBase::SharedPtr m_timer;
+    size_t m_count;
 
-// };
+};
 #endif
 
 
@@ -80,7 +78,12 @@ class ConnectionWindow : public BaseWindow
     void showWindow();
 
    protected:
+
     void init();
+
+#if SOFAIMGUI_WITH_ROS == 1
+    std::shared_ptr<ROSPublisher> m_rosnode;
+#endif
 };
 
 }

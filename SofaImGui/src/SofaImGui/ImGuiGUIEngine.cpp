@@ -272,7 +272,7 @@ void ImGuiGUIEngine::alwaysShowFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
 void ImGuiGUIEngine::initialWindow(ImGuiViewport* viewport)
 {
-    static auto first_time = true;
+    static auto firstTime = true;
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
@@ -286,9 +286,9 @@ void ImGuiGUIEngine::initialWindow(ImGuiViewport* viewport)
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode);
 
-    if (first_time)
+    if (firstTime)
     {
-        first_time = false;
+        firstTime = false;
 
         ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
