@@ -364,11 +364,7 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY);
         if (ImGui::IsItemHovered())
-        {
-            ImGui::BeginTooltip();
-            ImGui::TextDisabled("%s", animate ? "Stop simulation" : "Start simulation");
-            ImGui::EndTooltip();
-        }
+            ImGui::SetTooltip(animate ? "Stop simulation" : "Start simulation");
 
         if (ImGui::IsItemClicked())
             sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = !animate;
@@ -392,11 +388,7 @@ void ImGuiGUIEngine::mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::PopStyleColor();
 
         if (ImGui::IsItemHovered())
-        {
-            ImGui::BeginTooltip();
-            ImGui::TextDisabled("%s", record ? "Stop recording and save trajectory" : "Record trajectory");
-            ImGui::EndTooltip();
-        }
+            ImGui::SetTooltip(record ? "Stop recording and save trajectory" : "Record trajectory");
 
         if (ImGui::IsItemClicked())
             record = !record;
