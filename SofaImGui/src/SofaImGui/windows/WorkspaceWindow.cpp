@@ -19,80 +19,41 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
-#pragma once
 
-#include <chrono>
-#include <functional>
-#include <string>
+#include <SofaImGui/windows/WorkspaceWindow.h>
+#include <IconsFontAwesome5.h>
 
-#include <SofaImGui/config.h>
-#include <SofaImGui/windows/BaseWindow.h>
-#include <imgui.h>
-
-#if SOFAIMGUI_WITH_ROS == 1
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
-#endif
-
-using namespace std::chrono_literals;
 
 namespace sofaimgui::windows {
 
-#if SOFAIMGUI_WITH_ROS == 1
-class ROSPublisher: public rclcpp::Node
+WorkspaceWindow::WorkspaceWindow(const std::string& name,
+                         const bool& isWindowOpen)
 {
-
-   public:
-    ROSPublisher(const std::string& name): Node(name), m_count(0)
-    {
-        m_publisher = this->create_publisher<std_msgs::msg::String>("Actuators", 10);
-        // todo : call the callback at each time step of the simulatin
-    }
-
-   protected:
-    void callback()
-    {
-        // todo : implement "get and send" simulation data
-        auto message = std_msgs::msg::String();
-        message.data = "Hello, world! " + std::to_string(m_count++);
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-        m_publisher->publish(message);
-    }
-
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_publisher;
-    rclcpp::TimerBase::SharedPtr m_timer;
-    size_t m_count;
-    std::string m_name;
-
-};
-#endif
-
-
-class ConnectionWindow : public BaseWindow
-{
-   public:
-    ConnectionWindow(const std::string& name, const bool& isWindowOpen);
-    ~ConnectionWindow();
-
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
-    bool m_isConnectable = false;
-    bool m_locked = false;
-
-    void showWindow(const ImGuiWindowFlags &windowFlags);
-    void lock() {m_locked=true;}
-    void unlock() {m_locked=false;}
-
-   protected:
-
-    void init();
-
-#if SOFAIMGUI_WITH_ROS == 1
-    std::shared_ptr<ROSPublisher> m_rosnode;
-#endif
-};
-
+    m_name = name;
+    m_isWindowOpen = isWindowOpen;
 }
 
+void WorkspaceWindow::showWindow(const ImGuiWindowFlags& windowFlags)
+{
+    if (m_isWindowOpen)
+    {
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        {
+            ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2.5); //approximatively the center of the window
+
+            ImGui::BeginDisabled();
+            ImGui::Button(ICON_FA_PENCIL_RULER);
+            ImGui::EndDisabled();
+
+            ImGui::Button(ICON_FA_CODE);
+\
+            ImGui::BeginDisabled();
+            ImGui::Button(ICON_FA_WAVE_SQUARE);
+            ImGui::EndDisabled();
+        }
+        ImGui::End();
+    }
+}
+
+}
 

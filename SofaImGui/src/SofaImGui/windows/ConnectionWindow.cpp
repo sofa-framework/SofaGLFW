@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <SofaImGui/windows/ConnectionWindow.h>
+#include <IconsFontAwesome5.h>
 
 #if SOFAIMGUI_WITH_ROS == 1
 #include <rclcpp/node.hpp>
@@ -35,7 +36,7 @@ ConnectionWindow::ConnectionWindow(const std::string& name, const bool& isWindow
 
 #if SOFAIMGUI_WITH_ROS == 1
     rclcpp::init(0, nullptr);
-    m_rosnode = std::make_shared<ROSPublisher>("SofaComplianceRoboticsNode");
+    m_rosnode = std::make_shared<ROSPublisher>("SofaComplianceRobotics");
 #endif
 }
 
@@ -50,15 +51,18 @@ void ConnectionWindow::init()
 {
 }
 
-void ConnectionWindow::showWindow()
+void ConnectionWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
+            if (m_locked)
+                ImGui::BeginDisabled();
+
             static int method = -1;
-            static const char* items[]{"ROS", "Method1", "Method2"};
-            ImGui::Combo("Connection method", &method, items, IM_ARRAYSIZE(items));
+            static const char* items[]{"ROS"};
+            ImGui::Combo("Method", &method, items, IM_ARRAYSIZE(items));
 
             ImGui::Separator();
             ImGui::Spacing();
@@ -71,8 +75,14 @@ void ConnectionWindow::showWindow()
                 {
                     ImGui::Text("Send");
 
-                    ImGui::InputTextWithHint("Node##Send", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
-                    ImGui::InputTextWithHint("Topic##Send", "Enter a topic name", topicBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+                    bool hasNodeNameChanged = ImGui::InputTextWithHint("Node##Send", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+                    bool hasTopicNameChanged = ImGui::InputTextWithHint("Topic##Send", "Enter a topic name", topicBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+
+                    if (hasNodeNameChanged)
+                    {
+                        msg_warning("Connection") << "changed for = " << nodeBuf;
+                        // m_rosnode->set_parameter(rclcpp::Parameter(nodeBuf));
+                    }
                 }
 
                 ImGui::Spacing();
@@ -81,17 +91,32 @@ void ConnectionWindow::showWindow()
                 {
                     ImGui::Text("Receive");
 
-                    const std::vector<std::string>& nodelist = m_rosnode->get_node_names();
-                    static int nodeID = -1;
-                    int nbNodes = nodelist.size();
-                    const char* nodes[nbNodes];
-                    for (int i=0; i<nbNodes; i++)
-                        nodes[i] = nodelist[i].c_str();
-                    ImGui::Combo("Node##Receive", &nodeID, nodes, IM_ARRAYSIZE(nodes));
+                    { // Nodes
+                        static int nodeID = -1;
 
-                    static int topicID = -1;
-                    const char* topics[]{"Topic1", "Topic2"};
-                    ImGui::Combo("Topic##Receive", &topicID, topics, IM_ARRAYSIZE(topics));
+                        // List of found nodes
+                        const std::vector<std::string>& nodelist = m_rosnode->get_node_names();
+                        int nbNodes = nodelist.size();
+                        const char* nodes[nbNodes];
+                        for (int i=0; i<nbNodes; i++)
+                            nodes[i] = nodelist[i].c_str();
+
+                        ImGui::Combo("Node##Receive", &nodeID, nodes, IM_ARRAYSIZE(nodes));
+                    }
+
+                    { // Topics
+                        static int topicID = -1;
+
+                        // List of found topics
+                        const auto& topiclist = m_rosnode->get_topic_names_and_types();
+                        int nbTopics = topiclist.size();
+                        const char* topics[nbTopics];
+                        int index = 0;
+                        for (const auto& [key, value]: topiclist)
+                            topics[index++] = key.c_str();
+
+                        ImGui::Combo("Topic##Receive", &topicID, topics, IM_ARRAYSIZE(topics));
+                    }
                 }
 
                 { // Check entries
@@ -103,6 +128,9 @@ void ConnectionWindow::showWindow()
             {
                 m_isConnectable = false;
             }
+
+            if (m_locked)
+                ImGui::EndDisabled();
         }
     }
 }

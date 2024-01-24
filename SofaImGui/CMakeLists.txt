@@ -82,10 +82,11 @@ set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
 
 set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.h
 
     ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.h
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.h
@@ -100,10 +101,11 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.cpp
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.cpp

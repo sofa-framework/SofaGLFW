@@ -30,6 +30,7 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
+#include <SofaImGui/windows/WorkspaceWindow.h>
 #include <SofaImGui/windows/ViewportWindow.h>
 #include <SofaImGui/windows/SceneGraphWindow.h>
 #include <SofaImGui/windows/StateWindow.h>
@@ -64,6 +65,7 @@ protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
 
+    windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", true);
     windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("Viewport", true);
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
     windows::StateWindow m_stateWindow = windows::StateWindow("State", true);
@@ -72,10 +74,11 @@ protected:
     CSimpleIniA ini;
 
     static const std::string& getAppIniFile();
-    void alwaysShowFrame(sofaglfw::SofaGLFWBaseGUI *baseGUI);
-    void initialWindow(ImGuiViewport *viewport);
-    void optionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
-    void mainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI *baseGUI);
+    void initDockSpace();
+    void addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
 };
 
 } // namespace sofaimgui
