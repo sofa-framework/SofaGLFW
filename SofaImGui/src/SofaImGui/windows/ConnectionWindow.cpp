@@ -51,7 +51,8 @@ void ConnectionWindow::init()
 {
 }
 
-void ConnectionWindow::showWindow(const ImGuiWindowFlags &windowFlags)
+void ConnectionWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& groot,
+                                  const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
     {
@@ -62,61 +63,132 @@ void ConnectionWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 
             static int method = -1;
             static const char* items[]{"ROS"};
+
             ImGui::Combo("Method", &method, items, IM_ARRAYSIZE(items));
 
-            ImGui::Separator();
             ImGui::Spacing();
+
+            const std::vector<std::string> simulationDataList = getSimulationDataList(groot);
 
             if (method == 0) // ROS
             {
                 static char nodeBuf[30];
                 static char topicBuf[30];
 
-                {
-                    ImGui::Text("Send");
+                { // Send section
+                    ImGui::Text("Send " ICON_FA_ARROW_CIRCLE_UP);
+                    ImGui::Indent();
 
-                    bool hasNodeNameChanged = ImGui::InputTextWithHint("Node##Send", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
-                    bool hasTopicNameChanged = ImGui::InputTextWithHint("Topic##Send", "Enter a topic name", topicBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
-
+                    bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodeSend", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Default is SofaComplianceRobotics");
                     if (hasNodeNameChanged)
                     {
                         msg_warning("Connection") << "changed for = " << nodeBuf;
                         // m_rosnode->set_parameter(rclcpp::Parameter(nodeBuf));
                     }
+
+                    bool hasTopicNameChanged = ImGui::InputTextWithHint("##TopicSend", "Enter a topic name", topicBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Default is Actuators");
+                    if (hasTopicNameChanged)
+                    {
+                        msg_warning("Connection") << "changed for = " << nodeBuf;
+                        // m_rosnode->set_parameter(rclcpp::Parameter(nodeBuf));
+                    }
+
+                    { // Data list box
+                        static bool sendFirstTime = true;
+                        static std::map<std::string, bool> sendListboxItems;
+                        ImGui::Text("Select simulation data to send:");
+                        ImGui::ListBoxHeader("##DataSend");
+                        for (const std::string& d : simulationDataList)
+                        {
+                            if (sendFirstTime)
+                                sendListboxItems[d] = false;
+                            if (ImGui::Checkbox(d.c_str(), &sendListboxItems[d]))
+                            {
+                               // handle selection
+                            }
+                        }
+                        ImGui::ListBoxFooter();
+                        sendFirstTime = false;
+                    }
+
+                    ImGui::Unindent();
                 }
 
                 ImGui::Spacing();
                 ImGui::Spacing();
 
-                {
-                    ImGui::Text("Receive");
+                { // Receive section
+                    ImGui::Text("Receive " ICON_FA_ARROW_CIRCLE_DOWN);
+                    ImGui::Indent();
 
-                    { // Nodes
-                        static int nodeID = -1;
+                    // Nodes
+                    static int nodeID = -1;
 
-                        // List of found nodes
-                        const std::vector<std::string>& nodelist = m_rosnode->get_node_names();
-                        int nbNodes = nodelist.size();
-                        const char* nodes[nbNodes];
-                        for (int i=0; i<nbNodes; i++)
-                            nodes[i] = nodelist[i].c_str();
+                    // List of found nodes
+                    const std::vector<std::string>& nodelist = m_rosnode->get_node_names();
+                    int nbNodes = nodelist.size();
+                    const char* nodes[nbNodes];
+                    for (int i=0; i<nbNodes; i++)
+                        nodes[i] = nodelist[i].c_str();
 
-                        ImGui::Combo("Node##Receive", &nodeID, nodes, IM_ARRAYSIZE(nodes));
+                    ImGui::Text("Select a node:");
+                    ImGui::Combo("##NodeReceive", &nodeID, nodes, IM_ARRAYSIZE(nodes));
+
+                    // Topics
+                    static int topicID = -1;
+
+                    // List of found topics
+                    auto topiclist = m_rosnode->get_topic_names_and_types();
+                    if (nodeID >= 0)
+                    {
+                        for (auto it = topiclist.cbegin(); it != topiclist.cend();)
+                        {
+                            bool isTopicOnlyPublishedByChosenNode = true;
+                            const std::vector<rclcpp::TopicEndpointInfo>& publishers = m_rosnode->get_publishers_info_by_topic(it->first.c_str());
+                            for (const auto& p : publishers)
+                            {
+                                if (nodes[nodeID] != "/" + p.node_name())
+                                    isTopicOnlyPublishedByChosenNode = false;
+                            }
+                            if (!isTopicOnlyPublishedByChosenNode)
+                                topiclist.erase(it++);
+                            else
+                                ++it;
+                        }
                     }
 
-                    { // Topics
-                        static int topicID = -1;
+                    int nbTopics = topiclist.size();
+                    const char* topics[nbTopics];
+                    int i=0;
+                    for (const auto& [key, value]: topiclist)
+                        topics[i++]=key.c_str();
 
-                        // List of found topics
-                        const auto& topiclist = m_rosnode->get_topic_names_and_types();
-                        int nbTopics = topiclist.size();
-                        const char* topics[nbTopics];
-                        int index = 0;
-                        for (const auto& [key, value]: topiclist)
-                            topics[index++] = key.c_str();
+                    ImGui::Text("Select a topic:");
+                    ImGui::Combo("##TopicReceive", &topicID, topics, IM_ARRAYSIZE(topics));
 
-                        ImGui::Combo("Topic##Receive", &topicID, topics, IM_ARRAYSIZE(topics));
+                    { // Data list box
+                        static bool receiveFirstTime = true;
+                        static std::map<std::string, bool> receiveListboxItems;
+                        ImGui::Text("Select simulation data to overwrite:");
+                        ImGui::ListBoxHeader("##DataReceive");
+                        for (const std::string& d : simulationDataList)
+                        {
+                            if (receiveFirstTime)
+                                receiveListboxItems[d] = false;
+                            if (ImGui::Checkbox(d.c_str(), &receiveListboxItems[d]))
+                            {
+                               // handle selection
+                            }
+                        }
+                        ImGui::ListBoxFooter();
+                        receiveFirstTime = false;
                     }
+
+                    ImGui::Unindent();
                 }
 
                 { // Check entries
@@ -133,6 +205,27 @@ void ConnectionWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::EndDisabled();
         }
     }
+}
+
+
+std::vector<std::string> ConnectionWindow::getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot)
+{
+    std::vector<std::string> list;
+
+    const auto& node = groot->getChild("UserInterface");
+    if(node != nullptr)
+    {
+        const auto& data = node->getDataFields();
+        for(auto d: data)
+        {
+            if(d->getGroup().find("state") != std::string::npos)
+            {
+                list.push_back(d->getName());
+            }
+        }
+    }
+
+    return list;
 }
 
 }

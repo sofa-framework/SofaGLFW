@@ -21,8 +21,6 @@
  ******************************************************************************/
 #pragma once
 
-#include <chrono>
-#include <functional>
 #include <string>
 
 #include <SofaImGui/config.h>
@@ -80,13 +78,14 @@ class ConnectionWindow : public BaseWindow
     bool m_isConnectable = false;
     bool m_locked = false;
 
-    void showWindow(const ImGuiWindowFlags &windowFlags);
+    void showWindow(const sofa::core::sptr<sofa::simulation::Node> &groot, const ImGuiWindowFlags &windowFlags);
     void lock() {m_locked=true;}
     void unlock() {m_locked=false;}
 
    protected:
 
     void init();
+    std::vector<std::string> getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot);
 
 #if SOFAIMGUI_WITH_ROS == 1
     std::shared_ptr<ROSPublisher> m_rosnode;

@@ -247,12 +247,9 @@ void ImGuiGUIEngine::initDockSpace()
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
 
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::Begin("DockSpace", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
                                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus |
                                        ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMove | ImGuiDockNodeFlags_PassthruCentralNode);
-    ImGui::PopStyleVar(2);
 
     ImGuiID dockspaceID = ImGui::GetID("WorkSpaceDockSpace");
     ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
@@ -287,8 +284,9 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     if(ini.GetBoolValue("Visualization", "alwaysShowFrame", true))
         showFrameOnViewport(baseGUI);
-    m_viewportWindow.showWindow((ImTextureID)m_fbo->getColorTexture(),
-                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    m_viewportWindow.showWindow((ImTextureID)m_fbo->getColorTexture(), ImGuiWindowFlags_None
+                                // ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse
+                                );
 
 }
 
@@ -300,7 +298,7 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     // Right Dock
     m_stateWindow.showWindow(groot, windowFlags);
-    m_connectionWindow.showWindow(windowFlags);
+    m_connectionWindow.showWindow(groot, windowFlags);
 
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
@@ -326,40 +324,59 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
-            ImGui::Checkbox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
             ImGui::Checkbox(m_stateWindow.m_name.c_str(), &m_stateWindow.m_isWindowOpen);
             ImGui::Checkbox(m_connectionWindow.m_name.c_str(), &m_connectionWindow.m_isWindowOpen);
-
             ImGui::Separator();
+            ImGui::Checkbox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Help"))
         {
             ImGui::Separator();
+
+            if (ImGui::MenuItem("About"))
+            {
+                ImGui::OpenPopup("About");
+                if (ImGui::BeginPopup("About"))
+                {
+                    ImGui::Text("SOFA & Compliance Robotics");
+                    ImGui::Separator();
+                    ImGui::EndPopup();
+                }
+            }
+
             ImGui::EndMenu();
         }
 
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0);
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
+        ImVec2 buttonSize = ImVec2(ImGui::GetWindowSize().y, ImGui::GetWindowSize().y);
 
         { // Connection button
             if (!m_connectionWindow.m_isConnectable)
             {
                 connected = false;
                 ImGui::BeginDisabled();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.55f, 0.55f, 0.55f, 1.00f));
             }
+
             if (connected)
             {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.27f, 0.44f, 0.70f, 1.00f));
-                ImGui::Button(ICON_FA_POWER_OFF);
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.60f, 0.00f, 1.00f));
+                ImGui::Button(ICON_FA_PLUG, buttonSize);
                 ImGui::PopStyleColor();
             }
             else
             {
-                ImGui::Button(ICON_FA_POWER_OFF);
+                ImGui::Button(ICON_FA_PLUG, buttonSize);
             }
+
             if (!m_connectionWindow.m_isConnectable)
+            {
                 ImGui::EndDisabled();
+                ImGui::PopStyleColor();
+            }
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Connect simulation and robot");
             if (ImGui::IsItemClicked())
@@ -371,10 +388,9 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SameLine();
 
         ImGui::Separator();
-        ImGui::Separator();
 
         { // Animate button
-            ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY);
+            ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY, buttonSize);
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip(animate ? "Stop simulation" : "Start simulation");
 
@@ -388,7 +404,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SameLine();
 
         { // Step button
-            ImGui::Button(ICON_FA_STEP_FORWARD);
+            ImGui::Button(ICON_FA_STEP_FORWARD, buttonSize);
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("One step of simulation");
 
@@ -407,11 +423,10 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SameLine();
 
         ImGui::Separator();
-        ImGui::Separator();
 
         { // Record button
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0,0,1));
-            ImGui::Button((record ? ICON_FA_STOP : ICON_FA_DOT_CIRCLE));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1,0,0,1));
+            ImGui::Button((record ? ICON_FA_STOP : ICON_FA_DOT_CIRCLE), buttonSize);
             ImGui::PopStyleColor();
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip(record ? "Stop recording and save trajectory" : "Record trajectory");
@@ -439,6 +454,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::SetCursorPosX(posX);
         }
 
+        ImGui::PopStyleVar();
         ImGui::EndMainMenuBar();
     }
 }

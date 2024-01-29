@@ -32,13 +32,13 @@ void setDeepDarkStyle()
     ImVec4* colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TextDisabled]           = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
-    colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
     colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_PopupBg]                = ImVec4(0.10f, 0.10f, 0.10f, 0.90f);
     colors[ImGuiCol_Border]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.25f);
     colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.25f);
     colors[ImGuiCol_CheckMark]              = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(0.85f, 0.85f, 0.85f, 0.55f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(0.45f, 0.45f, 0.45f, 0.55f);
     colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
     colors[ImGuiCol_FrameBgActive]          = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
     colors[ImGuiCol_TitleBg]                = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
@@ -51,7 +51,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.56f, 0.56f, 0.56f, 0.55f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(0.34f, 0.34f, 0.34f, 0.55f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.56f, 0.56f, 0.56f, 0.55f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.05f, 0.05f, 0.05f, 0.55f);
+    colors[ImGuiCol_Button]                 = ImVec4(0.65f, 0.65f, 0.65f, 0.55f);
     colors[ImGuiCol_ButtonHovered]          = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
     colors[ImGuiCol_ButtonActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
     colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.55f);
@@ -96,11 +96,11 @@ void setDeepDarkStyle()
     style.IndentSpacing                     = 26;
     style.ScrollbarSize                     = 16;
     style.GrabMinSize                       = 10;
-    style.WindowBorderSize                  = 0;
-    style.ChildBorderSize                   = 0;
-    style.PopupBorderSize                   = 0;
-    style.FrameBorderSize                   = 0;
-    style.TabBorderSize                     = 0;
+    style.WindowBorderSize                  = 1;
+    style.ChildBorderSize                   = 1;
+    style.PopupBorderSize                   = 1;
+    style.FrameBorderSize                   = 1;
+    style.TabBorderSize                     = 1;
     style.WindowRounding                    = 8;
     style.ChildRounding                     = 8;
     style.FrameRounding                     = 8;
@@ -154,12 +154,11 @@ void setLightGreenStyle()
     style->Alpha             = 1.0f;
     style->FrameRounding     = 3.0f;
 
-    colors[ImGuiCol_Text]                   = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_Text]                  = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     colors[ImGuiCol_WindowBg]              = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-    //colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_PopupBg]                = ImVec4(0.93f, 0.93f, 0.93f, 0.98f);
+    colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_PopupBg]               = ImVec4(0.93f, 0.93f, 0.93f, 0.98f);
     colors[ImGuiCol_Border]                = ImVec4(0.71f, 0.71f, 0.71f, 0.08f);
     colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.04f);
     colors[ImGuiCol_FrameBg]               = ImVec4(0.71f, 0.71f, 0.71f, 0.55f);
@@ -185,9 +184,9 @@ void setLightGreenStyle()
     // colors[ImGuiCol_Column]                = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
     // colors[ImGuiCol_ColumnHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
     // colors[ImGuiCol_ColumnActive]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_Separator]              = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.14f, 0.44f, 0.80f, 0.78f);
-    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.14f, 0.44f, 0.80f, 1.00f);
+    colors[ImGuiCol_Separator]             = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.14f, 0.44f, 0.80f, 0.78f);
+    colors[ImGuiCol_SeparatorActive]       = ImVec4(0.14f, 0.44f, 0.80f, 1.00f);
     colors[ImGuiCol_ResizeGrip]            = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
     colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.26f, 0.59f, 0.98f, 0.45f);
     colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
@@ -197,9 +196,9 @@ void setLightGreenStyle()
     colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
     colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
     colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
-    colors[ImGuiCol_DragDropTarget]         = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-    colors[ImGuiCol_NavHighlight]           = colors[ImGuiCol_HeaderHovered];
-    colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
+    colors[ImGuiCol_DragDropTarget]        = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+    colors[ImGuiCol_NavHighlight]          = colors[ImGuiCol_HeaderHovered];
+    colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
 }
 
 /// from https://github.com/ocornut/imgui/issues/707#issuecomment-512669512
