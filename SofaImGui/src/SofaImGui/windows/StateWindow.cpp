@@ -32,7 +32,7 @@ StateWindow::StateWindow(const std::string& name,
     m_isWindowOpen = isWindowOpen;
 }
 
-void StateWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& groot,
+void StateWindow::showWindow(sofa::simulation::Node* groot,
                              const ImGuiWindowFlags& windowFlags)
 {
     if (m_isWindowOpen)

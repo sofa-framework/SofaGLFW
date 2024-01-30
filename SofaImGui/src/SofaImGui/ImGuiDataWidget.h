@@ -98,7 +98,7 @@ inline void showWidget(sofa::core::objectmodel::BaseData& data)
     }
     else
     {
-        ImGui::TextWrapped(data.getValueString().c_str());
+        ImGui::TextWrapped("%s", data.getValueString().c_str());
     }
 }
 

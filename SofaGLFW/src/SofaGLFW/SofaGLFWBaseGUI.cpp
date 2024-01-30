@@ -466,7 +466,9 @@ void SofaGLFWBaseGUI::runStep()
     {
         sofa::helper::AdvancedTimer::begin("Animate");
 
+        m_guiEngine->animateBeginEvent(m_groot.get());
         simulation::node::animate(m_groot.get(), m_groot->getDt());
+        m_guiEngine->animateEndEvent(m_groot.get());
         simulation::node::updateVisual(m_groot.get());
 
         sofa::helper::AdvancedTimer::end("Animate");

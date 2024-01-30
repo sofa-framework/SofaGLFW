@@ -34,7 +34,7 @@ SceneGraphWindow::SceneGraphWindow(const std::string& name, const bool& isWindow
     m_isWindowOpen = isWindowOpen;
 }
 
-void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>& groot,
+void SceneGraphWindow::showWindow(sofa::simulation::Node *groot,
                                   std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                                   std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                                   const ImGuiWindowFlags& windowFlags)
@@ -236,7 +236,7 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                 ImGui::TableSetupColumn("Class Name", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
                 ImGui::TableHeadersRow();
 
-                showNode(groot.get());
+                showNode(groot);
 
                 ImGui::EndTable();
             }
@@ -268,21 +268,21 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                                 if (ImGui::IsItemHovered())
                                 {
                                     ImGui::BeginTooltip();
-                                    ImGui::TextDisabled(data->getHelp().c_str());
+                                    ImGui::TextDisabled("%s", data->getHelp().c_str());
                                     ImGui::TextDisabled("Type: %s", data->getValueTypeString().c_str());
                                     ImGui::EndTooltip();
                                 }
                                 if (isOpen)
                                 {
                                     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-                                    ImGui::TextWrapped(data->getHelp().c_str());
+                                    ImGui::TextWrapped("%s", data->getHelp().c_str());
 
                                     if (data->getParent())
                                     {
                                         const auto linkPath = data->getLinkPath();
                                         if (!linkPath.empty())
                                         {
-                                            ImGui::TextWrapped(linkPath.c_str());
+                                            ImGui::TextWrapped("%s", linkPath.c_str());
                                             if (ImGui::IsItemHovered())
                                             {
                                                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -315,13 +315,13 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                             if (ImGui::IsItemHovered())
                             {
                                 ImGui::BeginTooltip();
-                                ImGui::TextDisabled(link->getHelp().c_str());
+                                ImGui::TextDisabled("%s", link->getHelp().c_str());
                                 ImGui::EndTooltip();
                             }
                             if (isOpen)
                             {
-                                ImGui::TextDisabled(link->getHelp().c_str());
-                                ImGui::TextWrapped(linkValue.c_str());
+                                ImGui::TextDisabled("%s", link->getHelp().c_str());
+                                ImGui::TextWrapped("%s", linkValue.c_str());
                             }
                         }
                         ImGui::Unindent();
@@ -367,21 +367,21 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                             if (ImGui::IsItemHovered())
                             {
                                 ImGui::BeginTooltip();
-                                ImGui::TextDisabled(data->getHelp().c_str());
+                                ImGui::TextDisabled("%s", data->getHelp().c_str());
                                 ImGui::TextDisabled("Type: %s", data->getValueTypeString().c_str());
                                 ImGui::EndTooltip();
                             }
                             if (isOpenData)
                             {
                                 ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-                                ImGui::TextWrapped(data->getHelp().c_str());
+                                ImGui::TextWrapped("%s", data->getHelp().c_str());
 
                                 if (data->getParent())
                                 {
                                     const auto linkPath = data->getLinkPath();
                                     if (!linkPath.empty())
                                     {
-                                        ImGui::TextWrapped(linkPath.c_str());
+                                        ImGui::TextWrapped("%s", linkPath.c_str());
 
                                         if (ImGui::IsItemHovered())
                                         {
@@ -414,13 +414,13 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                         if (ImGui::IsItemHovered())
                         {
                             ImGui::BeginTooltip();
-                            ImGui::TextDisabled(link->getHelp().c_str());
+                            ImGui::TextDisabled("%s", link->getHelp().c_str());
                             ImGui::EndTooltip();
                         }
                         if (isOpenData)
                         {
-                            ImGui::TextDisabled(link->getHelp().c_str());
-                            ImGui::TextWrapped(linkValue.c_str());
+                            ImGui::TextDisabled("%s", link->getHelp().c_str());
+                            ImGui::TextWrapped("%s", linkValue.c_str());
                         }
                     }
                     ImGui::EndTabItem();
@@ -430,17 +430,17 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                     ImGui::Text("Name: %s", component->getClassName().c_str());
                     ImGui::Spacing();
                     ImGui::TextDisabled("Template:");
-                    ImGui::TextWrapped(component->getClass()->templateName.c_str());
+                    ImGui::TextWrapped("%s", component->getClass()->templateName.c_str());
                     ImGui::Spacing();
                     ImGui::TextDisabled("Namespace:");
-                    ImGui::TextWrapped(component->getClass()->namespaceName.c_str());
+                    ImGui::TextWrapped("%s", component->getClass()->namespaceName.c_str());
 
                     sofa::core::ObjectFactory::ClassEntry entry = sofa::core::ObjectFactory::getInstance()->getEntry(component->getClassName());
                     if (! entry.creatorMap.empty())
                     {
                         ImGui::Spacing();
                         ImGui::TextDisabled("Description:");
-                        ImGui::TextWrapped(entry.description.c_str());
+                        ImGui::TextWrapped("%s", entry.description.c_str());
                     }
 
                     const std::string instantiationSourceFilename = component->getInstanciationSourceFileName();
@@ -448,7 +448,7 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                     {
                         ImGui::Spacing();
                         ImGui::TextDisabled("Definition:");
-                        ImGui::TextWrapped(component->getInstanciationSourceFileName().c_str());
+                        ImGui::TextWrapped("%s", component->getInstanciationSourceFileName().c_str());
                     }
 
                     ImGui::EndTabItem();
@@ -482,7 +482,7 @@ void SceneGraphWindow::showWindow(const sofa::core::sptr<sofa::simulation::Node>
                             writeMessageType(message.type());
 
                             ImGui::TableNextColumn();
-                            ImGui::TextWrapped(message.message().str().c_str());
+                            ImGui::TextWrapped("%s", message.message().str().c_str());
                         }
                         ImGui::EndTable();
                     }

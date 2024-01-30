@@ -21,6 +21,7 @@
 ******************************************************************************/
 #pragma once
 #include <SofaGLFW/config.h>
+#include <sofa/simulation/Node.h>
 
 struct GLFWwindow;
 
@@ -41,6 +42,9 @@ public:
     virtual void afterDraw() = 0;
     virtual void terminate() = 0;
     virtual bool dispatchMouseEvents() = 0;
+
+    virtual void animateBeginEvent(sofa::simulation::Node* groot){SOFA_UNUSED(groot);}
+    virtual void animateEndEvent(sofa::simulation::Node* groot){SOFA_UNUSED(groot);}
 };
 
 } // namespace sofaglfw

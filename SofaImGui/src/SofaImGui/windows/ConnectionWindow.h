@@ -37,31 +37,28 @@ using namespace std::chrono_literals;
 namespace sofaimgui::windows {
 
 #if SOFAIMGUI_WITH_ROS == 1
-class ROSPublisher: public rclcpp::Node
+class ROSNode: public rclcpp::Node
 {
-
    public:
-    ROSPublisher(const std::string& name): Node(name), m_count(0)
+    ROSNode(const std::string& name): Node(name){}
+
+    std::vector<rclcpp::Publisher<std_msgs::msg::String>::SharedPtr> m_publishers;
+    std::vector<rclcpp::Subscription<std_msgs::msg::String>::SharedPtr> m_subscriptions;
+
+    std::map<std::string, std::string> m_selectedDataToSend;
+    std::map<std::string, std::string> m_selectedDataToOverwrite;
+
+    void createSubscription(const std::string& topicName)
     {
-        m_publisher = this->create_publisher<std_msgs::msg::String>("Actuators", 10);
-        // todo : call the callback at each time step of the simulatin
+        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription = this->create_subscription<std_msgs::msg::String>(
+           topicName, 10, std::bind(&ROSNode::topicCallback, this, std::placeholders::_1));
+        this->m_subscriptions.push_back(subscription);
     }
 
-   protected:
-    void callback()
+    void topicCallback(const std_msgs::msg::String::SharedPtr msg) const
     {
-        // todo : implement "get and send" simulation data
-        auto message = std_msgs::msg::String();
-        message.data = "Hello, world! " + std::to_string(m_count++);
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-        m_publisher->publish(message);
+        RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
     }
-
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_publisher;
-    rclcpp::TimerBase::SharedPtr m_timer;
-    size_t m_count;
-    std::string m_name;
-
 };
 #endif
 
@@ -75,20 +72,36 @@ class ConnectionWindow : public BaseWindow
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    bool m_isConnectable = false;
-    bool m_locked = false;
+    void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
 
-    void showWindow(const sofa::core::sptr<sofa::simulation::Node> &groot, const ImGuiWindowFlags &windowFlags);
-    void lock() {m_locked=true;}
-    void unlock() {m_locked=false;}
+    void animateBeginEvent(sofa::simulation::Node *groot);
+    void animateEndEvent(sofa::simulation::Node *groot);
+
+    bool isConnected() {return m_isConnected;}
+    bool isConnectable() {return m_isConnectable;}
+
+    void connect();
+    void disconnect();
 
    protected:
 
+    bool m_isConnectable = false;
+    bool m_isConnected = false;
+    bool m_isLocked = false;
+    static int m_method;
+
     void init();
-    std::vector<std::string> getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot);
+
+    std::map<std::string, std::string> getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot);
 
 #if SOFAIMGUI_WITH_ROS == 1
-    std::shared_ptr<ROSPublisher> m_rosnode;
+    std::shared_ptr<ROSNode> m_rosnode;
+
+    void showROSWindow(const std::map<std::string, std::string>& simulationDataList);
+    void createTopics();
+    void createSubscriptions();
+    void animateBeginEventROS(sofa::simulation::Node *groot);
+    void animateEndEventROS(sofa::simulation::Node *groot);
 #endif
 };
 

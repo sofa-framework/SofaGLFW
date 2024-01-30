@@ -16,7 +16,8 @@ SET(AVAILABLE_ROS_VERSIONS "humble;noetic;melodic;lunar;kinetic;jade;indigo;hydr
 
 IF(ROSDEPS)
 ELSE(ROSDEPS)
-  SET(ROSDEPS rclcpp rcutils tracetools rcl rmw std_msgs__rosidl_typesupport_cpp)
+  SET(ROSDEPS rclcpp rcutils tracetools rcl rmw std_msgs__rosidl_typesupport_cpp
+  statistics_msgs__rosidl_typesupport_cpp libstatistics_collector)
 ENDIF(ROSDEPS)
 
 SET(ROS_VERSION CACHE STRING "ROS version")

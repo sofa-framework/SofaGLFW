@@ -61,11 +61,14 @@ public:
     void terminate() override;
     bool dispatchMouseEvents() override;
 
+    void animateBeginEvent(sofa::simulation::Node* groot) override;
+    void animateEndEvent(sofa::simulation::Node* groot) override;
+
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
 
-    windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", true);
+    // windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", false);
     windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("Viewport", true);
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
     windows::StateWindow m_stateWindow = windows::StateWindow("State", true);

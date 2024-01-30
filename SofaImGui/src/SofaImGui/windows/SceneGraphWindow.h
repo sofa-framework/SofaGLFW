@@ -35,7 +35,7 @@ class SceneGraphWindow : public BaseWindow
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    void showWindow(const sofa::core::sptr<sofa::simulation::Node> &groot,
+    void showWindow(sofa::simulation::Node*groot,
                     std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                     std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                     const ImGuiWindowFlags &windowFlags);
