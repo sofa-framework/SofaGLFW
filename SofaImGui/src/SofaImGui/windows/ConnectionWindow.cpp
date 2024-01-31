@@ -66,8 +66,9 @@ void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
 
             static const char* items[]{
 #if SOFAIMGUI_WITH_ROS == 1
-                                       "ROS"
+                                       "ROS",
 #endif
+                                       "None"
             };
 
             if (ImGui::CollapsingHeader("Method", ImGuiTreeNodeFlags_DefaultOpen))
@@ -296,7 +297,7 @@ void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 {
     if (m_isConnected)
     {
-        rclcpp::spin_some(m_rosnode);
+        rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
         for (const auto& [dataName, dataValue]: m_rosnode->m_selectedDataToOverwrite)
         {
             if (dataName.find("effector") != std::string::npos)
