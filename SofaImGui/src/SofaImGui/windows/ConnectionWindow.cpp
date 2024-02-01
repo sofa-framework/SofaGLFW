@@ -26,7 +26,9 @@
 
 #if SOFAIMGUI_WITH_ROS == 1
 #include <rclcpp/node.hpp>
+#include <rmw/validate_node_name.h>
 #endif
+
 
 namespace sofaimgui::windows {
 
@@ -39,7 +41,7 @@ ConnectionWindow::ConnectionWindow(const std::string& name, const bool& isWindow
 
 #if SOFAIMGUI_WITH_ROS == 1
     rclcpp::init(0, nullptr);
-    m_rosnode = std::make_shared<ROSNode>("SofaComplianceRobotics");
+    m_rosnode = std::make_shared<ROSNode>(m_defaultNodeName);
 #endif
 }
 
@@ -78,14 +80,12 @@ void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
                 ImGui::Unindent();
             }
 
-            ImGui::Spacing();
-
-            const std::map<std::string, std::vector<float>>& simulationDataList = getSimulationDataList(groot);
+            const std::map<std::string, std::vector<float>>& simulationStateList = getSimulationStateList(groot);
             m_isConnectable = false;
 
 #if SOFAIMGUI_WITH_ROS == 1
             if (m_method == 0) // ROS
-                showROSWindow(simulationDataList);
+                showROSWindow(simulationStateList);
 #endif
 
             if (m_isLocked)
@@ -94,7 +94,7 @@ void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
     }
 }
 
-std::map<std::string, std::vector<float>> ConnectionWindow::getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot)
+std::map<std::string, std::vector<float>> ConnectionWindow::getSimulationStateList(const sofa::core::sptr<sofa::simulation::Node>& groot)
 {
     std::map<std::string, std::vector<float>> list;
 
@@ -110,7 +110,10 @@ std::map<std::string, std::vector<float>> ConnectionWindow::getSimulationDataLis
                 std::stringstream str(d->getValueString());
                 std::string value;
                 while (str >> value)
+                {
+                    std::replace(value.begin(), value.end(), '.', ',');
                     vector.push_back(std::stof(value));
+                }
                 list[d->getName()] = vector;
             }
         }
@@ -140,8 +143,8 @@ void ConnectionWindow::connect()
 #if SOFAIMGUI_WITH_ROS == 1
     if (m_method == 0) // ROS
     {
-        m_rosnode->createTopics(); // to send selected data
-        m_rosnode->createSubscriptions(); // to get selected data
+        m_rosnode->createTopics(); // to send selected state
+        m_rosnode->createSubscriptions(); // to get selected state
     }
 #endif
 
@@ -165,36 +168,64 @@ void ConnectionWindow::disconnect()
 
 #if SOFAIMGUI_WITH_ROS == 1
 
-void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<float>> &simulationDataList)
+void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<float>> &simulationStateList)
 {
     static char nodeBuf[30];
+    static bool validNodeName = true;
 
     if (ImGui::CollapsingHeader("Send "))
     {
         ImGui::Indent();
 
         bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodeSend", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+
         if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Default is /SofaComplianceRobotics");
+            ImGui::SetTooltip("Default is %s", m_defaultNodeName.c_str());
+
+        static int nameCheckResult;
         if (hasNodeNameChanged)
         {
-            msg_warning("Connection") << "changed for = " << nodeBuf;
-            // m_rosnode->set_parameter(rclcpp::Parameter(nodeBuf));
+            size_t index;
+            [[maybe_unused]] auto result = rmw_validate_node_name(nodeBuf, &nameCheckResult, &index);
+            if(nameCheckResult == 0)
+            {
+                m_rosnode = std::make_shared<ROSNode>(nodeBuf);
+                validNodeName = true;
+            }
+            else
+            {
+                if (nameCheckResult == 1) // empty buf
+                {
+                    m_rosnode = std::make_shared<ROSNode>(m_defaultNodeName);
+                    validNodeName = true;
+                }
+                else
+                    validNodeName = false;
+            }
         }
 
-        { // Data list box
+        if (!validNodeName)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 0., 0., 1.0));
+            ImGui::Text("%s", rmw_node_name_validation_result_string(nameCheckResult));
+            ImGui::PopStyleColor();
+        }
+
+        { // State list box
             static bool sendFirstTime = true;
             static std::map<std::string, bool> sendListboxItems;
-            ImGui::Text("Select simulation data to send:");
-            ImGui::ListBoxHeader("##DataSend");
-            m_rosnode->m_selectedDataToSend.clear();
-            for (const auto& [key, value] : simulationDataList)
+            ImGui::Text("Select simulation state to send:");
+            ImGui::ListBoxHeader("##StateSend");
+            m_rosnode->m_selectedStateToSend.clear();
+            for (const auto& [key, value] : simulationStateList)
             {
                 if (sendFirstTime)
                     sendListboxItems[key] = false;
+
                 ImGui::Checkbox(key.c_str(), &sendListboxItems[key]);
+
                 if(sendListboxItems[key])
-                    m_rosnode->m_selectedDataToSend["/" + key] = value;
+                    m_rosnode->m_selectedStateToSend["/" + key] = value;
             }
             ImGui::ListBoxFooter();
             sendFirstTime = false;
@@ -240,29 +271,29 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
             }
         }
 
-        { // Data list box receive
+        { // State list box receive
             static bool receiveFirstTime = true;
             static std::map<std::string, bool> receiveListboxItems;
-            ImGui::Text("Select simulation data to overwrite from available topics:");
-            ImGui::ListBoxHeader("##DataReceive");
+            ImGui::Text("Select simulation state to be overwriten by the subscription:");
+            ImGui::ListBoxHeader("##StateReceive");
             if (!m_isConnected)
-                m_rosnode->m_selectedDataToOverwrite.clear();
-            for (const auto& [dataName, dataValue] : simulationDataList)
+                m_rosnode->m_selectedStateToOverwrite.clear();
+            for (const auto& [stateName, stateValue] : simulationStateList)
             {
                 if (receiveFirstTime)
-                    receiveListboxItems[dataName] = false;
+                    receiveListboxItems[stateName] = false;
 
-                bool hasMatchingTopic = topiclist.find("/" + dataName) != topiclist.end();
+                bool hasMatchingTopic = topiclist.find("/" + stateName) != topiclist.end();
+
                 if (!hasMatchingTopic)
                     ImGui::BeginDisabled();
-                ImGui::Checkbox(dataName.c_str(), &receiveListboxItems[dataName]);
+                ImGui::Checkbox(stateName.c_str(), &receiveListboxItems[stateName]);
                 if (!hasMatchingTopic)
                     ImGui::EndDisabled();
 
-                if(receiveListboxItems[dataName] & !m_isConnected)
-                {
-                    m_rosnode->m_selectedDataToOverwrite["/" + dataName] = dataValue;  // default temp value, will be overwritten by chosen topic's callback
-                }
+                if(receiveListboxItems[stateName] & !m_isConnected)
+                    m_rosnode->m_selectedStateToOverwrite["/" + stateName] = stateValue;  // default temp value, will be overwritten by chosen topic's callback
+
             }
             ImGui::ListBoxFooter();
             receiveFirstTime = false;
@@ -271,7 +302,7 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
         ImGui::Unindent();
     }
 
-    m_isConnectable = true;
+    m_isConnectable = validNodeName;
 }
 
 void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
@@ -279,9 +310,9 @@ void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
     if (m_isConnected)
     {
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
-        for (const auto& [dataName, dataValue]: m_rosnode->m_selectedDataToOverwrite)
+        for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
         {
-            if (dataName.find("effector") != std::string::npos)
+            if (stateName.find("effector") != std::string::npos)
             {
                 sofa::simulation::Node *modelling = groot->getChild("Modelling");
 
@@ -294,7 +325,7 @@ void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
                         if (mechanical != nullptr)
                         {
                             std::stringstream str;
-                            for (const float& value: dataValue)
+                            for (const float& value: stateValue)
                                 str << value << " ";
                             mechanical->readVec(sofa::core::VecId::position(), str);
                         }
@@ -315,8 +346,8 @@ void ConnectionWindow::animateEndEventROS(sofa::simulation::Node *groot)
         for (const auto& publisher : m_rosnode->m_publishers)
         {
             auto message = std_msgs::msg::Float32MultiArray();
-            const auto& dataVector = m_rosnode->m_selectedDataToSend[publisher->get_topic_name()];
-            message.data.insert(message.data.end(), dataVector.begin(), dataVector.end());
+            const auto& stateVector = m_rosnode->m_selectedStateToSend[publisher->get_topic_name()];
+            message.data.insert(message.data.end(), stateVector.begin(), stateVector.end());
             publisher->publish(message);
         }
     }
