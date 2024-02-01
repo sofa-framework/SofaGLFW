@@ -22,6 +22,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 #include <SofaImGui/config.h>
 #include <SofaImGui/windows/BaseWindow.h>
@@ -29,7 +30,8 @@
 
 #if SOFAIMGUI_WITH_ROS == 1
 #include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
+// #include <std_msgs/msg/string.hpp>
+#include <std_msgs/msg/float32_multi_array.hpp>
 #endif
 
 using namespace std::chrono_literals;
@@ -42,22 +44,55 @@ class ROSNode: public rclcpp::Node
    public:
     ROSNode(const std::string& name): Node(name){}
 
-    std::vector<rclcpp::Publisher<std_msgs::msg::String>::SharedPtr> m_publishers;
-    std::vector<rclcpp::Subscription<std_msgs::msg::String>::SharedPtr> m_subscriptions;
+    std::vector<rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr> m_publishers;
+    std::vector<rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr> m_subscriptions;
 
-    std::map<std::string, std::string> m_selectedDataToSend;
-    std::map<std::string, std::string> m_selectedDataToOverwrite;
+    std::map<std::string, std::vector<float>> m_selectedDataToSend;
+    std::map<std::string, std::vector<float>> m_selectedDataToOverwrite;
 
     void createSubscription(const std::string& topicName)
     {
-        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription = this->create_subscription<std_msgs::msg::String>(
-           topicName, 10, std::bind(&ROSNode::topicCallback, this, std::placeholders::_1));
+        rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr subscription;
+        subscription = this->create_subscription<std_msgs::msg::Float32MultiArray>(topicName, 10,
+                                                                                   [this, topicName](const std_msgs::msg::Float32MultiArray::SharedPtr msg){topicCallback(msg, topicName);});
         this->m_subscriptions.push_back(subscription);
     }
 
-    void topicCallback(const std_msgs::msg::String::SharedPtr msg) const
+    void createTopics()
     {
-        RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
+        if (!m_selectedDataToSend.empty())
+        {
+            m_publishers.reserve(m_selectedDataToSend.size());
+            for (const auto& [key, value] : m_selectedDataToSend)
+            {
+                const auto& publisher = create_publisher<std_msgs::msg::Float32MultiArray>(key, 10);
+                m_publishers.push_back(publisher);
+            }
+        }
+    }
+
+    void createSubscriptions()
+    {
+        if (!m_selectedDataToOverwrite.empty())
+        {
+            m_subscriptions.reserve(m_selectedDataToOverwrite.size());
+            for (const auto& [key, value] : m_selectedDataToOverwrite)
+            {
+                createSubscription(key);
+            }
+        }
+    }
+
+    void topicCallback(const std_msgs::msg::Float32MultiArray::SharedPtr msg, const std::string &topicName)
+    {
+        std::vector<float> vector;
+        vector.reserve(msg->data.size());
+        for (auto value: msg->data)
+            vector.push_back(value);
+
+        std::map<std::string, std::vector<float>>::iterator it = m_selectedDataToOverwrite.find(topicName);
+        if (it != m_selectedDataToOverwrite.end())
+            it->second = vector;
     }
 };
 #endif
@@ -92,14 +127,12 @@ class ConnectionWindow : public BaseWindow
 
     void init();
 
-    std::map<std::string, std::string> getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot);
+    std::map<std::string, std::vector<float> > getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot);
 
 #if SOFAIMGUI_WITH_ROS == 1
     std::shared_ptr<ROSNode> m_rosnode;
 
-    void showROSWindow(const std::map<std::string, std::string>& simulationDataList);
-    void createTopics();
-    void createSubscriptions();
+    void showROSWindow(const std::map<std::string, std::vector<float> > &simulationDataList);
     void animateBeginEventROS(sofa::simulation::Node *groot);
     void animateEndEventROS(sofa::simulation::Node *groot);
 #endif

@@ -80,7 +80,7 @@ void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
 
             ImGui::Spacing();
 
-            const std::map<std::string, std::string>& simulationDataList = getSimulationDataList(groot);
+            const std::map<std::string, std::vector<float>>& simulationDataList = getSimulationDataList(groot);
             m_isConnectable = false;
 
 #if SOFAIMGUI_WITH_ROS == 1
@@ -94,9 +94,9 @@ void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
     }
 }
 
-std::map<std::string, std::string> ConnectionWindow::getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot)
+std::map<std::string, std::vector<float>> ConnectionWindow::getSimulationDataList(const sofa::core::sptr<sofa::simulation::Node>& groot)
 {
-    std::map<std::string, std::string> list;
+    std::map<std::string, std::vector<float>> list;
 
     const auto& node = groot->getChild("UserInterface");
     if(node != nullptr)
@@ -106,7 +106,12 @@ std::map<std::string, std::string> ConnectionWindow::getSimulationDataList(const
         {
             if(d->getGroup().find("state") != std::string::npos)
             {
-                list[d->getName()] = d->getValueString();
+                std::vector<float> vector;
+                std::stringstream str(d->getValueString());
+                std::string value;
+                while (str >> value)
+                    vector.push_back(std::stof(value));
+                list[d->getName()] = vector;
             }
         }
     }
@@ -135,8 +140,8 @@ void ConnectionWindow::connect()
 #if SOFAIMGUI_WITH_ROS == 1
     if (m_method == 0) // ROS
     {
-        createTopics(); // to send selected data
-        createSubscriptions(); // to get selected data
+        m_rosnode->createTopics(); // to send selected data
+        m_rosnode->createSubscriptions(); // to get selected data
     }
 #endif
 
@@ -160,7 +165,7 @@ void ConnectionWindow::disconnect()
 
 #if SOFAIMGUI_WITH_ROS == 1
 
-void ConnectionWindow::showROSWindow(const std::map<std::string, std::string> &simulationDataList)
+void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<float>> &simulationDataList)
 {
     static char nodeBuf[30];
 
@@ -240,7 +245,8 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::string> &s
             static std::map<std::string, bool> receiveListboxItems;
             ImGui::Text("Select simulation data to overwrite from available topics:");
             ImGui::ListBoxHeader("##DataReceive");
-            m_rosnode->m_selectedDataToOverwrite.clear();
+            if (!m_isConnected)
+                m_rosnode->m_selectedDataToOverwrite.clear();
             for (const auto& [dataName, dataValue] : simulationDataList)
             {
                 if (receiveFirstTime)
@@ -253,7 +259,7 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::string> &s
                 if (!hasMatchingTopic)
                     ImGui::EndDisabled();
 
-                if(receiveListboxItems[dataName])
+                if(receiveListboxItems[dataName] & !m_isConnected)
                 {
                     m_rosnode->m_selectedDataToOverwrite["/" + dataName] = dataValue;  // default temp value, will be overwritten by chosen topic's callback
                 }
@@ -266,31 +272,6 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::string> &s
     }
 
     m_isConnectable = true;
-}
-
-void ConnectionWindow::createTopics()
-{
-    if (!m_rosnode->m_selectedDataToSend.empty())
-    {
-        m_rosnode->m_publishers.reserve(m_rosnode->m_selectedDataToSend.size());
-        for (const auto& [key, value] : m_rosnode->m_selectedDataToSend)
-        {
-            const auto& publisher = m_rosnode->create_publisher<std_msgs::msg::String>(key, 10);
-            m_rosnode->m_publishers.push_back(publisher);
-        }
-    }
-}
-
-void ConnectionWindow::createSubscriptions()
-{
-    if (!m_rosnode->m_selectedDataToOverwrite.empty())
-    {
-        m_rosnode->m_subscriptions.reserve(m_rosnode->m_selectedDataToOverwrite.size());
-        for (const auto& [key, value] : m_rosnode->m_selectedDataToOverwrite)
-        {
-            m_rosnode->createSubscription(key);
-        }
-    }
 }
 
 void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
@@ -312,7 +293,9 @@ void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
                         sofa::core::behavior::BaseMechanicalState *mechanical = target->getMechanicalState();
                         if (mechanical != nullptr)
                         {
-                            std::istringstream str(dataValue);
+                            std::stringstream str;
+                            for (const float& value: dataValue)
+                                str << value << " ";
                             mechanical->readVec(sofa::core::VecId::position(), str);
                         }
                     }
@@ -331,8 +314,9 @@ void ConnectionWindow::animateEndEventROS(sofa::simulation::Node *groot)
     {
         for (const auto& publisher : m_rosnode->m_publishers)
         {
-            auto message = std_msgs::msg::String();
-            message.data = m_rosnode->m_selectedDataToSend[publisher->get_topic_name()];
+            auto message = std_msgs::msg::Float32MultiArray();
+            const auto& dataVector = m_rosnode->m_selectedDataToSend[publisher->get_topic_name()];
+            message.data.insert(message.data.end(), dataVector.begin(), dataVector.end());
             publisher->publish(message);
         }
     }
