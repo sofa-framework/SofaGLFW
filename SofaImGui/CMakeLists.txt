@@ -85,11 +85,16 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.h
 
     ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.h
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.h
+
+    ${SOFAIMGUI_SOURCE_DIR}/models/Action.h
+    ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.h
+    ${SOFAIMGUI_SOURCE_DIR}/models/Program.h
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
@@ -104,11 +109,15 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.cpp
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.cpp
+
+    ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/Program.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.cpp

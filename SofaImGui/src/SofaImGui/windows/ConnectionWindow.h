@@ -45,8 +45,8 @@ class ROSNode: public rclcpp::Node
 
     std::vector<rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr> m_publishers;
     std::vector<rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr> m_subscriptions;
-
-    std::map<std::string, std::vector<float>> m_selectedStateToSend;
+    
+    std::map<std::string, std::vector<float>> m_selectedStateToPublish;
     std::map<std::string, std::vector<float>> m_selectedStateToOverwrite;
 
     void createSubscription(const std::string& topicName)
@@ -59,10 +59,10 @@ class ROSNode: public rclcpp::Node
 
     void createTopics()
     {
-        if (!m_selectedStateToSend.empty())
+        if (!m_selectedStateToPublish.empty())
         {
-            m_publishers.reserve(m_selectedStateToSend.size());
-            for (const auto& [key, value] : m_selectedStateToSend)
+            m_publishers.reserve(m_selectedStateToPublish.size());
+            for (const auto& [key, value] : m_selectedStateToPublish)
             {
                 const auto& publisher = create_publisher<std_msgs::msg::Float32MultiArray>(key, 10);
                 m_publishers.push_back(publisher);

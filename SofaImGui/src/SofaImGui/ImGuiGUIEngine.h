@@ -35,6 +35,7 @@
 #include <SofaImGui/windows/SceneGraphWindow.h>
 #include <SofaImGui/windows/StateWindow.h>
 #include <SofaImGui/windows/ConnectionWindow.h>
+#include <SofaImGui/windows/ProgramWindow.h>
 
 
 struct GLFWwindow;
@@ -73,6 +74,7 @@ protected:
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
     windows::StateWindow m_stateWindow = windows::StateWindow("State", true);
     windows::ConnectionWindow m_connectionWindow = windows::ConnectionWindow("Connection", true);
+    windows::ProgramWindow m_programWindow = windows::ProgramWindow("Program", true);
 
     CSimpleIniA ini;
 

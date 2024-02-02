@@ -143,7 +143,7 @@ void ConnectionWindow::connect()
 #if SOFAIMGUI_WITH_ROS == 1
     if (m_method == 0) // ROS
     {
-        m_rosnode->createTopics(); // to send selected state
+        m_rosnode->createTopics(); // to publish selected state
         m_rosnode->createSubscriptions(); // to get selected state
     }
 #endif
@@ -173,11 +173,11 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
     static char nodeBuf[30];
     static bool validNodeName = true;
 
-    if (ImGui::CollapsingHeader("Send "))
+    if (ImGui::CollapsingHeader("Publishers"))
     {
         ImGui::Indent();
 
-        bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodeSend", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+        bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodePublishers", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
 
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("Default is %s", m_defaultNodeName.c_str());
@@ -212,29 +212,29 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
         }
 
         { // State list box
-            static bool sendFirstTime = true;
-            static std::map<std::string, bool> sendListboxItems;
-            ImGui::Text("Select simulation state to send:");
-            ImGui::ListBoxHeader("##StateSend");
-            m_rosnode->m_selectedStateToSend.clear();
+            static bool publishFirstTime = true;
+            static std::map<std::string, bool> publishListboxItems;
+            ImGui::Text("Select simulation states to publish:");
+            ImGui::ListBoxHeader("##StatePublish");
+            m_rosnode->m_selectedStateToPublish.clear();
             for (const auto& [key, value] : simulationStateList)
             {
-                if (sendFirstTime)
-                    sendListboxItems[key] = false;
+                if (publishFirstTime)
+                    publishListboxItems[key] = false;
 
-                ImGui::Checkbox(key.c_str(), &sendListboxItems[key]);
+                ImGui::Checkbox(key.c_str(), &publishListboxItems[key]);
 
-                if(sendListboxItems[key])
-                    m_rosnode->m_selectedStateToSend["/" + key] = value;
+                if(publishListboxItems[key])
+                    m_rosnode->m_selectedStateToPublish["/" + key] = value;
             }
             ImGui::ListBoxFooter();
-            sendFirstTime = false;
+            publishFirstTime = false;
         }
 
         ImGui::Unindent();
     }
 
-    if (ImGui::CollapsingHeader("Receive "))
+    if (ImGui::CollapsingHeader("Subscriptions"))
     {
         ImGui::Indent();
 
@@ -249,7 +249,7 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
             nodes[i] = nodelist[i].c_str();
 
         ImGui::Text("Select a node:");
-        ImGui::Combo("##NodeReceive", &nodeID, nodes, IM_ARRAYSIZE(nodes));
+        ImGui::Combo("##NodeSubscription", &nodeID, nodes, IM_ARRAYSIZE(nodes));
 
         // List of found topics
         auto topiclist = m_rosnode->get_topic_names_and_types();
@@ -271,32 +271,36 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
             }
         }
 
-        { // State list box receive
-            static bool receiveFirstTime = true;
-            static std::map<std::string, bool> receiveListboxItems;
-            ImGui::Text("Select simulation state to be overwriten by the subscription:");
-            ImGui::ListBoxHeader("##StateReceive");
+        { // State list box subcriptions
+            static bool subscribeFirstTime = true;
+            static std::map<std::string, bool> subcriptionListboxItems;
+            ImGui::Text("Select simulation states to overwrite:");
+            ImGui::ListBoxHeader("##StateSubscription");
             if (!m_isConnected)
                 m_rosnode->m_selectedStateToOverwrite.clear();
-            for (const auto& [stateName, stateValue] : simulationStateList)
+            for (const auto& [simStateName, stateValue] : simulationStateList)
             {
-                if (receiveFirstTime)
-                    receiveListboxItems[stateName] = false;
+                std::string stateName = simStateName;
+                if (stateName.find("effector")!=std::string::npos)
+                    stateName = "target/position";
+
+                if (subscribeFirstTime)
+                    subcriptionListboxItems[stateName] = false;
 
                 bool hasMatchingTopic = topiclist.find("/" + stateName) != topiclist.end();
 
                 if (!hasMatchingTopic)
                     ImGui::BeginDisabled();
-                ImGui::Checkbox(stateName.c_str(), &receiveListboxItems[stateName]);
+                ImGui::Checkbox(stateName.c_str(), &subcriptionListboxItems[stateName]);
                 if (!hasMatchingTopic)
                     ImGui::EndDisabled();
 
-                if(receiveListboxItems[stateName] & !m_isConnected)
+                if(subcriptionListboxItems[stateName] & !m_isConnected)
                     m_rosnode->m_selectedStateToOverwrite["/" + stateName] = stateValue;  // default temp value, will be overwritten by chosen topic's callback
 
             }
             ImGui::ListBoxFooter();
-            receiveFirstTime = false;
+            subscribeFirstTime = false;
         }
 
         ImGui::Unindent();
@@ -312,7 +316,7 @@ void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
         for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
         {
-            if (stateName.find("effector") != std::string::npos)
+            if (stateName.find("target") != std::string::npos)
             {
                 sofa::simulation::Node *modelling = groot->getChild("Modelling");
 
@@ -346,7 +350,7 @@ void ConnectionWindow::animateEndEventROS(sofa::simulation::Node *groot)
         for (const auto& publisher : m_rosnode->m_publishers)
         {
             auto message = std_msgs::msg::Float32MultiArray();
-            const auto& stateVector = m_rosnode->m_selectedStateToSend[publisher->get_topic_name()];
+            const auto& stateVector = m_rosnode->m_selectedStateToPublish[publisher->get_topic_name()];
             message.data.insert(message.data.end(), stateVector.begin(), stateVector.end());
             publisher->publish(message);
         }

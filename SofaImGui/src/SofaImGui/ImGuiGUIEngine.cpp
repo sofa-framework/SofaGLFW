@@ -267,6 +267,9 @@ void ImGuiGUIEngine::initDockSpace()
         ImGui::DockBuilderDockWindow(m_stateWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
 
+        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.4f, nullptr, &dockspaceID);
+        ImGui::DockBuilderDockWindow(m_programWindow.m_name.c_str(), dock_id_down);
+
         // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
         // ImGui::DockBuilderDockWindow(m_workspaceWindow.m_name.c_str(), dock_id_left);
         // ImGui::DockBuilderGetNode(dock_id_left)->WantHiddenTabBarToggle = true;
@@ -296,6 +299,9 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
+    // Down Dock
+    m_programWindow.showWindow(groot.get(), windowFlags);
+
     // Right Dock
     m_stateWindow.showWindow(groot.get(), windowFlags);
     m_connectionWindow.showWindow(groot.get(), windowFlags);
@@ -303,6 +309,7 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     m_sceneGraphWindow.showWindow(groot.get(), openedComponents, focusedComponents, windowFlags);
+
 }
 
 void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -323,9 +330,10 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
-            ImGui::Checkbox(m_stateWindow.m_name.c_str(), &m_stateWindow.m_isWindowOpen);
             ImGui::Checkbox(m_connectionWindow.m_name.c_str(), &m_connectionWindow.m_isWindowOpen);
+            ImGui::Checkbox(m_stateWindow.m_name.c_str(), &m_stateWindow.m_isWindowOpen);
+            ImGui::Checkbox(m_programWindow.m_name.c_str(), &m_programWindow.m_isWindowOpen);
+            ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Separator();
             ImGui::Checkbox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
             ImGui::EndMenu();
@@ -377,8 +385,10 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 ImGui::EndDisabled();
                 ImGui::PopStyleColor();
             }
+
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip(m_connectionWindow.isConnected() ? "Disconnect simulation and robot" : "Connect simulation and robot");
+
             if (ImGui::IsItemClicked())
             {
                 if (m_connectionWindow.isConnected())
