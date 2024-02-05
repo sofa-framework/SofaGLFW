@@ -106,12 +106,10 @@ void Move::showBlock(const ImVec2 &size)
         for (int i=0; i<3; i++)
         {
             ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
-            std::string wp = std::to_string(int(m_waypoint[i]));
-            char wpc [6];
-            strcpy(wpc, wp.c_str());
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
-            if (ImGui::InputText(id.c_str(), wpc, 6, ImGuiInputTextFlags_CharsNoBlank))
-                m_waypoint[i] = std::stof(wpc);
+            float wp = m_waypoint[i];
+            if (ImGui::InputFloat(id.c_str(), &wp, 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
+                m_waypoint[i] = wp;
             ImGui::SameLine();
             ImGui::PopItemWidth();
         }
@@ -142,17 +140,10 @@ void Move::showBlock(const ImVec2 &size)
         for (int i=3; i<7; i++)
         {
             ImGui::PushItemWidth(ImGui::CalcTextSize("0.001").x);
-            std::stringstream wp;
-            wp << std::fixed << std::setprecision(2) << m_waypoint[i];
-            char wpc [5];
-            strcpy(wpc, wp.str().c_str());
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
-            if (ImGui::InputText(id.c_str(), wpc, 5, ImGuiInputTextFlags_CharsNoBlank))
-            {
-                std::string wps = wpc;
-                std::replace(wps.begin(), wps.end(), '.', ',');
-                m_waypoint[i] = std::stof(wps);
-            }
+            float wp = m_waypoint[i];
+            if (ImGui::InputFloat(id.c_str(), &wp, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
+                m_waypoint[i] = wp;
             ImGui::SameLine();
             ImGui::PopItemWidth();
         }
@@ -181,12 +172,8 @@ void Move::showBlock(const ImVec2 &size)
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
         ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
-        std::string velocity = std::to_string(int(m_velocity));
-        char velocityc [5];
-        strcpy(velocityc, velocity.c_str());
         std::string id = "##velocity" + std::to_string(window->DC.CursorPos.x);
-        if (ImGui::InputText(id.c_str(), velocityc, 5, ImGuiInputTextFlags_CharsNoBlank))
-            m_velocity = std::stof(velocityc);
+        ImGui::InputFloat(id.c_str(), &m_velocity, 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank);
         ImGui::SameLine();
         ImGui::PopItemWidth();
         ImGui::PopStyleVar();

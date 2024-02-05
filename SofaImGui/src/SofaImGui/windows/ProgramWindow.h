@@ -47,6 +47,8 @@ class ProgramWindow : public BaseWindow
                     const ImGuiWindowFlags &windowFlags);
 
    protected:
+    void addButtons();
+    void addTracks(const float& height);
     void addTimeline(float sSize);
     void importProgram();
     void exportProgram();

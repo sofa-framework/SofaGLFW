@@ -339,21 +339,27 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::EndMenu();
         }
 
+        static bool isAboutOpen = false;
         if (ImGui::BeginMenu("Help"))
         {
             ImGui::Separator();
-
-            if (ImGui::MenuItem("About"))
-            {
-                bool isAboutOpen = true;
-                if (ImGui::Begin("About##SofaComplianceRobotics", &isAboutOpen, ImGuiWindowFlags_NoDocking))
-                {
-                    ImGui::Text("SOFA & Compliance Robotics");
-                }
-                ImGui::End();
-            }
-
+            if (ImGui::MenuItem("About", nullptr, false, true))
+                isAboutOpen = true;
             ImGui::EndMenu();
+        }
+        if (isAboutOpen)
+        {
+            ImGui::Begin("About##SofaComplianceRobotics", &isAboutOpen, ImGuiWindowFlags_NoDocking);
+
+            auto windowWidth = ImGui::GetWindowSize().x;
+            std::vector<std::string> texts = {"\n", "SOFA", "&", "Compliance Robotics", "\n", "1.0.0", "LGPL-3.0 license"};
+            for (const auto& text : texts)
+            {
+                auto textWidth   = ImGui::CalcTextSize(text.c_str()).x;
+                ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+                ImGui::Text("%s", text.c_str());
+            }
+            ImGui::End();
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0);

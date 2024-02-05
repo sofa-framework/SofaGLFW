@@ -54,24 +54,14 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
                          windowFlags | ImGuiWindowFlags_AlwaysAutoResize
                          ))
         {
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0));
-            if (ImGui::Button("Import"))
-                importProgram();
-            ImGui::SameLine();
-            if (ImGui::Button("Export"))
-                exportProgram();
-            ImGui::SameLine();
-            ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-            ImGui::SameLine();
-            ImGui::Button(ICON_FA_PLUS);
-            ImGui::PopStyleColor();
+            addButtons();
 
             float width = ImGui::GetWindowWidth();
             float height = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() * 3;
             static float zoomCoef = 1;
             static float initSize = 150;
             float sSize = zoomCoef * initSize;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
             ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                    ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 
@@ -80,10 +70,10 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             ImGui::NewLine();
             ImGui::Separator();
 
-            ImGui::Text("");
+            addTracks(height - ImGui::GetTextLineHeightWithSpacing() * 3);
             ImGui::SameLine();
+
             const auto& actions = m_program.getActions();
-            ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.f));
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.f, 20.f));
             for (std::shared_ptr<models::Action> action: actions)
             {
@@ -92,7 +82,7 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
                 action->showBlock(ImVec2(actionWidth, actionHeight));
                 ImGui::SameLine();
             }
-            ImGui::PopStyleVar(2);
+            ImGui::PopStyleVar();
 
             ImGui::EndChildFrame();
             ImGui::PopStyleColor();
@@ -106,10 +96,67 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
     }
 }
 
+void ProgramWindow::addButtons()
+{
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0));
+
+    if (ImGui::Button("Import"))
+        importProgram();
+
+    ImGui::SameLine();
+    if (ImGui::Button("Export"))
+        exportProgram();
+
+    ImGui::SameLine();
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+
+    ImGui::BeginDisabled();
+
+    ImGui::SameLine();
+    ImGui::Button(ICON_FA_PLUS);
+
+    ImGui::SameLine();
+    ImGui::Button(ICON_FA_REDO);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Repeat program");
+
+    ImGui::SameLine();
+    ImGui::Button(ICON_FA_ARROWS_ALT_H);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Reverse program");
+
+    ImGui::EndDisabled();
+
+    ImGui::PopStyleColor();
+}
+
+void ProgramWindow::addTracks(const float& height)
+{
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0));
+    if(ImGui::Button(">", ImVec2(ImGui::CalcTextSize(">").x + ImGuiStyleVar_FramePadding, height)))
+    {
+        if (ImGui::BeginPopupContextWindow())
+        {
+            ImGui::BeginDisabled();
+            if (ImGui::MenuItem("Add track"))
+            {
+            }
+            if (ImGui::MenuItem("Remove track"))
+            {
+            }
+            ImGui::EndDisabled();
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopStyleColor();
+}
+
 void ProgramWindow::addTimeline(float sSize)
 {
     float width = ImGui::GetWindowWidth() + ImGui::GetScrollX();
     int nbSteps = width / sSize + 1;
+
+    ImGui::Indent(ImGui::CalcTextSize(">").x + ImGuiStyleVar_FramePadding);
 
     for (int i=0 ; i<nbSteps; i++)
     {
@@ -146,6 +193,8 @@ void ProgramWindow::addTimeline(float sSize)
         }
     }
     ImGui::PopStyleVar();
+
+    ImGui::Unindent(ImGui::CalcTextSize(">").x + ImGuiStyleVar_FramePadding);
 }
 
 void ProgramWindow::importProgram()
