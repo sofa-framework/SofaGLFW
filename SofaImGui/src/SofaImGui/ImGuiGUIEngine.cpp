@@ -345,13 +345,12 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             if (ImGui::MenuItem("About"))
             {
-                ImGui::OpenPopup("About");
-                if (ImGui::BeginPopup("About"))
+                bool isAboutOpen = true;
+                if (ImGui::Begin("About##SofaComplianceRobotics", &isAboutOpen, ImGuiWindowFlags_NoDocking))
                 {
                     ImGui::Text("SOFA & Compliance Robotics");
-                    ImGui::Separator();
-                    ImGui::EndPopup();
                 }
+                ImGui::End();
             }
 
             ImGui::EndMenu();

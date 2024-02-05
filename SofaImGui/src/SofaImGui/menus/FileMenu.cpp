@@ -54,10 +54,6 @@ void FileMenu::addMenu()
 
         ImGui::Separator();
 
-        addImportTrajectory();
-
-        ImGui::Separator();
-
         addExit();
 
         ImGui::EndMenu();
@@ -166,47 +162,6 @@ void FileMenu::addCloseSimulation()
         sofa::simulation::node::initRoot(m_baseGUI->getRootNode().get());
         return;
     }
-}
-
-void FileMenu::addImportTrajectory()
-{
-    const auto groot = m_baseGUI->getRootNode();
-    const auto& modelling = groot->getChild("Modelling");
-
-    if (modelling != nullptr)
-    {
-        const auto& target = modelling->getChild("Target");
-        if (target != nullptr)
-        {
-            if (ImGui::MenuItem("Import Trajectory"))
-            {
-                nfdchar_t *outPath;
-                std::vector<nfdfilteritem_t> nfd_filters;
-                nfd_filters.push_back({"trajectory file", "txt"});
-                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
-                if (result == NFD_OKAY)
-                {
-                    if (sofa::helper::system::FileSystem::exists(outPath))
-                    {
-                        auto oldrs = target->getObject("Trajectory");
-                        if (oldrs)
-                            target->removeObject(oldrs);
-
-                        auto rs = sofa::core::objectmodel::New<sofa::component::playback::ReadState>();
-                        rs->setName("Trajectory");
-                        rs->d_filename.setValue(outPath);
-                        rs->d_draw.setValue(true);
-                        target->addObject(rs);
-                        rs->init();
-                    }
-                    NFD_FreePath(outPath);
-                }
-            }
-            return;
-        }
-    }
-
-    ImGui::MenuItem("Import Trajectory", NULL, false, false);
 }
 
 void FileMenu::addExit()

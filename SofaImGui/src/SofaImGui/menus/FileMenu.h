@@ -42,7 +42,6 @@ class FileMenu
     void addOpenSimulation();
     void addReloadSimulation();
     void addCloseSimulation();
-    void addImportTrajectory();
     void addExit();
 
     void loadFile(sofa::core::sptr<sofa::simulation::Node>& groot,

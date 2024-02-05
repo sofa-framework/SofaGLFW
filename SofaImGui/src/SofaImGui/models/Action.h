@@ -22,15 +22,13 @@
 #pragma once
 
 #include <imgui.h>
-#include <string>
 
 namespace sofaimgui::models {
 
 class Action
 {
    public:
-    Action(const float& duration):
-                                    m_duration(duration)
+    Action(const float& duration): m_duration(duration)
     {
     }
 
@@ -40,17 +38,14 @@ class Action
     virtual void remove() = 0;
     virtual void insert() = 0;
 
-    const ImVec4& getColor() {return m_color;}
-
     float getDuration() {return m_duration;}
     void setDuration(const float& duration) {m_duration = duration;}
-    const char* getContentDescription() {return m_description.c_str();}
+
+    virtual void showBlock(const ImVec2 &size) = 0;
 
    protected:
     int m_index;
     float m_duration; // duration in second
-    ImVec4 m_color{0.8, 0.8, 0.8, 1.0};
-    std::string m_description{"Action"};
 };
 
 } // namespace

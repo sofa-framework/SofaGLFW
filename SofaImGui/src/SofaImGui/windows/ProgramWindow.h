@@ -48,6 +48,8 @@ class ProgramWindow : public BaseWindow
 
    protected:
     void addTimeline(float sSize);
+    void importProgram();
+    void exportProgram();
 };
 
 } // namespace

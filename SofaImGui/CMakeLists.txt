@@ -93,7 +93,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.h
 
     ${SOFAIMGUI_SOURCE_DIR}/models/Action.h
-    ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.h
+    ${SOFAIMGUI_SOURCE_DIR}/models/Move.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.h
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
@@ -116,7 +116,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/menus/FileMenu.cpp
     ${SOFAIMGUI_SOURCE_DIR}/menus/ViewMenu.cpp
 
-    ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/Move.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp
@@ -137,7 +137,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${CMAKE_DL_LIBS})
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw tinyxml2)
 
 if(ROS_FOUND)
     target_include_directories(${PROJECT_NAME} PRIVATE ${ROS_INCLUDE_DIRS})

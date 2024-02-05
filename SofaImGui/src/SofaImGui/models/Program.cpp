@@ -20,29 +20,82 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 #include <SofaImGui/models/Program.h>
+#include <SofaImGui/models/Move.h>
+#include <tinyxml2.h>
 
 
 namespace sofaimgui::models {
 
-void Program::importProgram()
+void Program::importProgram(const std::string &filename)
 {
-    if (checkExtension())
+    if (checkExtension(filename))
     {
-        const std::string& filename = d_filename.getFullPath();
+        tinyxml2::XMLDocument document;
+        document.LoadFile(filename.c_str());
+
+        tinyxml2::XMLNode * root = document.RootElement();
+
+        clear();
+        for(auto* e = root->FirstChildElement("move"); e != nullptr; e = e->NextSiblingElement("move"))
+        {
+            sofa::defaulttype::RigidCoord<3, SReal> wp;
+
+            std::stringstream str(e->Attribute("wp"));
+            std::string value;
+            int index = 0;
+            while (str >> value)
+                wp[index++] = std::stof(value);
+
+            float duration = std::stof(e->Attribute("duration"));
+            Move::MoveType type = static_cast<Move::MoveType>(std::stoi(e->Attribute("type")));
+            std::shared_ptr<Move> action = std::make_shared<models::Move>(wp, duration, type);
+
+            addAction(action);
+        }
     }
 }
 
-void Program::exportProgram()
+void Program::exportProgram(const std::string &filename)
 {
+    if (checkExtension(filename))
+    {
+        tinyxml2::XMLDocument document;
 
+        document.InsertEndChild(document.NewDeclaration("xml version='1.0'"));
+        document.InsertEndChild(document.NewUnknown("DOCTYPE program"));
+
+        tinyxml2::XMLNode * root = document.NewElement("program");
+        document.InsertEndChild(root);
+
+        for (const auto& action: m_actions)
+        {
+            std::shared_ptr<Move> move = std::dynamic_pointer_cast<Move>(action);
+            if (move != nullptr)
+            {
+                tinyxml2::XMLElement * element = document.NewElement("move");
+                std::string wp = std::to_string(move->m_waypoint[0]) + " "
+                                 + std::to_string(move->m_waypoint[1]) + " "
+                                 + std::to_string(move->m_waypoint[2]) + " "
+                                 + std::to_string(move->m_waypoint[3]) + " "
+                                 + std::to_string(move->m_waypoint[4]) + " "
+                                 + std::to_string(move->m_waypoint[5]) + " "
+                                 + std::to_string(move->m_waypoint[6]) + " ";
+                element->SetAttribute("wp", wp.c_str());
+                element->SetAttribute("duration", move->getDuration());
+                element->SetAttribute("type", move->m_type);
+                root->InsertEndChild(element);
+            }
+        }
+
+        document.SaveFile(filename.c_str());
+    }
 }
 
-bool Program::checkExtension()
+bool Program::checkExtension(const std::string &filename)
 {
     bool isExtensionKnown = false;
-    const std::string& filename = d_filename.getFullPath();
 
-    if (filename.size() >= 4 && filename.substr(filename.size()-4)==".crt")
+    if (filename.size() >= 7 && filename.substr(filename.size()-7)==".crprog")
         isExtensionKnown = true;
 
     return isExtensionKnown;

@@ -28,33 +28,35 @@
 
 namespace sofaimgui::models {
 
-class Trajectory : public Action
+class Move : public Action
 {
 
    typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
 
    public:
 
-    enum TrajectoryType {
+    enum MoveType {
         LINEAR
     };
 
-    Trajectory(const RigidCoord& waypoint0,
-               const RigidCoord& waypoint1,
-               const float& velocity,
-               const float& duration,
-               TrajectoryType type = LINEAR);
-    ~Trajectory() = default;
+    Move(const RigidCoord& waypoint,
+         const float& duration,
+         MoveType type = LINEAR);
+    ~Move() = default;
 
     void add() override;
     void remove() override;
     void insert() override;
 
-   protected:
+    void showBlock(const ImVec2 &size) override;
 
-    sofa::type::Vec<2, RigidCoord> m_waypoints;
+    RigidCoord m_waypoint;
     float m_velocity;
-    TrajectoryType m_type;
+    MoveType m_type;
+
+   protected:
+    float computeVelocityFromDuration();
+    float computeDurationFromVelocity();
 };
 
 } // namespace

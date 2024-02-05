@@ -35,8 +35,8 @@ class Program
     Program() {}
     ~Program() = default;
 
-    void importProgram();
-    void exportProgram();
+    void importProgram(const std::string& filename);
+    void exportProgram(const std::string &filename);
 
     void clear() {m_actions.clear();}
 
@@ -50,10 +50,9 @@ class Program
 
    protected:
 
-    bool checkExtension();
+    bool checkExtension(const std::string &filename);
 
     std::vector<std::shared_ptr<Action>> m_actions;
-    sofa::core::objectmodel::DataFileName d_filename;
 
 };
 
