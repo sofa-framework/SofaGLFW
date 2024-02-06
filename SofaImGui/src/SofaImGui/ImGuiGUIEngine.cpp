@@ -376,7 +376,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             if (m_connectionWindow.isConnected())
             {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.60f, 0.00f, 1.00f));
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.50f, 1.00f, 0.50f, 0.50f));
                 ImGui::Button(ICON_FA_PLUG, buttonSize);
                 ImGui::PopStyleColor();
             }
@@ -441,19 +441,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
 
         ImGui::SameLine();
-
-        ImGui::Separator();
-
-        { // Record button
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1,0,0,1));
-            ImGui::Button((record ? ICON_FA_STOP : ICON_FA_DOT_CIRCLE), buttonSize);
-            ImGui::PopStyleColor();
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip(record ? "Stop recording and save trajectory" : "Record trajectory");
-
-            if (ImGui::IsItemClicked())
-                record = !record;
-        }
 
         const auto posX = ImGui::GetCursorPosX();
         if (showTime)

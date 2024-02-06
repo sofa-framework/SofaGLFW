@@ -48,7 +48,7 @@ class Move : public Action
     void remove() override;
     void insert() override;
 
-    void showBlock(const ImVec2 &size) override;
+    void showBlock(const std::string &label, const ImVec2 &size) override;
 
     RigidCoord m_waypoint;
     float m_velocity;

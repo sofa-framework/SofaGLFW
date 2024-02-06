@@ -23,6 +23,8 @@
 
 #include <string>
 #include <array>
+#include <imgui.h>
+
 namespace sofaimgui
 {
 

@@ -21,7 +21,7 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/models/Action.h>
+#include <SofaImGui/models/Track.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -32,27 +32,28 @@ namespace sofaimgui::models {
 class Program
 {
    public:
-    Program() {}
+    Program()
+    {
+        std::shared_ptr<models::Track> track = std::make_shared<models::Track>();
+        addTrack(track);
+    }
     ~Program() = default;
 
     void importProgram(const std::string& filename);
     void exportProgram(const std::string &filename);
 
-    void clear() {m_actions.clear();}
+    const std::vector<std::shared_ptr<Track>>& getTracks() {return m_tracks;}
 
-    const std::vector<std::shared_ptr<Action>>& getActions() {return m_actions;}
+    void addTrack(std::shared_ptr<Track> track) {m_tracks.push_back(track);}
+    void removeTrack(const int &index) {m_tracks.erase(m_tracks.begin() + index);}
 
-    void addAction(std::shared_ptr<Action> action) {m_actions.push_back(action);}
-    void popAction() {m_actions.pop_back();}
-
-    void insertAction(const int &index, std::shared_ptr<Action> action);
-    void removeAction(const int &index);
+    void clear();
 
    protected:
 
     bool checkExtension(const std::string &filename);
 
-    std::vector<std::shared_ptr<Action>> m_actions;
+    std::vector<std::shared_ptr<Track>> m_tracks;
 
 };
 

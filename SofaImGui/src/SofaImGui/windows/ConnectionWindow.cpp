@@ -173,8 +173,16 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
     static char nodeBuf[30];
     static bool validNodeName = true;
 
+    static float pulseDuration = 0;
+    pulseDuration += ImGui::GetIO().DeltaTime;
+    float pulse = pulseDuration / 2.0f;
+    if (pulse > 2)
+        pulseDuration = 0;
+
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isConnected && !m_rosnode->m_selectedStateToPublish.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Publishers"))
     {
+        ImGui::PopStyleColor();
         ImGui::Indent();
 
         bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodePublishers", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
@@ -233,9 +241,13 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
 
         ImGui::Unindent();
     }
+    else
+        ImGui::PopStyleColor();
 
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isConnected && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Subscriptions"))
     {
+        ImGui::PopStyleColor();
         ImGui::Indent();
 
         // Nodes
@@ -305,6 +317,8 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
 
         ImGui::Unindent();
     }
+    else
+        ImGui::PopStyleColor();
 
     m_isConnectable = validNodeName;
 }

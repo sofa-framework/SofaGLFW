@@ -20,7 +20,6 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <Style.h>
-#include <imgui.h>
 #include <string>
 
 namespace sofaimgui
@@ -64,7 +63,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
     colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_TabHovered]             = ImVec4(0.27f, 0.44f, 0.70f, 0.75f);
-    colors[ImGuiCol_TabActive]              = ImVec4(0.65f, 0.65f, 0.65f, 0.55f);
+    colors[ImGuiCol_TabActive]              = ImVec4(0.07f, 0.24f, 0.50f, 0.55f);
     colors[ImGuiCol_TabUnfocused]           = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_DockingPreview]         = ImVec4(0.88f, 0.88f, 0.88f, 1.00f);

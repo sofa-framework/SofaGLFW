@@ -24,10 +24,6 @@
 #include <imgui_internal.h>
 #include <implot.h>
 
-#include <iostream> //for std::fixed
-#include <sstream> //for std::stringstream
-#include <iomanip> //for std::setprecision
-
 namespace sofaimgui::models {
 
 Move::Move(const RigidCoord& waypoint,
@@ -39,11 +35,12 @@ Move::Move(const RigidCoord& waypoint,
     m_velocity = computeVelocityFromDuration();
 }
 
-void Move::showBlock(const ImVec2 &size)
+void Move::showBlock(const std::string &label, const ImVec2 &size)
 {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
+    float alignWidth = 120;
     float x = window->DC.CursorPos.x ;
     float y = window->DC.CursorPos.y ;
 
@@ -51,12 +48,13 @@ void Move::showBlock(const ImVec2 &size)
     ImVec2 topRight = ImVec2(x + size.x, y);
 
     ImGui::ItemSize(size);
-    if (!ImGui::ItemAdd(bb, 0))
+    const ImGuiID id = ImGui::GetID(label.c_str());
+    if (!ImGui::ItemAdd(bb, id))
         return;
 
     { // Block backgroung
         drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ImVec4(0.49f, 0.67f, 0.7f, 1.0f)),
+                                ImGui::GetColorU32(ImVec4(0.39f, 0.57f, 0.6f, 1.0f)),
                                 ImGui::GetStyle().FrameRounding,
                                 ImDrawFlags_None);
     }
@@ -69,37 +67,32 @@ void Move::showBlock(const ImVec2 &size)
         x += padding.y;
         y += padding.y;
         bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
+        bb.Max = ImVec2(x + size.x - padding.x * 2,
                         y + textSize.y + padding.y * 2);
         drawList->AddRectFilled(bb.Min, bb.Max,
                                 ImGui::GetColorU32(ImVec4(0.29f, 0.47f, 0.5f, 1.0f)),
                                 ImGui::GetStyle().FrameRounding,
                                 ImDrawFlags_None);
 
-        drawList->AddText(ImVec2(x + padding.x,
+        drawList->AddText(ImVec2(x + padding.x * 2,
                                  y + padding.y),
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
     }
 
     text = "WP.pos";
     textSize = ImGui::CalcTextSize(text.c_str());
-    x += ImGui::GetStyle().IndentSpacing;
-    y = padding.y + bb.Max.y;
+    y = padding.y * 2 + bb.Max.y;
 
     { // Way point position
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ImVec4(0.29f, 0.29f, 0.29f, 1.0f)),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
 
         drawList->AddText(ImVec2(x + padding.x,
                                  y + padding.y),
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
 
-        window->DC.CursorPos.x = bb.Max.x + padding.x;
+        window->DC.CursorPos.x = x + alignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
@@ -124,22 +117,19 @@ void Move::showBlock(const ImVec2 &size)
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ImVec4(0.29f, 0.29f, 0.29f, 1.0f)),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
+
 
         drawList->AddText(ImVec2(x + padding.x,
                                  y + padding.y),
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
 
-        window->DC.CursorPos.x = bb.Max.x + padding.x;
+        window->DC.CursorPos.x = x + alignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
         for (int i=3; i<7; i++)
         {
-            ImGui::PushItemWidth(ImGui::CalcTextSize("0.001").x);
+            ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
             float wp = m_waypoint[i];
             if (ImGui::InputFloat(id.c_str(), &wp, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
@@ -150,30 +140,26 @@ void Move::showBlock(const ImVec2 &size)
         ImGui::PopStyleVar();
     }
 
-    text = "velocity";
+    text = "duration";
     textSize = ImGui::CalcTextSize(text.c_str());
     y = padding.y + bb.Max.y;
 
-    { // Velocity
+    { // Duration
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ImVec4(0.29, 0.29, 0.29, 1.0)),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
 
         drawList->AddText(ImVec2(x + padding.x,
                                  y + padding.y),
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
 
-        window->DC.CursorPos.x = bb.Max.x + padding.x;
+        window->DC.CursorPos.x = x + alignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
         ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
-        std::string id = "##velocity" + std::to_string(window->DC.CursorPos.x);
-        ImGui::InputFloat(id.c_str(), &m_velocity, 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank);
+        std::string id = "##duration" + std::to_string(window->DC.CursorPos.x);
+        ImGui::InputFloat(id.c_str(), &m_duration, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank);
         ImGui::SameLine();
         ImGui::PopItemWidth();
         ImGui::PopStyleVar();

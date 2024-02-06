@@ -23,6 +23,7 @@
 #include <SofaImGui/windows/ProgramWindow.h>
 #include <SofaImGui/models/Action.h>
 #include <SofaImGui/models/Move.h>
+#include <SofaImGui/widgets/Buttons.h>
 
 #include <sofa/helper/system/FileSystem.h>
 
@@ -48,6 +49,7 @@ ProgramWindow::ProgramWindow(const std::string& name,
 void ProgramWindow::showWindow(sofa::simulation::Node* groot,
                              const ImGuiWindowFlags& windowFlags)
 {
+    SOFA_UNUSED(groot);
     if (m_isWindowOpen)
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen,
@@ -60,29 +62,14 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             float height = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() * 3;
             static float zoomCoef = 1;
             static float initSize = 150;
-            float sSize = zoomCoef * initSize;
+            float sectionSize = zoomCoef * initSize;
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
             ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                    ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 
-            addTimeline(sSize);
+            addTimeline(sectionSize);
 
-            ImGui::NewLine();
-            ImGui::Separator();
-
-            addTracks(height - ImGui::GetTextLineHeightWithSpacing() * 3);
-            ImGui::SameLine();
-
-            const auto& actions = m_program.getActions();
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.f, 20.f));
-            for (std::shared_ptr<models::Action> action: actions)
-            {
-                float actionWidth = action->getDuration() * sSize - ImGui::GetStyle().ItemSpacing.x;
-                float actionHeight = height - ImGui::GetTextLineHeightWithSpacing() * 3;
-                action->showBlock(ImVec2(actionWidth, actionHeight));
-                ImGui::SameLine();
-            }
-            ImGui::PopStyleVar();
+            addTracks(sectionSize);
 
             ImGui::EndChildFrame();
             ImGui::PopStyleColor();
@@ -98,8 +85,9 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
 
 void ProgramWindow::addButtons()
 {
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0));
+    auto position = ImGui::GetCursorPosX() + ImGui::GetCurrentWindow()->Size.x - ImGui::CalcTextSize(ICON_FA_PLUS).x * 3 - ImGuiStyleVar_ItemSpacing * 5; // Get position for right buttons
 
+    // Left buttons
     if (ImGui::Button("Import"))
         importProgram();
 
@@ -107,94 +95,166 @@ void ProgramWindow::addButtons()
     if (ImGui::Button("Export"))
         exportProgram();
 
+    // Right buttons
     ImGui::SameLine();
-    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+    ImGui::SetCursorPosX(position); // Set position to right of the header
 
-    ImGui::BeginDisabled();
+    ImGui::Button(ICON_FA_PLUS"##Add");
+
+    static bool repeat = false;
+    static bool reverse = false;
 
     ImGui::SameLine();
-    ImGui::Button(ICON_FA_PLUS);
-
-    ImGui::SameLine();
-    ImGui::Button(ICON_FA_REDO);
+    ImGui::PushStyleColor(ImGuiCol_Button, repeat? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    if (ImGui::Button(ICON_FA_REDO"##Repeat"))
+    {
+        reverse = false;
+        repeat = !repeat;
+    }
+    ImGui::PopStyleColor();
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("Repeat program");
 
     ImGui::SameLine();
-    ImGui::Button(ICON_FA_ARROWS_ALT_H);
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("Reverse program");
-
-    ImGui::EndDisabled();
-
-    ImGui::PopStyleColor();
-}
-
-void ProgramWindow::addTracks(const float& height)
-{
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0));
-    if(ImGui::Button(">", ImVec2(ImGui::CalcTextSize(">").x + ImGuiStyleVar_FramePadding, height)))
+    ImGui::PushStyleColor(ImGuiCol_Button, reverse? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    if (ImGui::Button(ICON_FA_ARROWS_ALT_H"##Reverse"))
     {
-        if (ImGui::BeginPopupContextWindow())
-        {
-            ImGui::BeginDisabled();
-            if (ImGui::MenuItem("Add track"))
-            {
-            }
-            if (ImGui::MenuItem("Remove track"))
-            {
-            }
-            ImGui::EndDisabled();
-        }
-        ImGui::EndPopup();
+        repeat = false;
+        reverse = !reverse;
     }
     ImGui::PopStyleColor();
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Reverse and repeat program");
 }
 
-void ProgramWindow::addTimeline(float sSize)
+void ProgramWindow::addTimeline(float sectionSize)
 {
     float width = ImGui::GetWindowWidth() + ImGui::GetScrollX();
-    int nbSteps = width / sSize + 1;
+    int nbSteps = width / sectionSize + 1;
 
-    ImGui::Indent(ImGui::CalcTextSize(">").x + ImGuiStyleVar_FramePadding);
+    float indentSize = ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding;
+    ImGui::Indent(indentSize);
 
+    ImGui::BeginGroup(); // Timeline's number (seconds)
     for (int i=0 ; i<nbSteps; i++)
     {
         std::string text = std::to_string(i) + " s";
         float textSize = ImGui::CalcTextSize(text.c_str()).x;
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(sSize - textSize, 0.f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(sectionSize - textSize, 0.f));
         ImGui::Text("%s", text.c_str());
         ImGui::SameLine();
         ImGui::PopStyleVar();
     }
+    ImGui::EndGroup();
 
-    ImGui::NewLine();
-    ImGui::Text("");
-    ImGui::SameLine();
-
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(sSize / 10, 0.f));
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
+    float thickness = 1;
+    float height = 12;
 
+    ImGui::NewLine();
+    ImGui::BeginGroup(); // Timeline's lines
+    ImGui::SameLine();
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(sectionSize / 10, 0.f));
     for (int i=0 ; i<nbSteps; i++)
     {
         for (int j=0; j<10; j++)
         {
-            float thickness = 1;
-            float height = window->DC.CurrLineSize.y / 1.5;
             float y1 = window->DC.CursorPos.y ;
             float y2 = window->DC.CursorPos.y + height;
             const ImRect bb(ImVec2(window->DC.CursorPos.x, y1), ImVec2(window->DC.CursorPos.x + thickness, y2));
-
             ImVec4 color = (j==0) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.5f, 0.5f, 0.5f, 1.f);
+
             drawList->AddLine(ImVec2(bb.Min.x, bb.Min.y), ImVec2(bb.Min.x, bb.Max.y), ImGui::GetColorU32(color));
             ImGui::Spacing();
             ImGui::SameLine();
         }
     }
     ImGui::PopStyleVar();
+    ImGui::EndGroup();
 
-    ImGui::Unindent(ImGui::CalcTextSize(">").x + ImGuiStyleVar_FramePadding);
+    ImGui::Unindent(indentSize);
+}
+
+void ProgramWindow::addTracks(const float& sectionSize)
+{
+    const auto& tracks = m_program.getTracks();
+    float trackHeight = 200;
+    int trackID = 0;
+    for (const auto& track: tracks)
+    {
+        // Track options menu
+        std::string menuLabel = std::string("##TrackMenu" + std::to_string(trackID));
+        std::string buttonLabel = std::string(ICON_FA_BARS "##TrackButton" + std::to_string(trackID));
+        if (ImGui::BeginPopup(menuLabel.c_str()))
+        {
+            if (ImGui::MenuItem("Clear track"))
+            {
+                track->clear();
+            }
+            if (ImGui::MenuItem("Add track", nullptr, false, false))
+            {
+                std::shared_ptr<models::Track> track = std::make_shared<models::Track>();
+                m_program.addTrack(track);
+            }
+            if (ImGui::MenuItem("Remove track", nullptr, false, (trackID>0)? true : false))
+            {
+                m_program.removeTrack(trackID--);
+            }
+            ImGui::EndPopup();
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0)); // Color of track button
+        ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5, 0)); // Align icon top middle
+        if(ImGui::Button(buttonLabel.c_str(), ImVec2(ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding, trackHeight)))
+        {
+            ImGui::PopStyleVar(); // End align icon top middle
+            ImGui::OpenPopup(menuLabel.c_str());
+        }
+        else
+        {
+            ImGui::PopStyleVar(); // End align icon top middle
+        }
+        ImGui::PopStyleColor(); // End color of track button
+
+        ImGui::SameLine();
+        addBlocks(track, trackID, sectionSize, trackHeight);
+        ImGui::NewLine();
+        trackID++;
+    }
+}
+
+void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
+                              const int& trackID,
+                              const float &sectionSize,
+                              const float &height)
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.f, 20.f));
+    const auto& actions = track->getActions();
+    int actionID = 0;
+
+    if (actions.empty())
+    {
+        ImVec2 size(ImGui::GetWindowWidth(), height);
+        std::string trackLabel = std::string("##Track" + std::to_string(trackID) + std::to_string(actionID++));
+        const ImGuiID id = ImGui::GetID(trackLabel.c_str());
+        if(!ImGui::BeginChildFrame(id, size))
+            return;
+        ImGui::EndChildFrame();
+    }
+    else
+    {
+        for (std::shared_ptr<models::Action> action: actions)
+        {
+            float actionWidth = action->getDuration() * sectionSize - ImGui::GetStyle().ItemSpacing.x;
+            float actionHeight = height;
+            std::string blockLabel = std::string("##Action" + std::to_string(trackID) + std::to_string(actionID++));
+            ImGui::SameLine();
+            action->showBlock(blockLabel.c_str(), ImVec2(actionWidth, actionHeight));
+        }
+    }
+
+    ImGui::PopStyleVar();
 }
 
 void ProgramWindow::importProgram()

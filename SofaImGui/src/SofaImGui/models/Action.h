@@ -22,6 +22,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <string>
 
 namespace sofaimgui::models {
 
@@ -41,7 +42,7 @@ class Action
     float getDuration() {return m_duration;}
     void setDuration(const float& duration) {m_duration = duration;}
 
-    virtual void showBlock(const ImVec2 &size) = 0;
+    virtual void showBlock(const std::string &label, const ImVec2 &size) = 0;
 
    protected:
     int m_index;

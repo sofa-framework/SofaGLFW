@@ -48,8 +48,9 @@ class ProgramWindow : public BaseWindow
 
    protected:
     void addButtons();
-    void addTracks(const float& height);
-    void addTimeline(float sSize);
+    void addTimeline(float sectionSize);
+    void addTracks(const float &sectionSize);
+    void addBlocks(const std::shared_ptr<models::Track>& track, const int &trackID, const float &sectionSize, const float &height);
     void importProgram();
     void exportProgram();
 };
