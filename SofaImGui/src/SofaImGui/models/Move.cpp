@@ -52,6 +52,8 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
     if (!ImGui::ItemAdd(bb, id))
         return;
 
+    ImGui::PushClipRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), true);
+
     { // Block backgroung
         drawList->AddRectFilled(bb.Min, bb.Max,
                                 ImGui::GetColorU32(ImVec4(0.39f, 0.57f, 0.6f, 1.0f)),
@@ -167,6 +169,8 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
 
     window->DC.CursorPosPrevLine.x = topRight.x;
     window->DC.CursorPosPrevLine.y = topRight.y;
+
+    ImGui::PopClipRect();
 }
 
 void Move::add()

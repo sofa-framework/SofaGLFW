@@ -290,7 +290,6 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_viewportWindow.showWindow((ImTextureID)m_fbo->getColorTexture(), ImGuiWindowFlags_None
                                 // ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse
                                 );
-
 }
 
 void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -309,7 +308,6 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     m_sceneGraphWindow.showWindow(groot.get(), openedComponents, focusedComponents, windowFlags);
-
 }
 
 void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
