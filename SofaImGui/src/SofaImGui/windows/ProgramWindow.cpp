@@ -61,8 +61,8 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             float width = ImGui::GetWindowWidth();
             float height = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() * 3;
             static float zoomCoef = 1;
-            static float initSize = 150;
-            float sectionSize = zoomCoef * initSize;
+            static float minSize = 100;
+            float sectionSize = zoomCoef * minSize;
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
             ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                    ImGuiWindowFlags_AlwaysHorizontalScrollbar);
@@ -180,6 +180,7 @@ void ProgramWindow::addTracks(const float& sectionSize)
 {
     const auto& tracks = m_program.getTracks();
     float trackHeight = 200;
+
     int trackID = 0;
     for (const auto& track: tracks)
     {
@@ -188,16 +189,15 @@ void ProgramWindow::addTracks(const float& sectionSize)
         std::string buttonLabel = std::string(ICON_FA_BARS "##TrackButton" + std::to_string(trackID));
         if (ImGui::BeginPopup(menuLabel.c_str()))
         {
-            if (ImGui::MenuItem("Clear track"))
+            if (ImGui::MenuItem(std::string("Clear track##" + std::to_string(trackID)).c_str()))
             {
                 track->clear();
             }
-            if (ImGui::MenuItem("Add track", nullptr, false, false))
+            if (ImGui::MenuItem(std::string("Add track##" + std::to_string(trackID)).c_str(), nullptr, false, false))
             {
-                std::shared_ptr<models::Track> track = std::make_shared<models::Track>();
-                m_program.addTrack(track);
+                m_program.addTrack(std::make_shared<models::Track>());
             }
-            if (ImGui::MenuItem("Remove track", nullptr, false, (trackID>0)? true : false))
+            if (ImGui::MenuItem(std::string("Remove track##" + std::to_string(trackID)).c_str(), nullptr, false, (trackID>0)? true : false))
             {
                 m_program.removeTrack(trackID--);
             }
@@ -219,7 +219,6 @@ void ProgramWindow::addTracks(const float& sectionSize)
 
         ImGui::SameLine();
         addBlocks(track, trackID, sectionSize, trackHeight);
-        ImGui::NewLine();
         trackID++;
     }
 }
@@ -229,22 +228,32 @@ void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
                               const float &sectionSize,
                               const float &height)
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.f, 20.f));
-    const auto& actions = track->getActions();
+    const std::vector<std::shared_ptr<models::Action>> &actions = track->getActions();
     int actionID = 0;
 
     if (actions.empty())
     {
-        ImVec2 size(ImGui::GetWindowWidth(), height);
-        std::string trackLabel = std::string("##Track" + std::to_string(trackID) + std::to_string(actionID++));
-        const ImGuiID id = ImGui::GetID(trackLabel.c_str());
-        if(!ImGui::BeginChildFrame(id, size))
+        std::string trackLabel = std::string("##Track" + std::to_string(trackID) + std::to_string(actionID));
+        ImVec2 size(ImGui::GetWindowWidth() + ImGui::GetScrollX(), height);
+
+        float x = ImGui::GetCurrentWindow()->DC.CursorPos.x ;
+        float y = ImGui::GetCurrentWindow()->DC.CursorPos.y ;
+        ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
+
+        ImGui::ItemSize(size);
+        if (!ImGui::ItemAdd(bb, ImGui::GetID(trackLabel.c_str())))
             return;
-        ImGui::EndChildFrame();
+
+        { // Block backgroung
+            ImGui::GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max,
+                                    ImGui::GetColorU32(ImVec4(0.25f, 0.25f, 0.25f, 0.5f)),
+                                    ImGui::GetStyle().FrameRounding,
+                                    ImDrawFlags_None);
+        }
     }
     else
     {
-        for (std::shared_ptr<models::Action> action: actions)
+        for (const std::shared_ptr<models::Action> &action: actions)
         {
             float actionWidth = action->getDuration() * sectionSize - ImGui::GetStyle().ItemSpacing.x;
             float actionHeight = height;
@@ -253,8 +262,6 @@ void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
             action->showBlock(blockLabel.c_str(), ImVec2(actionWidth, actionHeight));
         }
     }
-
-    ImGui::PopStyleVar();
 }
 
 void ProgramWindow::importProgram()

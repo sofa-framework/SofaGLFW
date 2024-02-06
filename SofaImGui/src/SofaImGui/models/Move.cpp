@@ -52,8 +52,6 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
     if (!ImGui::ItemAdd(bb, id))
         return;
 
-    ImGui::PushClipRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), true);
-
     { // Block backgroung
         drawList->AddRectFilled(bb.Min, bb.Max,
                                 ImGui::GetColorU32(ImVec4(0.39f, 0.57f, 0.6f, 1.0f)),
@@ -64,6 +62,11 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
     std::string text = "Move to Way Point";
     ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
     ImVec2 padding(5, 5);
+
+    auto rectMin = ImGui::GetItemRectMin();
+    auto rectMax = ImGui::GetItemRectMax();
+    rectMax.x -= padding.x;
+    ImGui::PushClipRect(rectMin, rectMax, true);
 
     { // Move
         x += padding.y;

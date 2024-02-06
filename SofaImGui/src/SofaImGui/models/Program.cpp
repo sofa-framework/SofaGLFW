@@ -46,7 +46,6 @@ void Program::importProgram(const std::string &filename)
         for(auto* t = root->FirstChildElement("track"); t != nullptr; t = t->NextSiblingElement("track"))
         {
             std::shared_ptr<Track> track = std::make_shared<Track>();
-            addTrack(track);
 
             for(auto* e = t->FirstChildElement("move"); e != nullptr; e = e->NextSiblingElement("move"))
             {
@@ -64,6 +63,7 @@ void Program::importProgram(const std::string &filename)
 
                 track->addAction(action);
             }
+            addTrack(track);
         }
     }
 }
