@@ -67,9 +67,10 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                    ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
             addTimeline(sectionSize);
-
             addTracks(sectionSize);
+            ImGui::PopStyleVar();
 
             ImGui::EndChildFrame();
             ImGui::PopStyleColor();
@@ -78,14 +79,15 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
                 zoomCoef += ImGui::GetIO().MouseWheel * 0.1f;
             zoomCoef = (zoomCoef < 1)? 1 : zoomCoef;
             zoomCoef = (zoomCoef > 4)? 4 : zoomCoef;
+            ImGui::End();
         }
-        ImGui::End();
     }
 }
 
 void ProgramWindow::addButtons()
 {
-    auto position = ImGui::GetCursorPosX() + ImGui::GetCurrentWindow()->Size.x - ImGui::CalcTextSize(ICON_FA_PLUS).x * 3 - ImGuiStyleVar_ItemSpacing * 5; // Get position for right buttons
+    ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
+    auto position = ImGui::GetCursorPosX() + ImGui::GetCurrentWindow()->Size.x - buttonSize.x * 3 - ImGuiStyleVar_ItemSpacing * 3; // Get position for right buttons
 
     // Left buttons
     if (ImGui::Button("Import"))
@@ -99,14 +101,14 @@ void ProgramWindow::addButtons()
     ImGui::SameLine();
     ImGui::SetCursorPosX(position); // Set position to right of the header
 
-    ImGui::Button(ICON_FA_PLUS"##Add");
+    ImGui::Button(ICON_FA_PLUS"##Add", buttonSize);
 
     static bool repeat = false;
     static bool reverse = false;
 
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Button, repeat? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    if (ImGui::Button(ICON_FA_REDO"##Repeat"))
+    if (ImGui::Button(ICON_FA_REDO"##Repeat", buttonSize))
     {
         reverse = false;
         repeat = !repeat;
@@ -117,7 +119,7 @@ void ProgramWindow::addButtons()
 
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Button, reverse? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    if (ImGui::Button(ICON_FA_ARROWS_ALT_H"##Reverse"))
+    if (ImGui::Button(ICON_FA_ARROWS_ALT_H"##Reverse", buttonSize))
     {
         repeat = false;
         reverse = !reverse;

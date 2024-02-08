@@ -143,7 +143,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         glfwGetMonitorContentScale(monitor, &xscale, &yscale);
         ImGuiIO& io = ImGui::GetIO();
 
-        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_REGULAR_compressed_data, ROBOTO_REGULAR_compressed_size, 15 * yscale);
+        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_REGULAR_compressed_data, ROBOTO_REGULAR_compressed_size, 16 * yscale);
 
         ImFontConfig config;
         config.MergeMode = true;
@@ -265,6 +265,7 @@ void ImGuiGUIEngine::initDockSpace()
 
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_IOWindow.m_name.c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_moveWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
 
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.4f, nullptr, &dockspaceID);
@@ -288,8 +289,8 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if(ini.GetBoolValue("Visualization", "alwaysShowFrame", true))
         showFrameOnViewport(baseGUI);
     auto groot = baseGUI->getRootNode();
-    m_viewportWindow.showWindow(groot.get(), (ImTextureID)m_fbo->getColorTexture(), ImGuiWindowFlags_None
-                                // ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse
+    m_viewportWindow.showWindow(groot.get(), (ImTextureID)m_fbo->getColorTexture(),
+                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar
                                 );
 }
 
@@ -304,6 +305,7 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     // Right Dock
     m_IOWindow.showWindow(groot.get(), windowFlags);
+    m_moveWindow.showWindow(groot.get());
 
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
@@ -321,7 +323,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     auto groot = baseGUI->getRootNode();
     static bool animate;
     animate = groot->animate_.getValue();
-    static bool record = false;
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -331,6 +332,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::Checkbox(m_IOWindow.m_name.c_str(), &m_IOWindow.m_isWindowOpen);
+            ImGui::Checkbox(m_moveWindow.m_name.c_str(), &m_moveWindow.m_isWindowOpen);
             ImGui::Checkbox(m_programWindow.m_name.c_str(), &m_programWindow.m_isWindowOpen);
             ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Separator();
@@ -363,7 +365,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0);
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
-        ImVec2 buttonSize = ImVec2(ImGui::GetWindowSize().y, ImGui::GetWindowSize().y);
+        ImVec2 buttonSize = ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
 
         { // Animate button
             ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY, buttonSize);

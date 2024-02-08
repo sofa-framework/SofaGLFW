@@ -42,13 +42,12 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
         {
             bool unindent = false;
 
-            static bool openstate=true;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.f, 0.f, 0.f, 0.3f)));
+            static bool openstate = true;
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.f, 0.f, 0.f, 0.2f)));
             if (ImGui::Begin("ViewportChildState", &openstate,
-                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar
-                                 | ImGuiWindowFlags_NoMove))
+                             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
             {
-                if(ImGui::CollapsingHeader("State           ", ImGuiTreeNodeFlags_DefaultOpen)) // TODO fit to content
+                if(ImGui::CollapsingHeader("State           ")) // TODO fit to content
                 {
                     const auto& data = node->getDataFields();
                     std::string groups;
@@ -67,13 +66,12 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
                                 if (unindent)
                                 {
                                     ImGui::Unindent();
-                                    ImGui::Spacing();
                                 }
+
                                 ImGui::Text("%s:", group.c_str()); // Group title
                                 groups += group + " ";
 
                                 ImGui::Indent();
-                                ImGui::Spacing();
                                 unindent = true;
                             } else {
                                 ImGui::SameLine();
@@ -111,7 +109,6 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
                         ImGui::Unindent();
                     }
                 }
-
                 ImGui::End();
             }
             ImGui::PopStyleColor();

@@ -83,6 +83,7 @@ set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
 set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/IOWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/MoveWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.h
@@ -110,6 +111,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/IOWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/MoveWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.cpp

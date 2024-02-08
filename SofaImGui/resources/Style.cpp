@@ -47,7 +47,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.34f, 0.34f, 0.34f, 0.55f);
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.56f, 0.56f, 0.56f, 0.55f);
-    colors[ImGuiCol_SliderGrab]             = ImVec4(0.34f, 0.34f, 0.34f, 0.55f);
+    colors[ImGuiCol_SliderGrab]             = ImVec4(0.44f, 0.44f, 0.44f, 0.55f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.56f, 0.56f, 0.56f, 0.55f);
     colors[ImGuiCol_Button]                 = ImVec4(0.65f, 0.65f, 0.65f, 0.55f);
     colors[ImGuiCol_ButtonHovered]          = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
@@ -84,10 +84,10 @@ void setDeepDarkStyle()
 
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowPadding                     = ImVec2(6.00f, 6.00f);
-    style.FramePadding                      = ImVec2(6.00f, 6.00f);
+    style.FramePadding                      = ImVec2(10.00f, 10.00f);
     style.CellPadding                       = ImVec2(6.00f, 6.00f);
     style.TouchExtraPadding                 = ImVec2(0.00f, 0.00f);
-    style.ItemSpacing                       = ImVec2(6.00f, 6.00f);
+    style.ItemSpacing                       = ImVec2(16.00f, 16.00f);
     style.ItemInnerSpacing                  = ImVec2(12.00f, 12.00f);
     style.IndentSpacing                     = 26;
     style.ScrollbarSize                     = 20;
