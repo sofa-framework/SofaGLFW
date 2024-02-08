@@ -73,17 +73,10 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
                                        "None"
             };
 
-            ImGui::BeginDisabled();
-            if (ImGui::CollapsingHeader("   Method", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf
-                                        ))
-            {
-                ImGui::EndDisabled();
-                ImGui::Indent();
-                ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
-                ImGui::Unindent();
-            } else {
-                ImGui::EndDisabled();
-            }
+            ImGui::Text("Method");
+            ImGui::Indent();
+            ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
+            ImGui::Unindent();
 
             const std::map<std::string, std::vector<float>>& simulationStateList = getSimulationStateList(groot);
             m_isConnectable = false;
@@ -185,7 +178,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         pulseDuration = 0;
 
     ImGui::PushStyleColor(ImGuiCol_Text, (m_isConnected && !m_rosnode->m_selectedStateToPublish.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
-    if (ImGui::CollapsingHeader("Publishers"))
+    if (ImGui::CollapsingHeader("Publishers", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
         ImGui::Indent();
@@ -250,7 +243,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         ImGui::PopStyleColor();
 
     ImGui::PushStyleColor(ImGuiCol_Text, (m_isConnected && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
-    if (ImGui::CollapsingHeader("Subscriptions"))
+    if (ImGui::CollapsingHeader("Subscriptions", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
         ImGui::Indent();
