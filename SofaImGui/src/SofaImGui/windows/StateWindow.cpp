@@ -42,13 +42,14 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
         {
             bool unindent = false;
 
-            if(ImGui::CollapsingHeader("State"))
+            static bool openstate=true;
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.f, 0.f, 0.f, 0.3f)));
+            if (ImGui::Begin("ViewportChildState", &openstate,
+                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar
+                                 | ImGuiWindowFlags_NoMove))
             {
-                ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImVec4(0.f, 0.f, 0.f, 0.3f)));
-                if (ImGui::BeginChildFrame(ImGui::GetID("StateBackground"), ImVec2(0, 350))) // TODO : fit content
+                if(ImGui::CollapsingHeader("State           ", ImGuiTreeNodeFlags_DefaultOpen)) // TODO fit to content
                 {
-                    ImGui::ItemSize(ImVec2(0, ImGuiStyleVar_IndentSpacing));
-                    ImGui::Indent();
                     const auto& data = node->getDataFields();
                     std::string groups;
                     std::string delimiter = "/";
@@ -106,13 +107,14 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
                         }
                     }
                     if (unindent)
+                    {
                         ImGui::Unindent();
-                    ImGui::Unindent();
-
-                    ImGui::EndChildFrame();
+                    }
                 }
-                ImGui::PopStyleColor();
+
+                ImGui::End();
             }
+            ImGui::PopStyleColor();
         }
     }
 }

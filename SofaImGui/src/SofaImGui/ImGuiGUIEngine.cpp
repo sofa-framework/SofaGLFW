@@ -412,11 +412,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::ToggleButton("Mode", &connected);
 
-            if (!m_IOWindow.isConnectable())
-            {
-                ImGui::EndDisabled();
-            }
-
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Simulation or Robot mode");
 
@@ -429,6 +424,11 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
 
             ImGui::Text(connected? "Robot" : "Simulation");
+
+            if (!m_IOWindow.isConnectable())
+            {
+                ImGui::EndDisabled();
+            }
         }
 
         ImGui::SameLine();

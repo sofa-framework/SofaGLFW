@@ -89,7 +89,6 @@ void setDeepDarkStyle()
     style.TouchExtraPadding                 = ImVec2(0.00f, 0.00f);
     style.ItemSpacing                       = ImVec2(6.00f, 6.00f);
     style.ItemInnerSpacing                  = ImVec2(12.00f, 12.00f);
-    style.WindowMinSize                     = ImVec2(400.00f, 400.00f);
     style.IndentSpacing                     = 26;
     style.ScrollbarSize                     = 20;
     style.GrabMinSize                       = 10;
