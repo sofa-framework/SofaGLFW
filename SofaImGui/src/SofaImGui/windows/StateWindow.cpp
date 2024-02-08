@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <SofaImGui/windows/StateWindow.h>
+#include <imgui_internal.h>
 
 
 namespace sofaimgui::windows {
@@ -32,38 +33,87 @@ StateWindow::StateWindow(const std::string& name,
     m_isWindowOpen = isWindowOpen;
 }
 
-void StateWindow::showWindow(sofa::simulation::Node* groot,
-                             const ImGuiWindowFlags& windowFlags)
+void StateWindow::showWindow(sofa::simulation::Node* groot)
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        const auto& node = groot->getChild("UserInterface");
+        if(node != nullptr)
         {
-            const auto& node = groot->getChild("UserInterface");
-            if(node != nullptr)
+            bool unindent = false;
+
+            if(ImGui::CollapsingHeader("State"))
             {
-                const auto& data = node->getDataFields();
-                ImGui::BeginTable("", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
-                for(auto d: data)
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImVec4(0.f, 0.f, 0.f, 0.3f)));
+                if (ImGui::BeginChildFrame(ImGui::GetID("StateBackground"), ImVec2(0, 350))) // TODO : fit content
                 {
-                    const std::string& value = d->getValueString();
-                    const std::string& name = d->getName();
-                    const std::string& group = d->getGroup();
-                    if(group.find("state") != std::string::npos)
+                    ImGui::ItemSize(ImVec2(0, ImGuiStyleVar_IndentSpacing));
+                    ImGui::Indent();
+                    const auto& data = node->getDataFields();
+                    std::string groups;
+                    std::string delimiter = "/";
+                    for(auto d: data)
                     {
-                        ImGui::TableNextRow();
-                        ImGui::TableNextColumn();
-                        ImGui::TextDisabled("%s", name.c_str());
-                        ImGui::TableNextColumn();
-                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(value.c_str()).x
-                                             - ImGui::GetScrollX() - 2 * ImGui::GetStyle().ItemSpacing.x);
-                        ImGui::TextDisabled("%s", value.c_str());
+                        const std::string& value = d->getValueString();
+                        std::string name = d->getName();
+                        const std::string& group = d->getGroup();
+                        if(group.find("state") != std::string::npos)
+                        {
+                            std::string group = name.substr(0, name.find(delimiter));
+
+                            if (groups.find(group) == std::string::npos)
+                            {
+                                if (unindent)
+                                {
+                                    ImGui::Unindent();
+                                    ImGui::Spacing();
+                                }
+                                ImGui::Text("%s:", group.c_str()); // Group title
+                                groups += group + " ";
+
+                                ImGui::Indent();
+                                ImGui::Spacing();
+                                unindent = true;
+                            } else {
+                                ImGui::SameLine();
+                            }
+                            name.erase(0, name.find(delimiter) + delimiter.length());
+
+                            ImGui::BeginGroup();
+                            {
+                                ImGui::AlignTextToFramePadding();
+                                ImGui::Text("%s ", name.c_str()); // Value name
+
+                                std::istringstream iss(value);
+                                std::vector<std::string> values;
+                                copy(std::istream_iterator<std::string>(iss),
+                                     std::istream_iterator<std::string>(),
+                                     back_inserter(values));
+
+                                ImGui::BeginDisabled();
+                                for (std::string v : values) // Values
+                                {
+                                    std::replace(v.begin(), v.end(), '.', ',');
+                                    float buffer = std::stof(v);
+                                    ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
+                                    ImGui::InputFloat("##0", &buffer, 0, 0, "%.2f");
+                                    ImGui::SameLine();
+                                    ImGui::PopItemWidth();
+                                }
+                                ImGui::EndDisabled();
+                            }
+                            ImGui::EndGroup();
+                        }
                     }
+                    if (unindent)
+                        ImGui::Unindent();
+                    ImGui::Unindent();
+
+                    ImGui::EndChildFrame();
                 }
-                ImGui::EndTable();
+                ImGui::PopStyleColor();
             }
         }
-        ImGui::End();
     }
 }
 

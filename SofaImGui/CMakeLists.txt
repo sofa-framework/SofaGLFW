@@ -37,7 +37,7 @@ FetchContent_MakeAvailable(ImPlot)
 
 FetchContent_Declare(IconFontCppHeaders
         GIT_REPOSITORY https://github.com/juliettef/IconFontCppHeaders
-        GIT_TAG        1856754666dff0db6c1af489a977f0ea2269f520
+        GIT_TAG        8886c5657bac22b8fee34354871e3ade2a596433
 )
 FetchContent_MakeAvailable(IconFontCppHeaders)
 
@@ -82,7 +82,7 @@ set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
 
 set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/IOWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.h
@@ -109,7 +109,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ConnectionWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/IOWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.cpp

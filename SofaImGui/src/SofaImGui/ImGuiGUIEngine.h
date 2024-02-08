@@ -33,8 +33,7 @@
 #include <SofaImGui/windows/WorkspaceWindow.h>
 #include <SofaImGui/windows/ViewportWindow.h>
 #include <SofaImGui/windows/SceneGraphWindow.h>
-#include <SofaImGui/windows/StateWindow.h>
-#include <SofaImGui/windows/ConnectionWindow.h>
+#include <SofaImGui/windows/IOWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
 
 
@@ -72,8 +71,7 @@ protected:
     // windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", false);
     windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("Viewport", true);
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
-    windows::StateWindow m_stateWindow = windows::StateWindow("State", true);
-    windows::ConnectionWindow m_connectionWindow = windows::ConnectionWindow("Connection", true);
+    windows::IOWindow m_IOWindow = windows::IOWindow("Input/Output", true);
     windows::ProgramWindow m_programWindow = windows::ProgramWindow("Program", true);
 
     CSimpleIniA ini;

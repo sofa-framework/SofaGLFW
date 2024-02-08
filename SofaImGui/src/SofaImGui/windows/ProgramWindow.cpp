@@ -231,8 +231,18 @@ void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
     const std::vector<std::shared_ptr<models::Action>> &actions = track->getActions();
     int actionID = 0;
 
-    if (actions.empty())
+    // Action blocks
+    for (const std::shared_ptr<models::Action> &action: actions)
     {
+        float actionWidth = action->getDuration() * sectionSize - ImGui::GetStyle().ItemSpacing.x;
+        float actionHeight = height;
+        std::string blockLabel = std::string("##Action" + std::to_string(trackID) + std::to_string(actionID++));
+        ImGui::SameLine();
+        action->showBlock(blockLabel.c_str(), ImVec2(actionWidth, actionHeight));
+    }
+
+    { // Empty track background
+        ImGui::SameLine();
         std::string trackLabel = std::string("##Track" + std::to_string(trackID) + std::to_string(actionID));
         ImVec2 size(ImGui::GetWindowWidth() + ImGui::GetScrollX(), height);
 
@@ -244,22 +254,11 @@ void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
         if (!ImGui::ItemAdd(bb, ImGui::GetID(trackLabel.c_str())))
             return;
 
-        { // Block backgroung
+        { // Backgroung
             ImGui::GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max,
-                                    ImGui::GetColorU32(ImVec4(0.25f, 0.25f, 0.25f, 0.5f)),
-                                    ImGui::GetStyle().FrameRounding,
-                                    ImDrawFlags_None);
-        }
-    }
-    else
-    {
-        for (const std::shared_ptr<models::Action> &action: actions)
-        {
-            float actionWidth = action->getDuration() * sectionSize - ImGui::GetStyle().ItemSpacing.x;
-            float actionHeight = height;
-            std::string blockLabel = std::string("##Action" + std::to_string(trackID) + std::to_string(actionID++));
-            ImGui::SameLine();
-            action->showBlock(blockLabel.c_str(), ImVec2(actionWidth, actionHeight));
+                                                      ImGui::GetColorU32(ImVec4(0.25f, 0.25f, 0.25f, 0.5f)),
+                                                      ImGui::GetStyle().FrameRounding,
+                                                      ImDrawFlags_None);
         }
     }
 }

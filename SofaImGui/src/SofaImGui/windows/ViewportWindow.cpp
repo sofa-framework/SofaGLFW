@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <SofaImGui/windows/ViewportWindow.h>
+#include <imgui_internal.h>
 
 namespace sofaimgui::windows {
 
@@ -30,7 +31,8 @@ ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen
     m_isWindowOpen = isWindowOpen;
 }
 
-void ViewportWindow::showWindow(const ImTextureID& texture,
+void ViewportWindow::showWindow(sofa::simulation::Node* groot,
+                                const ImTextureID& texture,
                                 const ImGuiWindowFlags& windowFlags)
 {
     if (m_isWindowOpen)
@@ -44,13 +46,24 @@ void ViewportWindow::showWindow(const ImTextureID& texture,
             ImVec2 wsize = ImGui::GetWindowSize();
             m_windowSize = { wsize.x, wsize.y};
 
+            ImVec2 position = ImGui::GetCurrentWindow()->DC.CursorPos;
             ImGui::Image(texture, wsize, ImVec2(0, 1), ImVec2(1, 0));
             m_isMouseOnViewport = ImGui::IsItemHovered();
+
+            addStateWindow(position, groot);
+
             ImGui::EndChild();
 
         }
         ImGui::End();
     }
+}
+
+void ViewportWindow::addStateWindow(const ImVec2 &position,
+                                    sofa::simulation::Node* groot)
+{
+    ImGui::GetCurrentWindow()->DC.CursorPos = position;
+    m_stateWindow.showWindow(groot);
 }
 
 }

@@ -97,11 +97,11 @@ class ROSNode: public rclcpp::Node
 #endif
 
 
-class ConnectionWindow : public BaseWindow
+class IOWindow : public BaseWindow
 {
    public:
-    ConnectionWindow(const std::string& name, const bool& isWindowOpen);
-    ~ConnectionWindow();
+    IOWindow(const std::string& name, const bool& isWindowOpen);
+    ~IOWindow();
 
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;

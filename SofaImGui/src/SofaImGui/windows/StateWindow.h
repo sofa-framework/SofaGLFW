@@ -35,8 +35,7 @@ class StateWindow : public BaseWindow
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    void showWindow(sofa::simulation::Node *groot,
-                    const ImGuiWindowFlags &windowFlags);
+    void showWindow(sofa::simulation::Node *groot);
 };
 
 }

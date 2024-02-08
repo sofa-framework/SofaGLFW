@@ -20,7 +20,7 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
-#include <SofaImGui/windows/ConnectionWindow.h>
+#include <SofaImGui/windows/IOWindow.h>
 #include <IconsFontAwesome5.h>
 #include "sofa/core/behavior/BaseMechanicalState.h"
 
@@ -32,9 +32,9 @@
 
 namespace sofaimgui::windows {
 
-int ConnectionWindow::m_method = -1;
+int IOWindow::m_method = -1;
 
-ConnectionWindow::ConnectionWindow(const std::string& name, const bool& isWindowOpen)
+IOWindow::IOWindow(const std::string& name, const bool& isWindowOpen)
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
@@ -45,18 +45,18 @@ ConnectionWindow::ConnectionWindow(const std::string& name, const bool& isWindow
 #endif
 }
 
-ConnectionWindow::~ConnectionWindow()
+IOWindow::~IOWindow()
 {
 #if SOFAIMGUI_WITH_ROS == 1
     rclcpp::shutdown();
 #endif
 }
 
-void ConnectionWindow::init()
+void IOWindow::init()
 {
 }
 
-void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
+void IOWindow::showWindow(sofa::simulation::Node *groot,
                                   const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
@@ -73,11 +73,16 @@ void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
                                        "None"
             };
 
-            if (ImGui::CollapsingHeader("Method", ImGuiTreeNodeFlags_DefaultOpen))
+            ImGui::BeginDisabled();
+            if (ImGui::CollapsingHeader("   Method", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf
+                                        ))
             {
+                ImGui::EndDisabled();
                 ImGui::Indent();
                 ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
                 ImGui::Unindent();
+            } else {
+                ImGui::EndDisabled();
             }
 
             const std::map<std::string, std::vector<float>>& simulationStateList = getSimulationStateList(groot);
@@ -94,7 +99,7 @@ void ConnectionWindow::showWindow(sofa::simulation::Node *groot,
     }
 }
 
-std::map<std::string, std::vector<float>> ConnectionWindow::getSimulationStateList(const sofa::core::sptr<sofa::simulation::Node>& groot)
+std::map<std::string, std::vector<float>> IOWindow::getSimulationStateList(const sofa::core::sptr<sofa::simulation::Node>& groot)
 {
     std::map<std::string, std::vector<float>> list;
 
@@ -122,7 +127,7 @@ std::map<std::string, std::vector<float>> ConnectionWindow::getSimulationStateLi
     return list;
 }
 
-void ConnectionWindow::animateBeginEvent(sofa::simulation::Node *groot)
+void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
 {
 #if SOFAIMGUI_WITH_ROS == 1
     if (m_method == 0) // ROS
@@ -130,7 +135,7 @@ void ConnectionWindow::animateBeginEvent(sofa::simulation::Node *groot)
 #endif
 }
 
-void ConnectionWindow::animateEndEvent(sofa::simulation::Node *groot)
+void IOWindow::animateEndEvent(sofa::simulation::Node *groot)
 {
 #if SOFAIMGUI_WITH_ROS == 1
     if (m_method == 0) // ROS
@@ -138,7 +143,7 @@ void ConnectionWindow::animateEndEvent(sofa::simulation::Node *groot)
 #endif
 }
 
-void ConnectionWindow::connect()
+void IOWindow::connect()
 {
 #if SOFAIMGUI_WITH_ROS == 1
     if (m_method == 0) // ROS
@@ -152,7 +157,7 @@ void ConnectionWindow::connect()
     m_isLocked = true;
 }
 
-void ConnectionWindow::disconnect()
+void IOWindow::disconnect()
 {
 #if SOFAIMGUI_WITH_ROS == 1
     if (m_method == 0) // ROS
@@ -168,7 +173,7 @@ void ConnectionWindow::disconnect()
 
 #if SOFAIMGUI_WITH_ROS == 1
 
-void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<float>> &simulationStateList)
+void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &simulationStateList)
 {
     static char nodeBuf[30];
     static bool validNodeName = true;
@@ -293,23 +298,24 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
             for (const auto& [simStateName, stateValue] : simulationStateList)
             {
                 std::string stateName = simStateName;
-                if (stateName.find("effector")!=std::string::npos)
-                    stateName = "target/position";
+                if (stateName.find("TCP")!=std::string::npos) // TODO: for the moment we can only overwrite the target
+                {
+                    stateName = "TCPTarget/Frame";
 
-                if (subscribeFirstTime)
-                    subcriptionListboxItems[stateName] = false;
+                    if (subscribeFirstTime)
+                        subcriptionListboxItems[stateName] = false;
 
-                bool hasMatchingTopic = topiclist.find("/" + stateName) != topiclist.end();
+                    bool hasMatchingTopic = topiclist.find("/" + stateName) != topiclist.end();
 
-                if (!hasMatchingTopic)
-                    ImGui::BeginDisabled();
-                ImGui::Checkbox(stateName.c_str(), &subcriptionListboxItems[stateName]);
-                if (!hasMatchingTopic)
-                    ImGui::EndDisabled();
+                    if (!hasMatchingTopic)
+                        ImGui::BeginDisabled();
+                    ImGui::Checkbox(stateName.c_str(), &subcriptionListboxItems[stateName]);
+                    if (!hasMatchingTopic)
+                        ImGui::EndDisabled();
 
-                if(subcriptionListboxItems[stateName] & !m_isConnected)
-                    m_rosnode->m_selectedStateToOverwrite["/" + stateName] = stateValue;  // default temp value, will be overwritten by chosen topic's callback
-
+                    if(subcriptionListboxItems[stateName] & !m_isConnected)
+                        m_rosnode->m_selectedStateToOverwrite["/" + stateName] = stateValue;  // default temp value, will be overwritten by chosen topic's callback
+                }
             }
             ImGui::ListBoxFooter();
             subscribeFirstTime = false;
@@ -323,14 +329,14 @@ void ConnectionWindow::showROSWindow(const std::map<std::string, std::vector<flo
     m_isConnectable = validNodeName;
 }
 
-void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
+void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 {
     if (m_isConnected)
     {
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
         for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
         {
-            if (stateName.find("target") != std::string::npos)
+            if (stateName.find("TCPTarget") != std::string::npos)
             {
                 sofa::simulation::Node *modelling = groot->getChild("Modelling");
 
@@ -356,7 +362,7 @@ void ConnectionWindow::animateBeginEventROS(sofa::simulation::Node *groot)
     }
 }
 
-void ConnectionWindow::animateEndEventROS(sofa::simulation::Node *groot)
+void IOWindow::animateEndEventROS(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
     if (m_isConnected)

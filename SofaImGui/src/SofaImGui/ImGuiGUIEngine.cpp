@@ -69,6 +69,7 @@
 
 #include <SofaImGui/menus/FileMenu.h>
 #include <SofaImGui/menus/ViewMenu.h>
+#include <SofaImGui/widgets/Buttons.h>
 
 
 using namespace sofa;
@@ -96,7 +97,6 @@ void ImGuiGUIEngine::init()
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
 
     ini.SetUnicode();
     if (sofa::helper::system::FileSystem::exists(getAppIniFile()))
@@ -247,9 +247,11 @@ void ImGuiGUIEngine::initDockSpace()
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
 
-    ImGui::Begin("DockSpace", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
+    ImGui::Begin("DockSpace", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
                                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                       ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMove | ImGuiDockNodeFlags_PassthruCentralNode);
+                                       ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMove
+                                           | ImGuiDockNodeFlags_PassthruCentralNode
+                 );
 
     ImGuiID dockspaceID = ImGui::GetID("WorkSpaceDockSpace");
     ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
@@ -257,14 +259,12 @@ void ImGuiGUIEngine::initDockSpace()
     if (firstTime)
     {
         firstTime = false;
-
         ImGui::DockBuilderRemoveNode(dockspaceID); // clear any previous layout
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
-        ImGui::DockBuilderDockWindow(m_connectionWindow.m_name.c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_stateWindow.m_name.c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_IOWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
 
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.4f, nullptr, &dockspaceID);
@@ -287,7 +287,8 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     if(ini.GetBoolValue("Visualization", "alwaysShowFrame", true))
         showFrameOnViewport(baseGUI);
-    m_viewportWindow.showWindow((ImTextureID)m_fbo->getColorTexture(), ImGuiWindowFlags_None
+    auto groot = baseGUI->getRootNode();
+    m_viewportWindow.showWindow(groot.get(), (ImTextureID)m_fbo->getColorTexture(), ImGuiWindowFlags_None
                                 // ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse
                                 );
 }
@@ -302,12 +303,13 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_programWindow.showWindow(groot.get(), windowFlags);
 
     // Right Dock
-    m_stateWindow.showWindow(groot.get(), windowFlags);
-    m_connectionWindow.showWindow(groot.get(), windowFlags);
+    m_IOWindow.showWindow(groot.get(), windowFlags);
 
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     m_sceneGraphWindow.showWindow(groot.get(), openedComponents, focusedComponents, windowFlags);
+
+    // ImGui::ShowDemoWindow();
 }
 
 void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -328,8 +330,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::Checkbox(m_connectionWindow.m_name.c_str(), &m_connectionWindow.m_isWindowOpen);
-            ImGui::Checkbox(m_stateWindow.m_name.c_str(), &m_stateWindow.m_isWindowOpen);
+            ImGui::Checkbox(m_IOWindow.m_name.c_str(), &m_IOWindow.m_isWindowOpen);
             ImGui::Checkbox(m_programWindow.m_name.c_str(), &m_programWindow.m_isWindowOpen);
             ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Separator();
@@ -364,47 +365,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
         ImVec2 buttonSize = ImVec2(ImGui::GetWindowSize().y, ImGui::GetWindowSize().y);
 
-        { // Connection button
-            if (!m_connectionWindow.isConnectable())
-            {
-                m_connectionWindow.disconnect();
-                ImGui::BeginDisabled();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.55f, 0.55f, 0.55f, 1.00f));
-            }
-
-            if (m_connectionWindow.isConnected())
-            {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.50f, 1.00f, 0.50f, 0.50f));
-                ImGui::Button(ICON_FA_PLUG, buttonSize);
-                ImGui::PopStyleColor();
-            }
-            else
-            {
-                ImGui::Button(ICON_FA_PLUG, buttonSize);
-            }
-
-            if (!m_connectionWindow.isConnectable())
-            {
-                ImGui::EndDisabled();
-                ImGui::PopStyleColor();
-            }
-
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip(m_connectionWindow.isConnected() ? "Disconnect simulation and robot" : "Connect simulation and robot");
-
-            if (ImGui::IsItemClicked())
-            {
-                if (m_connectionWindow.isConnected())
-                    m_connectionWindow.disconnect();
-                else
-                    m_connectionWindow.connect();
-            }
-        }
-
-        ImGui::SameLine();
-
-        ImGui::Separator();
-
         { // Animate button
             ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY, buttonSize);
             if (ImGui::IsItemHovered())
@@ -436,6 +396,39 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     sofa::helper::AdvancedTimer::end("Animate");
                 }
             }
+        }
+
+        ImGui::SameLine();
+
+        ImGui::Separator();
+
+        static bool connected = false;
+        { // I/O button
+            if (!m_IOWindow.isConnectable())
+            {
+                m_IOWindow.disconnect();
+                ImGui::BeginDisabled();
+            }
+
+            ImGui::ToggleButton("Mode", &connected);
+
+            if (!m_IOWindow.isConnectable())
+            {
+                ImGui::EndDisabled();
+            }
+
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("Simulation or Robot mode");
+
+            if (ImGui::IsItemClicked())
+            {
+                if (connected)
+                    m_IOWindow.connect();
+                else
+                    m_IOWindow.disconnect();
+            }
+
+            ImGui::Text(connected? "Robot" : "Simulation");
         }
 
         ImGui::SameLine();
@@ -476,7 +469,7 @@ void ImGuiGUIEngine::showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         newSceneFrame->d_style.setValue(styleOptions);
 
         sofa::helper::OptionsGroup alignmentOptions{"BottomLeft", "BottomRight", "TopRight", "TopLeft"};
-        alignmentOptions.setSelectedItem(2);
+        alignmentOptions.setSelectedItem(1);
         newSceneFrame->d_alignment.setValue(alignmentOptions);
 
         groot->addObject(newSceneFrame);
@@ -489,12 +482,12 @@ void ImGuiGUIEngine::showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
 void ImGuiGUIEngine::animateBeginEvent(sofa::simulation::Node* groot)
 {
-    m_connectionWindow.animateBeginEvent(groot);
+    m_IOWindow.animateBeginEvent(groot);
 }
 
 void ImGuiGUIEngine::animateEndEvent(sofa::simulation::Node* groot)
 {
-    m_connectionWindow.animateEndEvent(groot);
+    m_IOWindow.animateEndEvent(groot);
 }
 
 } //namespace sofaimgui

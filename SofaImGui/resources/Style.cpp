@@ -66,8 +66,6 @@ void setDeepDarkStyle()
     colors[ImGuiCol_TabActive]              = ImVec4(0.07f, 0.24f, 0.50f, 0.55f);
     colors[ImGuiCol_TabUnfocused]           = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_DockingPreview]         = ImVec4(0.88f, 0.88f, 0.88f, 1.00f);
-    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
@@ -93,7 +91,7 @@ void setDeepDarkStyle()
     style.ItemInnerSpacing                  = ImVec2(12.00f, 12.00f);
     style.WindowMinSize                     = ImVec2(400.00f, 400.00f);
     style.IndentSpacing                     = 26;
-    style.ScrollbarSize                     = 16;
+    style.ScrollbarSize                     = 20;
     style.GrabMinSize                       = 10;
     style.WindowBorderSize                  = 0;
     style.ChildBorderSize                   = 2;

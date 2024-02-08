@@ -22,6 +22,7 @@
 #pragma once
 
 #include <SofaImGui/windows/BaseWindow.h>
+#include <SofaImGui/windows/StateWindow.h>
 #include <imgui.h>
 
 namespace sofaimgui::windows {
@@ -35,11 +36,18 @@ class ViewportWindow : public BaseWindow
     using BaseWindow::m_name;
     using BaseWindow::m_isWindowOpen;
 
-    void showWindow(const ImTextureID& texture,
+    void showWindow(sofa::simulation::Node *groot, const ImTextureID& texture,
                     const ImGuiWindowFlags &windowFlags);
 
     std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};
+
+   protected:
+
+    StateWindow m_stateWindow = windows::StateWindow("State", true);
+
+    void addStateWindow(const ImVec2 &position, sofa::simulation::Node* groot);
+
 };
 
 }
