@@ -60,8 +60,7 @@ set(IMGUI_HEADER_FILES
     ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h
-    resources/Roboto-Medium.h
-    resources/Roboto-Regular.h
+    resources/OpenSans-Regular.h
     resources/Style.h
 )
 set(IMGUI_SOURCE_FILES

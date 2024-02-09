@@ -4,6 +4,10 @@
 namespace ImGui
 {
 
-void ToggleButton(const char* str_id, bool* v);
+void LocalToggleButton(const char* str_id, bool* v);
+
+bool LocalCheckBox(const char* label, bool* v);
+
+bool LocalCheckBoxEx(const char* label, bool* v);
 
 }

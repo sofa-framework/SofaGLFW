@@ -46,7 +46,7 @@ class ViewportWindow : public BaseWindow
 
     StateWindow m_stateWindow = windows::StateWindow("State", true);
 
-    void addStateWindow(const ImVec2 &position, sofa::simulation::Node* groot);
+    void addStateWindow(sofa::simulation::Node* groot);
 
 };
 

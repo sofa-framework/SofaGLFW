@@ -21,8 +21,11 @@
  ******************************************************************************/
 
 #include <SofaImGui/windows/IOWindow.h>
+#include <SofaImGui/widgets/Buttons.h>
+
 #include <IconsFontAwesome5.h>
-#include "sofa/core/behavior/BaseMechanicalState.h"
+
+#include <sofa/core/behavior/BaseMechanicalState.h>
 
 #if SOFAIMGUI_WITH_ROS == 1
 #include <rclcpp/node.hpp>
@@ -73,8 +76,8 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
                                        "None"
             };
 
-            ImGui::Text("Method");
             ImGui::Indent();
+            ImGui::Text("Method");
             ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
             ImGui::Unindent();
 
@@ -228,7 +231,11 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
                 if (publishFirstTime)
                     publishListboxItems[key] = false;
 
-                ImGui::Checkbox(key.c_str(), &publishListboxItems[key]);
+                ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+                color.w = 1.0;
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
+                ImGui::LocalCheckBox(key.c_str(), &publishListboxItems[key]);
+                ImGui::PopStyleColor();
 
                 if(publishListboxItems[key])
                     m_rosnode->m_selectedStateToPublish["/" + key] = value;
@@ -302,7 +309,13 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
 
                     if (!hasMatchingTopic)
                         ImGui::BeginDisabled();
-                    ImGui::Checkbox(stateName.c_str(), &subcriptionListboxItems[stateName]);
+
+                    ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+                    color.w = 1.0;
+                    ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
+                    ImGui::LocalCheckBox(stateName.c_str(), &subcriptionListboxItems[stateName]);
+                    ImGui::PopStyleColor();
+                    \
                     if (!hasMatchingTopic)
                         ImGui::EndDisabled();
 

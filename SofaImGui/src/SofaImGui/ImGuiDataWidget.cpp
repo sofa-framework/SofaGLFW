@@ -21,6 +21,7 @@
 ******************************************************************************/
 
 #include <SofaImGui/ImGuiDataWidget.h>
+#include <SofaImGui/widgets/Buttons.h>
 #include <sofa/core/objectmodel/Base.h>
 
 #include <implot.h>
@@ -39,7 +40,7 @@ void DataWidget<bool>::showWidget(MyData& data)
     const auto& label = data.getName();
     const auto id = data.getName() + data.getOwner()->getPathName();
 
-    ImGui::Checkbox((label + "##" + id).c_str(), &changeableValue);
+    ImGui::LocalCheckBox((label + "##" + id).c_str(), &changeableValue);
     if (changeableValue != initialValue)
     {
         data.setValue(changeableValue);

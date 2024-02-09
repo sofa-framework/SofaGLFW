@@ -63,8 +63,7 @@
 
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
-#include <Roboto-Medium.h>
-#include <Roboto-Regular.h>
+#include <OpenSans-Regular.h>
 #include <Style.h>
 
 #include <SofaImGui/menus/FileMenu.h>
@@ -143,7 +142,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         glfwGetMonitorContentScale(monitor, &xscale, &yscale);
         ImGuiIO& io = ImGui::GetIO();
 
-        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_REGULAR_compressed_data, ROBOTO_REGULAR_compressed_size, 16 * yscale);
+        io.Fonts->AddFontFromMemoryCompressedTTF(OpenSans_Regular_compressed_data, OpenSans_Regular_compressed_size, 18 * yscale);
 
         ImFontConfig config;
         config.MergeMode = true;
@@ -289,6 +288,22 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if(ini.GetBoolValue("Visualization", "alwaysShowFrame", true))
         showFrameOnViewport(baseGUI);
     auto groot = baseGUI->getRootNode();
+
+    static bool firstTime = true;
+    if (firstTime )
+    {
+        firstTime = false;
+        const std::string viewFileName = baseGUI->getFilename() + ".view";
+        bool fileExists = sofa::helper::system::FileSystem::exists(viewFileName);
+        sofa::component::visual::BaseCamera::SPtr camera;
+        groot->get(camera);
+        if (camera && fileExists)
+        {
+            if (camera->importParametersFromFile(viewFileName))
+                msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
+        }
+    }
+
     m_viewportWindow.showWindow(groot.get(), (ImTextureID)m_fbo->getColorTexture(),
                                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar
                                 );
@@ -310,8 +325,6 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     m_sceneGraphWindow.showWindow(groot.get(), openedComponents, focusedComponents, windowFlags);
-
-    // ImGui::ShowDemoWindow();
 }
 
 void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -331,12 +344,12 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::Checkbox(m_IOWindow.m_name.c_str(), &m_IOWindow.m_isWindowOpen);
-            ImGui::Checkbox(m_moveWindow.m_name.c_str(), &m_moveWindow.m_isWindowOpen);
-            ImGui::Checkbox(m_programWindow.m_name.c_str(), &m_programWindow.m_isWindowOpen);
-            ImGui::Checkbox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_IOWindow.m_name.c_str(), &m_IOWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_moveWindow.m_name.c_str(), &m_moveWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_programWindow.m_name.c_str(), &m_programWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Separator();
-            ImGui::Checkbox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
             ImGui::EndMenu();
         }
 
@@ -363,7 +376,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::End();
         }
 
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0);
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
         ImVec2 buttonSize = ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
 
@@ -412,7 +424,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 ImGui::BeginDisabled();
             }
 
-            ImGui::ToggleButton("Mode", &connected);
+            ImGui::LocalToggleButton("Mode", &connected);
 
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Simulation or Robot mode");
@@ -454,7 +466,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::SetCursorPosX(posX);
         }
 
-        ImGui::PopStyleVar();
         ImGui::EndMainMenuBar();
     }
 }
@@ -471,7 +482,7 @@ void ImGuiGUIEngine::showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         newSceneFrame->d_style.setValue(styleOptions);
 
         sofa::helper::OptionsGroup alignmentOptions{"BottomLeft", "BottomRight", "TopRight", "TopLeft"};
-        alignmentOptions.setSelectedItem(1);
+        alignmentOptions.setSelectedItem(2);
         newSceneFrame->d_alignment.setValue(alignmentOptions);
 
         groot->addObject(newSceneFrame);

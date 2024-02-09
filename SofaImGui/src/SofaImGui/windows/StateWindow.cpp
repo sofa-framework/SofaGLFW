@@ -43,11 +43,11 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
             bool unindent = false;
 
             static bool openstate = true;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.f, 0.f, 0.f, 0.2f)));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.10f, 0.20f, 0.34f, 0.2f)));
             if (ImGui::Begin("ViewportChildState", &openstate,
                              ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
             {
-                if(ImGui::CollapsingHeader("State           ")) // TODO fit to content
+                if(ImGui::CollapsingHeader("State       ")) // TODO fit to content
                 {
                     const auto& data = node->getDataFields();
                     std::string groups;
@@ -57,6 +57,7 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
                         const std::string& value = d->getValueString();
                         std::string name = d->getName();
                         const std::string& group = d->getGroup();
+
                         if(group.find("state") != std::string::npos)
                         {
                             std::string group = name.substr(0, name.find(delimiter));
@@ -64,9 +65,7 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
                             if (groups.find(group) == std::string::npos)
                             {
                                 if (unindent)
-                                {
                                     ImGui::Unindent();
-                                }
 
                                 ImGui::Text("%s:", group.c_str()); // Group title
                                 groups += group + " ";

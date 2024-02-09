@@ -37,32 +37,33 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
 {
     if (m_isWindowOpen)
     {
-        ImVec2 pos;
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            pos = ImGui::GetWindowPos();
-
             ImGui::BeginChild("Render");
             ImVec2 wsize = ImGui::GetWindowSize();
             m_windowSize = { wsize.x, wsize.y};
 
-            ImVec2 position = ImGui::GetCurrentWindow()->DC.CursorPos;
-            ImGui::Image(texture, wsize, ImVec2(0, 1), ImVec2(1, 0));
+            ImDrawList* dl = ImGui::GetWindowDrawList();
+            ImVec2 p_min = ImGui::GetCursorScreenPos();
+            ImVec2 p_max = ImVec2(p_min.x + wsize.x, p_min.y + wsize.y);
+            ImGui::ItemAdd(ImRect(p_min, p_max), ImGui::GetID("ImageRender"));
+            dl->AddImageRounded(texture, p_min, p_max,
+                                ImVec2(0, 1), ImVec2(1, 0), ImGui::GetColorU32(ImVec4(1, 1, 1, 1)),
+                                ImGuiStyleVar_FrameRounding * 2);
+
             m_isMouseOnViewport = ImGui::IsItemHovered();
 
-            addStateWindow(position, groot);
+            addStateWindow(groot);
 
             ImGui::EndChild();
-
         }
         ImGui::End();
     }
 }
 
-void ViewportWindow::addStateWindow(const ImVec2 &position,
-                                    sofa::simulation::Node* groot)
+void ViewportWindow::addStateWindow(sofa::simulation::Node* groot)
 {
-    ImGui::GetCurrentWindow()->DC.CursorPos = position;
+    ImGui::SetNextWindowPos(ImGui::GetWindowPos());  // attach the state window to top left of the viewport window
     m_stateWindow.showWindow(groot);
 }
 

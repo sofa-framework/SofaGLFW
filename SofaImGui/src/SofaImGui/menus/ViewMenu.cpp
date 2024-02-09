@@ -26,10 +26,9 @@
 
 #include <nfd.h>
 #include <filesystem>
+#include <SofaImGui/widgets/Buttons.h>
 
 namespace sofaimgui::menus {
-
-constexpr const char* VIEW_FILE_EXTENSION = ".view";
 
 ViewMenu::ViewMenu(sofaglfw::SofaGLFWBaseGUI *baseGUI) : m_baseGUI(baseGUI)
 {
@@ -63,9 +62,9 @@ void ViewMenu::addMenu(bool& showFPSInMenuBar,
 
 void ViewMenu::addShowFPS(bool &showFPSInMenuBar)
 {
-    ImGui::Checkbox("Show FPS", &showFPSInMenuBar);
+    ImGui::LocalCheckBox("Show FPS", &showFPSInMenuBar);
     bool isFullScreen = m_baseGUI->isFullScreen();
-    if (ImGui::Checkbox("Fullscreen", &isFullScreen))
+    if (ImGui::LocalCheckBox("Fullscreen", &isFullScreen))
     {
         m_baseGUI->switchFullScreen();
     }
@@ -94,7 +93,7 @@ void ViewMenu::addCenterCamera()
 
 void ViewMenu::addSaveCamera()
 {
-    const std::string viewFileName = m_baseGUI->getFilename() + VIEW_FILE_EXTENSION;
+    const std::string viewFileName = m_baseGUI->getFilename() + ".view";
     if (ImGui::MenuItem("Save Camera"))
     {
         sofa::component::visual::BaseCamera::SPtr camera;
@@ -116,7 +115,7 @@ void ViewMenu::addSaveCamera()
 
 void ViewMenu::addRestoreCamera()
 {
-    const std::string viewFileName = m_baseGUI->getFilename() + VIEW_FILE_EXTENSION;
+    const std::string viewFileName = m_baseGUI->getFilename() + ".view";
     bool fileExists = sofa::helper::system::FileSystem::exists(viewFileName);
     ImGui::BeginDisabled(!fileExists);
     if (ImGui::MenuItem("Restore Camera"))
