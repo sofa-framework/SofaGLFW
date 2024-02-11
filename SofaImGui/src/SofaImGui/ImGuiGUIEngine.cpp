@@ -76,6 +76,9 @@ using namespace sofa;
 namespace sofaimgui
 {
 
+bool ImGuiGUIEngine::m_animate = false;
+int ImGuiGUIEngine::m_mode = 0;
+
 const std::string& ImGuiGUIEngine::getAppIniFile()
 {
     static const std::string appIniFile(sofa::helper::Utils::getExecutableDirectory() + "/settings.ini");
@@ -166,6 +169,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui::NewFrame();
 
     initDockSpace();
+
     addViewportWindow(baseGUI);
     addOptionWindows(baseGUI);
     addMainMenuBar(baseGUI);
@@ -288,6 +292,7 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if(ini.GetBoolValue("Visualization", "alwaysShowFrame", true))
         showFrameOnViewport(baseGUI);
     auto groot = baseGUI->getRootNode();
+    m_animate = groot->animate_.getValue();
 
     static bool firstTime = true;
     if (firstTime )
@@ -307,6 +312,51 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_viewportWindow.showWindow(groot.get(), (ImTextureID)m_fbo->getColorTexture(),
                                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar
                                 );
+
+    // Animate button
+    if (m_viewportWindow.addAnimateButton(&m_animate))
+        sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = m_animate;
+
+    // Step button
+    if (m_viewportWindow.addStepButton())
+    {
+        if (!m_animate)
+        {
+            sofa::helper::AdvancedTimer::begin("Animate");
+            animateBeginEvent(groot.get());
+            sofa::simulation::node::animate(groot.get(), groot->getDt());
+            animateEndEvent(groot.get());
+            sofa::simulation::node::updateVisual(groot.get());
+            sofa::helper::AdvancedTimer::end("Animate");
+        }
+    }
+
+    // Mode button
+    static const char* listModes[]{"Move", "Program", "IO"};
+    if (m_viewportWindow.addModeButton(&m_mode, listModes, IM_ARRAYSIZE(listModes)))
+    {
+        m_moveWindow.m_isDrivingSimulation = false;
+        m_programWindow.m_isDrivingSimulation = false;
+        m_IOWindow.m_isDrivingSimulation = false;
+        switch (m_mode) {
+            case 1:
+            {
+                m_programWindow.m_isDrivingSimulation = true;
+                break;
+            }
+            case 2:
+            {
+                m_IOWindow.m_isDrivingSimulation = true;
+                break;
+            }
+            default:
+            {
+                m_moveWindow.m_isDrivingSimulation = true;
+                break;
+            }
+        }
+    }
+
 }
 
 void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -334,8 +384,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static bool showTime = true;
 
     auto groot = baseGUI->getRootNode();
-    static bool animate;
-    animate = groot->animate_.getValue();
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -377,75 +425,16 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
 
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
-        ImVec2 buttonSize = ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
 
-        { // Animate button
-            ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY, buttonSize);
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip(animate ? "Stop simulation" : "Start simulation");
-
-            if (ImGui::IsItemClicked())
-            {
-                animate = !animate;
-                sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = animate;
-            }
-        }
-
-        ImGui::SameLine();
-
-        { // Step button
-            ImGui::Button(ICON_FA_STEP_FORWARD, buttonSize);
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip("One step of simulation");
-
-            if (ImGui::IsItemClicked())
-            {
-                if (!animate)
-                {
-                    sofa::helper::AdvancedTimer::begin("Animate");
-                    animateBeginEvent(groot.get());
-                    sofa::simulation::node::animate(groot.get(), groot->getDt());
-                    animateEndEvent(groot.get());
-                    sofa::simulation::node::updateVisual(groot.get());
-                    sofa::helper::AdvancedTimer::end("Animate");
-                }
-            }
-        }
-
-        ImGui::SameLine();
-
-        ImGui::Separator();
-
-        static bool connected = false;
         { // I/O button
-            if (!m_IOWindow.isConnectable())
-            {
-                m_IOWindow.disconnect();
-                ImGui::BeginDisabled();
-            }
-
+            static bool connected = false;
             ImGui::LocalToggleButton("Mode", &connected);
 
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Simulation or Robot mode");
 
-            if (ImGui::IsItemClicked())
-            {
-                if (connected)
-                    m_IOWindow.connect();
-                else
-                    m_IOWindow.disconnect();
-            }
-
             ImGui::Text(connected? "Robot" : "Simulation");
-
-            if (!m_IOWindow.isConnectable())
-            {
-                ImGui::EndDisabled();
-            }
         }
-
-        ImGui::SameLine();
 
         const auto posX = ImGui::GetCursorPosX();
         if (showTime)
@@ -456,7 +445,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::TextDisabled("Time: %.3f", groot->getTime());
             ImGui::SetCursorPosX(posX);
         }
-        if (showFPSInMenuBar && animate)
+        if (showFPSInMenuBar && m_animate)
         {
             auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("1000.0 FPS ").x
                             - 2 * ImGui::GetStyle().ItemSpacing.x;

@@ -111,19 +111,13 @@ class IOWindow : public BaseWindow
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);
 
-    bool isConnected() {return m_isConnected;}
-    bool isConnectable() {return m_isConnectable;}
-
-    void connect();
-    void disconnect();
-
    protected:
 
-    bool m_isConnectable = false;
-    bool m_isConnected = false;
-    bool m_isLocked = false;
     std::string m_defaultNodeName = "SofaComplianceRobotics";
     static int m_method;
+    static bool m_isPublishing;
+    static bool m_isListening;
+    static bool m_isReadyToPublish;
 
     void init();
 

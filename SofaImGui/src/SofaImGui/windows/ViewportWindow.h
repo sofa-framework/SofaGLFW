@@ -38,6 +38,9 @@ class ViewportWindow : public BaseWindow
 
     void showWindow(sofa::simulation::Node *groot, const ImTextureID& texture,
                     const ImGuiWindowFlags &windowFlags);
+    bool addStepButton();
+    bool addAnimateButton(bool *animate);
+    bool addModeButton(int *mode, const char *listModes[], const int &sizeListModes);
 
     std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};

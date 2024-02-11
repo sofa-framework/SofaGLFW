@@ -36,6 +36,9 @@
 namespace sofaimgui::windows {
 
 int IOWindow::m_method = -1;
+bool IOWindow::m_isPublishing = false;
+bool IOWindow::m_isListening = false;
+bool IOWindow::m_isReadyToPublish = false;
 
 IOWindow::IOWindow(const std::string& name, const bool& isWindowOpen)
 {
@@ -66,9 +69,6 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            if (m_isLocked)
-                ImGui::BeginDisabled();
-
             static const char* items[]{
 #if SOFAIMGUI_WITH_ROS == 1
                                        "ROS",
@@ -82,15 +82,11 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
             ImGui::Unindent();
 
             const std::map<std::string, std::vector<float>>& simulationStateList = getSimulationStateList(groot);
-            m_isConnectable = false;
 
 #if SOFAIMGUI_WITH_ROS == 1
             if (m_method == 0) // ROS
                 showROSWindow(simulationStateList);
 #endif
-
-            if (m_isLocked)
-                ImGui::EndDisabled();
         }
     }
 }
@@ -139,34 +135,6 @@ void IOWindow::animateEndEvent(sofa::simulation::Node *groot)
 #endif
 }
 
-void IOWindow::connect()
-{
-#if SOFAIMGUI_WITH_ROS == 1
-    if (m_method == 0) // ROS
-    {
-        m_rosnode->createTopics(); // to publish selected state
-        m_rosnode->createSubscriptions(); // to get selected state
-    }
-#endif
-
-    m_isConnected = true;
-    m_isLocked = true;
-}
-
-void IOWindow::disconnect()
-{
-#if SOFAIMGUI_WITH_ROS == 1
-    if (m_method == 0) // ROS
-    {
-        m_rosnode->m_publishers.clear();
-        m_rosnode->m_subscriptions.clear();
-    }
-#endif
-
-    m_isConnected = false;
-    m_isLocked = false;
-}
-
 #if SOFAIMGUI_WITH_ROS == 1
 
 void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &simulationStateList)
@@ -180,11 +148,14 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
     if (pulse > 2)
         pulseDuration = 0;
 
-    ImGui::PushStyleColor(ImGuiCol_Text, (m_isConnected && !m_rosnode->m_selectedStateToPublish.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isPublishing && !m_rosnode->m_selectedStateToPublish.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Publishers", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
         ImGui::Indent();
+
+        if (m_isPublishing)
+            ImGui::BeginDisabled();
 
         bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodePublishers", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
 
@@ -243,15 +214,43 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
             ImGui::ListBoxFooter();
             publishFirstTime = false;
         }
-
         ImGui::Unindent();
+
+        if (m_isPublishing)
+            ImGui::EndDisabled();
+
+        // Publishing button
+        if (m_rosnode->m_selectedStateToPublish.empty())
+        {
+            m_isPublishing = false;
+            m_rosnode->m_publishers.clear();
+            ImGui::BeginDisabled();
+        }
+        ImGui::Indent();
+        ImGui::LocalToggleButton("PublishersListening", &m_isPublishing);
+        if (ImGui::IsItemClicked())
+        {
+            if(m_isPublishing)
+                m_rosnode->createTopics();
+            else
+                m_rosnode->m_publishers.clear();
+        }
+        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text(m_isPublishing? "Stop publishing" : "Publish");
+        ImGui::Unindent();
+        if (m_rosnode->m_selectedStateToPublish.empty())
+            ImGui::EndDisabled();
     }
     else
         ImGui::PopStyleColor();
 
-    ImGui::PushStyleColor(ImGuiCol_Text, (m_isConnected && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isListening && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Subscriptions", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        if (m_isListening)
+            ImGui::BeginDisabled();
+
         ImGui::PopStyleColor();
         ImGui::Indent();
 
@@ -265,6 +264,10 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         for (int i=0; i<nbNodes; i++)
             nodes[i] = nodelist[i].c_str();
 
+        // Subscription parameters
+        static bool subscribeFirstTime = true;
+        static std::map<std::string, bool> subcriptionListboxItems;
+
         ImGui::Text("Select a node:");
         ImGui::Combo("##NodeSubscription", &nodeID, nodes, IM_ARRAYSIZE(nodes));
 
@@ -272,7 +275,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         auto topiclist = m_rosnode->get_topic_names_and_types();
         if (nodeID >= 0)
         {
-            for (auto it = topiclist.cbegin(); it != topiclist.cend();)
+            for (auto it = topiclist.cbegin(); it != topiclist.cend();) // Loop over the found topics
             {
                 bool isTopicOnlyPublishedByChosenNode = true;
                 const std::vector<rclcpp::TopicEndpointInfo>& publishers = m_rosnode->get_publishers_info_by_topic(it->first.c_str());
@@ -289,23 +292,22 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         }
 
         { // State list box subcriptions
-            static bool subscribeFirstTime = true;
-            static std::map<std::string, bool> subcriptionListboxItems;
             ImGui::Text("Select simulation states to overwrite:");
             ImGui::ListBoxHeader("##StateSubscription");
-            if (!m_isConnected)
+
+            if (!m_isListening)
                 m_rosnode->m_selectedStateToOverwrite.clear();
             for (const auto& [simStateName, stateValue] : simulationStateList)
             {
                 std::string stateName = simStateName;
                 if (stateName.find("TCP")!=std::string::npos) // TODO: for the moment we can only overwrite the target
                 {
-                    stateName = "TCPTarget/Frame";
+                    stateName = "/TCPTarget/Frame";
 
                     if (subscribeFirstTime)
                         subcriptionListboxItems[stateName] = false;
 
-                    bool hasMatchingTopic = topiclist.find("/" + stateName) != topiclist.end();
+                    bool hasMatchingTopic = topiclist.find(stateName) != topiclist.end();
 
                     if (!hasMatchingTopic)
                         ImGui::BeginDisabled();
@@ -319,25 +321,50 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
                     if (!hasMatchingTopic)
                         ImGui::EndDisabled();
 
-                    if(subcriptionListboxItems[stateName] & !m_isConnected)
-                        m_rosnode->m_selectedStateToOverwrite["/" + stateName] = stateValue;  // default temp value, will be overwritten by chosen topic's callback
+                    if(subcriptionListboxItems[stateName] & !m_isListening)
+                        m_rosnode->m_selectedStateToOverwrite[stateName] = stateValue;  // default temp value, will be overwritten by chosen topic's callback
                 }
             }
             ImGui::ListBoxFooter();
             subscribeFirstTime = false;
         }
-
         ImGui::Unindent();
+
+        if (m_isListening)
+            ImGui::EndDisabled();
+
+        // Listening button
+        if (m_rosnode->m_selectedStateToOverwrite.empty())
+        {
+            m_isListening = false;
+            m_rosnode->m_subscriptions.clear();
+            ImGui::BeginDisabled();
+        }
+        ImGui::Indent();
+        ImGui::LocalToggleButton("SubcriptionListening", &m_isListening);
+        if (ImGui::IsItemClicked())
+        {
+            if (m_isListening)
+                m_rosnode->createSubscriptions();
+            else
+                m_rosnode->m_subscriptions.clear();
+        }
+        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text(m_isListening? "Unsubscribe" : "Subscribe");
+        ImGui::Unindent();
+        if (m_rosnode->m_selectedStateToOverwrite.empty())
+            ImGui::EndDisabled();
     }
     else
         ImGui::PopStyleColor();
 
-    m_isConnectable = validNodeName;
+    m_isReadyToPublish = validNodeName;
 }
 
 void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 {
-    if (m_isConnected)
+    if (m_isReadyToPublish && m_isDrivingSimulation)
     {
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
         for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
@@ -371,7 +398,7 @@ void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 void IOWindow::animateEndEventROS(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
-    if (m_isConnected)
+    if (m_isReadyToPublish)
     {
         for (const auto& publisher : m_rosnode->m_publishers)
         {

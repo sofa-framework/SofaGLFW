@@ -35,12 +35,16 @@ MoveWindow::MoveWindow(const std::string& name,
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
+    m_isDrivingSimulation = true;
 }
 
 void MoveWindow::showWindow(sofa::simulation::Node* groot)
 {
     if (m_isWindowOpen)
     {
+        if(!m_isDrivingSimulation)
+            ImGui::BeginDisabled();
+
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, ImGuiWindowFlags_None))
         {
             ImGui::Spacing();
@@ -60,9 +64,22 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot)
 
             ImGui::Indent();
             ImGui::Indent();
-            ImGui::DragInt("X##pos", &x, 1, -500, 500); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::DragInt("Y##pos", &y, 1, -500, 500); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 1.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::DragInt("Z##pos", &z, 1, -500, 500); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 1.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("X"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::DragInt("##Xpos", &x, 1, -500, 500);
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("Y"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 1.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::DragInt("##Ypos", &y, 1, -500, 500);
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("Z"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 1.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::DragInt("##Zpos", &z, 1, -500, 500);
+
             ImGui::Unindent();
             ImGui::Unindent();
 
@@ -75,16 +92,34 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot)
             ImGui::Indent();
             ImGui::Indent();
             float pi = 3.1415;
-            ImGui::DragFloat("R##rot", &rx, 0.01, -pi, pi, "%0.2f"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::DragFloat("P##rot", &ry, 0.01, -pi, pi, "%0.2f"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 1.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::DragFloat("Y##rot", &rz, 0.01, -pi, pi, "%0.2f"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 1.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("R"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::DragFloat("##Rrot", &rx, 0.01, -pi, pi, "%0.2f");
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("P"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 1.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::DragFloat("##Prot", &ry, 0.01, -pi, pi, "%0.2f");
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("Y"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 1.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+            ImGui::DragFloat("##Yrot", &rz, 0.01, -pi, pi, "%0.2f");
+
             ImGui::Unindent();
             ImGui::Unindent();
 
-            setTarget(groot, x, y, z, rx, ry, rz);
+            if (m_isDrivingSimulation)
+                setTarget(groot, x, y, z, rx, ry, rz);
 
             ImGui::End();
         }
+
+        if(!m_isDrivingSimulation)
+            ImGui::EndDisabled();
+
     }
 }
 

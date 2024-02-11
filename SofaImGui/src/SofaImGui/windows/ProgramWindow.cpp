@@ -87,14 +87,15 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
 void ProgramWindow::addButtons()
 {
     ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
-    auto position = ImGui::GetCursorPosX() + ImGui::GetCurrentWindow()->Size.x - buttonSize.x * 3 - ImGuiStyleVar_ItemSpacing * 3; // Get position for right buttons
+    auto position = ImGui::GetCursorPosX() + ImGui::GetCurrentWindow()->Size.x - buttonSize.x * 3 - ImGuiStyleVar_ItemSpacing * 5; // Get position for right buttons
 
     // Left buttons
-    if (ImGui::Button("Import"))
+    if (ImGui::Button(" Import "))
         importProgram();
 
     ImGui::SameLine();
-    if (ImGui::Button("Export"))
+
+    if (ImGui::Button(" Export "))
         exportProgram();
 
     // Right buttons
@@ -181,7 +182,7 @@ void ProgramWindow::addTimeline(float sectionSize)
 void ProgramWindow::addTracks(const float& sectionSize)
 {
     const auto& tracks = m_program.getTracks();
-    float trackHeight = 200;
+    float trackHeight = 230;
 
     int trackID = 0;
     for (const auto& track: tracks)

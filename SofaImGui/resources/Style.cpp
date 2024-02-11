@@ -47,11 +47,11 @@ void setStyleVars()
 
     style.WindowRounding                    = 8;
     style.ChildRounding                     = 8;
-    style.FrameRounding                     = 18;
+    style.FrameRounding                     = 14;
     style.PopupRounding                     = 8;
     style.ScrollbarRounding                 = 8;
     style.GrabRounding                      = 8;
-    style.TabRounding                       = 18;
+    style.TabRounding                       = 14;
 
     style.LogSliderDeadzone                 = 4;
     style.WindowMenuButtonPosition = ImGuiDir_None;
@@ -81,8 +81,8 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.56f, 0.56f, 0.56f, 0.55f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(0.44f, 0.44f, 0.44f, 0.55f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.56f, 0.56f, 0.56f, 0.55f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.53f, 0.54f, 0.55f, 0.55f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
+    colors[ImGuiCol_Button]                 = ImVec4(0.53f, 0.54f, 0.55f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
     colors[ImGuiCol_ButtonActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
     colors[ImGuiCol_Header]                 = ImVec4(0.09f, 0.10f, 0.10f, 1.00f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
@@ -97,7 +97,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_TabHovered]             = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
     colors[ImGuiCol_TabActive]              = ImVec4(0.07f, 0.24f, 0.50f, 1.00f);
     colors[ImGuiCol_TabUnfocused]           = ImVec4(0.09f, 0.10f, 0.10f, 1.00f);
-    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.09f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.07f, 0.24f, 0.50f, 1.00f);
     colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
