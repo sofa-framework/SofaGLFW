@@ -84,7 +84,7 @@ bool ViewportWindow::addStepButton()
                 position.x += ImGui::GetWindowWidth() / 2;
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
-                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 0.0f)));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
                 if (ImGui::Begin("ViewportChildButtons", &m_isWindowOpen,
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
@@ -124,7 +124,7 @@ bool ViewportWindow::addAnimateButton(bool *animate)
                 position.x += ImGui::GetWindowWidth() / 2;
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
-                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 0.0f)));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
                 if (ImGui::Begin("ViewportChildButtons", &m_isWindowOpen,
                          ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
@@ -166,7 +166,7 @@ bool ViewportWindow::addModeButton(int *mode, const char *listModes[], const int
                 position.x += ImGui::GetWindowWidth() / 2;
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
-                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 0.0f)));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
                 if (ImGui::Begin("ViewportChildButtons", &m_isWindowOpen,
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {

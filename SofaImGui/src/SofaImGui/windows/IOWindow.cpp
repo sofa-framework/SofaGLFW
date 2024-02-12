@@ -35,7 +35,7 @@
 
 namespace sofaimgui::windows {
 
-int IOWindow::m_method = -1;
+int IOWindow::m_method = 0;
 bool IOWindow::m_isPublishing = false;
 bool IOWindow::m_isListening = false;
 bool IOWindow::m_isReadyToPublish = false;
@@ -77,7 +77,7 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
             };
 
             ImGui::Indent();
-            ImGui::Text("Method");
+            ImGui::Text("Method:");
             ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
             ImGui::Unindent();
 

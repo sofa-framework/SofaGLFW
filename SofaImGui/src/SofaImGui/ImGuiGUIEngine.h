@@ -34,6 +34,7 @@
 #include <SofaImGui/windows/ViewportWindow.h>
 #include <SofaImGui/windows/SceneGraphWindow.h>
 #include <SofaImGui/windows/IOWindow.h>
+#include <SofaImGui/windows/MyRobotWindow.h>
 #include <SofaImGui/windows/MoveWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
 
@@ -74,6 +75,7 @@ protected:
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("      Scene Graph", false);
     windows::IOWindow m_IOWindow = windows::IOWindow("      Input/Output", true);
     windows::ProgramWindow m_programWindow = windows::ProgramWindow("      Program", false);
+    windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("      My Robot", true);
     windows::MoveWindow m_moveWindow = windows::MoveWindow("      Move", true);
 
     CSimpleIniA ini;

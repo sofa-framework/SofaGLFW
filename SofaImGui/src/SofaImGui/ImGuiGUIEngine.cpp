@@ -268,6 +268,7 @@ void ImGuiGUIEngine::initDockSpace()
 
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_IOWindow.m_name.c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_myRobotWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_moveWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
 
@@ -370,6 +371,7 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     // Right Dock
     m_IOWindow.showWindow(groot.get(), windowFlags);
+    m_myRobotWindow.showWindow(groot.get());
     m_moveWindow.showWindow(groot.get());
 
     static std::set<core::objectmodel::BaseObject*> openedComponents;
@@ -426,25 +428,76 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
 
-        { // I/O button
+        { // Simulation / Robot button
             static bool connected = false;
-            ImGui::LocalToggleButton("Mode", &connected);
+            ImGui::LocalToggleButton("Connection", &connected);
 
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip("Simulation or Robot mode");
+            if (ImGui::IsItemClicked())
+            {
+                const auto& node = groot->getChild("UserInterface");
+                if(node != nullptr)
+                {
+                    auto& data = node->getDataFields();
+                    for(auto& d: data)
+                    {
+                        std::string name = d->getName();
+                        const std::string& group = d->getGroup();
+
+                        if(group.find("connection") != std::string::npos)
+                        {
+                            if(name.find("connectRobot") != std::string::npos)
+                            {
+                                d->read(connected? "1": "0");
+                            }
+                        }
+                    }
+                }
+            }
 
             ImGui::Text(connected? "Robot" : "Simulation");
         }
 
         const auto posX = ImGui::GetCursorPosX();
+
+        // Night / light style
+        static bool nightStyle = true;
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+        auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(ICON_FA_SUN).x
+                        - 2 * ImGui::GetStyle().ItemSpacing.x;
+        ImGui::SetCursorPosX(position);
+        if (ImGui::Button(nightStyle? ICON_FA_SUN: ICON_FA_MOON))
+        {
+            ImGui::PopStyleColor(3);
+            nightStyle = !nightStyle;
+            if (nightStyle)
+            {
+                sofaimgui::setStyle("deep_dark");
+            }
+            else
+            {
+                sofaimgui::setStyle("light");
+            }
+        }
+        else
+        {
+            ImGui::PopStyleColor(3);
+        }
+        ImGui::SetCursorPosX(posX);
+
+        // Time
         if (showTime)
         {
             auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("Time: 000.000").x
                             - 2 * ImGui::GetStyle().ItemSpacing.x;
+            position -= ImGui::CalcTextSize(ICON_FA_SUN).x;
             ImGui::SetCursorPosX(position);
             ImGui::TextDisabled("Time: %.3f", groot->getTime());
             ImGui::SetCursorPosX(posX);
         }
+
+        // FPS
         if (showFPSInMenuBar && m_animate)
         {
             auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("1000.0 FPS ").x
