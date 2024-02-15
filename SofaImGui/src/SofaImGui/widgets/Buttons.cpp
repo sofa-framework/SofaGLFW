@@ -9,6 +9,12 @@
 namespace ImGui
 {
 
+bool LocalSliderFloatWithSteps(const char* label, float* v, float v_min, float v_max, const char* display_format, ImGuiSliderFlags flags)
+{
+    bool value_changed = SliderFloat(label, v, v_min, v_max, display_format, flags);
+    return value_changed;
+}
+
 void LocalToggleButton(const char* str_id, bool* v)
 {
     ImVec2 p = ImGui::GetCursorScreenPos();

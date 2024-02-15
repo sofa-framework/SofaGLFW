@@ -114,8 +114,8 @@ void setLightStyle()
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.92f, 0.92f, 0.92f, 0.92f);
-    style.Colors[ImGuiCol_ChildBg]               = ImVec4(0.92f, 0.92f, 0.92f, 0.92f);
+    style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
+    style.Colors[ImGuiCol_ChildBg]               = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     style.Colors[ImGuiCol_PopupBg]               = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
     style.Colors[ImGuiCol_Border]                = ImVec4(0.00f, 0.00f, 0.00f, 0.39f);
     style.Colors[ImGuiCol_BorderShadow]          = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
@@ -133,9 +133,9 @@ void setLightStyle()
     style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
     style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
     style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style.Colors[ImGuiCol_Button]                 = ImVec4(0.53f, 0.54f, 0.55f, 1.00f);
-    style.Colors[ImGuiCol_ButtonHovered]          = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
-    style.Colors[ImGuiCol_ButtonActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
+    style.Colors[ImGuiCol_Button]                = ImVec4(0.53f, 0.54f, 0.55f, 1.00f);
+    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.27f, 0.44f, 0.70f, 1.00f);
+    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
     style.Colors[ImGuiCol_Header]                = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
     style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
     style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
@@ -143,11 +143,11 @@ void setLightStyle()
     style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
     style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
     style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-    style.Colors[ImGuiCol_Tab]                   = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-    style.Colors[ImGuiCol_TabUnfocused]          = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
+    style.Colors[ImGuiCol_Tab]                   = ImVec4(0.84f, 0.85f, 0.87f, 1.00f);
+    style.Colors[ImGuiCol_TabUnfocused]          = ImVec4(0.84f, 0.85f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_TabHovered]            = ImVec4(0.27f, 0.44f, 0.70f, 0.55f);
-    style.Colors[ImGuiCol_TabActive]             = ImVec4(0.47f, 0.64f, 0.90f, 1.00f);
-    style.Colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.47f, 0.64f, 0.90f, 1.00f);
+    style.Colors[ImGuiCol_TabActive]             = ImVec4(0.09f, 0.39f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.09f, 0.39f, 1.00f, 1.00f);
 
     setStyleVars();
 }

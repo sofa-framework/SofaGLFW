@@ -27,6 +27,7 @@
 #include <IconsFontAwesome5.h>
 
 #include <SofaImGui/windows/MoveWindow.h>
+#include "SofaImGui/widgets/Buttons.h"
 
 namespace sofaimgui::windows {
 
@@ -38,14 +39,14 @@ MoveWindow::MoveWindow(const std::string& name,
     m_isDrivingSimulation = true;
 }
 
-void MoveWindow::showWindow(sofa::simulation::Node* groot)
+void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
     {
         if(!m_isDrivingSimulation)
             ImGui::BeginDisabled();
 
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, ImGuiWindowFlags_None))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             ImGui::Spacing();
 
@@ -59,7 +60,8 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot)
             getTarget(groot, x, y, z, rx, ry, rz);
 
             ImGui::Indent();
-            ImGui::Text("TCP target position (mm):");
+            ImGui::Text("TCP Target Position (mm):");
+            ImGui::Spacing();
             ImGui::Unindent();
 
             ImGui::Indent();
@@ -86,7 +88,8 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot)
             ImGui::Spacing();
 
             ImGui::Indent();
-            ImGui::Text("TCP target rotation (rad):");
+            ImGui::Text("TCP Target Rotation (rad):");
+            ImGui::Spacing();
             ImGui::Unindent();
 
             ImGui::Indent();

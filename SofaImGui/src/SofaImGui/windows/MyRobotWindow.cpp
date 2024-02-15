@@ -38,70 +38,75 @@ MyRobotWindow::MyRobotWindow(const std::string& name,
     m_isDrivingSimulation = true;
 }
 
-void MyRobotWindow::showWindow(sofa::simulation::Node* groot)
+void MyRobotWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, ImGuiWindowFlags_None))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             ImGui::Indent();
             const auto& node = groot->getChild("UserInterface");
             if(node != nullptr)
             {
-                bool unindent = false;
-                const auto& data = node->getDataFields();
-                std::string groups;
-                std::string delimiter = "/";
-                for(auto d: data)
+                if (ImGui::BeginTable("StateColumns", 3, ImGuiTableFlags_None))
                 {
-                    const std::string& value = d->getValueString();
-                    std::string name = d->getName();
-                    const std::string& group = d->getGroup();
-
-                    if(group.find("myRobot") != std::string::npos)
+                    bool unindent = false;
+                    const auto& data = node->getDataFields();
+                    std::string groups;
+                    std::string delimiter = "/";
+                    for(auto d: data)
                     {
-                        std::string group = name.substr(0, name.find(delimiter));
+                        const std::string& value = d->getValueString();
+                        std::string name = d->getName();
+                        const std::string& group = d->getGroup();
 
-                        if (groups.find(group) == std::string::npos)
+                        if(group.find("myRobot") != std::string::npos)
                         {
-                            ImGui::TableNextColumn();
-                            ImGui::AlignTextToFramePadding();
-                            ImGui::Text("%s:     ", group.c_str()); // Group title
-                            groups += group + " ";
-                            ImGui::TableNextColumn();
-                            ImGui::AlignTextToFramePadding();
-                        }
-                        name.erase(0, name.find(delimiter) + delimiter.length());
+                            std::string group = name.substr(0, name.find(delimiter));
 
-                        ImGui::BeginGroup();
-                        {
-                            ImGui::AlignTextToFramePadding();
-                            ImGui::Text("%s: ", name.c_str()); // Value name
-                            ImGui::SameLine();
-
-                            std::istringstream iss(value);
-                            std::vector<std::string> values;
-                            copy(std::istream_iterator<std::string>(iss),
-                                 std::istream_iterator<std::string>(),
-                                 back_inserter(values));
-
-                            ImGui::BeginDisabled();
-                            for (std::string v : values) // Values
+                            if (groups.find(group) == std::string::npos)
                             {
-                                std::replace(v.begin(), v.end(), '.', ',');
-                                float buffer = std::stof(v);
-                                ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                                ImGui::InputFloat("##0", &buffer, 0, 0, "%.0f");
-                                ImGui::SameLine();
-                                ImGui::PopItemWidth();
+                                ImGui::Spacing();
+                                ImGui::TableNextColumn();
+                                ImGui::AlignTextToFramePadding();
+                                ImGui::Text("%s     ", group.c_str()); // Group title
+                                groups += group + " ";
+                                ImGui::TableNextColumn();
+                                ImGui::AlignTextToFramePadding();
+                                ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                                ImGui::TableNextColumn();
                             }
-                            ImGui::EndDisabled();
+                            name.erase(0, name.find(delimiter) + delimiter.length());
+
+                            ImGui::BeginGroup();
+                            {
+                                ImGui::AlignTextToFramePadding();
+                                ImGui::Text("%s: ", name.c_str()); // Value name
+                                ImGui::SameLine();
+
+                                std::istringstream iss(value);
+                                std::vector<std::string> values;
+                                copy(std::istream_iterator<std::string>(iss),
+                                     std::istream_iterator<std::string>(),
+                                     back_inserter(values));
+
+                                ImGui::BeginDisabled();
+                                for (std::string v : values) // Values
+                                {
+                                    std::replace(v.begin(), v.end(), '.', ',');
+                                    float buffer = std::stof(v);
+                                    ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
+                                    ImGui::InputFloat("##0", &buffer, 0, 0, "%.0f");
+                                    ImGui::PopItemWidth();
+                                }
+                                ImGui::EndDisabled();
+                            }
+                            ImGui::EndGroup();
                         }
-                        ImGui::EndGroup();
                     }
+                    ImGui::EndTable();
                 }
             }
-
             ImGui::Unindent();
             ImGui::End();
         }

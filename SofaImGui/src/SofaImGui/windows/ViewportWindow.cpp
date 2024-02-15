@@ -38,8 +38,7 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
 {
     if (m_isWindowOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen,
-                         windowFlags | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
+        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             ImGui::BeginChild("Render");
             ImVec2 wsize = ImGui::GetWindowSize();

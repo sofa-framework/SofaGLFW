@@ -63,9 +63,10 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             static float zoomCoef = 1;
             static float minSize = 100;
             float sectionSize = zoomCoef * minSize;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
             ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                    ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+            ImGui::PopStyleColor();
 
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
             addTimeline(sectionSize);
@@ -73,12 +74,12 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             ImGui::PopStyleVar();
 
             ImGui::EndChildFrame();
-            ImGui::PopStyleColor();
 
             if (ImGui::IsItemHovered())
                 zoomCoef += ImGui::GetIO().MouseWheel * 0.1f;
             zoomCoef = (zoomCoef < 1)? 1 : zoomCoef;
             zoomCoef = (zoomCoef > 4)? 4 : zoomCoef;
+
             ImGui::End();
         }
     }
@@ -91,12 +92,16 @@ void ProgramWindow::addButtons()
 
     // Left buttons
     if (ImGui::Button(" Import "))
+    {
         importProgram();
+    }
 
     ImGui::SameLine();
 
     if (ImGui::Button(" Export "))
+    {
         exportProgram();
+    }
 
     // Right buttons
     ImGui::SameLine();
@@ -127,7 +132,9 @@ void ProgramWindow::addButtons()
     }
     ImGui::PopStyleColor();
     if (ImGui::IsItemHovered())
+    {
         ImGui::SetTooltip("Reverse and repeat program");
+    }
 }
 
 void ProgramWindow::addTimeline(float sectionSize)
@@ -152,7 +159,6 @@ void ProgramWindow::addTimeline(float sectionSize)
 
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    float thickness = 1;
     float height = 12;
 
     ImGui::NewLine();
@@ -165,10 +171,9 @@ void ProgramWindow::addTimeline(float sectionSize)
         {
             float y1 = window->DC.CursorPos.y ;
             float y2 = window->DC.CursorPos.y + height;
-            const ImRect bb(ImVec2(window->DC.CursorPos.x, y1), ImVec2(window->DC.CursorPos.x + thickness, y2));
-            ImVec4 color = (j==0) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.5f, 0.5f, 0.5f, 1.f);
+            ImVec4 color = (j==0) ? ImGui::GetStyleColorVec4(ImGuiCol_Text) : ImVec4(0.5f, 0.5f, 0.5f, 1.f);
 
-            drawList->AddLine(ImVec2(bb.Min.x, bb.Min.y), ImVec2(bb.Min.x, bb.Max.y), ImGui::GetColorU32(color));
+            drawList->AddLine(ImVec2(window->DC.CursorPos.x, y1), ImVec2(window->DC.CursorPos.x, y2), ImGui::GetColorU32(color));
             ImGui::Spacing();
             ImGui::SameLine();
         }
@@ -207,7 +212,7 @@ void ProgramWindow::addTracks(const float& sectionSize)
             ImGui::EndPopup();
         }
 
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0)); // Color of track button
+        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_MenuBarBg)); // Color of track button
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5, 0)); // Align icon top middle
         if(ImGui::Button(buttonLabel.c_str(), ImVec2(ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding, trackHeight)))
         {
@@ -259,7 +264,7 @@ void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
 
         { // Backgroung
             ImGui::GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max,
-                                                      ImGui::GetColorU32(ImVec4(0.25f, 0.25f, 0.25f, 0.5f)),
+                                                      ImGui::GetColorU32(ImGuiCol_FrameBg),
                                                       ImGui::GetStyle().FrameRounding,
                                                       ImDrawFlags_None);
         }

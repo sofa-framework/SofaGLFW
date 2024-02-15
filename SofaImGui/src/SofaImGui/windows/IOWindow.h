@@ -42,6 +42,7 @@ class ROSNode: public rclcpp::Node
 {
    public:
     ROSNode(const std::string& name): Node(name){}
+    ~ROSNode() = default;
 
     std::vector<rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr> m_publishers;
     std::vector<rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr> m_subscriptions;
@@ -119,7 +120,13 @@ class IOWindow : public BaseWindow
     static bool m_isListening;
     static bool m_isReadyToPublish;
 
+    std::vector<bool> digitalInput{false, false, false};
+    std::vector<bool> digitalOutput{false, false, false};
+
     void init();
+
+    void addOutputChildWindow(const std::map<std::string, std::vector<float> > &simulationStateList);
+    void addInputChildWindow(const std::map<std::string, std::vector<float> > &simulationStateList);
 
     std::map<std::string, std::vector<float> > getSimulationStateList(const sofa::core::sptr<sofa::simulation::Node>& groot);
 

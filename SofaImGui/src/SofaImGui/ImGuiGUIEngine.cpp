@@ -252,8 +252,7 @@ void ImGuiGUIEngine::initDockSpace()
 
     ImGui::Begin("DockSpace", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
                                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                       ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMove
-                                           | ImGuiDockNodeFlags_PassthruCentralNode
+                                       ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMove | ImGuiDockNodeFlags_PassthruCentralNode
                  );
 
     ImGuiID dockspaceID = ImGui::GetID("WorkSpaceDockSpace");
@@ -266,13 +265,13 @@ void ImGuiGUIEngine::initDockSpace()
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
-        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
+        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.25f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_IOWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_myRobotWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_moveWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
 
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.4f, nullptr, &dockspaceID);
+        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.25f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.m_name.c_str(), dock_id_down);
 
         // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
@@ -296,7 +295,7 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_animate = groot->animate_.getValue();
 
     static bool firstTime = true;
-    if (firstTime )
+    if (firstTime)
     {
         firstTime = false;
         const std::string viewFileName = baseGUI->getFilename() + ".view";
@@ -311,7 +310,7 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 
     m_viewportWindow.showWindow(groot.get(), (ImTextureID)m_fbo->getColorTexture(),
-                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar
+                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize
                                 );
 
     // Animate button
@@ -364,19 +363,16 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
 
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove ;
 
     // Down Dock
     m_programWindow.showWindow(groot.get(), windowFlags);
 
     // Right Dock
     m_IOWindow.showWindow(groot.get(), windowFlags);
-    m_myRobotWindow.showWindow(groot.get());
-    m_moveWindow.showWindow(groot.get());
-
-    static std::set<core::objectmodel::BaseObject*> openedComponents;
-    static std::set<core::objectmodel::BaseObject*> focusedComponents;
-    m_sceneGraphWindow.showWindow(groot.get(), openedComponents, focusedComponents, windowFlags);
+    m_myRobotWindow.showWindow(groot.get(), windowFlags);
+    m_moveWindow.showWindow(groot.get(), windowFlags);
+    m_sceneGraphWindow.showWindow(groot.get(), windowFlags);
 }
 
 void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -460,7 +456,13 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         const auto posX = ImGui::GetCursorPosX();
 
         // Night / light style
-        static bool nightStyle = true;
+        static bool nightStyle = false; // default is light style
+        static bool firstTime = true;
+        if (firstTime)
+        {
+            firstTime = false;
+            setNightLightStyle(nightStyle, baseGUI);
+        }
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
@@ -471,14 +473,7 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             ImGui::PopStyleColor(3);
             nightStyle = !nightStyle;
-            if (nightStyle)
-            {
-                sofaimgui::setStyle("deep_dark");
-            }
-            else
-            {
-                sofaimgui::setStyle("light");
-            }
+            setNightLightStyle(nightStyle, baseGUI);
         }
         else
         {
@@ -509,6 +504,20 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
 
         ImGui::EndMainMenuBar();
+    }
+}
+
+void ImGuiGUIEngine::setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI)
+{
+    if (nightStyle)
+    {
+        sofaimgui::setStyle("deep_dark");
+        baseGUI->setBackgroundColor(type::RGBAColor(0.16, 0.18, 0.20, 1.0));
+    }
+    else
+    {
+        sofaimgui::setStyle("light");
+        baseGUI->setBackgroundColor(type::RGBAColor(0.76, 0.78, 0.80, 1.0));
     }
 }
 

@@ -34,25 +34,25 @@ SceneGraphWindow::SceneGraphWindow(const std::string& name, const bool& isWindow
     m_isWindowOpen = isWindowOpen;
 }
 
-void SceneGraphWindow::showWindow(sofa::simulation::Node *groot,
-                                  std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
-                                  std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
-                                  const ImGuiWindowFlags& windowFlags)
+void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags& windowFlags)
 {
+    static std::set<sofa::core::objectmodel::BaseObject*> openedComponents;
+    static std::set<sofa::core::objectmodel::BaseObject*> focusedComponents;
+
     if (m_isWindowOpen)
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            const bool expand = ImGui::Button(ICON_FA_EXPAND);
+            ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
+            const bool expand = ImGui::Button(ICON_FA_EXPAND, buttonSize);
             ImGui::SameLine();
-            const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
+            const bool collapse = ImGui::Button(ICON_FA_COMPRESS, buttonSize);
             ImGui::SameLine();
             static bool showSearch = false;
-            if (ImGui::Button(ICON_FA_SEARCH))
+            if (ImGui::Button(ICON_FA_SEARCH, buttonSize))
             {
                 showSearch = !showSearch;
             }
-
             static ImGuiTextFilter filter;
             if (showSearch)
             {
@@ -63,7 +63,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot,
             static sofa::core::objectmodel::Base* clickedObject { nullptr };
 
             std::function<void(sofa::simulation::Node*)> showNode;
-            showNode = [&showNode, &treeDepth, expand, collapse, &openedComponents](sofa::simulation::Node* node)
+            showNode = [&showNode, &treeDepth, expand, collapse](sofa::simulation::Node* node)
             {
                 if (node == nullptr) return;
                 if (treeDepth == 0)
@@ -166,10 +166,10 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot,
                         {
                             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
                         }
-                        ImGui::Text(object->getName().c_str());
+                        ImGui::Text("%s", object->getName().c_str());
 
                         ImGui::TableNextColumn();
-                        ImGui::TextDisabled(objectClassName.c_str());
+                        ImGui::TextDisabled("%s", objectClassName.c_str());
 
                         if (isObjectHighlighted)
                         {
@@ -178,7 +178,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot,
 
                         if (objectOpen && !slaves.empty())
                         {
-                            for (const auto slave : slaves)
+                            for (const auto &slave : slaves)
                             {
                                 ImGui::TableNextRow();
                                 ImGui::TableNextColumn();
@@ -205,7 +205,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot,
                                     }
                                 }
                                 ImGui::TableNextColumn();
-                                ImGui::TextDisabled(slave->getClassName().c_str());
+                                ImGui::TextDisabled("%s", slave->getClassName().c_str());
 
                                 if (isSlaveHighlighted)
                                 {
