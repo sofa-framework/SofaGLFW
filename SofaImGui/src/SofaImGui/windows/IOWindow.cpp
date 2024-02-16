@@ -152,13 +152,15 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         addOutputChildWindow(simulationStateList);
     }
     else
+    {
         ImGui::PopStyleColor();
+    }
 
     ImGui::PushStyleColor(ImGuiCol_Text, (m_isListening && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Input (Subscriptions)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
-        // addInputChildWindow(simulationStateList);
+        addInputChildWindow(simulationStateList);
     }
     else
     {
@@ -179,11 +181,7 @@ void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<floa
     static bool validNodeName = true;
     static char nodeBuf[30];
     bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodePublishers", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
-
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::SetTooltip("Default is %s", m_defaultNodeName.c_str());
-    }
+    ImGui::SetItemTooltip("Default is %s", m_defaultNodeName.c_str());
 
     static int nameCheckResult;
     if (hasNodeNameChanged)

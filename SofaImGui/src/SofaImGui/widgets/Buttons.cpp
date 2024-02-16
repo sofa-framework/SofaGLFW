@@ -1,8 +1,6 @@
 #include <SofaImGui/widgets/Buttons.h>
 
-#ifndef IMGUI_DEFINE_MATH_OPERATORS
-#define IMGUI_DEFINE_MATH_OPERATORS
-#endif
+#include <imgui.h>
 #include <imgui_internal.h>
 
 
@@ -76,7 +74,9 @@ bool LocalCheckBoxEx(const char* label, bool* v)
 
     const float square_sz = GetFrameHeight();
     const ImVec2 pos = window->DC.CursorPos;
-    const ImRect total_bb(pos, pos + ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
+    ImVec2 pos2 = ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f),
+                               label_size.y + style.FramePadding.y * 2.0f);
+    const ImRect total_bb(pos, ImVec2(pos.x + pos2.x, pos.y + pos2.y));
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id))
     {
@@ -92,7 +92,8 @@ bool LocalCheckBoxEx(const char* label, bool* v)
         MarkItemEdited(id);
     }
 
-    const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
+    pos2 = ImVec2(square_sz, square_sz);
+    const ImRect check_bb(pos, ImVec2(pos.x + pos2.x, pos.y + pos2.y));
     RenderNavHighlight(total_bb, id);
     RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding / 2);
     ImU32 check_col = GetColorU32(ImGuiCol_CheckMark);
@@ -102,7 +103,10 @@ bool LocalCheckBoxEx(const char* label, bool* v)
         // Undocumented tristate/mixed/indeterminate checkbox (#2644)
         // This may seem awkwardly designed because the aim is to make ImGuiItemFlags_MixedValue supported by all widgets (not just checkbox)
         ImVec2 pad(ImMax(1.0f, IM_FLOOR(square_sz / 4.6f)), ImMax(1.0f, IM_FLOOR(square_sz / 4.6f)));
-        window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, style.FrameRounding / 4);
+
+        window->DrawList->AddRectFilled(ImVec2(check_bb.Min.x + pad.x, check_bb.Min.y + pad.y),
+                                        ImVec2(check_bb.Max.x - pad.x, check_bb.Max.y - pad.y),
+                                        check_col, style.FrameRounding / 4);
     }
 
     ImVec2 label_pos = ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y);

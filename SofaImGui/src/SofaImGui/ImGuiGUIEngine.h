@@ -71,12 +71,12 @@ protected:
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
 
     // windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", false);
-    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("Viewport", true);
-    windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("Scene Graph", false);
-    windows::IOWindow m_IOWindow = windows::IOWindow("Input/Output", true);
-    windows::ProgramWindow m_programWindow = windows::ProgramWindow("Program", true);
-    windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("My Robot", true);
-    windows::MoveWindow m_moveWindow = windows::MoveWindow("Move", true);
+    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("       Viewport", true);
+    windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("       Scene Graph", false);
+    windows::IOWindow m_IOWindow = windows::IOWindow("       Input/Output", true);
+    windows::ProgramWindow m_programWindow = windows::ProgramWindow("       Program", true);
+    windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("       My Robot", true);
+    windows::MoveWindow m_moveWindow = windows::MoveWindow("       Move", true);
 
     CSimpleIniA ini;
 

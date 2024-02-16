@@ -55,6 +55,11 @@ void setStyleVars()
 
     style.LogSliderDeadzone                 = 4;
     style.WindowMenuButtonPosition = ImGuiDir_None;
+
+    style.HoverDelayShort                   = 0.4f; // in seconds
+    style.HoverDelayNormal                  = 0.8f; // in seconds
+    style.HoverFlagsForTooltipMouse = ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_AllowWhenDisabled;
+    style.HoverFlagsForTooltipNav = ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_AllowWhenDisabled;
 }
 
 void setDeepDarkStyle()

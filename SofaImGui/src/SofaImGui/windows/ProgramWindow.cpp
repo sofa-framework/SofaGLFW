@@ -120,8 +120,7 @@ void ProgramWindow::addButtons()
         repeat = !repeat;
     }
     ImGui::PopStyleColor();
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("Repeat program");
+    ImGui::SetItemTooltip("Repeat program");
 
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Button, reverse? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
@@ -131,10 +130,7 @@ void ProgramWindow::addButtons()
         reverse = !reverse;
     }
     ImGui::PopStyleColor();
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::SetTooltip("Reverse and repeat program");
-    }
+    ImGui::SetItemTooltip("Reverse and repeat program");
 }
 
 void ProgramWindow::addTimeline(float sectionSize)

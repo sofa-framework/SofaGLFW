@@ -89,8 +89,7 @@ bool ViewportWindow::addStepButton()
                 {
                     ImGui::SameLine();
                     ImGui::Button(ICON_FA_STEP_FORWARD, buttonSize);
-                    if (ImGui::IsItemHovered())
-                        ImGui::SetTooltip("One step of simulation");
+                    ImGui::SetItemTooltip("One step of simulation");
 
                     if (ImGui::IsItemClicked())
                         isItemClicked = true;
@@ -129,8 +128,7 @@ bool ViewportWindow::addAnimateButton(bool *animate)
                 {
                     ImGui::SameLine();
                     ImGui::Button(*animate ? ICON_FA_PAUSE : ICON_FA_PLAY, buttonSize);
-                    if (ImGui::IsItemHovered())
-                        ImGui::SetTooltip(*animate ? "Stop simulation" : "Start simulation");
+                    ImGui::SetItemTooltip(*animate ? "Stop simulation" : "Start simulation");
 
                     if (ImGui::IsItemClicked())
                     {

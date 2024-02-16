@@ -147,9 +147,7 @@ void FileMenu::addReloadSimulation()
             loadFile(groot, filename);
         }
     }
-
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("%s", filename.c_str());
+    ImGui::SetItemTooltip("%s", filename.c_str());
 }
 
 void FileMenu::addCloseSimulation()
