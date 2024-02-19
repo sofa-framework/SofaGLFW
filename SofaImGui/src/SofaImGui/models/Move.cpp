@@ -68,6 +68,7 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
     rectMax.x -= padding.x;
     ImGui::PushClipRect(rectMin, rectMax, true);
 
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
     { // Move
         x += padding.y;
         y += padding.y;
@@ -83,11 +84,13 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
                                  y + padding.y),
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
     }
+    ImGui::PopStyleColor();
 
     text = "WP.pos";
     textSize = ImGui::CalcTextSize(text.c_str());
     y = padding.y * 2 + bb.Max.y;
 
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
     { // Way point position
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
@@ -113,11 +116,13 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
         }
         ImGui::PopStyleVar();
     }
+    ImGui::PopStyleColor();
 
     text = "WP.quat";
     textSize = ImGui::CalcTextSize(text.c_str());
     y = padding.y + bb.Max.y;
 
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
     { // Way point quaternion
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
@@ -129,11 +134,11 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
 
         window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
         for (int i=3; i<7; i++)
         {
+            window->DC.CursorPos.y = y;
             ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
             float wp = m_waypoint[i];
@@ -144,11 +149,13 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
         }
         ImGui::PopStyleVar();
     }
+    ImGui::PopStyleColor();
 
     text = "duration";
     textSize = ImGui::CalcTextSize(text.c_str());
     y = padding.y + bb.Max.y;
 
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
     { // Duration
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
@@ -169,6 +176,7 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
         ImGui::PopItemWidth();
         ImGui::PopStyleVar();
     }
+    ImGui::PopStyleColor();
 
     window->DC.CursorPosPrevLine.x = topRight.x;
     window->DC.CursorPosPrevLine.y = topRight.y;

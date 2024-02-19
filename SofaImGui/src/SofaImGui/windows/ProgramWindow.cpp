@@ -31,7 +31,7 @@
 #include <GLFW/glfw3.h>
 
 #include <nfd.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 
 
 namespace sofaimgui::windows {
@@ -64,17 +64,22 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             static float minSize = 100;
             float sectionSize = zoomCoef * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
-            ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
-                                   ImGuiWindowFlags_AlwaysHorizontalScrollbar);
-            ImGui::PopStyleColor();
+            if (ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
+                                       ImGuiWindowFlags_AlwaysHorizontalScrollbar))
+            {
+                ImGui::PopStyleColor();
 
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
-            addTimeline(sectionSize);
-            addTracks(sectionSize);
-            ImGui::PopStyleVar();
+                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
+                addTimeline(sectionSize);
+                addTracks(sectionSize);
+                ImGui::PopStyleVar();
 
-            ImGui::EndChildFrame();
-
+                ImGui::EndChildFrame();
+            }
+            else
+            {
+                ImGui::PopStyleColor();
+            }
             if (ImGui::IsItemHovered())
                 zoomCoef += ImGui::GetIO().MouseWheel * 0.1f;
             zoomCoef = (zoomCoef < 1)? 1 : zoomCoef;
@@ -91,17 +96,19 @@ void ProgramWindow::addButtons()
     auto position = ImGui::GetCursorPosX() + ImGui::GetCurrentWindow()->Size.x - buttonSize.x * 3 - ImGuiStyleVar_ItemSpacing * 5; // Get position for right buttons
 
     // Left buttons
-    if (ImGui::Button(" Import "))
+    if (ImGui::Button(ICON_FA_FOLDER_OPEN, buttonSize))
     {
         importProgram();
     }
+    ImGui::SetItemTooltip("Import program");
 
     ImGui::SameLine();
 
-    if (ImGui::Button(" Export "))
+    if (ImGui::Button(ICON_FA_ARROW_UP_FROM_BRACKET, buttonSize))
     {
         exportProgram();
     }
+    ImGui::SetItemTooltip("Export program");
 
     // Right buttons
     ImGui::SameLine();
@@ -114,7 +121,7 @@ void ProgramWindow::addButtons()
 
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Button, repeat? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    if (ImGui::Button(ICON_FA_REDO"##Repeat", buttonSize))
+    if (ImGui::Button(ICON_FA_REPEAT"##Repeat", buttonSize))
     {
         reverse = false;
         repeat = !repeat;
@@ -124,7 +131,7 @@ void ProgramWindow::addButtons()
 
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Button, reverse? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    if (ImGui::Button(ICON_FA_ARROWS_ALT_H"##Reverse", buttonSize))
+    if (ImGui::Button(ICON_FA_ARROWS_LEFT_RIGHT"##Reverse", buttonSize))
     {
         repeat = false;
         reverse = !reverse;
@@ -219,7 +226,7 @@ void ProgramWindow::addTracks(const float& sectionSize)
         {
             ImGui::PopStyleVar(); // End align icon top middle
         }
-        ImGui::PopStyleColor(); // End color of track button
+        ImGui::PopStyleColor();
 
         ImGui::SameLine();
         addBlocks(track, trackID, sectionSize, trackHeight);

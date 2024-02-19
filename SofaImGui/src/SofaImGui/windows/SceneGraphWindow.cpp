@@ -21,7 +21,7 @@
  ******************************************************************************/
 
 #include <SofaImGui/windows/SceneGraphWindow.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 #include <SofaImGui/ObjectColor.h>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/core/ObjectFactory.h>
@@ -49,7 +49,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
             const bool collapse = ImGui::Button(ICON_FA_COMPRESS, buttonSize);
             ImGui::SameLine();
             static bool showSearch = false;
-            if (ImGui::Button(ICON_FA_SEARCH, buttonSize))
+            if (ImGui::Button(ICON_FA_MAGNIFYING_GLASS, buttonSize))
             {
                 showSearch = !showSearch;
             }
@@ -128,7 +128,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                         }
                         else if (object->countLoggedMessages({sofa::helper::logging::Message::Warning})!=0)
                         {
-                            icon = ICON_FA_EXCLAMATION_TRIANGLE;
+                            icon = ICON_FA_TRIANGLE_EXCLAMATION;
                             objectColor = ImVec4(1.f, 0.5f, 0.f, 1.f); //orange
                         }
                         else if (object->countLoggedMessages({sofa::helper::logging::Message::Info,
@@ -334,6 +334,10 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                 }
             }
         }
+        else
+        {
+            ImGui::PopStyleColor();
+        }
         ImGui::End();
     }
 
@@ -492,10 +496,6 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
 
                 ImGui::EndTabBar();
             }
-        }
-        else
-        {
-            ImGui::PopStyleColor();
         }
         ImGui::End();
         if (!isOpen)

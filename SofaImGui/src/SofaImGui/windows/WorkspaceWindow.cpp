@@ -21,7 +21,7 @@
  ******************************************************************************/
 
 #include <SofaImGui/windows/WorkspaceWindow.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 
 
 namespace sofaimgui::windows {
@@ -42,7 +42,7 @@ void WorkspaceWindow::showWindow(const ImGuiWindowFlags& windowFlags)
             ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2.5); //approximatively the center of the window
 
             ImGui::BeginDisabled();
-            ImGui::Button(ICON_FA_PENCIL_RULER);
+            ImGui::Button(ICON_FA_PENCIL);
             ImGui::EndDisabled();
 
             ImGui::Button(ICON_FA_CODE);

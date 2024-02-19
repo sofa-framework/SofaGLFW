@@ -24,7 +24,6 @@
 #include <sofa/type/Quat.h>
 
 #include <imgui_internal.h>
-#include <IconsFontAwesome5.h>
 
 #include <SofaImGui/windows/MyRobotWindow.h>
 
@@ -90,16 +89,21 @@ void MyRobotWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowF
                                      std::istream_iterator<std::string>(),
                                      back_inserter(values));
 
-                                ImGui::BeginDisabled();
+                                if (group == "Information")
+                                    ImGui::BeginDisabled();
+                                std::string uiValue;
                                 for (std::string v : values) // Values
                                 {
                                     std::replace(v.begin(), v.end(), '.', ',');
                                     float buffer = std::stof(v);
                                     ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                                    ImGui::InputFloat("##0", &buffer, 0, 0, "%.0f");
+                                    ImGui::InputFloat(("##" + group + name).c_str(), &buffer, 0, 0, "%.0f");
+                                    uiValue += std::to_string(buffer) + " ";
                                     ImGui::PopItemWidth();
                                 }
-                                ImGui::EndDisabled();
+                                d->read(uiValue);
+                                if (group == "Information")
+                                    ImGui::EndDisabled();
                             }
                             ImGui::EndGroup();
                         }

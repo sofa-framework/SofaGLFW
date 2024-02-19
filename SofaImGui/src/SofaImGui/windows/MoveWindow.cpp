@@ -24,10 +24,9 @@
 #include <sofa/type/Quat.h>
 
 #include <imgui_internal.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 
 #include <SofaImGui/windows/MoveWindow.h>
-#include "SofaImGui/widgets/Buttons.h"
 
 namespace sofaimgui::windows {
 
@@ -53,9 +52,9 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             static int x=0;
             static int y=0;
             static int z=0;
-            static float rx=0;
-            static float ry=0;
-            static float rz=0;
+            static float rx=0.;
+            static float ry=0.;
+            static float rz=0.;
 
             getTarget(groot, x, y, z, rx, ry, rz);
 
@@ -67,20 +66,9 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
             ImGui::Indent();
 
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text("X"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
-            ImGui::DragInt("##Xpos", &x, 1, -500, 500);
-
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text("Y"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 1.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
-            ImGui::DragInt("##Ypos", &y, 1, -500, 500);
-
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text("Z"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 1.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
-            ImGui::DragInt("##Zpos", &z, 1, -500, 500);
+            addSliderInt("X", "##Xpos", "##XposInput", &x, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            addSliderInt("Y", "##Ypos", "##YposInput", &y, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            addSliderInt("Z", "##Zpos", "##ZposInput", &z, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
 
             ImGui::Unindent();
             ImGui::Unindent();
@@ -94,22 +82,10 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
 
             ImGui::Indent();
             ImGui::Indent();
-            float pi = 3.1415;
 
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text("R"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
-            ImGui::DragFloat("##Rrot", &rx, 0.01, -pi, pi, "%0.2f");
-
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text("P"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 1.f, 0.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
-            ImGui::DragFloat("##Prot", &ry, 0.01, -pi, pi, "%0.2f");
-
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text("Y"); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 1.f, 1.f)); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
-            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
-            ImGui::DragFloat("##Yrot", &rz, 0.01, -pi, pi, "%0.2f");
+            addSliderFloat("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            addSliderFloat("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            addSliderFloat("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
 
             ImGui::Unindent();
             ImGui::Unindent();
@@ -119,11 +95,48 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
 
             ImGui::End();
         }
-
         if(!m_isDrivingSimulation)
             ImGui::EndDisabled();
 
     }
+}
+
+void MoveWindow::addSliderInt(const char* name, const char* label1, const char* label2, int* v, const ImVec4& color)
+{
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("%s", name); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+
+    ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+    ImGui::SliderInt(label1, v, -500, 500);
+    ImGui::PopStyleColor();
+
+    ImGui::SameLine();
+
+    ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
+    ImGui::InputInt(label2, v, 1, 5);
+    ImGui::PopItemWidth();
+}
+
+void MoveWindow::addSliderFloat(const char* name, const char* label1, const char *label2, float* v, const ImVec4& color)
+{
+    float pi = 3.1415;
+
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("%s", name); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+
+    ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+    ImGui::SliderFloat(label1, v, -pi, pi, "%0.2f");
+    ImGui::PopStyleColor();
+
+    ImGui::SameLine();
+
+    ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
+    ImGui::InputFloat(label2, v, 0.01, 0.1, "%0.2f");
+    ImGui::PopItemWidth();
 }
 
 void MoveWindow::getTarget(sofa::simulation::Node* groot,

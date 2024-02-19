@@ -22,7 +22,7 @@
 
 #include <SofaImGui/windows/ViewportWindow.h>
 #include <imgui_internal.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 
 namespace sofaimgui::windows {
 
@@ -88,7 +88,7 @@ bool ViewportWindow::addStepButton()
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();
-                    ImGui::Button(ICON_FA_STEP_FORWARD, buttonSize);
+                    ImGui::Button(ICON_FA_FORWARD_STEP, buttonSize);
                     ImGui::SetItemTooltip("One step of simulation");
 
                     if (ImGui::IsItemClicked())

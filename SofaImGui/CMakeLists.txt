@@ -56,7 +56,7 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imgui_internal.h
     ${implot_SOURCE_DIR}/implot.h
     ${implot_SOURCE_DIR}/implot_internal.h
-    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome5.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome6.h
     ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h

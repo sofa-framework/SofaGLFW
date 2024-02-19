@@ -59,7 +59,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_opengl2.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
@@ -265,13 +265,13 @@ void ImGuiGUIEngine::initDockSpace()
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
-        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.25f, nullptr, &dockspaceID);
+        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.27f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_IOWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_myRobotWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_moveWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
 
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.25f, nullptr, &dockspaceID);
+        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.27f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.m_name.c_str(), dock_id_down);
 
         // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
@@ -463,13 +463,14 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             firstTime = false;
             setNightLightStyle(nightStyle, baseGUI);
         }
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
-        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
         auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(ICON_FA_SUN).x
                         - 2 * ImGui::GetStyle().ItemSpacing.x;
         ImGui::SetCursorPosX(position);
-        if (ImGui::Button(nightStyle? ICON_FA_SUN: ICON_FA_MOON))
+        ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonText, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+        if (ImGui::ButtonEx(nightStyle? ICON_FA_SUN: ICON_FA_MOON, buttonSize))
         {
             ImGui::PopStyleColor(3);
             nightStyle = !nightStyle;

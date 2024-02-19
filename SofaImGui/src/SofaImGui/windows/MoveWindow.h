@@ -38,6 +38,8 @@ class MoveWindow : public BaseWindow
     void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
 
    protected:
+    void addSliderInt(const char *name, const char* label1, const char *label2, int* v, const ImVec4& color);
+    void addSliderFloat(const char *name, const char* label1, const char *label2, float* v, const ImVec4 &color);
 
     void getTarget(sofa::simulation::Node* groot, int &x, int &y, int &z, float &rx, float &ry, float &rz);
     void setTarget(sofa::simulation::Node* groot, const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);

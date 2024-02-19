@@ -43,7 +43,7 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
             bool unindent = false;
 
             static bool openstate = true;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.20f, 0.34f, 0.2f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.20f, 0.34f, 0.05f));
             if (ImGui::Begin("ViewportChildState", &openstate,
                              ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
             {

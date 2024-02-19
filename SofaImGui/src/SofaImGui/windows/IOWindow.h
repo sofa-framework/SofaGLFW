@@ -120,8 +120,8 @@ class IOWindow : public BaseWindow
     static bool m_isListening;
     static bool m_isReadyToPublish;
 
-    std::vector<bool> digitalInput{false, false, false};
-    std::vector<bool> digitalOutput{false, false, false};
+    static std::vector<bool> m_digitalInput;
+    static std::vector<bool> m_digitalOutput;
 
     void init();
 

@@ -23,7 +23,7 @@
 #include <SofaImGui/windows/IOWindow.h>
 #include <SofaImGui/widgets/Buttons.h>
 
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 
 #include <sofa/core/behavior/BaseMechanicalState.h>
 
@@ -145,7 +145,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
     if (pulse > 2)
         pulseDuration = 0;
 
-    ImGui::PushStyleColor(ImGuiCol_Text, (m_isPublishing && !m_rosnode->m_selectedStateToPublish.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isPublishing && !m_rosnode->m_selectedStateToPublish.empty())? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Output (Publishers)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
@@ -156,7 +156,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         ImGui::PopStyleColor();
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Text, (m_isListening && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.50f, 1.00f, 0.50f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isListening && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Input (Subscriptions)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
