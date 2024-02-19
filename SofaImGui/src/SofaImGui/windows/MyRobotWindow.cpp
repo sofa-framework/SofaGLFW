@@ -49,7 +49,6 @@ void MyRobotWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowF
             {
                 if (ImGui::BeginTable("StateColumns", 3, ImGuiTableFlags_None))
                 {
-                    bool unindent = false;
                     const auto& data = node->getDataFields();
                     std::string groups;
                     std::string delimiter = "/";

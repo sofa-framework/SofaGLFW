@@ -162,7 +162,7 @@ void ProgramWindow::addTimeline(float sectionSize)
 
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    float height = 12;
+    float height = ImGui::GetFrameHeight() / 3.f;
 
     ImGui::NewLine();
     ImGui::BeginGroup(); // Timeline's lines
@@ -190,7 +190,7 @@ void ProgramWindow::addTimeline(float sectionSize)
 void ProgramWindow::addTracks(const float& sectionSize)
 {
     const auto& tracks = m_program.getTracks();
-    float trackHeight = 230;
+    float trackHeight = ImGui::GetFrameHeightWithSpacing() * 4;
 
     int trackID = 0;
     for (const auto& track: tracks)

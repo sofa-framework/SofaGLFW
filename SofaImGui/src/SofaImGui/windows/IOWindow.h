@@ -48,7 +48,9 @@ class ROSNode: public rclcpp::Node
     std::vector<rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr> m_subscriptions;
     
     std::map<std::string, std::vector<float>> m_selectedStateToPublish;
+    std::map<std::string, bool> m_selectedDigitalOutputToPublish;
     std::map<std::string, std::vector<float>> m_selectedStateToOverwrite;
+    std::map<std::string, bool> m_selectedDigitalInput;
 
     void createSubscription(const std::string& topicName)
     {
@@ -60,10 +62,16 @@ class ROSNode: public rclcpp::Node
 
     void createTopics()
     {
-        if (!m_selectedStateToPublish.empty())
+        if (!m_selectedStateToPublish.empty() && !m_selectedDigitalOutputToPublish.empty())
         {
-            m_publishers.reserve(m_selectedStateToPublish.size());
+            m_publishers.reserve(m_selectedStateToPublish.size() + m_selectedDigitalOutputToPublish.size());
             for (const auto& [key, value] : m_selectedStateToPublish)
+            {
+                const auto& publisher = create_publisher<std_msgs::msg::Float32MultiArray>(key, 10);
+                m_publishers.push_back(publisher);
+            }
+
+            for (const auto& [key, value] : m_selectedDigitalOutputToPublish)
             {
                 const auto& publisher = create_publisher<std_msgs::msg::Float32MultiArray>(key, 10);
                 m_publishers.push_back(publisher);
@@ -73,10 +81,14 @@ class ROSNode: public rclcpp::Node
 
     void createSubscriptions()
     {
-        if (!m_selectedStateToOverwrite.empty())
+        if (!m_selectedStateToOverwrite.empty() && !m_selectedDigitalInput.empty())
         {
-            m_subscriptions.reserve(m_selectedStateToOverwrite.size());
+            m_subscriptions.reserve(m_selectedStateToOverwrite.size() + m_selectedDigitalInput.size());
             for (const auto& [key, value] : m_selectedStateToOverwrite)
+            {
+                createSubscription(key);
+            }
+            for (const auto& [key, value] : m_selectedDigitalInput)
             {
                 createSubscription(key);
             }
@@ -120,8 +132,8 @@ class IOWindow : public BaseWindow
     static bool m_isListening;
     static bool m_isReadyToPublish;
 
-    static std::vector<bool> m_digitalInput;
-    static std::vector<bool> m_digitalOutput;
+    static bool m_digitalInput[3];
+    static bool m_digitalOutput[3];
 
     void init();
 

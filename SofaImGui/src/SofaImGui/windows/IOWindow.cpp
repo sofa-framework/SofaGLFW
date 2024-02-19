@@ -39,6 +39,8 @@ int IOWindow::m_method = 0;
 bool IOWindow::m_isPublishing = false;
 bool IOWindow::m_isListening = false;
 bool IOWindow::m_isReadyToPublish = false;
+bool IOWindow::m_digitalInput[] = {false, false, false};
+bool IOWindow::m_digitalOutput[] = {false, false, false};
 
 IOWindow::IOWindow(const std::string& name, const bool& isWindowOpen)
 {
@@ -145,7 +147,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
     if (pulse > 2)
         pulseDuration = 0;
 
-    ImGui::PushStyleColor(ImGuiCol_Text, (m_isPublishing && !m_rosnode->m_selectedStateToPublish.empty())? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isPublishing)? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Output (Publishers)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
@@ -156,7 +158,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
         ImGui::PopStyleColor();
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Text, (m_isListening && !m_rosnode->m_selectedStateToOverwrite.empty())? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
+    ImGui::PushStyleColor(ImGuiCol_Text, (m_isListening)? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
     if (ImGui::CollapsingHeader("Input (Subscriptions)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
@@ -212,12 +214,13 @@ void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<floa
         ImGui::PopStyleColor();
     }
 
-    { // State list box
+    { // List box
         static bool publishFirstTime = true;
         static std::map<std::string, bool> publishListboxItems;
-        ImGui::Text("Select simulation states to publish:");
+        ImGui::Text("Select what to publish:");
         if (ImGui::BeginListBox("##StatePublish"))
         {
+            // State
             m_rosnode->m_selectedStateToPublish.clear();
             for (const auto& [key, value] : simulationStateList)
             {
@@ -237,6 +240,29 @@ void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<floa
                     m_rosnode->m_selectedStateToPublish["/" + key] = value;
                 }
             }
+
+            // Digital output
+            m_rosnode->m_selectedDigitalOutputToPublish.clear();
+            for (int i=0; i<3; i++)
+            {
+                std::string key = "DO" + std::to_string(i + 1);
+                if (publishFirstTime)
+                {
+                    publishListboxItems[key] = false;
+                }
+
+                ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+                color.w = 1.0;
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
+                ImGui::LocalCheckBox(key.c_str(), &publishListboxItems[key]);
+                ImGui::SetItemTooltip("%s", ("Digital output " + std::to_string(i + 1)).c_str());
+                ImGui::PopStyleColor();
+
+                if(publishListboxItems[key])
+                {
+                    m_rosnode->m_selectedDigitalOutputToPublish["/" + key] = m_digitalOutput[i];
+                }
+            }
             ImGui::EndListBox();
         }
         publishFirstTime = false;
@@ -249,7 +275,8 @@ void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<floa
     }
 
     // Publishing button
-    if (m_rosnode->m_selectedStateToPublish.empty())
+    bool nothingSelected = m_rosnode->m_selectedStateToPublish.empty() && m_rosnode->m_selectedDigitalOutputToPublish.empty();
+    if (nothingSelected)
     {
         m_isPublishing = false;
         m_rosnode->m_publishers.clear();
@@ -272,7 +299,7 @@ void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<floa
     ImGui::AlignTextToFramePadding();
     ImGui::Text(m_isPublishing? "Stop publishing" : "Publish");
     ImGui::Unindent();
-    if (m_rosnode->m_selectedStateToPublish.empty())
+    if (nothingSelected)
     {
         ImGui::EndDisabled();
     }
@@ -334,10 +361,11 @@ void IOWindow::addInputChildWindow(const std::map<std::string, std::vector<float
         }
     }
 
-    { // State list box subcriptions
-        ImGui::Text("Select simulation states to overwrite:");
+    { // List box subcriptions
+        ImGui::Text("Select simulation states to overwrite or digital input to listen to:");
         if (ImGui::BeginListBox("##StateSubscription"))
         {
+            // TCP target
             if (!m_isListening)
             {
                 m_rosnode->m_selectedStateToOverwrite.clear();
@@ -345,7 +373,7 @@ void IOWindow::addInputChildWindow(const std::map<std::string, std::vector<float
             for (const auto& [simStateName, stateValue] : simulationStateList)
             {
                 std::string stateName = simStateName;
-                if (stateName.find("TCP")!=std::string::npos) // TODO: for the moment we can only overwrite the target
+                if (stateName.find("TCP")!=std::string::npos)
                 {
                     stateName = "/TCPTarget/Frame";
 
@@ -378,6 +406,30 @@ void IOWindow::addInputChildWindow(const std::map<std::string, std::vector<float
                     }
                 }
             }
+
+            // Digital input
+            m_rosnode->m_selectedDigitalInput.clear();
+            for (int i=0; i<3; i++)
+            {
+                std::string key = "/DI" + std::to_string(i + 1);
+                if (subscribeFirstTime)
+                {
+                    subcriptionListboxItems[key] = false;
+                }
+
+                ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+                color.w = 1.0;
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
+                ImGui::LocalCheckBox(key.c_str(), &subcriptionListboxItems[key]);
+                ImGui::SetItemTooltip("%s", ("Digital input " + std::to_string(i + 1)).c_str());
+                ImGui::PopStyleColor();
+
+                if(subcriptionListboxItems[key])
+                {
+                    m_rosnode->m_selectedDigitalInput[key] = m_digitalInput[i];
+                }
+            }
+
             ImGui::EndListBox();
         }
         subscribeFirstTime = false;
@@ -390,7 +442,8 @@ void IOWindow::addInputChildWindow(const std::map<std::string, std::vector<float
     }
 
     // Listening button
-    if (m_rosnode->m_selectedStateToOverwrite.empty())
+    bool nothingSelected = m_rosnode->m_selectedStateToOverwrite.empty() && m_rosnode->m_selectedDigitalInput.empty();
+    if (nothingSelected)
     {
         m_isListening = false;
         m_rosnode->m_subscriptions.clear();
@@ -413,7 +466,7 @@ void IOWindow::addInputChildWindow(const std::map<std::string, std::vector<float
     ImGui::AlignTextToFramePadding();
     ImGui::Text(m_isListening? "Unsubscribe" : "Subscribe");
     ImGui::Unindent();
-    if (m_rosnode->m_selectedStateToOverwrite.empty())
+    if (nothingSelected)
     {
         ImGui::EndDisabled();
     }

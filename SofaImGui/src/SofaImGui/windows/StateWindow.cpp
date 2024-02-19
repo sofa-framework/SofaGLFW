@@ -47,7 +47,7 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
             if (ImGui::Begin("ViewportChildState", &openstate,
                              ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
             {
-                if(ImGui::CollapsingHeader("State       ")) // TODO fit to content
+                if(ImGui::CollapsingHeader("Simulation State       "))
                 {
                     if (ImGui::BeginTable("StateColumns", 2, ImGuiTableFlags_None))
                     {
