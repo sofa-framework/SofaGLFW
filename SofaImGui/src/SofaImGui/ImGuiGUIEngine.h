@@ -86,10 +86,11 @@ protected:
     void addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
-    void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
 
     static bool m_animate;
     static int m_mode;
+    static bool m_nightStyle;
 };
 
 } // namespace sofaimgui

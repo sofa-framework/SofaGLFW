@@ -101,7 +101,7 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
 void ProgramWindow::addButtons()
 {
     ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
-    auto position = ImGui::GetCursorPosX() + ImGui::GetCurrentWindow()->Size.x - buttonSize.x * 3 - ImGuiStyleVar_ItemSpacing * 5; // Get position for right buttons
+    auto position = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 2 - ImGui::GetStyle().ItemSpacing.y * 2; // Get position for right buttons
 
     // Left buttons
     if (ImGui::Button(ICON_FA_FOLDER_OPEN, buttonSize))
@@ -122,12 +122,9 @@ void ProgramWindow::addButtons()
     ImGui::SameLine();
     ImGui::SetCursorPosX(position); // Set position to right of the header
 
-    ImGui::Button(ICON_FA_PLUS"##Add", buttonSize);
-
     static bool repeat = false;
     static bool reverse = false;
 
-    ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Button, repeat? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
     if (ImGui::Button(ICON_FA_REPEAT"##Repeat", buttonSize))
     {
@@ -153,20 +150,20 @@ void ProgramWindow::addCursorMarker()
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImVec4 color(0.95f, 0.f, 0.f, 1.0f);
 
-    float thicknessRect = 2.f;
-    float widthTri = ImGuiStyleVar_ItemInnerSpacing;
+    float thicknessRect = ImGui::GetStyle().SeparatorTextBorderSize;
+    float widthTri = ImGui::GetStyle().ItemInnerSpacing.x * 2;
 
     m_cursor = m_time * m_timelineOneSecondSize;
     ImVec2 p0Rect(m_trackBeginPos.x + m_cursor - window->Scroll.x, m_trackBeginPos.y);
     ImVec2 p1Rect(p0Rect.x + thicknessRect,
-                  p0Rect.y + m_trackHeight * m_program.getNbTracks() + ImGuiStyleVar_ItemSpacing * (m_program.getNbTracks() - 1));
+                  p0Rect.y + m_trackHeight * m_program.getNbTracks() + ImGui::GetStyle().ItemSpacing.y * (m_program.getNbTracks() - 1));
 
     ImVec2 p0Tri(p0Rect.x + thicknessRect / 2.f, p0Rect.y);
     ImVec2 p1Tri(p0Tri.x - widthTri / 2.f, p0Tri.y - widthTri);
     ImVec2 p2Tri(p0Tri.x + widthTri / 2.f,  p0Tri.y - widthTri);
 
     window->DrawList->AddTriangleFilled(p0Tri, p1Tri, p2Tri, ImGui::GetColorU32(color));
-    window->DrawList->AddRectFilled(p0Rect, p1Rect, ImGui::GetColorU32(color), ImGuiStyleVar_FrameRounding / 2.f);
+    window->DrawList->AddRectFilled(p0Rect, p1Rect, ImGui::GetColorU32(color), ImGui::GetStyle().FrameRounding / 2.f);
 }
 
 void ProgramWindow::addTimeline()
@@ -174,7 +171,7 @@ void ProgramWindow::addTimeline()
     float width = ImGui::GetWindowWidth() + ImGui::GetScrollX();
     int nbSteps = width / m_timelineOneSecondSize + 1;
 
-    float indentSize = ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding;
+    float indentSize = ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGui::GetStyle().FramePadding.x;
     ImGui::Indent(indentSize);
 
     ImGui::BeginGroup(); // Timeline's number (seconds)
@@ -249,7 +246,7 @@ void ProgramWindow::addTracks()
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_MenuBarBg)); // Color of track button
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5, 0)); // Align icon top middle
-        if(ImGui::Button(buttonLabel.c_str(), ImVec2(ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding, m_trackHeight)))
+        if(ImGui::Button(buttonLabel.c_str(), ImVec2(ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGui::GetStyle().FramePadding.x, m_trackHeight)))
         {
             ImGui::PopStyleVar(); // End align icon top middle
             ImGui::OpenPopup(menuLabel.c_str());
@@ -260,9 +257,8 @@ void ProgramWindow::addTracks()
         }
         ImGui::PopStyleColor();
 
-        m_trackBeginPos = ImGui::GetCurrentWindow()->DC.CursorPosPrevLine;
-
         ImGui::SameLine();
+        m_trackBeginPos = ImGui::GetCurrentWindow()->DC.CursorPos;
         addBlocks(track, trackID);
         trackID++;
     }

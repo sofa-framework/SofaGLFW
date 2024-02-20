@@ -78,6 +78,7 @@ namespace sofaimgui
 
 bool ImGuiGUIEngine::m_animate = false;
 int ImGuiGUIEngine::m_mode = 0;
+bool ImGuiGUIEngine::m_nightStyle = false;
 
 const std::string& ImGuiGUIEngine::getAppIniFile()
 {
@@ -107,17 +108,7 @@ void ImGuiGUIEngine::init()
         assert(rc == SI_OK);
     }
 
-    const char* pv;
-    pv = ini.GetValue("Style", "theme");
-    if (!pv)
-    {
-        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
-        SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
-        pv = sofaimgui::defaultStyle.c_str();
-    }
-
-    // Setup Dear ImGui style
-    sofaimgui::setStyle(pv);
+    setNightLightStyle(m_nightStyle);
 
     sofa::helper::system::PluginManager::getInstance().readFromIniFile(
         sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
@@ -143,13 +134,14 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     {
         float xscale, yscale;
         glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-        ImGuiIO& io = ImGui::GetIO();
 
+        ImGuiIO& io = ImGui::GetIO();
+        io.Fonts->ClearFonts();
         io.Fonts->AddFontFromMemoryCompressedTTF(OpenSans_Regular_compressed_data, OpenSans_Regular_compressed_size, 18 * yscale);
 
         ImFontConfig config;
         config.MergeMode = true;
-        config.GlyphMinAdvanceX = 16.0f; // Use if you want to make the icon monospaced
+        config.GlyphMinAdvanceX = .0f; // Use if you want to make the icon monospaced
         static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
         io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 12 * yscale, &config, icon_ranges);
         io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 12 * yscale, &config, icon_ranges);
@@ -452,12 +444,11 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         const auto posX = ImGui::GetCursorPosX();
 
         // Night / light style
-        static bool nightStyle = false; // default is light style
         static bool firstTime = true;
         if (firstTime)
         {
             firstTime = false;
-            setNightLightStyle(nightStyle, baseGUI);
+            setNightLightStyle(m_nightStyle, baseGUI);
         }
         auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(ICON_FA_SUN).x
                         - 2 * ImGui::GetStyle().ItemSpacing.x;
@@ -466,11 +457,11 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonText, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-        if (ImGui::ButtonEx(nightStyle? ICON_FA_SUN: ICON_FA_MOON, buttonSize))
+        if (ImGui::ButtonEx(m_nightStyle? ICON_FA_SUN: ICON_FA_MOON, buttonSize))
         {
             ImGui::PopStyleColor(3);
-            nightStyle = !nightStyle;
-            setNightLightStyle(nightStyle, baseGUI);
+            m_nightStyle = !m_nightStyle;
+            setNightLightStyle(m_nightStyle, baseGUI);
         }
         else
         {
@@ -487,12 +478,14 @@ void ImGuiGUIEngine::setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGL
     if (nightStyle)
     {
         sofaimgui::setStyle("deep_dark");
-        baseGUI->setBackgroundColor(type::RGBAColor(0.16, 0.18, 0.20, 1.0));
+        if (baseGUI)
+            baseGUI->setBackgroundColor(type::RGBAColor(0.16, 0.18, 0.20, 1.0));
     }
     else
     {
         sofaimgui::setStyle("light");
-        baseGUI->setBackgroundColor(type::RGBAColor(0.76, 0.78, 0.80, 1.0));
+        if (baseGUI)
+            baseGUI->setBackgroundColor(type::RGBAColor(0.76, 0.78, 0.80, 1.0));
     }
 }
 

@@ -50,7 +50,7 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
             ImGui::ItemAdd(ImRect(p_min, p_max), ImGui::GetID("ImageRender"));
             dl->AddImageRounded(texture, p_min, p_max,
                                 ImVec2(0, 1), ImVec2(1, 0), ImGui::GetColorU32(ImVec4(1, 1, 1, 1)),
-                                ImGuiStyleVar_FrameRounding * 2);
+                                ImGui::GetStyle().FrameRounding);
 
             m_isMouseOnViewport = ImGui::IsItemHovered();
 

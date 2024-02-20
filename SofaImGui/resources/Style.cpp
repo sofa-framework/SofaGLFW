@@ -45,8 +45,8 @@ void setStyleVars()
     style.FrameBorderSize                   = 0;
     style.TabBorderSize                     = 0;
 
-    style.WindowRounding                    = 8;
-    style.ChildRounding                     = 8;
+    style.WindowRounding                    = 14;
+    style.ChildRounding                     = 14;
     style.FrameRounding                     = 14;
     style.PopupRounding                     = 8;
     style.ScrollbarRounding                 = 8;
@@ -61,6 +61,8 @@ void setStyleVars()
     style.HoverDelayNormal                  = 0.8f; // in seconds
     style.HoverFlagsForTooltipMouse = ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_AllowWhenDisabled;
     style.HoverFlagsForTooltipNav = ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_AllowWhenDisabled;
+
+    ImGui::GetStyle().ScaleAllSizes(ImGui::GetWindowDpiScale() / 2.f);  // developped with scale = 200%
 }
 
 void setDeepDarkStyle()
