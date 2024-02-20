@@ -44,11 +44,8 @@ class Move : public Action
          MoveType type = LINEAR);
     ~Move() = default;
 
-    void add() override;
-    void remove() override;
-    void insert() override;
-
     void showBlock(const std::string &label, const ImVec2 &size) override;
+    void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack) override;
 
     RigidCoord m_waypoint;
     float m_velocity;

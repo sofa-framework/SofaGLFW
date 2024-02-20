@@ -64,12 +64,12 @@ The GUI is based on dockable windows.
 Each window gathers related features.
 Here are all the available windows:
 
-| Window          | Description                                                     |
-|-----------------|-----------------------------------------------------------------|
-| __State__       | display the robot' state                                        |
-| __Connection__  | display the information to connect the robot and the software   |
-| __Program__     | display a tool to program the robot                             |
-| __Scene Graph__ | show the scene graph and the Data associated to each components |
+| Window             | Description                      |
+|--------------------|----------------------------------|
+| __Move__           | Direct control of the TCP target |
+| __Input / Output__ | ROS                              |
+| __Program__        | A tool to program the robot      |
+| __My Robot__       | Robot's information and settings |
 
 
 ## Screenshots

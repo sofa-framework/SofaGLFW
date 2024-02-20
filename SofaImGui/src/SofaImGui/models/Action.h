@@ -22,6 +22,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <tinyxml2.h>
 #include <string>
 
 namespace sofaimgui::models {
@@ -35,9 +36,7 @@ class Action
 
     ~Action() = default;
 
-    virtual void add() = 0;
-    virtual void remove() = 0;
-    virtual void insert() = 0;
+    virtual void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack)=0;
 
     float getDuration() {return m_duration;}
     void setDuration(const float& duration) {m_duration = duration;}

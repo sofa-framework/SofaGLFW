@@ -88,22 +88,7 @@ void Program::exportProgram(const std::string &filename)
             const auto actions = track->getActions();
             for (const auto& action: actions)
             {
-                std::shared_ptr<Move> move = std::dynamic_pointer_cast<Move>(action);
-                if (move != nullptr)
-                {
-                    tinyxml2::XMLElement * xmlmove = document.NewElement("move");
-                    std::string wp = std::to_string(move->m_waypoint[0]) + " "
-                                     + std::to_string(move->m_waypoint[1]) + " "
-                                     + std::to_string(move->m_waypoint[2]) + " "
-                                     + std::to_string(move->m_waypoint[3]) + " "
-                                     + std::to_string(move->m_waypoint[4]) + " "
-                                     + std::to_string(move->m_waypoint[5]) + " "
-                                     + std::to_string(move->m_waypoint[6]) + " ";
-                    xmlmove->SetAttribute("wp", wp.c_str());
-                    xmlmove->SetAttribute("duration", move->getDuration());
-                    xmlmove->SetAttribute("type", move->m_type);
-                    xmltrack->InsertEndChild(xmlmove);
-                }
+                action->addXMLElement(&document, xmltrack);
             }
         }
 
@@ -119,6 +104,22 @@ bool Program::checkExtension(const std::string &filename)
         isExtensionKnown = true;
 
     return isExtensionKnown;
+}
+
+void Program::addAction(const std::shared_ptr<Action>& action, const sofa::Index &trackID)
+{
+    if (trackID < m_tracks.size())
+        m_tracks[trackID]->addAction(action);
+    else
+        dmsg_error("Program") << "TrackID";
+}
+
+void Program::removeAction(const sofa::Index& actionID, const sofa::Index &trackID)
+{
+    if (trackID < m_tracks.size())
+        m_tracks[trackID]->removeAction(actionID);
+    else
+        dmsg_error("Program") << "TrackID";
 }
 
 } // namespace

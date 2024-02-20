@@ -42,11 +42,13 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
 {
     if (m_isWindowOpen)
     {
-        if(!m_isDrivingSimulation)
-            ImGui::BeginDisabled();
-
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
+            if(!m_isDrivingSimulation)
+            {
+                ImGui::BeginDisabled();
+            }
+
             ImGui::Spacing();
 
             static int x=0;
@@ -67,8 +69,11 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
 
             addSliderInt("X", "##Xpos", "##XposInput", &x, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::Spacing();
             addSliderInt("Y", "##Ypos", "##YposInput", &y, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            ImGui::Spacing();
             addSliderInt("Z", "##Zpos", "##ZposInput", &z, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            ImGui::Spacing();
 
             ImGui::Unindent();
             ImGui::Unindent();
@@ -84,19 +89,27 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
 
             addSliderFloat("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::Spacing();
             addSliderFloat("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            ImGui::Spacing();
             addSliderFloat("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            ImGui::Spacing();
 
             ImGui::Unindent();
             ImGui::Unindent();
 
             if (m_isDrivingSimulation)
                 setTarget(groot, x, y, z, rx, ry, rz);
+            else
+            {
+                ImGui::EndDisabled();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_WarningText));
+                ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION" Choose Move in the Mode panel to enable this tool.");
+                ImGui::PopStyleColor();
+            }
 
             ImGui::End();
         }
-        if(!m_isDrivingSimulation)
-            ImGui::EndDisabled();
 
     }
 }
@@ -104,9 +117,10 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
 void MoveWindow::addSliderInt(const char* name, const char* label1, const char* label2, int* v, const ImVec4& color)
 {
     ImGui::AlignTextToFramePadding();
-    ImGui::Text("%s", name); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+    ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
+    ImGui::Text("%s", name);
 
-    ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+    ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
     ImGui::SliderInt(label1, v, -500, 500);
@@ -124,9 +138,10 @@ void MoveWindow::addSliderFloat(const char* name, const char* label1, const char
     float pi = 3.1415;
 
     ImGui::AlignTextToFramePadding();
-    ImGui::Text("%s", name); ImGui::SameLine(); ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text(ICON_FA_MINUS); ImGui::PopStyleColor();
+    ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
+    ImGui::Text("%s", name);
 
-    ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+    ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
     ImGui::SliderFloat(label1, v, -pi, pi, "%0.2f");

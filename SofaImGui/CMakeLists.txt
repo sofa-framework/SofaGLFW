@@ -18,8 +18,8 @@ endif()
 include(FetchContent)
 
 FetchContent_Declare(imgui
-        GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG        c66a1e7d51951dcb121aee1404a069ac6f8d84d5  # v1.90.3-docking
+        GIT_REPOSITORY https://github.com/SofaComplianceRobotics/imgui
+        GIT_TAG        05f3cdd56dbd2de438e5b6f57baf6059d3b8f841  # branch internaldocking up to date with ocornut/imgui/v1.90.3-docking
 )
 FetchContent_MakeAvailable(imgui)
 

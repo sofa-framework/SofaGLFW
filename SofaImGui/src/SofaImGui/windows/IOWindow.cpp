@@ -297,7 +297,7 @@ void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<floa
     }
     ImGui::SameLine();
     ImGui::AlignTextToFramePadding();
-    ImGui::Text(m_isPublishing? "Stop publishing" : "Publish");
+    ImGui::Text(m_isPublishing? "Publishing" : "Publish");
     ImGui::Unindent();
     if (nothingSelected)
     {
@@ -464,7 +464,7 @@ void IOWindow::addInputChildWindow(const std::map<std::string, std::vector<float
     }
     ImGui::SameLine();
     ImGui::AlignTextToFramePadding();
-    ImGui::Text(m_isListening? "Unsubscribe" : "Subscribe");
+    ImGui::Text(m_isListening? "Listening" : "Subscribe");
     ImGui::Unindent();
     if (nothingSelected)
     {

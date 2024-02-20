@@ -19,8 +19,8 @@ void LocalToggleButton(const char* str_id, bool* v)
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
     float height = ImGui::GetFrameHeight();
-    float width = height * 1.55f;
-    float radius = height * 0.50f;
+    float width = height * 1.4f;
+    float radius = height * 0.40f;
 
     ImGui::InvisibleButton(str_id, ImVec2(width, height));
     if (ImGui::IsItemClicked())
@@ -46,8 +46,8 @@ void LocalToggleButton(const char* str_id, bool* v)
                                            ImVec4(0.56f, 0.83f, 0.26f, 1.0f),
                                            t));
 
-    draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
-    draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f,
+    draw_list->AddRectFilled(ImVec2(p.x, p.y + height / 4), ImVec2(p.x + width, p.y + height *  3 / 4), col_bg, height * 0.5f);
+    draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + height / 2), radius,
                                IM_COL32(255, 255, 255, 255));
 }
 

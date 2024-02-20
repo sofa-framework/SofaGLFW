@@ -55,6 +55,7 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
             m_isMouseOnViewport = ImGui::IsItemHovered();
 
             addStateWindow(groot);
+            addSimulationTimeAndFPS(groot);
 
             ImGui::EndChild();
         }
@@ -169,6 +170,7 @@ bool ViewportWindow::addModeButton(int *mode, const char *listModes[], const int
                 {
                     ImGui::SameLine();
                     hasValueChanged = ImGui::Combo("Mode##Viewport", mode, listModes, sizeListModes);
+                    ImGui::SetItemTooltip("Control the TCP target");
 
                     ImGui::End();
                 }
@@ -181,6 +183,26 @@ bool ViewportWindow::addModeButton(int *mode, const char *listModes[], const int
     }
 
     return hasValueChanged;
+}
+
+void ViewportWindow::addSimulationTimeAndFPS(sofa::simulation::Node* groot)
+{
+    const ImGuiIO& io = ImGui::GetIO();
+
+    // Time
+    auto position = ImGui::GetWindowWidth() - ImGui::CalcTextSize("Time: 000.000").x - ImGui::GetStyle().ItemSpacing.x;
+    ImGui::SetCursorPosX(position);
+    ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing());
+    ImGui::TextDisabled("Time: %.3f", groot->getTime());
+
+    // FPS
+    if (groot->animate_.getValue())
+    {
+        position -= ImGui::CalcTextSize("100.0 FPS ").x;
+        ImGui::SetCursorPosX(position);
+        ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing());
+        ImGui::TextDisabled("%.1f FPS", io.Framerate);
+    }
 }
 
 }

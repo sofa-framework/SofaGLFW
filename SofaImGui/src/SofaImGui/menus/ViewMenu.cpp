@@ -38,14 +38,11 @@ ViewMenu::~ViewMenu()
 {
 }
 
-void ViewMenu::addMenu(bool& showFPSInMenuBar,
-                       const std::pair<unsigned int, unsigned int>& fboSize,
+void ViewMenu::addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
                        const GLuint& texture)
 {
     if (ImGui::BeginMenu("View"))
     {
-        addShowFPS(showFPSInMenuBar);
-
         ImGui::Separator();
 
         addCenterCamera();
@@ -56,13 +53,16 @@ void ViewMenu::addMenu(bool& showFPSInMenuBar,
 
         addSaveScreenShot(fboSize, texture);
 
+        ImGui::Separator();
+
+        addFullScreen();
+
         ImGui::EndMenu();
     }
 }
 
-void ViewMenu::addShowFPS(bool &showFPSInMenuBar)
+void ViewMenu::addFullScreen()
 {
-    ImGui::LocalCheckBox("Show FPS", &showFPSInMenuBar);
     bool isFullScreen = m_baseGUI->isFullScreen();
     if (ImGui::LocalCheckBox("Fullscreen", &isFullScreen))
     {

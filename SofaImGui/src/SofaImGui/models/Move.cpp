@@ -109,8 +109,10 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
             ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
             float wp = m_waypoint[i];
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
             if (ImGui::InputFloat(id.c_str(), &wp, 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
                 m_waypoint[i] = wp;
+            ImGui::PopStyleColor();
             ImGui::SameLine();
             ImGui::PopItemWidth();
         }
@@ -142,8 +144,10 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
             ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
             float wp = m_waypoint[i];
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
             if (ImGui::InputFloat(id.c_str(), &wp, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
                 m_waypoint[i] = wp;
+            ImGui::PopStyleColor();
             ImGui::SameLine();
             ImGui::PopItemWidth();
         }
@@ -171,7 +175,9 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
         ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
         std::string id = "##duration" + std::to_string(window->DC.CursorPos.x);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
         ImGui::InputFloat(id.c_str(), &m_duration, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::PopStyleColor();
         ImGui::SameLine();
         ImGui::PopItemWidth();
         ImGui::PopStyleVar();
@@ -184,19 +190,29 @@ void Move::showBlock(const std::string &label, const ImVec2 &size)
     ImGui::PopClipRect();
 }
 
-void Move::add()
+void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack)
 {
+    if (document == nullptr || xmlTrack == nullptr)
+    {
+        dmsg_error("Move") << "getXMLElement() with nullptr";
+        return;
+    }
 
-}
-
-void Move::remove()
-{
-
-}
-
-void Move::insert()
-{
-
+    tinyxml2::XMLElement * xmlMove = document->NewElement("move");
+    if (xmlMove != nullptr)
+    {
+        std::string wp = std::to_string(m_waypoint[0]) + " "
+                         + std::to_string(m_waypoint[1]) + " "
+                         + std::to_string(m_waypoint[2]) + " "
+                         + std::to_string(m_waypoint[3]) + " "
+                         + std::to_string(m_waypoint[4]) + " "
+                         + std::to_string(m_waypoint[5]) + " "
+                         + std::to_string(m_waypoint[6]) + " ";
+        xmlMove->SetAttribute("wp", wp.c_str());
+        xmlMove->SetAttribute("duration", getDuration());
+        xmlMove->SetAttribute("type", m_type);
+        xmlTrack->InsertEndChild(xmlMove);
+    }
 }
 
 float Move::computeVelocityFromDuration()

@@ -34,13 +34,12 @@ class ViewMenu
     ViewMenu(sofaglfw::SofaGLFWBaseGUI *baseGUI);
     ~ViewMenu();
 
-    void addMenu(bool &showFPSInMenuBar,
-                 const std::pair<unsigned int, unsigned int>& fboSize,
+    void addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
                  const GLuint &texture);
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
    protected:
-    void addShowFPS(bool &showFPSInMenuBar);
+    void addFullScreen();
     void addCenterCamera();
     void addSaveCamera();
     void addRestoreCamera();

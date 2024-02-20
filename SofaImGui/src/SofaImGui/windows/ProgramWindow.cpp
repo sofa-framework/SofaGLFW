@@ -36,6 +36,11 @@
 
 namespace sofaimgui::windows {
 
+float ProgramWindow::m_cursor = 0.f;
+ImVec2 ProgramWindow::m_trackBeginPos = ImVec2(0.f, 0.f);
+float ProgramWindow::m_timelineOneSecondSize = 0.f;
+float ProgramWindow::m_time = 0.f;
+
 using sofa::type::Vec3;
 using sofa::type::Quat;
 
@@ -52,6 +57,8 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
     SOFA_UNUSED(groot);
     if (m_isWindowOpen)
     {
+        m_trackHeight = ImGui::GetFrameHeight() * 4;
+
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen,
                          windowFlags | ImGuiWindowFlags_AlwaysAutoResize
                          ))
@@ -62,7 +69,7 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
             float height = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() * 3;
             static float zoomCoef = 1;
             static float minSize = 100;
-            float sectionSize = zoomCoef * minSize;
+            m_timelineOneSecondSize = zoomCoef * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
             if (ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                        ImGuiWindowFlags_AlwaysHorizontalScrollbar))
@@ -70,8 +77,9 @@ void ProgramWindow::showWindow(sofa::simulation::Node* groot,
                 ImGui::PopStyleColor();
 
                 ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
-                addTimeline(sectionSize);
-                addTracks(sectionSize);
+                addTimeline();
+                addTracks();
+                addCursorMarker();
                 ImGui::PopStyleVar();
 
                 ImGui::EndChildFrame();
@@ -140,10 +148,31 @@ void ProgramWindow::addButtons()
     ImGui::SetItemTooltip("Reverse and repeat program");
 }
 
-void ProgramWindow::addTimeline(float sectionSize)
+void ProgramWindow::addCursorMarker()
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImVec4 color(0.95f, 0.f, 0.f, 1.0f);
+
+    float thicknessRect = 2.f;
+    float widthTri = ImGuiStyleVar_ItemInnerSpacing;
+
+    m_cursor = m_time * m_timelineOneSecondSize;
+    ImVec2 p0Rect(m_trackBeginPos.x + m_cursor - window->Scroll.x, m_trackBeginPos.y);
+    ImVec2 p1Rect(p0Rect.x + thicknessRect,
+                  p0Rect.y + m_trackHeight * m_program.getNbTracks() + ImGuiStyleVar_ItemSpacing * (m_program.getNbTracks() - 1));
+
+    ImVec2 p0Tri(p0Rect.x + thicknessRect / 2.f, p0Rect.y);
+    ImVec2 p1Tri(p0Tri.x - widthTri / 2.f, p0Tri.y - widthTri);
+    ImVec2 p2Tri(p0Tri.x + widthTri / 2.f,  p0Tri.y - widthTri);
+
+    window->DrawList->AddTriangleFilled(p0Tri, p1Tri, p2Tri, ImGui::GetColorU32(color));
+    window->DrawList->AddRectFilled(p0Rect, p1Rect, ImGui::GetColorU32(color), ImGuiStyleVar_FrameRounding / 2.f);
+}
+
+void ProgramWindow::addTimeline()
 {
     float width = ImGui::GetWindowWidth() + ImGui::GetScrollX();
-    int nbSteps = width / sectionSize + 1;
+    int nbSteps = width / m_timelineOneSecondSize + 1;
 
     float indentSize = ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding;
     ImGui::Indent(indentSize);
@@ -153,7 +182,7 @@ void ProgramWindow::addTimeline(float sectionSize)
     {
         std::string text = std::to_string(i) + " s";
         float textSize = ImGui::CalcTextSize(text.c_str()).x;
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(sectionSize - textSize, 0.f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(m_timelineOneSecondSize - textSize, 0.f));
         ImGui::Text("%s", text.c_str());
         ImGui::SameLine();
         ImGui::PopStyleVar();
@@ -162,21 +191,24 @@ void ProgramWindow::addTimeline(float sectionSize)
 
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    float height = ImGui::GetFrameHeight() / 3.f;
 
     ImGui::NewLine();
     ImGui::BeginGroup(); // Timeline's lines
     ImGui::SameLine();
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(sectionSize / 10, 0.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(m_timelineOneSecondSize / 10, 0.f));
+    float height = ImGui::GetFrameHeight() / 3.f;
+    float heightSpace = height / 4.f;
+    float y1 = window->DC.CursorPos.y;
+    float y1Space = window->DC.CursorPos.y + heightSpace;
+    float y2 = window->DC.CursorPos.y + height;
+
     for (int i=0 ; i<nbSteps; i++)
     {
         for (int j=0; j<10; j++)
         {
-            float y1 = window->DC.CursorPos.y ;
-            float y2 = window->DC.CursorPos.y + height;
             ImVec4 color = (j==0) ? ImGui::GetStyleColorVec4(ImGuiCol_Text) : ImVec4(0.5f, 0.5f, 0.5f, 1.f);
 
-            drawList->AddLine(ImVec2(window->DC.CursorPos.x, y1), ImVec2(window->DC.CursorPos.x, y2), ImGui::GetColorU32(color));
+            drawList->AddLine(ImVec2(window->DC.CursorPos.x, (j==0)? y1: y1Space), ImVec2(window->DC.CursorPos.x, y2), ImGui::GetColorU32(color));
             ImGui::Spacing();
             ImGui::SameLine();
         }
@@ -187,12 +219,12 @@ void ProgramWindow::addTimeline(float sectionSize)
     ImGui::Unindent(indentSize);
 }
 
-void ProgramWindow::addTracks(const float& sectionSize)
+void ProgramWindow::addTracks()
 {
     const auto& tracks = m_program.getTracks();
-    float trackHeight = ImGui::GetFrameHeightWithSpacing() * 4;
 
     int trackID = 0;
+
     for (const auto& track: tracks)
     {
         // Track options menu
@@ -217,7 +249,7 @@ void ProgramWindow::addTracks(const float& sectionSize)
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_MenuBarBg)); // Color of track button
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5, 0)); // Align icon top middle
-        if(ImGui::Button(buttonLabel.c_str(), ImVec2(ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding, trackHeight)))
+        if(ImGui::Button(buttonLabel.c_str(), ImVec2(ImGui::CalcTextSize(ICON_FA_BARS).x + 2 * ImGuiStyleVar_FramePadding, m_trackHeight)))
         {
             ImGui::PopStyleVar(); // End align icon top middle
             ImGui::OpenPopup(menuLabel.c_str());
@@ -228,16 +260,16 @@ void ProgramWindow::addTracks(const float& sectionSize)
         }
         ImGui::PopStyleColor();
 
+        m_trackBeginPos = ImGui::GetCurrentWindow()->DC.CursorPosPrevLine;
+
         ImGui::SameLine();
-        addBlocks(track, trackID, sectionSize, trackHeight);
+        addBlocks(track, trackID);
         trackID++;
     }
 }
 
 void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
-                              const int& trackID,
-                              const float &sectionSize,
-                              const float &height)
+                              const int& trackID)
 {
     const std::vector<std::shared_ptr<models::Action>> &actions = track->getActions();
     int actionID = 0;
@@ -245,8 +277,8 @@ void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
     // Action blocks
     for (const std::shared_ptr<models::Action> &action: actions)
     {
-        float actionWidth = action->getDuration() * sectionSize - ImGui::GetStyle().ItemSpacing.x;
-        float actionHeight = height;
+        float actionWidth = action->getDuration() * m_timelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
+        float actionHeight = m_trackHeight;
         std::string blockLabel = std::string("##Action" + std::to_string(trackID) + std::to_string(actionID++));
         ImGui::SameLine();
         action->showBlock(blockLabel.c_str(), ImVec2(actionWidth, actionHeight));
@@ -255,7 +287,7 @@ void ProgramWindow::addBlocks(const std::shared_ptr<models::Track> &track,
     { // Empty track background
         ImGui::SameLine();
         std::string trackLabel = std::string("##Track" + std::to_string(trackID) + std::to_string(actionID));
-        ImVec2 size(ImGui::GetWindowWidth() + ImGui::GetScrollX(), height);
+        ImVec2 size(ImGui::GetWindowWidth() + ImGui::GetScrollX(), m_trackHeight);
 
         float x = ImGui::GetCurrentWindow()->DC.CursorPos.x ;
         float y = ImGui::GetCurrentWindow()->DC.CursorPos.y ;
@@ -296,6 +328,17 @@ void ProgramWindow::exportProgram()
     nfdresult_t result = NFD_SaveDialog(&outPath, nfd_filters.data(), nfd_filters.size(), nullptr, "");
     if (result == NFD_OKAY)
         m_program.exportProgram(outPath);
+}
+
+void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
+{
+    SOFA_UNUSED(groot);
+}
+
+void ProgramWindow::animateEndEvent(sofa::simulation::Node *groot)
+{
+    SOFA_UNUSED(groot);
+    m_time = groot->getTime(); // time in seconds
 }
 
 } // namespace

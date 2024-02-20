@@ -46,11 +46,22 @@ class ProgramWindow : public BaseWindow
     void showWindow(sofa::simulation::Node *groot,
                     const ImGuiWindowFlags &windowFlags);
 
+    void animateBeginEvent(sofa::simulation::Node *groot);
+    void animateEndEvent(sofa::simulation::Node *groot);
+
    protected:
+
+    static float m_cursor;
+    static ImVec2 m_trackBeginPos;
+    static float m_timelineOneSecondSize;
+    static float m_time;
+    float m_trackHeight;
+
     void addButtons();
-    void addTimeline(float sectionSize);
-    void addTracks(const float &sectionSize);
-    void addBlocks(const std::shared_ptr<models::Track>& track, const int &trackID, const float &sectionSize, const float &height);
+    void addCursorMarker();
+    void addTimeline();
+    void addTracks();
+    void addBlocks(const std::shared_ptr<models::Track>& track, const int &trackID);
     void importProgram();
     void exportProgram();
 };

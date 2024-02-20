@@ -38,6 +38,7 @@ class ViewportWindow : public BaseWindow
 
     void showWindow(sofa::simulation::Node *groot, const ImTextureID& texture,
                     const ImGuiWindowFlags &windowFlags);
+
     bool addStepButton();
     bool addAnimateButton(bool *animate);
     bool addModeButton(int *mode, const char *listModes[], const int &sizeListModes);
@@ -50,6 +51,7 @@ class ViewportWindow : public BaseWindow
     StateWindow m_stateWindow = windows::StateWindow("State", true);
 
     void addStateWindow(sofa::simulation::Node* groot);
+    void addSimulationTimeAndFPS(sofa::simulation::Node *groot);
 
 };
 

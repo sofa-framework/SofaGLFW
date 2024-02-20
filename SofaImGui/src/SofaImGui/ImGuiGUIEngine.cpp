@@ -265,13 +265,13 @@ void ImGuiGUIEngine::initDockSpace()
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
-        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.27f, nullptr, &dockspaceID);
+        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.25f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_IOWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_myRobotWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_moveWindow.m_name.c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
 
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.27f, nullptr, &dockspaceID);
+        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.25f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.m_name.c_str(), dock_id_down);
 
         // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
@@ -356,7 +356,6 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
         }
     }
-
 }
 
 void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -377,21 +376,18 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
 void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
-    const ImGuiIO& io = ImGui::GetIO();
-    static bool showFPSInMenuBar = true;
-    static bool showTime = true;
-
     auto groot = baseGUI->getRootNode();
 
     if (ImGui::BeginMainMenuBar())
     {
         menus::FileMenu(baseGUI).addMenu();
-        menus::ViewMenu(baseGUI).addMenu(showFPSInMenuBar, m_currentFBOSize, m_fbo->getColorTexture());
+        menus::ViewMenu(baseGUI).addMenu(m_currentFBOSize, m_fbo->getColorTexture());
 
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::LocalCheckBox(m_IOWindow.m_name.c_str(), &m_IOWindow.m_isWindowOpen);
             ImGui::LocalCheckBox(m_moveWindow.m_name.c_str(), &m_moveWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_myRobotWindow.m_name.c_str(), &m_myRobotWindow.m_isWindowOpen);
             ImGui::LocalCheckBox(m_programWindow.m_name.c_str(), &m_programWindow.m_isWindowOpen);
             ImGui::LocalCheckBox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Separator();
@@ -482,28 +478,6 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         ImGui::SetCursorPosX(posX);
 
-        // Time
-        if (showTime)
-        {
-            auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("Time: 000.000").x
-                            - 2 * ImGui::GetStyle().ItemSpacing.x;
-            position -= ImGui::CalcTextSize(ICON_FA_SUN).x;
-            ImGui::SetCursorPosX(position);
-            ImGui::TextDisabled("Time: %.3f", groot->getTime());
-            ImGui::SetCursorPosX(posX);
-        }
-
-        // FPS
-        if (showFPSInMenuBar && m_animate)
-        {
-            auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("1000.0 FPS ").x
-                            - 2 * ImGui::GetStyle().ItemSpacing.x;
-            position -= ImGui::CalcTextSize("Time: 000.000  ").x;
-            ImGui::SetCursorPosX(position);
-            ImGui::Text("%.1f FPS", io.Framerate);
-            ImGui::SetCursorPosX(posX);
-        }
-
         ImGui::EndMainMenuBar();
     }
 }
@@ -548,11 +522,13 @@ void ImGuiGUIEngine::showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 void ImGuiGUIEngine::animateBeginEvent(sofa::simulation::Node* groot)
 {
     m_IOWindow.animateBeginEvent(groot);
+    m_programWindow.animateBeginEvent(groot);
 }
 
 void ImGuiGUIEngine::animateEndEvent(sofa::simulation::Node* groot)
 {
     m_IOWindow.animateEndEvent(groot);
+    m_programWindow.animateEndEvent(groot);
 }
 
 } //namespace sofaimgui
