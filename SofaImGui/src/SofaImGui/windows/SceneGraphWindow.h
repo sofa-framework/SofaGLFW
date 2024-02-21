@@ -32,9 +32,6 @@ class SceneGraphWindow : public BaseWindow
     SceneGraphWindow(const std::string& name, const bool& isWindowOpen);
     ~SceneGraphWindow() = default;
 
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
     void showWindow(sofa::simulation::Node*groot, const ImGuiWindowFlags &windowFlags);
 };
 

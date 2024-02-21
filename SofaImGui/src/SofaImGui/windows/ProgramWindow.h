@@ -23,7 +23,9 @@
 
 #include <SofaImGui/windows/BaseWindow.h>
 #include <SofaImGui/models/Program.h>
+#include <SofaImGui/models/Move.h>
 #include <imgui.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 struct ImDrawList;
 struct ImRect;
@@ -35,15 +37,12 @@ class ProgramWindow : public BaseWindow
     typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
 
    public:
-   ProgramWindow(const std::string& name, const bool& isWindowOpen);
+    ProgramWindow(const std::string& name, const bool& isWindowOpen);
     ~ProgramWindow() = default;
-
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
 
     models::Program m_program; // robot program
 
-    void showWindow(sofa::simulation::Node *groot,
+    void showWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI,
                     const ImGuiWindowFlags &windowFlags);
 
     void animateBeginEvent(sofa::simulation::Node *groot);
@@ -57,13 +56,21 @@ class ProgramWindow : public BaseWindow
     static float m_time;
     float m_trackHeight;
 
-    void addButtons();
-    void addCursorMarker();
-    void addTimeline();
-    void addTracks();
-    void addBlocks(const std::shared_ptr<models::Track>& track, const int &trackID);
+    sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
+
+    void showProgramButtons();
+    void showCursorMarker();
+    void showTimeline();
+    void showTracks();
+    void showBlocks(const std::shared_ptr<models::Track>& track, const int &trackID);
     void importProgram();
     void exportProgram();
+
+    void showMoveBlock(const std::shared_ptr<models::Move> &move,
+                       const std::string &label,
+                       const ImVec2 &size);
+    void showActionOptionButton(const std::string &menulabel,
+                               const std::string &label);
 };
 
 } // namespace

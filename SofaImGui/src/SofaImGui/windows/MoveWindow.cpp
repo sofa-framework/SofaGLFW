@@ -20,13 +20,13 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
-#include <sofa/core/behavior/BaseMechanicalState.h>
 #include <sofa/type/Quat.h>
 
 #include <imgui_internal.h>
 #include <IconsFontAwesome6.h>
 
 #include <SofaImGui/windows/MoveWindow.h>
+#include <SofaImGui/Utils.h>
 
 namespace sofaimgui::windows {
 
@@ -57,8 +57,8 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             static float rx=0.;
             static float ry=0.;
             static float rz=0.;
-
-            getTarget(groot, x, y, z, rx, ry, rz);
+            
+            Utils::getTCPTarget(groot, x, y, z, rx, ry, rz);
 
             ImGui::Indent();
             ImGui::Text("TCP Target Position (mm):");
@@ -68,11 +68,11 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
             ImGui::Indent();
 
-            addSliderInt("X", "##Xpos", "##XposInput", &x, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            showSliderInt("X", "##Xpos", "##XposInput", &x, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            addSliderInt("Y", "##Ypos", "##YposInput", &y, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            showSliderInt("Y", "##Ypos", "##YposInput", &y, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            addSliderInt("Z", "##Zpos", "##ZposInput", &z, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            showSliderInt("Z", "##Zpos", "##ZposInput", &z, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
             ImGui::Spacing();
 
             ImGui::Unindent();
@@ -88,25 +88,24 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
             ImGui::Indent();
 
-            addSliderFloat("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            showSliderFloat("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            addSliderFloat("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            showSliderFloat("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            addSliderFloat("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            showSliderFloat("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
             ImGui::Spacing();
 
-            ImGui::Unindent();
             ImGui::Unindent();
 
             if (m_isDrivingSimulation)
-                setTarget(groot, x, y, z, rx, ry, rz);
+                Utils::setTCPTarget(groot, x, y, z, rx, ry, rz);
             else
             {
                 ImGui::EndDisabled();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_WarningText));
-                ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION" Choose Move in the Mode panel to enable this tool.");
-                ImGui::PopStyleColor();
+                ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION" Choose Move in the Mode panel to control the target with this tool.");
             }
+
+            ImGui::Unindent();
 
             ImGui::End();
         }
@@ -114,7 +113,7 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
     }
 }
 
-void MoveWindow::addSliderInt(const char* name, const char* label1, const char* label2, int* v, const ImVec4& color)
+void MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const ImVec4& color)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
@@ -133,7 +132,7 @@ void MoveWindow::addSliderInt(const char* name, const char* label1, const char* 
     ImGui::PopItemWidth();
 }
 
-void MoveWindow::addSliderFloat(const char* name, const char* label1, const char *label2, float* v, const ImVec4& color)
+void MoveWindow::showSliderFloat(const char* name, const char* label1, const char *label2, float* v, const ImVec4& color)
 {
     float pi = 3.1415;
 
@@ -152,78 +151,6 @@ void MoveWindow::addSliderFloat(const char* name, const char* label1, const char
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
     ImGui::InputFloat(label2, v, 0.01, 0.1, "%0.2f");
     ImGui::PopItemWidth();
-}
-
-void MoveWindow::getTarget(sofa::simulation::Node* groot,
-                           int &x, int &y, int &z, float &rx, float &ry, float &rz)
-{
-    if (ImGui::IsWindowFocused())
-    {
-        sofa::simulation::Node *modelling = groot->getChild("Modelling");
-
-        if (modelling != nullptr)
-        {
-            sofa::simulation::Node *target = modelling->getChild("Target");
-            if (target != nullptr)
-            {
-                sofa::core::behavior::BaseMechanicalState *mechanical = target->getMechanicalState();
-                if (mechanical != nullptr)
-                {
-                    std::stringstream frame;
-                    mechanical->writeVec(sofa::core::VecId::position(), frame);
-
-                    frame >> x;
-                    frame >> y;
-                    frame >> z;
-
-                    sofa::type::Quat<SReal> q;
-
-                    frame >> q[0];
-                    frame >> q[1];
-                    frame >> q[2];
-                    frame >> q[3];
-
-                    sofa::type::Vec3 rotation = q.toEulerVector();
-                    rx = rotation[0];
-                    ry = rotation[1];
-                    rz = rotation[2];
-                }
-            }
-        }
-    }
-}
-
-void MoveWindow::setTarget(sofa::simulation::Node* groot,
-                           const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz)
-{
-    if (ImGui::IsWindowFocused())
-    {
-        sofa::simulation::Node *modelling = groot->getChild("Modelling");
-
-        if (modelling != nullptr)
-        {
-            sofa::simulation::Node *target = modelling->getChild("Target");
-            if (target != nullptr)
-            {
-                sofa::core::behavior::BaseMechanicalState *mechanical = target->getMechanicalState();
-                if (mechanical != nullptr)
-                {
-                    sofa::type::Vec3 rotation(rx, ry, rz);
-                    sofa::type::Quat<SReal> q = sofa::type::Quat<SReal>::createQuaterFromEuler(rotation);
-
-                    std::stringstream frame;
-                    frame << x << " ";
-                    frame << y << " ";
-                    frame << z << " ";
-                    frame << q[0] << " ";
-                    frame << q[1] << " ";
-                    frame << q[2] << " ";
-                    frame << q[3] << " ";
-                    mechanical->readVec(sofa::core::VecId::position(), frame);
-                }
-            }
-        }
-    }
 }
 
 }

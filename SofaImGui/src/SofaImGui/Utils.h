@@ -1,19 +1,19 @@
 /******************************************************************************
- *                 SOFA, Simulation Open-Framework Architecture                *
+ *                 SOFA, Utils Open-Framework Architecture                *
  *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
  *                                                                             *
- * This Track is free software; you can redistribute it and/or modify it     *
+ * This program is free software; you can redistribute it and/or modify it     *
  * under the terms of the GNU General Public License as published by the Free  *
  * Software Foundation; either version 2 of the License, or (at your option)   *
  * any later version.                                                          *
  *                                                                             *
- * This Track is distributed in the hope that it will be useful, but WITHOUT *
+ * This program is distributed in the hope that it will be useful, but WITHOUT *
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    *
  * more details.                                                               *
  *                                                                             *
  * You should have received a copy of the GNU General Public License along     *
- * with this Track. If not, see <http://www.gnu.org/licenses/>.              *
+ * with this program. If not, see <http://www.gnu.org/licenses/>.              *
  *******************************************************************************
  * Authors: The SOFA Team and external contributors (see Authors.txt)          *
  *                                                                             *
@@ -21,34 +21,17 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/models/Action.h>
-#include <memory>
-#include <vector>
-#include <sofa/core/objectmodel/DataFileName.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 
-namespace sofaimgui::models {
+namespace sofaimgui::Utils {
 
-class Track
-{
-   public:
-    Track() = default;
-    ~Track() = default;
+void getTCPTarget(sofa::simulation::Node* groot, sofa::defaulttype::RigidCoord<3, SReal>& position);
+void getTCPTarget(sofa::simulation::Node* groot, int &x, int &y, int &z, float &rx, float &ry, float &rz);
+void setTCPTarget(sofa::simulation::Node* groot, const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
 
-    void clear() {m_actions.clear();}
-
-    const std::vector<std::shared_ptr<Action>>& getActions() {return m_actions;}
-
-    void addAction(const std::shared_ptr<Action> action) {m_actions.push_back(action);}
-    void popAction() {m_actions.pop_back();}
-
-    void insertAction(const sofa::Index &actionID, const std::shared_ptr<Action> action);
-    void removeAction(const sofa::Index &actionID);
-
-   protected:
-
-    std::vector<std::shared_ptr<Action>> m_actions;
-
-};
+void loadFile(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName);
+void resetSimulationView(sofaglfw::SofaGLFWBaseGUI *baseGUI);
+void reloadSimulation(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName);
 
 } // namespace
 

@@ -116,9 +116,6 @@ class IOWindow : public BaseWindow
     IOWindow(const std::string& name, const bool& isWindowOpen);
     ~IOWindow();
 
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
     void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
 
     void animateBeginEvent(sofa::simulation::Node *groot);
@@ -137,8 +134,8 @@ class IOWindow : public BaseWindow
 
     void init();
 
-    void addOutputChildWindow(const std::map<std::string, std::vector<float> > &simulationStateList);
-    void addInputChildWindow(const std::map<std::string, std::vector<float> > &simulationStateList);
+    void showOutput(const std::map<std::string, std::vector<float> > &simulationStateList);
+    void showInput(const std::map<std::string, std::vector<float> > &simulationStateList);
 
     std::map<std::string, std::vector<float> > getSimulationStateList(const sofa::core::sptr<sofa::simulation::Node>& groot);
 

@@ -68,6 +68,7 @@
 
 #include <SofaImGui/menus/FileMenu.h>
 #include <SofaImGui/menus/ViewMenu.h>
+#include <SofaImGui/Utils.h>
 #include <SofaImGui/widgets/Buttons.h>
 
 
@@ -162,9 +163,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     initDockSpace();
 
-    addViewportWindow(baseGUI);
-    addOptionWindows(baseGUI);
-    addMainMenuBar(baseGUI);
+    showViewportWindow(baseGUI);
+    showOptionWindows(baseGUI);
+    showMainMenuBar(baseGUI);
 
     ImGui::Render();
 
@@ -258,19 +259,19 @@ void ImGuiGUIEngine::initDockSpace()
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.25f, nullptr, &dockspaceID);
-        ImGui::DockBuilderDockWindow(m_IOWindow.m_name.c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_myRobotWindow.m_name.c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_moveWindow.m_name.c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_sceneGraphWindow.m_name.c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_IOWindow.getName().c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_myRobotWindow.getName().c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_moveWindow.getName().c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_sceneGraphWindow.getName().c_str(), dock_id_right);
 
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.25f, nullptr, &dockspaceID);
-        ImGui::DockBuilderDockWindow(m_programWindow.m_name.c_str(), dock_id_down);
+        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.3f, nullptr, &dockspaceID);
+        ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
 
         // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
         // ImGui::DockBuilderDockWindow(m_workspaceWindow.m_name.c_str(), dock_id_left);
         // ImGui::DockBuilderGetNode(dock_id_left)->WantHiddenTabBarToggle = true;
 
-        ImGui::DockBuilderDockWindow(m_viewportWindow.m_name.c_str(), dockspaceID);
+        ImGui::DockBuilderDockWindow(m_viewportWindow.getName().c_str(), dockspaceID);
         ImGui::DockBuilderGetNode(dockspaceID)->WantHiddenTabBarToggle = true;
 
         ImGui::DockBuilderFinish(dockspaceID);
@@ -279,7 +280,7 @@ void ImGuiGUIEngine::initDockSpace()
     ImGui::End();
 }
 
-void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
+void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     if(ini.GetBoolValue("Visualization", "alwaysShowFrame", true))
         showFrameOnViewport(baseGUI);
@@ -290,15 +291,7 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if (firstTime)
     {
         firstTime = false;
-        const std::string viewFileName = baseGUI->getFilename() + ".view";
-        bool fileExists = sofa::helper::system::FileSystem::exists(viewFileName);
-        sofa::component::visual::BaseCamera::SPtr camera;
-        groot->get(camera);
-        if (camera && fileExists)
-        {
-            if (camera->importParametersFromFile(viewFileName))
-                msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
-        }
+        Utils::resetSimulationView(baseGUI);
     }
 
     m_viewportWindow.showWindow(groot.get(), (ImTextureID)m_fbo->getColorTexture(),
@@ -325,39 +318,42 @@ void ImGuiGUIEngine::addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     // Mode button
     static const char* listModes[]{"Move", "Program", "IO"};
-    if (m_viewportWindow.addModeButton(&m_mode, listModes, IM_ARRAYSIZE(listModes)))
+    if (m_viewportWindow.addModeCombo(&m_mode, listModes, IM_ARRAYSIZE(listModes)))
     {
-        m_moveWindow.m_isDrivingSimulation = false;
-        m_programWindow.m_isDrivingSimulation = false;
-        m_IOWindow.m_isDrivingSimulation = false;
+        const auto filename = baseGUI->getFilename();
+        Utils::reloadSimulation(baseGUI, filename);
+
+        m_moveWindow.setDrivingSimulation(false);
+        m_programWindow.setDrivingSimulation(false);
+        m_IOWindow.setDrivingSimulation(false);
         switch (m_mode) {
             case 1:
             {
-                m_programWindow.m_isDrivingSimulation = true;
+                m_programWindow.setDrivingSimulation(true);
                 break;
             }
             case 2:
             {
-                m_IOWindow.m_isDrivingSimulation = true;
+                m_IOWindow.setDrivingSimulation(true);
                 break;
             }
             default:
             {
-                m_moveWindow.m_isDrivingSimulation = true;
+                m_moveWindow.setDrivingSimulation(true);
                 break;
             }
         }
     }
 }
 
-void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
+void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove ;
 
     // Down Dock
-    m_programWindow.showWindow(groot.get(), windowFlags);
+    m_programWindow.showWindow(baseGUI, windowFlags);
 
     // Right Dock
     m_IOWindow.showWindow(groot.get(), windowFlags);
@@ -366,7 +362,7 @@ void ImGuiGUIEngine::addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_sceneGraphWindow.showWindow(groot.get(), windowFlags);
 }
 
-void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
+void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
 
@@ -377,13 +373,13 @@ void ImGuiGUIEngine::addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::LocalCheckBox(m_IOWindow.m_name.c_str(), &m_IOWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_moveWindow.m_name.c_str(), &m_moveWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_myRobotWindow.m_name.c_str(), &m_myRobotWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_programWindow.m_name.c_str(), &m_programWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_viewportWindow.m_name.c_str(), &m_viewportWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.m_isWindowOpen);
             ImGui::Separator();
-            ImGui::LocalCheckBox(m_sceneGraphWindow.m_name.c_str(), &m_sceneGraphWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.m_isWindowOpen);
             ImGui::EndMenu();
         }
 

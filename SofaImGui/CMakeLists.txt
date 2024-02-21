@@ -104,6 +104,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.h
+    ${SOFAIMGUI_SOURCE_DIR}/Utils.h
     ${SOFAIMGUI_SOURCE_DIR}/config.h.in
     ${SOFAIMGUI_SOURCE_DIR}/init.h
 )
@@ -132,6 +133,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/Utils.cpp
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
 )
 

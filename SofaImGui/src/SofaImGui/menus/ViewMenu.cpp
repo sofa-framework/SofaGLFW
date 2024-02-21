@@ -26,6 +26,7 @@
 
 #include <nfd.h>
 #include <filesystem>
+#include <SofaImGui/Utils.h>
 #include <SofaImGui/widgets/Buttons.h>
 
 namespace sofaimgui::menus {
@@ -43,8 +44,6 @@ void ViewMenu::addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
 {
     if (ImGui::BeginMenu("View"))
     {
-        ImGui::Separator();
-
         addCenterCamera();
         addSaveCamera();
         addRestoreCamera();
@@ -120,20 +119,7 @@ void ViewMenu::addRestoreCamera()
     ImGui::BeginDisabled(!fileExists);
     if (ImGui::MenuItem("Restore Camera"))
     {
-        sofa::component::visual::BaseCamera::SPtr camera;
-        const auto& groot = m_baseGUI->getRootNode();
-        groot->get(camera);
-        if (camera)
-        {
-            if (camera->importParametersFromFile(viewFileName))
-            {
-                msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
-            }
-            else
-            {
-                msg_error("GUI") << "Could not import camera parameters from " << viewFileName << " .";
-            }
-        }
+        Utils::resetSimulationView(m_baseGUI);
     }
     ImGui::EndDisabled();
 }

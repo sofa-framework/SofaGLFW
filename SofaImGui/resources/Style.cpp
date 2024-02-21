@@ -132,7 +132,7 @@ void setLightStyle()
     colors[ImGuiCol_TextDisabled]           = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     colors[ImGuiCol_WindowBg]               = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_ChildBg]                = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
-    colors[ImGuiCol_PopupBg]                = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
+    colors[ImGuiCol_PopupBg]                = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
     colors[ImGuiCol_Border]                 = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_BorderShadow]           = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 0.80f);
@@ -160,7 +160,7 @@ void setLightStyle()
     colors[ImGuiCol_TabActive]              = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
     colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
     colors[ImGuiCol_TabHovered]             = ImVec4(0.08f, 0.55f, 0.53f, 0.50f);
-    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.60f, 0.81f, 0.76f, 0.50f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.60f, 0.81f, 0.76f, 0.80f);
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.60f, 0.81f, 0.76f, 0.50f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.60f, 0.81f, 0.76f, 0.50f);
     colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.60f, 0.81f, 0.76f, 0.50f);

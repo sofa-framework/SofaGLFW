@@ -51,12 +51,13 @@ class Program
     void addAction(const std::shared_ptr<Action> &action, const sofa::Index &trackID);
     void removeAction(const sofa::Index &actionID, const sofa::Index &trackID);
 
+    void interpolate(const float& time);
+
     void clear();
 
    protected:
 
     bool checkExtension(const std::string &filename);
-
     std::vector<std::shared_ptr<Track>> m_tracks;
 
 };

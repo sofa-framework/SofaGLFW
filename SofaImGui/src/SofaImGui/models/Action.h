@@ -23,7 +23,6 @@
 
 #include <imgui.h>
 #include <tinyxml2.h>
-#include <string>
 
 namespace sofaimgui::models {
 
@@ -41,11 +40,10 @@ class Action
     float getDuration() {return m_duration;}
     void setDuration(const float& duration) {m_duration = duration;}
 
-    virtual void showBlock(const std::string &label, const ImVec2 &size) = 0;
+    float m_duration; // duration in second
 
    protected:
     int m_index;
-    float m_duration; // duration in second
 };
 
 } // namespace

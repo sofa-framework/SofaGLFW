@@ -39,12 +39,13 @@ class Move : public Action
         LINEAR
     };
 
+    Move();
+
     Move(const RigidCoord& waypoint,
          const float& duration,
          MoveType type = LINEAR);
     ~Move() = default;
 
-    void showBlock(const std::string &label, const ImVec2 &size) override;
     void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack) override;
 
     RigidCoord m_waypoint;

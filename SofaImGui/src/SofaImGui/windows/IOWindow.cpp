@@ -151,7 +151,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
     if (ImGui::CollapsingHeader("Output (Publishers)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
-        addOutputChildWindow(simulationStateList);
+        showOutput(simulationStateList);
     }
     else
     {
@@ -162,7 +162,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
     if (ImGui::CollapsingHeader("Input (Subscriptions)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
-        addInputChildWindow(simulationStateList);
+        showInput(simulationStateList);
     }
     else
     {
@@ -171,7 +171,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
 
 }
 
-void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<float>> &simulationStateList)
+void IOWindow::showOutput(const std::map<std::string, std::vector<float>> &simulationStateList)
 {
     ImGui::Indent();
     if (m_isPublishing)
@@ -307,7 +307,7 @@ void IOWindow::addOutputChildWindow(const std::map<std::string, std::vector<floa
     m_isReadyToPublish = validNodeName;
 }
 
-void IOWindow::addInputChildWindow(const std::map<std::string, std::vector<float> > &simulationStateList)
+void IOWindow::showInput(const std::map<std::string, std::vector<float> > &simulationStateList)
 {
     if (m_isListening)
     {

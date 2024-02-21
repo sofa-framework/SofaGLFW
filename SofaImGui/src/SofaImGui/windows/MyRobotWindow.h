@@ -32,15 +32,7 @@ class MyRobotWindow : public BaseWindow
     MyRobotWindow(const std::string& name, const bool& isWindowOpen);
     ~MyRobotWindow() = default;
 
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
     void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
-
-   protected:
-
-    void getTarget(sofa::simulation::Node* groot, int &x, int &y, int &z, float &rx, float &ry, float &rz);
-    void setTarget(sofa::simulation::Node* groot, const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
 };
 
 }

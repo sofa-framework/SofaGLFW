@@ -23,10 +23,10 @@
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
-#include <sofa/helper/system/FileSystem.h>
 #include <sofa/component/playback/ReadState.h>
 
 #include <SofaImGui/menus/FileMenu.h>
+#include <SofaImGui/Utils.h>
 #include <imgui.h>
 
 #include <nfd.h>
@@ -106,32 +106,10 @@ void FileMenu::addOpenSimulation()
         nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
         if (result == NFD_OKAY)
         {
-            auto groot = m_baseGUI->getRootNode();
-            if (sofa::helper::system::FileSystem::exists(outPath))
-                loadFile(groot, outPath);
+            Utils::reloadSimulation(m_baseGUI, outPath);
             NFD_FreePath(outPath);
         }
     }
-}
-
-void FileMenu::loadFile(sofa::core::sptr<sofa::simulation::Node> &groot,
-                        const std::string filePathName)
-{
-    sofa::simulation::node::unload(groot);
-
-    groot = sofa::simulation::node::load(filePathName.c_str());
-    if(!groot)
-        groot = sofa::simulation::getSimulation()->createNewGraph("");
-    m_baseGUI->setSimulation(groot, filePathName);
-
-    sofa::simulation::node::initRoot(groot.get());
-    auto camera = m_baseGUI->findCamera(groot);
-    if (camera)
-    {
-        camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
-        m_baseGUI->changeCamera(camera);
-    }
-    m_baseGUI->initVisual();
 }
 
 void FileMenu::addReloadSimulation()
@@ -139,13 +117,7 @@ void FileMenu::addReloadSimulation()
     const auto filename = m_baseGUI->getFilename();
     if (ImGui::MenuItem("Reload Simulation"))
     {
-        auto groot = m_baseGUI->getRootNode();
-
-        if (!filename.empty() && sofa::helper::system::FileSystem::exists(filename))
-        {
-            msg_info("GUI") << "Reloading file " << filename;
-            loadFile(groot, filename);
-        }
+        Utils::reloadSimulation(m_baseGUI, filename);
     }
     ImGui::SetItemTooltip("%s", filename.c_str());
 }

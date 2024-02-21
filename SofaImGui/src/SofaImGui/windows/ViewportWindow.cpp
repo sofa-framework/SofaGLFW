@@ -150,7 +150,7 @@ bool ViewportWindow::addAnimateButton(bool *animate)
     return isItemClicked;
 }
 
-bool ViewportWindow::addModeButton(int *mode, const char *listModes[], const int &sizeListModes)
+bool ViewportWindow::addModeCombo(int *mode, const char *listModes[], const int &sizeListModes)
 {
     bool hasValueChanged = false;
 

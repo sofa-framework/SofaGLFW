@@ -122,6 +122,11 @@ void Program::removeAction(const sofa::Index& actionID, const sofa::Index &track
         dmsg_error("Program") << "TrackID";
 }
 
+void Program::interpolate(const float& time)
+{
+
+}
+
 } // namespace
 
 

@@ -32,9 +32,6 @@ class WorkspaceWindow : public BaseWindow
     WorkspaceWindow(const std::string& name, const bool& isWindowOpen);
     ~WorkspaceWindow() = default;
 
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
     void showWindow(const ImGuiWindowFlags &windowFlags);
 };
 

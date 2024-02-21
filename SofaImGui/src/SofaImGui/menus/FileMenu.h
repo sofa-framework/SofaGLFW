@@ -43,9 +43,6 @@ class FileMenu
     void addReloadSimulation();
     void addCloseSimulation();
     void addExit();
-
-    void loadFile(sofa::core::sptr<sofa::simulation::Node>& groot,
-                  const std::string filePathName);
 };
 
 }

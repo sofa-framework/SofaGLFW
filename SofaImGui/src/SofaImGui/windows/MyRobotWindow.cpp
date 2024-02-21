@@ -116,6 +116,5 @@ void MyRobotWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowF
     }
 }
 
-
 }
 

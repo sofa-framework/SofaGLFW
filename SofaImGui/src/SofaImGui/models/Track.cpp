@@ -39,7 +39,7 @@ void Track::insertAction(const sofa::Index &actionID, const std::shared_ptr<Acti
     if (actionID < m_actions.size())
         m_actions.insert(m_actions.begin() + actionID, action);
     else
-        dmsg_error("Track") << "ActionID";
+        m_actions.push_back(action);
 }
 
 } // namespace

@@ -83,9 +83,9 @@ protected:
     static const std::string& getAppIniFile();
     void showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI *baseGUI);
     void initDockSpace();
-    void addViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI);
-    void addOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
-    void addMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
 
     static bool m_animate;

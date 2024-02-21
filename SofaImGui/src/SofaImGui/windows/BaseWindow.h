@@ -34,12 +34,17 @@ class BaseWindow
     BaseWindow() = default;
     ~BaseWindow() = default;
 
-    void isDrivingSimulation(const bool &isDrivingSimulation) {m_isDrivingSimulation=isDrivingSimulation;}
+    virtual void setDrivingSimulation(const bool &isDrivingSimulation) {m_isDrivingSimulation=isDrivingSimulation;}
+    bool isDrivingSimulation() {return m_isDrivingSimulation;}
+
+    std::string getName() const {return m_name;}
+
+    bool m_isWindowOpen{false};
+
+   protected:
 
     std::string m_name;
-    bool m_isWindowOpen{false};
     bool m_isDrivingSimulation{false};
-
 };
 
 }

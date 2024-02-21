@@ -32,9 +32,6 @@ class StateWindow : public BaseWindow
     StateWindow(const std::string& name, const bool& isWindowOpen);
     ~StateWindow() = default;
 
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
     void showWindow(sofa::simulation::Node *groot);
 };
 

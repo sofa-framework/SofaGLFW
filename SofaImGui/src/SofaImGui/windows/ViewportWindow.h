@@ -33,15 +33,12 @@ class ViewportWindow : public BaseWindow
     ViewportWindow(const std::string& name, const bool& isWindowOpen);
     ~ViewportWindow() = default;
 
-    using BaseWindow::m_name;
-    using BaseWindow::m_isWindowOpen;
-
     void showWindow(sofa::simulation::Node *groot, const ImTextureID& texture,
                     const ImGuiWindowFlags &windowFlags);
-
+    
     bool addStepButton();
     bool addAnimateButton(bool *animate);
-    bool addModeButton(int *mode, const char *listModes[], const int &sizeListModes);
+    bool addModeCombo(int *mode, const char *listModes[], const int &sizeListModes);
 
     std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};
