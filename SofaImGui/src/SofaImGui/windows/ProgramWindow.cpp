@@ -46,7 +46,7 @@ using sofa::type::Vec3;
 using sofa::type::Quat;
 
 ProgramWindow::ProgramWindow(const std::string& name,
-                         const bool& isWindowOpen)
+                             const bool& isWindowOpen)
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
@@ -58,7 +58,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
     if (m_isWindowOpen)
     {
         m_baseGUI = baseGUI;
-        m_trackHeight = ImGui::GetFrameHeightWithSpacing() * 4;
+        m_trackHeight = ImGui::GetFrameHeightWithSpacing() * 5;
 
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen,
                          windowFlags | ImGuiWindowFlags_AlwaysAutoResize
@@ -124,7 +124,7 @@ void ProgramWindow::showProgramButtons()
     ImGui::SameLine();
     ImGui::SetCursorPosX(positionMiddle); // Set position to right of the header
 
-    if (m_time==0.f)
+    if (m_time==0.f || !isDrivingSimulation())
         ImGui::BeginDisabled();
 
     if (ImGui::Button("Restart"))
@@ -135,7 +135,7 @@ void ProgramWindow::showProgramButtons()
     }
     ImGui::SetItemTooltip("Move the robot its initial position and restart program");
 
-    if (m_time==0.f)
+    if (m_time==0.f || !isDrivingSimulation())
         ImGui::EndDisabled();
 
     // Right buttons
@@ -266,9 +266,14 @@ void ProgramWindow::showTracks()
 
             if (ImGui::MenuItem(std::string("Add move##" + std::to_string(trackID)).c_str()))
             {
+                // 0 - Save la positionInitial quand on load la scene
+                // 1 - Faire un fonction addMove(track, id)
+                // 2 - Vitesse par defaut 50% de la vitesse max?
+                // 3 - Quand addMove on regarde la position precedente (ou positionInitial) et suivante et recalculer les durations en fonction du couple de points
+                // 4 - A chaque fois qu'on change la duration, ou la vitesse, on update l'autre
                 RigidCoord position;
                 Utils::getTCPTarget(m_baseGUI->getRootNode().get(), position);
-                auto move = std::make_shared<models::Move>(position, 3.f, models::Move::MoveType::LINEAR);
+                auto move = std::make_shared<models::Move>(position, 3.f, 0.f, models::Move::MoveType::LINEAR);
                 track->addAction(move);
             }
             ImGui::EndPopup();
@@ -295,12 +300,12 @@ void ProgramWindow::showTracks()
 }
 
 void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
-                              const int& trackID)
+                               const int& trackID)
 {
     const std::vector<std::shared_ptr<models::Action>> &actions = track->getActions();
 
-    // Action blocks
-    // TODO: Use iterator instead, to allow to modify the list while looping
+            // Action blocks
+            // TODO: Use iterator instead, to allow to modify the list while looping
     for (sofa::Index actionID = 0; actionID<actions.size(); actionID++)
     {
         const std::shared_ptr<models::Action> &action = actions[actionID];
@@ -323,7 +328,7 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
                 {
                     RigidCoord position;
                     Utils::getTCPTarget(m_baseGUI->getRootNode().get(), position);
-                    auto move = std::make_shared<models::Move>(position, 3.f, models::Move::MoveType::LINEAR);
+                    auto move = std::make_shared<models::Move>(position, 3.f, 0.f, models::Move::MoveType::LINEAR);
                     track->insertAction(actionID, move);
                     out = true;
                 }
@@ -331,7 +336,7 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
                 {
                     RigidCoord position;
                     Utils::getTCPTarget(m_baseGUI->getRootNode().get(), position);
-                    auto move = std::make_shared<models::Move>(position, 3.f, models::Move::MoveType::LINEAR);
+                    auto move = std::make_shared<models::Move>(position, 3.f, 0.f, models::Move::MoveType::LINEAR);
                     track->insertAction(actionID + 1, move);
                     out = true;
                 }
@@ -514,7 +519,36 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Move>& move,
         ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
         std::string id = "##duration" + std::to_string(window->DC.CursorPos.x);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
-        ImGui::InputFloat(id.c_str(), &move->m_duration, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::InputFloat(id.c_str(), &move->getDuration(), 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::PopStyleColor();
+        ImGui::SameLine();
+        ImGui::PopItemWidth();
+        ImGui::PopStyleVar();
+    }
+    ImGui::PopStyleColor();
+
+    text = "speed";
+    textSize = ImGui::CalcTextSize(text.c_str());
+    y = padding.y + bb.Max.y;
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
+    { // Speed
+        bb.Min = ImVec2(x, y);
+        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
+                        y + textSize.y + padding.y * 2);
+
+        drawList->AddText(ImVec2(x + padding.x,
+                                 y + padding.y),
+                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
+
+        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.y = y;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
+        ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
+        std::string id = "##speed" + std::to_string(window->DC.CursorPos.x);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
+        ImGui::InputFloat(id.c_str(), &move->getSpeed(), 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank);
         ImGui::PopStyleColor();
         ImGui::SameLine();
         ImGui::PopItemWidth();

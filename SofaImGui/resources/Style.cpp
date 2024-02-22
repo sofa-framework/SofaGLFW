@@ -73,7 +73,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ButtonText]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TabText]                = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TabTextActive]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
     colors[ImGuiCol_WindowBg]               = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
     colors[ImGuiCol_ChildBg]                = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
     colors[ImGuiCol_PopupBg]                = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
@@ -129,7 +129,7 @@ void setLightStyle()
     colors[ImGuiCol_ButtonText]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TabText]                = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_TabTextActive]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
     colors[ImGuiCol_WindowBg]               = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_ChildBg]                = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_PopupBg]                = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);

@@ -48,6 +48,8 @@ class ProgramWindow : public BaseWindow
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);
 
+    void setTime(const float &time) {m_time=time;}
+
    protected:
 
     static float m_cursor;

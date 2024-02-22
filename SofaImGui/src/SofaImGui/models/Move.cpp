@@ -26,52 +26,42 @@
 
 namespace sofaimgui::models {
 
-Move::Move(): Action(3) // default duration = 3s
+Move::Move(): Action()
 {
 }
 
 Move::Move(const RigidCoord& waypoint,
-           const float& duration,
-           MoveType type):  Action(duration),
+           const float &duration,
+           const float& speed,
+           MoveType type):  Action(duration, speed),
                             m_waypoint(waypoint),
                             m_type(type)
 {
-    m_velocity = computeVelocityFromDuration();
 }
 
 void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack)
 {
-    if (document == nullptr || xmlTrack == nullptr)
+    if (document && xmlTrack)
     {
+        tinyxml2::XMLElement * xmlMove = document->NewElement("move");
+        if (xmlMove != nullptr)
+        {
+            std::string wp = std::to_string(m_waypoint[0]) + " "
+                             + std::to_string(m_waypoint[1]) + " "
+                             + std::to_string(m_waypoint[2]) + " "
+                             + std::to_string(m_waypoint[3]) + " "
+                             + std::to_string(m_waypoint[4]) + " "
+                             + std::to_string(m_waypoint[5]) + " "
+                             + std::to_string(m_waypoint[6]) + " ";
+            xmlMove->SetAttribute("wp", wp.c_str());
+            xmlMove->SetAttribute("duration", getDuration());
+            xmlMove->SetAttribute("speed", getSpeed());
+            xmlMove->SetAttribute("type", m_type);
+            xmlTrack->InsertEndChild(xmlMove);
+        }
+    }
+    else
         dmsg_error("Move") << "getXMLElement() with nullptr";
-        return;
-    }
-
-    tinyxml2::XMLElement * xmlMove = document->NewElement("move");
-    if (xmlMove != nullptr)
-    {
-        std::string wp = std::to_string(m_waypoint[0]) + " "
-                         + std::to_string(m_waypoint[1]) + " "
-                         + std::to_string(m_waypoint[2]) + " "
-                         + std::to_string(m_waypoint[3]) + " "
-                         + std::to_string(m_waypoint[4]) + " "
-                         + std::to_string(m_waypoint[5]) + " "
-                         + std::to_string(m_waypoint[6]) + " ";
-        xmlMove->SetAttribute("wp", wp.c_str());
-        xmlMove->SetAttribute("duration", getDuration());
-        xmlMove->SetAttribute("type", m_type);
-        xmlTrack->InsertEndChild(xmlMove);
-    }
-}
-
-float Move::computeVelocityFromDuration()
-{
-    return 0;
-}
-
-float Move::computeDurationFromVelocity()
-{
-    return 0;
 }
 
 } // namespace

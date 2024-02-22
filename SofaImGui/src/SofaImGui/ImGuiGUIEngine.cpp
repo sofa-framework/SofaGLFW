@@ -264,7 +264,7 @@ void ImGuiGUIEngine::initDockSpace()
         ImGui::DockBuilderDockWindow(m_moveWindow.getName().c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.getName().c_str(), dock_id_right);
 
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.3f, nullptr, &dockspaceID);
+        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.32f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
 
         // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
@@ -321,7 +321,6 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if (m_viewportWindow.addModeCombo(&m_mode, listModes, IM_ARRAYSIZE(listModes)))
     {
         const auto filename = baseGUI->getFilename();
-        Utils::reloadSimulation(baseGUI, filename);
 
         m_moveWindow.setDrivingSimulation(false);
         m_programWindow.setDrivingSimulation(false);
@@ -329,6 +328,7 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         switch (m_mode) {
             case 1:
             {
+                m_programWindow.setTime(groot->getTime());
                 m_programWindow.setDrivingSimulation(true);
                 break;
             }

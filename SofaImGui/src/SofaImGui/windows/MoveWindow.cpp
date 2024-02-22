@@ -102,7 +102,7 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             else
             {
                 ImGui::EndDisabled();
-                ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION" Choose Move in the Mode panel to control the target with this tool.");
+                // ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION" Choose Move in the Mode panel to control the target with this tool.");
             }
 
             ImGui::Unindent();

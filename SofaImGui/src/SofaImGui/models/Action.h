@@ -29,21 +29,28 @@ namespace sofaimgui::models {
 class Action
 {
    public:
-    Action(const float& duration): m_duration(duration)
+
+    Action(const float& duration, const float& speed):
+                                                        m_duration(duration),
+                                                        m_speed(speed)
     {
     }
 
+    Action() = default;
     ~Action() = default;
 
     virtual void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack)=0;
 
-    float getDuration() {return m_duration;}
+    float& getDuration() {return m_duration;}
     void setDuration(const float& duration) {m_duration = duration;}
 
-    float m_duration; // duration in second
+    float& getSpeed() {return m_speed;}
+    void setSpeed(const float& speed) {m_speed = speed;}
 
    protected:
-    int m_index;
+
+    float m_duration; // duration in second
+    float m_speed;
 };
 
 } // namespace

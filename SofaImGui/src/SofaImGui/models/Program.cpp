@@ -58,8 +58,9 @@ void Program::importProgram(const std::string &filename)
                     wp[index++] = std::stof(value);
 
                 float duration = std::stof(e->Attribute("duration"));
+                float speed = std::stof(e->Attribute("speed"));
                 Move::MoveType type = static_cast<Move::MoveType>(std::stoi(e->Attribute("type")));
-                std::shared_ptr<Move> action = std::make_shared<models::Move>(wp, duration, type);
+                std::shared_ptr<Move> action = std::make_shared<models::Move>(wp, duration, speed, type);
 
                 track->addAction(action);
             }

@@ -43,6 +43,7 @@ class Move : public Action
 
     Move(const RigidCoord& waypoint,
          const float& duration,
+         const float& speed,
          MoveType type = LINEAR);
     ~Move() = default;
 
@@ -51,10 +52,6 @@ class Move : public Action
     RigidCoord m_waypoint;
     float m_velocity;
     MoveType m_type;
-
-   protected:
-    float computeVelocityFromDuration();
-    float computeDurationFromVelocity();
 };
 
 } // namespace
