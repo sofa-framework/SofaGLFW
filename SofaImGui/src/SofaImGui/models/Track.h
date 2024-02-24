@@ -21,33 +21,47 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/models/Action.h>
 #include <memory>
 #include <vector>
+#include <SofaImGui/models/TCPTarget.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/objectmodel/DataFileName.h>
+
+#include <SofaImGui/models/Action.h>
+#include <SofaImGui/models/Move.h>
 
 namespace sofaimgui::models {
 
 class Track
 {
+    typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
+
    public:
-    Track() = default;
+    Track(const std::shared_ptr<models::TCPTarget>& TCPTarget):
+                                           m_TCPTarget(TCPTarget)
+                                           {};
     ~Track() = default;
 
     void clear() {m_actions.clear();}
 
     const std::vector<std::shared_ptr<Action>>& getActions() {return m_actions;}
+    const std::shared_ptr<Action>& getAction(const sofa::Index& actionID) {return m_actions[actionID];}
 
-    void addAction(const std::shared_ptr<Action> action) {m_actions.push_back(action);}
+    void pushAction(const std::shared_ptr<Action> action) {m_actions.push_back(action);}
     void popAction() {m_actions.pop_back();}
 
     void insertAction(const sofa::Index &actionID, const std::shared_ptr<Action> action);
-    void removeAction(const sofa::Index &actionID);
+    void deleteAction(const sofa::Index &actionID);
+
+    void pushMove();
+    void insertMove(const sofa::Index &actionID);
+    void deleteMove(const sofa::Index &actionID);
+    void updateNextMove(const sofa::Index &actionID);
 
    protected:
 
+    std::shared_ptr<models::TCPTarget> m_TCPTarget;
     std::vector<std::shared_ptr<Action>> m_actions;
-
 };
 
 } // namespace

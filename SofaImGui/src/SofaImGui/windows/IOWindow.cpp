@@ -35,13 +35,6 @@
 
 namespace sofaimgui::windows {
 
-int IOWindow::m_method = 0;
-bool IOWindow::m_isPublishing = false;
-bool IOWindow::m_isListening = false;
-bool IOWindow::m_isReadyToPublish = false;
-bool IOWindow::m_digitalInput[] = {false, false, false};
-bool IOWindow::m_digitalOutput[] = {false, false, false};
-
 IOWindow::IOWindow(const std::string& name, const bool& isWindowOpen)
 {
     m_name = name;

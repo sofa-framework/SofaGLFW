@@ -25,10 +25,6 @@
 
 namespace sofaimgui::Utils {
 
-void getTCPTarget(sofa::simulation::Node* groot, sofa::defaulttype::RigidCoord<3, SReal>& position);
-void getTCPTarget(sofa::simulation::Node* groot, int &x, int &y, int &z, float &rx, float &ry, float &rz);
-void setTCPTarget(sofa::simulation::Node* groot, const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
-
 void loadFile(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName);
 void resetSimulationView(sofaglfw::SofaGLFWBaseGUI *baseGUI);
 void reloadSimulation(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName);

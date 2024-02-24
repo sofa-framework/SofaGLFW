@@ -26,7 +26,6 @@
 #include <IconsFontAwesome6.h>
 
 #include <SofaImGui/windows/MoveWindow.h>
-#include <SofaImGui/Utils.h>
 
 namespace sofaimgui::windows {
 
@@ -58,7 +57,7 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             static float ry=0.;
             static float rz=0.;
             
-            Utils::getTCPTarget(groot, x, y, z, rx, ry, rz);
+            m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
 
             ImGui::Indent();
             ImGui::Text("TCP Target Position (mm):");
@@ -98,7 +97,7 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Unindent();
 
             if (m_isDrivingSimulation)
-                Utils::setTCPTarget(groot, x, y, z, rx, ry, rz);
+                m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
             else
             {
                 ImGui::EndDisabled();

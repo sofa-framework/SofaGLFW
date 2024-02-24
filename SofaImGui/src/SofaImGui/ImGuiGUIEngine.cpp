@@ -77,10 +77,6 @@ using namespace sofa;
 namespace sofaimgui
 {
 
-bool ImGuiGUIEngine::m_animate = false;
-int ImGuiGUIEngine::m_mode = 0;
-bool ImGuiGUIEngine::m_nightStyle = false;
-
 const std::string& ImGuiGUIEngine::getAppIniFile()
 {
     static const std::string appIniFile(sofa::helper::Utils::getExecutableDirectory() + "/settings.ini");
@@ -162,6 +158,19 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui::NewFrame();
 
     initDockSpace();
+
+    static bool firstTime = true;
+    if (firstTime)
+    {
+        firstTime = false;
+
+        // For mode
+        m_TCPTarget = std::make_shared<models::TCPTarget>(baseGUI->getRootNode().get());
+        m_programWindow.setTCPTarget(m_TCPTarget);
+        m_moveWindow.setTCPTarget(m_TCPTarget);
+        m_IOWindow.setTCPTarget(m_TCPTarget);
+    }
+
 
     showViewportWindow(baseGUI);
     showOptionWindows(baseGUI);

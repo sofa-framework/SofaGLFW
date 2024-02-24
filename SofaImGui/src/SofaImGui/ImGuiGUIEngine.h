@@ -38,6 +38,8 @@
 #include <SofaImGui/windows/MoveWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
 
+#include <SofaImGui/models/TCPTarget.h>
+
 
 struct GLFWwindow;
 namespace sofa::glfw
@@ -88,9 +90,10 @@ protected:
     void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
 
-    static bool m_animate;
-    static int m_mode;
-    static bool m_nightStyle;
+    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    bool m_animate{false};
+    int m_mode{0};
+    bool m_nightStyle{false};
 };
 
 } // namespace sofaimgui

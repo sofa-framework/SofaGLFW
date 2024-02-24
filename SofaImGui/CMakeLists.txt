@@ -98,6 +98,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/models/Action.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Move.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.h
+    ${SOFAIMGUI_SOURCE_DIR}/models/TCPTarget.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Track.h
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
@@ -127,6 +128,7 @@ set(SOURCE_FILES
 
     ${SOFAIMGUI_SOURCE_DIR}/models/Move.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/TCPTarget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/Track.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.cpp

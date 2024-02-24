@@ -30,7 +30,6 @@ namespace sofaimgui::models {
 
 class Move : public Action
 {
-
    typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
 
    public:
@@ -41,14 +40,18 @@ class Move : public Action
 
     Move();
 
-    Move(const RigidCoord& waypoint,
+    Move(const RigidCoord& initialPoint,
+         const RigidCoord& waypoint,
          const float& duration,
-         const float& speed,
          MoveType type = LINEAR);
+
     ~Move() = default;
 
     void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack) override;
+    void computeSpeed() override;
+    void computeDuration() override;
 
+    RigidCoord m_initialPoint;
     RigidCoord m_waypoint;
     float m_velocity;
     MoveType m_type;

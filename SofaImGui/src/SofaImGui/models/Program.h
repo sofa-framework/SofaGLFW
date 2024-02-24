@@ -25,16 +25,24 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "SofaImGui/models/TCPTarget.h"
 #include <sofa/core/objectmodel/DataFileName.h>
 
 namespace sofaimgui::models {
 
 class Program
 {
+    typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
+
    public:
-    Program()
+
+    Program() = default;
+    Program(sofaglfw::SofaGLFWBaseGUI *baseGUI,
+            const std::shared_ptr<models::TCPTarget> &TCPTarget):
+                                                                   m_TCPTarget(TCPTarget),
+                                                                   m_baseGUI(baseGUI)
     {
-        std::shared_ptr<models::Track> track = std::make_shared<models::Track>();
+        std::shared_ptr<models::Track> track = std::make_shared<models::Track>(TCPTarget);
         addTrack(track);
     }
     ~Program() = default;
@@ -47,18 +55,17 @@ class Program
 
     void addTrack(std::shared_ptr<Track> track) {m_tracks.push_back(track);}
     void removeTrack(const sofa::Index &index) {m_tracks.erase(m_tracks.begin() + index);}
-
-    void addAction(const std::shared_ptr<Action> &action, const sofa::Index &trackID);
-    void removeAction(const sofa::Index &actionID, const sofa::Index &trackID);
+    void clearTracks();
 
     void interpolate(const float& time);
 
-    void clear();
-
    protected:
 
-    bool checkExtension(const std::string &filename);
+    std::shared_ptr<models::TCPTarget> m_TCPTarget;
     std::vector<std::shared_ptr<Track>> m_tracks;
+    sofaglfw::SofaGLFWBaseGUI *m_baseGUI;
+
+    bool checkExtension(const std::string &filename);
 
 };
 

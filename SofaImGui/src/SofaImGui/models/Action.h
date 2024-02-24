@@ -30,9 +30,8 @@ class Action
 {
    public:
 
-    Action(const float& duration, const float& speed):
-                                                        m_duration(duration),
-                                                        m_speed(speed)
+    Action(const float& duration):
+                                  m_duration(duration)
     {
     }
 
@@ -40,6 +39,8 @@ class Action
     ~Action() = default;
 
     virtual void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack)=0;
+    virtual void computeDuration()=0;
+    virtual void computeSpeed()=0;
 
     float& getDuration() {return m_duration;}
     void setDuration(const float& duration) {m_duration = duration;}
@@ -49,7 +50,7 @@ class Action
 
    protected:
 
-    float m_duration; // duration in second
+    float m_duration;
     float m_speed;
 };
 

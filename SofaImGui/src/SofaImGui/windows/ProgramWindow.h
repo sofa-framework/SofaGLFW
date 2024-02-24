@@ -24,6 +24,7 @@
 #include <SofaImGui/windows/BaseWindow.h>
 #include <SofaImGui/models/Program.h>
 #include <SofaImGui/models/Move.h>
+#include <SofaImGui/models/TCPTarget.h>
 #include <imgui.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
@@ -49,13 +50,16 @@ class ProgramWindow : public BaseWindow
     void animateEndEvent(sofa::simulation::Node *groot);
 
     void setTime(const float &time) {m_time=time;}
+    void setTCPTarget(const std::shared_ptr<models::TCPTarget> &TCPTarget) {m_TCPTarget=TCPTarget;}
 
    protected:
 
-    static float m_cursor;
-    static ImVec2 m_trackBeginPos;
-    static float m_timelineOneSecondSize;
-    static float m_time;
+    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+
+    float m_cursor;
+    ImVec2 m_trackBeginPos;
+    float m_timelineOneSecondSize;
+    float m_time;
     float m_trackHeight;
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
@@ -65,14 +69,15 @@ class ProgramWindow : public BaseWindow
     void showTimeline();
     void showTracks();
     void showBlocks(const std::shared_ptr<models::Track>& track, const int &trackID);
-    void importProgram();
-    void exportProgram();
-
-    void showMoveBlock(const std::shared_ptr<models::Move> &move,
+    void showMoveBlock(const std::shared_ptr<models::Track> &track,
+                       const sofa::Index &actionID,
+                       const std::shared_ptr<models::Move> &move,
                        const std::string &label,
                        const ImVec2 &size);
-    void showActionOptionButton(const std::string &menulabel,
-                               const std::string &label);
+    void showActionOptionButton(const std::string &menulabel, const std::string &label);
+
+    void importProgram();
+    void exportProgram();
 };
 
 } // namespace

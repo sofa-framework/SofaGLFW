@@ -26,10 +26,10 @@
 
 namespace sofaimgui::models {
 
-void Program::clear()
+void Program::clearTracks()
 {
     m_tracks.clear();
-    std::shared_ptr<models::Track> track = std::make_shared<models::Track>();
+    std::shared_ptr<models::Track> track = std::make_shared<models::Track>(m_TCPTarget);
     addTrack(track);
 }
 
@@ -45,24 +45,29 @@ void Program::importProgram(const std::string &filename)
         m_tracks.clear();
         for(auto* t = root->FirstChildElement("track"); t != nullptr; t = t->NextSiblingElement("track"))
         {
-            std::shared_ptr<Track> track = std::make_shared<Track>();
+            std::shared_ptr<Track> track = std::make_shared<Track>(m_TCPTarget);
 
             for(auto* e = t->FirstChildElement("move"); e != nullptr; e = e->NextSiblingElement("move"))
             {
-                sofa::defaulttype::RigidCoord<3, SReal> wp;
+                sofa::defaulttype::RigidCoord<3, SReal> ip;
+                std::stringstream strIP(e->Attribute("ip"));
+                std::string valueIP;
+                int indexIP = 0;
+                while (strIP >> valueIP)
+                    ip[indexIP++] = std::stof(valueIP);
 
-                std::stringstream str(e->Attribute("wp"));
-                std::string value;
-                int index = 0;
-                while (str >> value)
-                    wp[index++] = std::stof(value);
+                sofa::defaulttype::RigidCoord<3, SReal> wp;
+                std::stringstream strWP(e->Attribute("wp"));
+                std::string valueWP;
+                int indexWP = 0;
+                while (strWP >> valueWP)
+                    wp[indexWP++] = std::stof(valueWP);
 
                 float duration = std::stof(e->Attribute("duration"));
-                float speed = std::stof(e->Attribute("speed"));
                 Move::MoveType type = static_cast<Move::MoveType>(std::stoi(e->Attribute("type")));
-                std::shared_ptr<Move> action = std::make_shared<models::Move>(wp, duration, speed, type);
+                std::shared_ptr<Move> action = std::make_shared<Move>(ip, wp, duration, type);
 
-                track->addAction(action);
+                track->pushAction(action);
             }
             addTrack(track);
         }
@@ -105,22 +110,6 @@ bool Program::checkExtension(const std::string &filename)
         isExtensionKnown = true;
 
     return isExtensionKnown;
-}
-
-void Program::addAction(const std::shared_ptr<Action>& action, const sofa::Index &trackID)
-{
-    if (trackID < m_tracks.size())
-        m_tracks[trackID]->addAction(action);
-    else
-        dmsg_error("Program") << "TrackID";
-}
-
-void Program::removeAction(const sofa::Index& actionID, const sofa::Index &trackID)
-{
-    if (trackID < m_tracks.size())
-        m_tracks[trackID]->removeAction(actionID);
-    else
-        dmsg_error("Program") << "TrackID";
 }
 
 void Program::interpolate(const float& time)

@@ -21,8 +21,6 @@
  ******************************************************************************/
 
 #include <SofaImGui/models/Move.h>
-#include <imgui_internal.h>
-#include <implot.h>
 
 namespace sofaimgui::models {
 
@@ -30,13 +28,25 @@ Move::Move(): Action()
 {
 }
 
-Move::Move(const RigidCoord& waypoint,
+Move::Move(const RigidCoord& initialPoint,
+           const RigidCoord& waypoint,
            const float &duration,
-           const float& speed,
-           MoveType type):  Action(duration, speed),
+           MoveType type):  Action(duration),
+                            m_initialPoint(initialPoint),
                             m_waypoint(waypoint),
                             m_type(type)
 {
+    computeSpeed();
+}
+
+void Move::computeSpeed()
+{
+    m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
+}
+
+void Move::computeDuration()
+{
+    m_duration = (m_initialPoint - m_waypoint).norm() / m_speed;
 }
 
 void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack)
@@ -46,6 +56,14 @@ void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xml
         tinyxml2::XMLElement * xmlMove = document->NewElement("move");
         if (xmlMove != nullptr)
         {
+            std::string ip = std::to_string(m_initialPoint[0]) + " "
+                             + std::to_string(m_initialPoint[1]) + " "
+                             + std::to_string(m_initialPoint[2]) + " "
+                             + std::to_string(m_initialPoint[3]) + " "
+                             + std::to_string(m_initialPoint[4]) + " "
+                             + std::to_string(m_initialPoint[5]) + " "
+                             + std::to_string(m_initialPoint[6]) + " ";
+            xmlMove->SetAttribute("ip", ip.c_str());
             std::string wp = std::to_string(m_waypoint[0]) + " "
                              + std::to_string(m_waypoint[1]) + " "
                              + std::to_string(m_waypoint[2]) + " "
@@ -55,7 +73,6 @@ void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xml
                              + std::to_string(m_waypoint[6]) + " ";
             xmlMove->SetAttribute("wp", wp.c_str());
             xmlMove->SetAttribute("duration", getDuration());
-            xmlMove->SetAttribute("speed", getSpeed());
             xmlMove->SetAttribute("type", m_type);
             xmlTrack->InsertEndChild(xmlMove);
         }

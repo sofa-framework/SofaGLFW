@@ -22,6 +22,7 @@
 #pragma once
 
 #include <SofaImGui/windows/BaseWindow.h>
+#include <SofaImGui/models/TCPTarget.h>
 #include <imgui.h>
 
 namespace sofaimgui::windows {
@@ -33,8 +34,11 @@ class MoveWindow : public BaseWindow
     ~MoveWindow() = default;
 
     void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
+    void setTCPTarget(const std::shared_ptr<models::TCPTarget> &TCPTarget) {m_TCPTarget=TCPTarget;}
 
    protected:
+
+    std::shared_ptr<models::TCPTarget> m_TCPTarget;
 
     void showSliderInt(const char *name, const char* label1, const char *label2, int* v, const ImVec4& color);
     void showSliderFloat(const char *name, const char* label1, const char *label2, float* v, const ImVec4 &color);
