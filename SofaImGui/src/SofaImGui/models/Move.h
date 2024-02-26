@@ -70,13 +70,12 @@ class Move : public Action
     RigidCoord m_waypoint;
     MoveType m_type;
 
-    float m_minDuration{1.}; // minimum duration of a move is set to 1 second
-    float m_minSpeed;
+    float m_minDuration{0.5};
+    float m_minSpeed{100};
     float m_maxSpeed; // TODO: set
 
     void checkDuration();
     void checkSpeed();
-    void computeMinSpeed();
 };
 
 } // namespace

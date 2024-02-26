@@ -37,7 +37,6 @@ Move::Move(const RigidCoord& initialPoint,
                             m_type(type)
 {
     checkDuration(); // minimum duration for a move is set to 1 second
-    computeMinSpeed();
     setComment("Move to waypoint");
     m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
 }
@@ -52,11 +51,6 @@ void Move::checkSpeed()
 {
     if (m_speed < m_minSpeed)
         m_speed = m_minSpeed;
-}
-
-void Move::computeMinSpeed()
-{
-    m_minSpeed = (m_initialPoint - m_waypoint).norm() / m_minDuration;
 }
 
 void Move::computeSpeed()
@@ -87,14 +81,12 @@ void Move::setSpeed(const float& speed)
 void Move::setInitialPoint(const RigidCoord& initialPoint)
 {
     m_initialPoint = initialPoint;
-    computeMinSpeed();
     computeSpeed();
 }
 
 void Move::setWaypoint(const RigidCoord& waypoint)
 {
     m_waypoint = waypoint;
-    computeMinSpeed();
     computeSpeed();
 }
 
