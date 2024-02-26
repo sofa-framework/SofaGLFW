@@ -35,7 +35,7 @@ namespace sofaimgui::windows {
 
 class ProgramWindow : public BaseWindow
 {
-    typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
 
    public:
     ProgramWindow(const std::string& name, const bool& isWindowOpen);

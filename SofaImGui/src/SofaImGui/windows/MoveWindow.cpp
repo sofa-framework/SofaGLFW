@@ -39,6 +39,7 @@ MoveWindow::MoveWindow(const std::string& name,
 
 void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlags &windowFlags)
 {
+    SOFA_UNUSED(groot);
     if (m_isWindowOpen)
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
@@ -56,8 +57,9 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             static float rx=0.;
             static float ry=0.;
             static float rz=0.;
-            
-            m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
+
+            if(m_isDrivingSimulation)
+                m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
 
             ImGui::Indent();
             ImGui::Text("TCP Target Position (mm):");

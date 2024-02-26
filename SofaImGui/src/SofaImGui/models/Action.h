@@ -42,11 +42,19 @@ class Action
     virtual void computeDuration()=0;
     virtual void computeSpeed()=0;
 
-    float& getDuration() {return m_duration;}
-    void setDuration(const float& duration) {m_duration = duration;}
+    float getDuration() {return m_duration;}
+    virtual void setDuration(const float& duration)
+    {
+        m_duration = duration;
+        computeSpeed();
+    }
 
-    float& getSpeed() {return m_speed;}
-    void setSpeed(const float& speed) {m_speed = speed;}
+    float getSpeed() {return m_speed;}
+    virtual void setSpeed(const float& speed)
+    {
+        m_speed = speed;
+        computeDuration();
+    }
 
    protected:
 

@@ -34,7 +34,7 @@ namespace sofaimgui::models {
 
 class Track
 {
-    typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
 
    public:
     Track(const std::shared_ptr<models::TCPTarget>& TCPTarget):

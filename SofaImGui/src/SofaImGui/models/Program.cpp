@@ -112,11 +112,6 @@ bool Program::checkExtension(const std::string &filename)
     return isExtensionKnown;
 }
 
-void Program::interpolate(const float& time)
-{
-
-}
-
 } // namespace
 
 

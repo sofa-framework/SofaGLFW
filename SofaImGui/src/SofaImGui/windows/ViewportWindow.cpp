@@ -150,7 +150,7 @@ bool ViewportWindow::addAnimateButton(bool *animate)
     return isItemClicked;
 }
 
-bool ViewportWindow::addModeCombo(int *mode, const char *listModes[], const int &sizeListModes)
+bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes)
 {
     bool hasValueChanged = false;
 
@@ -169,8 +169,8 @@ bool ViewportWindow::addModeCombo(int *mode, const char *listModes[], const int 
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();
-                    hasValueChanged = ImGui::Combo("Mode##Viewport", mode, listModes, sizeListModes);
-                    ImGui::SetItemTooltip("Control the TCP target");
+                    hasValueChanged = ImGui::Combo("Driving Tab##Viewport", mode, listModes, sizeListModes);
+                    ImGui::SetItemTooltip("Choose a tab to drive the TCP target");
 
                     ImGui::End();
                 }

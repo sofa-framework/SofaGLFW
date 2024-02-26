@@ -325,9 +325,9 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
     }
 
-    // Mode button
-    static const char* listModes[]{"Move", "Program", "IO"};
-    if (m_viewportWindow.addModeCombo(&m_mode, listModes, IM_ARRAYSIZE(listModes)))
+    // Driving Tab combo
+    static const char* listTabs[]{"Move", "Program", "IO"};
+    if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs)))
     {
         const auto filename = baseGUI->getFilename();
 

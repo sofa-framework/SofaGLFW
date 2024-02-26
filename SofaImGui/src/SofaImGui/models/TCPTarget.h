@@ -23,58 +23,39 @@
 
 #include <sofa/type/Vec.h>
 #include <sofa/defaulttype/RigidTypes.h>
-
-#include <SofaImGui/models/Action.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 namespace sofaimgui::models {
 
-class Move : public Action
+class TCPTarget
 {
    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
 
    public:
 
-    enum MoveType {
-        LINE
+    enum TCPTargetType {
+        LINEAR
     };
 
-    Move();
+    TCPTarget(sofa::simulation::Node* groot);
+    ~TCPTarget() = default;
 
-    Move(const RigidCoord& initialPoint,
-         const RigidCoord& waypoint,
-         const float& duration,
-         MoveType type = LINE);
+    void init(sofa::simulation::Node* groot);
 
-    ~Move() = default;
+    const RigidCoord& getInitPosition();
 
-    void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack) override;
-    void computeDuration() override;
-    void computeSpeed() override;
+    RigidCoord getPosition();
+    void getPosition(int &x, int &y, int &z, float &rx, float &ry, float &rz);
 
-    void setDuration(const float& duration) override;
-    void setSpeed(const float& speed) override;
+    void setPosition(const RigidCoord& position);
+    void setPosition(const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
 
-    void setInitialPoint(const RigidCoord& initialPoint);
-    const RigidCoord& getInitialPoint() {return m_initialPoint;}
-
-    void setWaypoint(const RigidCoord& waypoint);
-    const RigidCoord& getWaypoint() {return m_waypoint;}
-
-    RigidCoord getInterpolatedPosition(const float& time);
 
    protected:
 
-    RigidCoord m_initialPoint;
-    RigidCoord m_waypoint;
-    MoveType m_type;
-
-    float m_minDuration{1.}; // minimum duration of a move is set to 1 second
-    float m_minSpeed;
-    float m_maxSpeed; // TODO: set
-
-    void checkDuration();
-    void checkSpeed();
-    void computeMinSpeed();
+    sofa::core::behavior::BaseMechanicalState* m_state;
+    sofa::simulation::Node* m_groot;
+    RigidCoord m_initPosition;
 };
 
 } // namespace

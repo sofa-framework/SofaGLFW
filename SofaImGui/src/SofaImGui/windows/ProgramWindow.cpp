@@ -133,13 +133,14 @@ void ProgramWindow::showProgramButtons()
     if (m_time==0.f || !isDrivingSimulation())
         ImGui::BeginDisabled();
 
-    if (ImGui::Button("Restart"))
+    if (ImGui::Button("Reset"))
     {
         m_time = 0.f;
         const auto filename = m_baseGUI->getFilename();
         Utils::reloadSimulation(m_baseGUI, filename);
+        m_TCPTarget->init(m_baseGUI->getRootNode().get());
     }
-    ImGui::SetItemTooltip("Move the robot its initial position and restart program");
+    ImGui::SetItemTooltip("Move the robot to its initial position and reset the program");
 
     if (m_time==0.f || !isDrivingSimulation())
         ImGui::EndDisabled();
@@ -438,17 +439,16 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Track> &track,
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
+        RigidCoord waypoint = move->getWaypoint();
         for (int i=0; i<3; i++)
         {
             ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
-            float wp = move->m_waypoint[i];
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
-            if (ImGui::InputFloat(id.c_str(), &wp, 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
+            if (ImGui::InputFloat(id.c_str(), &waypoint[i], 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
             {
-                move->m_waypoint[i] = wp;
+                move->setWaypoint(waypoint);
                 track->updateNextMove(actionID);
-                move->computeSpeed();
             }
             ImGui::PopStyleColor();
             ImGui::SameLine();
@@ -476,16 +476,16 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Track> &track,
         window->DC.CursorPos.x = x + alignWidth;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
+        RigidCoord waypoint = move->getWaypoint();
         for (int i=3; i<7; i++)
         {
             window->DC.CursorPos.y = y;
             ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
             std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
-            float wp = move->m_waypoint[i];
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
-            if (ImGui::InputFloat(id.c_str(), &wp, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
+            if (ImGui::InputFloat(id.c_str(), &waypoint[i], 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
             {
-                move->m_waypoint[i] = wp;
+                move->setWaypoint(waypoint);
                 track->updateNextMove(actionID);
                 move->computeSpeed();
             }
@@ -518,9 +518,10 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Track> &track,
         ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
         std::string id = "##duration" + std::to_string(window->DC.CursorPos.x);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
-        if (ImGui::InputFloat(id.c_str(), &move->getDuration(), 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
+        float duration = move->getDuration();
+        if (ImGui::InputFloat(id.c_str(), &duration, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
         {
-            move->computeSpeed();
+            move->setDuration(duration);
         }
         ImGui::PopStyleColor();
         ImGui::SameLine();
@@ -550,9 +551,10 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Track> &track,
         ImGui::PushItemWidth(ImGui::CalcTextSize("10000").x);
         std::string id = "##speed" + std::to_string(window->DC.CursorPos.x);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.7f, 0.7f, 0.7f, 1.f));
-        if (ImGui::InputFloat(id.c_str(), &move->getSpeed(), 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
+        float speed = move->getSpeed();
+        if (ImGui::InputFloat(id.c_str(), &speed, 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
         {
-            move->computeDuration();
+            move->setSpeed(speed);
         }
         ImGui::PopStyleColor();
         ImGui::SameLine();
@@ -620,13 +622,36 @@ void ProgramWindow::exportProgram()
 void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
+    if (m_isDrivingSimulation)
+    {
+        m_time = groot->getTime();
+
+        for (const auto& track: m_program.getTracks())
+        {
+            float blockEnd = 0.;
+            float blockStart = 0.;
+            for (const auto& action: track->getActions())
+            {
+                blockEnd += action->getDuration();
+                if (blockEnd > m_time)
+                {
+                    std::shared_ptr<models::Move> move = std::dynamic_pointer_cast<models::Move>(action);
+                    if(move)
+                    {
+                        RigidCoord position = move->getInterpolatedPosition(m_time - blockStart);
+                        m_TCPTarget->setPosition(position);
+                        break;
+                    }
+                }
+                blockStart = blockEnd;
+            }
+        }
+    }
 }
 
 void ProgramWindow::animateEndEvent(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
-    if (m_isDrivingSimulation)
-        m_time = groot->getTime(); // time in seconds
 }
 
 } // namespace

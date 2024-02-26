@@ -36,7 +36,26 @@ Move::Move(const RigidCoord& initialPoint,
                             m_waypoint(waypoint),
                             m_type(type)
 {
-    computeSpeed();
+    checkDuration(); // minimum duration for a move is set to 1 second
+    computeMinSpeed();
+    m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
+}
+
+void Move::checkDuration()
+{
+    if (m_duration < m_minDuration)
+        m_duration = m_minDuration;
+}
+
+void Move::checkSpeed()
+{
+    if (m_speed < m_minSpeed)
+        m_speed = m_minSpeed;
+}
+
+void Move::computeMinSpeed()
+{
+    m_minSpeed = (m_initialPoint - m_waypoint).norm() / m_minDuration;
 }
 
 void Move::computeSpeed()
@@ -47,6 +66,47 @@ void Move::computeSpeed()
 void Move::computeDuration()
 {
     m_duration = (m_initialPoint - m_waypoint).norm() / m_speed;
+    checkDuration();
+}
+
+void Move::setDuration(const float& duration)
+{
+    m_duration = duration;
+    checkDuration();
+    computeSpeed();
+}
+
+void Move::setSpeed(const float& speed)
+{
+    m_speed = speed;
+    checkSpeed();
+    computeDuration();
+}
+
+void Move::setInitialPoint(const RigidCoord& initialPoint)
+{
+    m_initialPoint = initialPoint;
+    computeMinSpeed();
+    computeSpeed();
+}
+
+void Move::setWaypoint(const RigidCoord& waypoint)
+{
+    m_waypoint = waypoint;
+    computeMinSpeed();
+    computeSpeed();
+}
+
+sofa::defaulttype::RigidCoord<3, float> Move::getInterpolatedPosition(const float& time)
+{
+    RigidCoord interpolatedPosition;
+    switch (m_type) {
+        default: // LINE
+            interpolatedPosition = m_initialPoint + (m_waypoint - m_initialPoint) * time / m_duration;
+            break;
+    }
+
+    return interpolatedPosition;
 }
 
 void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack)

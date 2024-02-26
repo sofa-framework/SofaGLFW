@@ -32,7 +32,7 @@ namespace sofaimgui::models {
 
 class Program
 {
-    typedef sofa::defaulttype::RigidCoord<3, SReal> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
 
    public:
 
@@ -56,8 +56,6 @@ class Program
     void addTrack(std::shared_ptr<Track> track) {m_tracks.push_back(track);}
     void removeTrack(const sofa::Index &index) {m_tracks.erase(m_tracks.begin() + index);}
     void clearTracks();
-
-    void interpolate(const float& time);
 
    protected:
 

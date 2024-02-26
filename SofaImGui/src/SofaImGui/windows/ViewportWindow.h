@@ -38,7 +38,7 @@ class ViewportWindow : public BaseWindow
     
     bool addStepButton();
     bool addAnimateButton(bool *animate);
-    bool addModeCombo(int *mode, const char *listModes[], const int &sizeListModes);
+    bool addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes);
 
     std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};

@@ -51,11 +51,11 @@ void Track::pushMove()
         std::shared_ptr<Move> previousMove = std::dynamic_pointer_cast<Move>(m_actions.back());
         if (previousMove)
         {
-            position0 = previousMove->m_waypoint; // get previous waypoint
+            position0 = previousMove->getWaypoint(); // get previous waypoint
         }
     }
-
-    auto move = std::make_shared<models::Move>(position0, position, 3, models::Move::MoveType::LINEAR);
+    
+    auto move = std::make_shared<models::Move>(position0, position, 3, models::Move::MoveType::LINE);
     pushAction(move);
 }
 
@@ -72,19 +72,18 @@ void Track::insertMove(const sofa::Index &actionID)
         if (actionID > 0) // if this is not the first move
         {
             std::shared_ptr<Move> previousMove = std::dynamic_pointer_cast<Move>(m_actions[actionID - 1]); // TODO: find previous move
-            position0 = previousMove->m_waypoint; // get previous waypoint
+            position0 = previousMove->getWaypoint(); // get previous waypoint
         }
 
         // create the new move
         RigidCoord position1 = m_TCPTarget->getPosition();
-        auto move = std::make_shared<models::Move>(position0, position1, 3., models::Move::MoveType::LINEAR);
+        auto move = std::make_shared<models::Move>(position0, position1, 3., models::Move::MoveType::LINE);
 
         // update the next move
         std::shared_ptr<Move> nextMove = std::dynamic_pointer_cast<Move>(m_actions[actionID]); // TODO: find next move
         if (nextMove)
         {
-            nextMove->m_initialPoint = position1;
-            nextMove->computeSpeed();
+            nextMove->setInitialPoint(position1);
         }
 
         // insert the new move
@@ -106,8 +105,7 @@ void Track::deleteMove(const sofa::Index &actionID)
 
         if (move && nextMove)
         {
-            nextMove->m_initialPoint = move->m_initialPoint;
-            nextMove->computeSpeed();
+            nextMove->setInitialPoint(move->getInitialPoint());
         }
 
         // delete move
@@ -122,14 +120,13 @@ void Track::updateNextMove(const sofa::Index &actionID)
 
     // get current position
     std::shared_ptr<Move> move = std::dynamic_pointer_cast<Move>(m_actions[actionID]);
-    RigidCoord position0 = move->m_waypoint;
+    RigidCoord position0 = move->getWaypoint();
 
     // update next move
     std::shared_ptr<Move> nextMove = std::dynamic_pointer_cast<Move>(m_actions[actionID + 1]); // TODO: find next move
     if (nextMove)
     {
-        nextMove->m_initialPoint = position0;
-        nextMove->computeSpeed();
+        nextMove->setInitialPoint(position0);
     }
 }
 
