@@ -253,26 +253,26 @@ void ProgramWindow::showTracks()
     for (const auto& track: tracks)
     {
         // Track options menu
-        std::string menuLabel = std::string("##TrackMenu" + std::to_string(trackID));
-        std::string buttonLabel = std::string(ICON_FA_BARS "##TrackButton" + std::to_string(trackID));
+        std::string menuLabel = "##TrackMenu" + std::to_string(trackID);
+        std::string buttonLabel = ICON_FA_BARS "##TrackButton" + std::to_string(trackID);
         if (ImGui::BeginPopup(menuLabel.c_str()))
         {
-            if (ImGui::MenuItem(std::string("Clear track##" + std::to_string(trackID)).c_str()))
+            if (ImGui::MenuItem(("Clear track##" + std::to_string(trackID)).c_str()))
             {
                 track->clear();
             }
-            if (ImGui::MenuItem(std::string("Add track##" + std::to_string(trackID)).c_str(), nullptr, false, false))
+            if (ImGui::MenuItem(("Add track##" + std::to_string(trackID)).c_str(), nullptr, false, false))
             {
                 m_program.addTrack(std::make_shared<models::Track>(m_TCPTarget));
             }
-            if (ImGui::MenuItem(std::string("Remove track##" + std::to_string(trackID)).c_str(), nullptr, false, (trackID>0)? true : false))
+            if (ImGui::MenuItem(("Remove track##" + std::to_string(trackID)).c_str(), nullptr, false, (trackID>0)? true : false))
             {
                 m_program.removeTrack(trackID--);
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem(std::string("Add move##" + std::to_string(trackID)).c_str()))
+            if (ImGui::MenuItem(("Add move##" + std::to_string(trackID)).c_str()))
             {
                 track->pushMove();
             }
@@ -311,7 +311,7 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
         const std::shared_ptr<models::Action> &action = actions[actionID];
         float actionWidth = action->getDuration() * m_timelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
         float actionHeight = m_trackHeight;
-        std::string blockLabel = std::string("##Action" + std::to_string(trackID) + std::to_string(actionID));
+        std::string blockLabel = "##Action" + std::to_string(trackID) + std::to_string(actionID);
         ImGui::SameLine();
 
         std::shared_ptr<models::Move> move = std::dynamic_pointer_cast<models::Move>(action);
@@ -347,7 +347,7 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
 
     { // Empty track background
         ImGui::SameLine();
-        std::string trackLabel = std::string("##Track" + std::to_string(trackID) + "Empty");
+        std::string trackLabel = "##Track" + std::to_string(trackID) + "Empty";
         ImVec2 size(ImGui::GetWindowWidth() + ImGui::GetScrollX(), m_trackHeight);
 
         float x = ImGui::GetCurrentWindow()->DC.CursorPos.x ;

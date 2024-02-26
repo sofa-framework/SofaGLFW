@@ -62,6 +62,8 @@ class Move : public Action
 
     RigidCoord getInterpolatedPosition(const float& time);
 
+    void setType(MoveType type) {m_type = type;}
+
    protected:
 
     RigidCoord m_initialPoint;
