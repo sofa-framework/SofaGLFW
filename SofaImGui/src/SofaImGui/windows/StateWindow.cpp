@@ -60,7 +60,7 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
                             std::string name = d->getName();
                             const std::string& group = d->getGroup();
 
-                            if(group.find("state") != std::string::npos)
+                            if(group.find("Simulation State") != std::string::npos)
                             {
                                 std::string group = name.substr(0, name.find(delimiter));
 

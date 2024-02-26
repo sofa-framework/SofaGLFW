@@ -58,7 +58,7 @@ void MyRobotWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowF
                         std::string name = d->getName();
                         const std::string& group = d->getGroup();
 
-                        if(group.find("myRobot") != std::string::npos)
+                        if(group.find("My Robot") != std::string::npos)
                         {
                             std::string group = name.substr(0, name.find(delimiter));
 
