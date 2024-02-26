@@ -38,28 +38,36 @@ class Action
     Action() = default;
     ~Action() = default;
 
+    static const int COMMENTSIZE{18};
+
     virtual void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack)=0;
     virtual void computeDuration()=0;
     virtual void computeSpeed()=0;
 
-    float getDuration() {return m_duration;}
+    const float& getDuration() {return m_duration;}
     virtual void setDuration(const float& duration)
     {
         m_duration = duration;
         computeSpeed();
     }
 
-    float getSpeed() {return m_speed;}
+    const float& getSpeed() {return m_speed;}
     virtual void setSpeed(const float& speed)
     {
         m_speed = speed;
         computeDuration();
     }
 
+    void setComment(const char* comment) {strncpy(m_comment, comment, COMMENTSIZE);}
+    void getComment(char* comment) {strncpy(comment, m_comment, COMMENTSIZE);}
+
+    char* getComment() {return m_comment;}
+
    protected:
 
     float m_duration;
     float m_speed;
+    char m_comment[COMMENTSIZE];
 };
 
 } // namespace

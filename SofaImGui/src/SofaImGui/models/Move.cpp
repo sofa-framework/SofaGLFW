@@ -38,6 +38,7 @@ Move::Move(const RigidCoord& initialPoint,
 {
     checkDuration(); // minimum duration for a move is set to 1 second
     computeMinSpeed();
+    setComment("Move to waypoint");
     m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
 }
 
@@ -134,6 +135,7 @@ void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xml
             xmlMove->SetAttribute("wp", wp.c_str());
             xmlMove->SetAttribute("duration", getDuration());
             xmlMove->SetAttribute("type", m_type);
+            xmlMove->SetAttribute("comment", m_comment);
             xmlTrack->InsertEndChild(xmlMove);
         }
     }

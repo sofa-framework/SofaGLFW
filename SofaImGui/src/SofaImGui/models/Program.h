@@ -47,7 +47,7 @@ class Program
     }
     ~Program() = default;
 
-    void importProgram(const std::string& filename);
+    bool importProgram(const std::string& filename);
     void exportProgram(const std::string &filename);
 
     const std::vector<std::shared_ptr<Track>>& getTracks() {return m_tracks;}

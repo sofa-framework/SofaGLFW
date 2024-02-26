@@ -112,9 +112,10 @@ void ProgramWindow::showProgramButtons()
     auto positionMiddle = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x / 2.f; // Get position for middle button
 
             // Left buttons
+    static bool successfulImport = true; // TODO: notify user on failure
     if (ImGui::Button(ICON_FA_FOLDER_OPEN, buttonSize))
     {
-        importProgram();
+        successfulImport = importProgram();
     }
     ImGui::SetItemTooltip("Import program");
 
@@ -133,14 +134,14 @@ void ProgramWindow::showProgramButtons()
     if (m_time==0.f || !isDrivingSimulation())
         ImGui::BeginDisabled();
 
-    if (ImGui::Button("Reset"))
+    if (ImGui::Button("Restart"))
     {
         m_time = 0.f;
         const auto filename = m_baseGUI->getFilename();
         Utils::reloadSimulation(m_baseGUI, filename);
         m_TCPTarget->init(m_baseGUI->getRootNode().get());
     }
-    ImGui::SetItemTooltip("Move the robot to its initial position and reset the program");
+    ImGui::SetItemTooltip("Reload the simulation and restart the program");
 
     if (m_time==0.f || !isDrivingSimulation())
         ImGui::EndDisabled();
@@ -415,9 +416,20 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Track> &track,
                                 ImGui::GetStyle().FrameRounding,
                                 ImDrawFlags_None);
 
-        drawList->AddText(ImVec2(x + padding.x * 2,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
+        window->DC.CursorPos.x = x;
+        window->DC.CursorPos.y = y;
+
+        auto rectMin = ImGui::GetItemRectMin();
+        auto rectMax = ImGui::GetItemRectMax();
+        rectMax.x -= padding.x * 2 + ImGui::GetFrameHeight(); // leave space for option button
+        ImGui::PushClipRect(rectMin, rectMax, true);
+
+        std::string id = "##comment" + std::to_string(window->DC.CursorPos.x);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0., 0., 0., 0.));
+        ImGui::InputText(id.c_str(), move->getComment(), models::Action::COMMENTSIZE);
+        ImGui::PopStyleColor();
+
+        ImGui::PopClipRect();
     }
     ImGui::PopStyleColor();
 
@@ -595,8 +607,9 @@ void ProgramWindow::showActionOptionButton(const std::string &menulabel,
     window->DC.CursorPosPrevLine = backuppos;
 }
 
-void ProgramWindow::importProgram()
+bool ProgramWindow::importProgram()
 {
+    bool successfulImport = false;
     nfdchar_t *outPath;
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
@@ -604,9 +617,13 @@ void ProgramWindow::importProgram()
     if (result == NFD_OKAY)
     {
         if (sofa::helper::system::FileSystem::exists(outPath))
-            m_program.importProgram(outPath);
+        {
+            successfulImport = m_program.importProgram(outPath);
+        }
         NFD_FreePath(outPath);
     }
+
+    return successfulImport;
 }
 
 void ProgramWindow::exportProgram()

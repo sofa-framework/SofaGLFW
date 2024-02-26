@@ -33,7 +33,7 @@ void Program::clearTracks()
     addTrack(track);
 }
 
-void Program::importProgram(const std::string &filename)
+bool Program::importProgram(const std::string &filename)
 {
     if (checkExtension(filename))
     {
@@ -49,6 +49,8 @@ void Program::importProgram(const std::string &filename)
 
             for(auto* e = t->FirstChildElement("move"); e != nullptr; e = e->NextSiblingElement("move"))
             {
+                if (!e->Attribute("ip"))
+                    return false;
                 sofa::defaulttype::RigidCoord<3, SReal> ip;
                 std::stringstream strIP(e->Attribute("ip"));
                 std::string valueIP;
@@ -56,6 +58,8 @@ void Program::importProgram(const std::string &filename)
                 while (strIP >> valueIP)
                     ip[indexIP++] = std::stof(valueIP);
 
+                if (!e->Attribute("wp"))
+                    return false;
                 sofa::defaulttype::RigidCoord<3, SReal> wp;
                 std::stringstream strWP(e->Attribute("wp"));
                 std::string valueWP;
@@ -63,15 +67,27 @@ void Program::importProgram(const std::string &filename)
                 while (strWP >> valueWP)
                     wp[indexWP++] = std::stof(valueWP);
 
+                if (!e->Attribute("duration"))
+                    return false;
                 float duration = std::stof(e->Attribute("duration"));
+
+                if (!e->Attribute("type"))
+                    return false;
                 Move::MoveType type = static_cast<Move::MoveType>(std::stoi(e->Attribute("type")));
+
+                // Create the move
                 std::shared_ptr<Move> action = std::make_shared<Move>(ip, wp, duration, type);
 
+                if (e->Attribute("comment"))
+                    action->setComment(e->Attribute("comment"));
+
+                // Add the move to the track
                 track->pushAction(action);
             }
             addTrack(track);
         }
     }
+    return true;
 }
 
 void Program::exportProgram(const std::string &filename)

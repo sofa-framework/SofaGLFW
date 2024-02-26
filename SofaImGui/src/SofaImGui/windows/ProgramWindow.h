@@ -76,7 +76,7 @@ class ProgramWindow : public BaseWindow
                        const ImVec2 &size);
     void showActionOptionButton(const std::string &menulabel, const std::string &label);
 
-    void importProgram();
+    bool importProgram();
     void exportProgram();
 };
 
