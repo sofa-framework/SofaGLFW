@@ -118,7 +118,7 @@ int main(int argc, char** argv)
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
 
-    sofa::simulation::node::init(groot.get());
+    sofa::simulation::node::initRoot(groot.get());
 
     auto targetNbIterations = result["nb_iterations"].as<std::size_t>();
     if (targetNbIterations > 0)
