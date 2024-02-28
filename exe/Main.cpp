@@ -72,7 +72,7 @@ int main(int argc, char** argv)
     // create an instance of SofaGLFWGUI
     // linked with the simulation
     sofaglfw::SofaGLFWBaseGUI glfwGUI;
-
+    
     auto nbMSAASamples = result["msaa_samples"].as<unsigned short>();
     if (!glfwGUI.init(nbMSAASamples))
     {
@@ -114,15 +114,11 @@ int main(int argc, char** argv)
             resolution = viewerConf->resolution.getValue();
         }
     }
+
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
 
     sofa::simulation::node::init(groot.get());
-
-    sofa::type::BoundingBox BBox;
-    sofa::simulation::node::computeTotalBBox(groot.get(),BBox.minBBoxPtr(),BBox.maxBBoxPtr());
-    groot->f_bbox.setValue(BBox);
-
 
     auto targetNbIterations = result["nb_iterations"].as<std::size_t>();
     if (targetNbIterations > 0)
@@ -158,7 +154,7 @@ int main(int argc, char** argv)
     {
         msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << (static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
     }
-
+    
     if (groot != nullptr)
     {
         sofa::simulation::node::unload(groot);
