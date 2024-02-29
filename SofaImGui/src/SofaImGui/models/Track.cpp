@@ -55,7 +55,7 @@ void Track::pushMove()
         }
     }
     
-    auto move = std::make_shared<models::Move>(position0, position, 3, models::Move::MoveType::LINE);
+    auto move = std::make_shared<models::Move>(position0, position, 3, m_TCPTarget->getRootNode().get(), models::Move::MoveType::LINE);
     pushAction(move);
 }
 
@@ -77,7 +77,7 @@ void Track::insertMove(const sofa::Index &actionID)
 
         // create the new move
         RigidCoord position1 = m_TCPTarget->getPosition();
-        auto move = std::make_shared<models::Move>(position0, position1, 3., models::Move::MoveType::LINE);
+        auto move = std::make_shared<models::Move>(position0, position1, 3., m_TCPTarget->getRootNode().get(), models::Move::MoveType::LINE);
 
         // update the next move
         std::shared_ptr<Move> nextMove = std::dynamic_pointer_cast<Move>(m_actions[actionID]); // TODO: find next move

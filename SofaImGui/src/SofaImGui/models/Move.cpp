@@ -31,14 +31,25 @@ Move::Move(): Action()
 Move::Move(const RigidCoord& initialPoint,
            const RigidCoord& waypoint,
            const float &duration,
-           MoveType type):  Action(duration),
-                            m_initialPoint(initialPoint),
-                            m_waypoint(waypoint),
-                            m_type(type)
+           sofa::simulation::Node::SPtr groot,
+           MoveType type):
+                                            Action(duration),
+                                            m_initialPoint(initialPoint),
+                                            m_waypoint(waypoint),
+                                            m_groot(groot),
+                                            m_type(type)
 {
     checkDuration(); // minimum duration for a move is set to 1 second
     setComment("Move to waypoint");
     m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
+
+    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
+    m_groot->addObject(m_trajectory);
+}
+
+Move::~Move()
+{
+    m_groot->removeObject(m_trajectory);
 }
 
 void Move::checkDuration()
@@ -82,12 +93,16 @@ void Move::setInitialPoint(const RigidCoord& initialPoint)
 {
     m_initialPoint = initialPoint;
     computeSpeed();
+
+    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
 }
 
 void Move::setWaypoint(const RigidCoord& waypoint)
 {
     m_waypoint = waypoint;
     computeSpeed();
+
+    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
 }
 
 sofa::defaulttype::RigidCoord<3, float> Move::getInterpolatedPosition(const float& time)

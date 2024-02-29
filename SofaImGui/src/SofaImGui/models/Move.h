@@ -25,12 +25,15 @@
 #include <sofa/defaulttype/RigidTypes.h>
 
 #include <SofaImGui/models/Action.h>
+#include <sofa/simulation/Node.h>
+#include <SofaImGui/models/Trajectory.h>
 
 namespace sofaimgui::models {
 
 class Move : public Action
 {
-   typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::Rigid3Types::VecCoord VecCoord;
 
    public:
 
@@ -43,9 +46,10 @@ class Move : public Action
     Move(const RigidCoord& initialPoint,
          const RigidCoord& waypoint,
          const float& duration,
+         sofa::simulation::Node::SPtr groot,
          MoveType type = LINE);
 
-    ~Move() = default;
+    ~Move();
 
     void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack) override;
     void computeDuration() override;
@@ -64,15 +68,23 @@ class Move : public Action
 
     void setType(MoveType type) {m_type = type;}
 
+    void highlightWaypoint(const bool &highlight) {m_trajectory->setHighlight(highlight);}
+    void drawTrajectory(const bool &drawTrajectory) {m_trajectory->f_listening.setValue(drawTrajectory);}
+
+
    protected:
 
     RigidCoord m_initialPoint;
     RigidCoord m_waypoint;
-    MoveType m_type;
 
     float m_minDuration{0.5};
-    float m_minSpeed{100};
+    float m_minSpeed{10};
     float m_maxSpeed; // TODO: set
+
+    const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
+    sofa::simulation::Node::SPtr m_groot;
+
+    MoveType m_type;
 
     void checkDuration();
     void checkSpeed();

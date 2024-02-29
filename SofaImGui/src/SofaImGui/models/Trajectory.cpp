@@ -19,46 +19,26 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
-#pragma once
 
-#include <sofa/type/Vec.h>
-#include <sofa/defaulttype/RigidTypes.h>
-#include <SofaGLFW/SofaGLFWBaseGUI.h>
-#include <sofa/core/behavior/BaseMechanicalState.h>
+#include <SofaImGui/models/Trajectory.h>
+#include <sofa/core/visual/VisualParams.h>
+#include <sofa/core/ObjectFactory.h>
 
 namespace sofaimgui::models {
 
-class TCPTarget
+int TrajectoryClass = sofa::core::RegisterObject(" ")
+                          .add< Trajectory >();
+
+void Trajectory::draw(const sofa::core::visual::VisualParams* vparams)
 {
-   typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
-
-   public:
-
-    enum TCPTargetType {
-        LINEAR
-    };
-
-    TCPTarget(sofa::simulation::Node::SPtr groot);
-    ~TCPTarget() = default;
-
-    void init(sofa::simulation::Node::SPtr groot);
-
-    const RigidCoord& getInitPosition();
-
-    RigidCoord getPosition();
-    void getPosition(int &x, int &y, int &z, float &rx, float &ry, float &rz);
-
-    void setPosition(const RigidCoord& position);
-    void setPosition(const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
-
-    sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
-
-   protected:
-
-    sofa::core::behavior::BaseMechanicalState::SPtr m_state;
-    sofa::simulation::Node::SPtr m_groot;
-    RigidCoord m_initPosition;
-};
+    if (f_listening.getValue())
+    {
+        vparams->drawTool()->disableLighting();
+        vparams->drawTool()->drawSphere(m_positions[1].getCenter(), 10.f, sofa::type::RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, m_highlight? 1.f: 0.5f));
+        vparams->drawTool()->drawLine(m_positions[0].getCenter(), m_positions[1].getCenter(), sofa::type::RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, 0.5f));
+        vparams->drawTool()->enableLighting();
+    }
+}
 
 } // namespace
 

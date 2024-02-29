@@ -75,7 +75,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
             float width = ImGui::GetWindowWidth();
             float height = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() * 3;
             static float zoomCoef = 1;
-            static float minSize = 100;
+            static float minSize = ImGui::GetFrameHeight() * 2;
             m_timelineOneSecondSize = zoomCoef * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
             if (ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
@@ -96,9 +96,10 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                 ImGui::PopStyleColor();
             }
             if (ImGui::IsItemHovered())
-                zoomCoef += ImGui::GetIO().MouseWheel * 0.2f;
+                zoomCoef += ImGui::GetIO().MouseWheel * 0.4f;
+            float coefMax = 20.f;
             zoomCoef = (zoomCoef < 1)? 1 : zoomCoef;
-            zoomCoef = (zoomCoef > 6)? 6 : zoomCoef;
+            zoomCoef = (zoomCoef > coefMax)? coefMax : zoomCoef;
 
             ImGui::End();
         }
@@ -108,7 +109,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
 void ProgramWindow::showProgramButtons()
 {
     ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
-    auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 2 - ImGui::GetStyle().ItemSpacing.y * 2; // Get position for right buttons
+    auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 3 - ImGui::GetStyle().ItemSpacing.y * 3; // Get position for right buttons
     auto positionMiddle = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x / 2.f; // Get position for middle button
 
             // Left buttons
@@ -136,10 +137,8 @@ void ProgramWindow::showProgramButtons()
 
     if (ImGui::Button("Restart"))
     {
-        m_time = 0.f;
-        const auto filename = m_baseGUI->getFilename();
-        Utils::reloadSimulation(m_baseGUI, filename);
-        m_TCPTarget->init(m_baseGUI->getRootNode().get());
+        auto groot = m_baseGUI->getRootNode().get();
+        groot->setTime(0.);
     }
     ImGui::SetItemTooltip("Reload the simulation and restart the program");
 
@@ -150,27 +149,37 @@ void ProgramWindow::showProgramButtons()
     ImGui::SameLine();
     ImGui::SetCursorPosX(positionRight); // Set position to right of the header
 
-    static bool repeat = false;
-    static bool reverse = false;
+    ImGui::PushStyleColor(ImGuiCol_Button, m_drawTrajectory? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    if (ImGui::Button(ICON_FA_DRAW_POLYGON"##Draw", buttonSize))
+    {
+        m_drawTrajectory = !m_drawTrajectory;
+    }
+    ImGui::PopStyleColor();
+    ImGui::SetItemTooltip("Draw trajectory");
 
-    ImGui::PushStyleColor(ImGuiCol_Button, repeat? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::SameLine();
+
+    ImGui::PushStyleColor(ImGuiCol_Button, m_repeat? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
     if (ImGui::Button(ICON_FA_REPEAT"##Repeat", buttonSize))
     {
-        reverse = false;
-        repeat = !repeat;
+        m_reverse = false;
+        m_repeat = !m_repeat;
     }
     ImGui::PopStyleColor();
     ImGui::SetItemTooltip("Repeat program");
 
     ImGui::SameLine();
-    ImGui::PushStyleColor(ImGuiCol_Button, reverse? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+
+    ImGui::BeginDisabled();
+    ImGui::PushStyleColor(ImGuiCol_Button, m_reverse? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
     if (ImGui::Button(ICON_FA_ARROWS_LEFT_RIGHT"##Reverse", buttonSize))
     {
-        repeat = false;
-        reverse = !reverse;
+        m_repeat = false;
+        m_reverse = !m_reverse;
     }
     ImGui::PopStyleColor();
     ImGui::SetItemTooltip("Reverse and repeat program");
+    ImGui::EndDisabled();
 }
 
 void ProgramWindow::showCursorMarker()
@@ -317,6 +326,7 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
         std::shared_ptr<models::Move> move = std::dynamic_pointer_cast<models::Move>(action);
         if (move)
         {
+            move->drawTrajectory(m_drawTrajectory);
             showMoveBlock(track, actionID, move, blockLabel, ImVec2(actionWidth, actionHeight));
             // Options menu
             std::string menuLabel = std::string("##ActionOptionsMenu" + blockLabel);
@@ -341,7 +351,8 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
             } else {
                 actionID++;
             }
-            showActionOptionButton(menuLabel, blockLabel);
+            if (actionWidth > ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.x * 3.0f)
+                showActionOptionButton(menuLabel, blockLabel);
         }
     }
 
@@ -394,6 +405,11 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Track> &track,
                                 ImGui::GetStyle().FrameRounding,
                                 ImDrawFlags_None);
     }
+
+    if (ImGui::IsItemHovered())
+        move->highlightWaypoint(true);
+    else
+        move->highlightWaypoint(false);
 
     std::string text = "Move to Way Point";
     ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
@@ -661,6 +677,12 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                     }
                 }
                 blockStart = blockEnd;
+            }
+
+            if (m_time >= blockEnd)
+            {
+                if (m_repeat)
+                    groot->setTime(0.);
             }
         }
     }

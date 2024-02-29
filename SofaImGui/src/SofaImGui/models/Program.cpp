@@ -76,7 +76,7 @@ bool Program::importProgram(const std::string &filename)
                 Move::MoveType type = static_cast<Move::MoveType>(std::stoi(e->Attribute("type")));
 
                 // Create the move
-                std::shared_ptr<Move> action = std::make_shared<Move>(ip, wp, duration, type);
+                std::shared_ptr<Move> action = std::make_shared<Move>(ip, wp, duration, m_TCPTarget->getRootNode().get(), type);
 
                 if (e->Attribute("comment"))
                     action->setComment(e->Attribute("comment"));

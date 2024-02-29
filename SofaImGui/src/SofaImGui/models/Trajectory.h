@@ -23,41 +23,31 @@
 
 #include <sofa/type/Vec.h>
 #include <sofa/defaulttype/RigidTypes.h>
-#include <SofaGLFW/SofaGLFWBaseGUI.h>
-#include <sofa/core/behavior/BaseMechanicalState.h>
+#include <sofa/core/objectmodel/BaseObject.h>
 
 namespace sofaimgui::models {
 
-class TCPTarget
+class Trajectory : public sofa::core::objectmodel::BaseObject
 {
-   typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::Rigid3Types::VecCoord VecCoord;
 
    public:
 
-    enum TCPTargetType {
-        LINEAR
-    };
+    SOFA_CLASS(Trajectory, sofa::core::objectmodel::BaseObject);
 
-    TCPTarget(sofa::simulation::Node::SPtr groot);
-    ~TCPTarget() = default;
+    Trajectory() = default;
+    ~Trajectory() = default;
 
-    void init(sofa::simulation::Node::SPtr groot);
+    void draw(const sofa::core::visual::VisualParams* vparams) override;
+    void setPositions(const VecCoord &positions) {m_positions=positions;}
 
-    const RigidCoord& getInitPosition();
-
-    RigidCoord getPosition();
-    void getPosition(int &x, int &y, int &z, float &rx, float &ry, float &rz);
-
-    void setPosition(const RigidCoord& position);
-    void setPosition(const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
-
-    sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
+    void setHighlight(const bool &highlight) {m_highlight=highlight;}
 
    protected:
 
-    sofa::core::behavior::BaseMechanicalState::SPtr m_state;
-    sofa::simulation::Node::SPtr m_groot;
-    RigidCoord m_initPosition;
+    bool m_highlight{false};
+    VecCoord m_positions;
+
 };
 
 } // namespace

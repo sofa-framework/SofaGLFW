@@ -25,13 +25,13 @@
 
 namespace sofaimgui::models {
 
-TCPTarget::TCPTarget(sofa::simulation::Node* groot): m_groot(groot)
+TCPTarget::TCPTarget(sofa::simulation::Node::SPtr groot): m_groot(groot)
 {
     init(groot);
     m_initPosition = getPosition();
 }
 
-void TCPTarget::init(sofa::simulation::Node* groot)
+void TCPTarget::init(sofa::simulation::Node::SPtr groot)
 {
     m_state = nullptr;
     m_groot = groot;
@@ -39,14 +39,14 @@ void TCPTarget::init(sofa::simulation::Node* groot)
     if (m_groot)
     {
         RigidCoord position;
-        sofa::simulation::Node *modelling = m_groot->getChild("Modelling");
+        sofa::simulation::Node::SPtr modelling = m_groot->getChild("Modelling");
 
         if (modelling)
         {
-            sofa::simulation::Node *target = modelling->getChild("Target");
+            sofa::simulation::Node::SPtr target = modelling->getChild("Target");
             if (target)
             {
-                sofa::core::behavior::BaseMechanicalState *mechanical = target->getMechanicalState();
+                sofa::core::behavior::BaseMechanicalState::SPtr mechanical = target->getMechanicalState();
                 if (mechanical)
                 {
                     m_state = mechanical;

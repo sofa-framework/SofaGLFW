@@ -64,6 +64,10 @@ class ProgramWindow : public BaseWindow
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
+    bool m_drawTrajectory = false;
+    bool m_repeat = false;
+    bool m_reverse = false;
+
     void showProgramButtons();
     void showCursorMarker();
     void showTimeline();

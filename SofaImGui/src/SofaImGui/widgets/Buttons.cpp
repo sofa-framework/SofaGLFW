@@ -57,8 +57,11 @@ bool LocalCheckBox(const char* label, bool* v)
 {
     ImGuiContext& g = *GImGui;
     float backup_padding_y = g.Style.FramePadding.y;
+    float backup_borderSize = g.Style.FrameBorderSize;
     g.Style.FramePadding.y = 0.0f;
+    g.Style.FrameBorderSize = 0.1f;
     bool pressed = LocalCheckBoxEx(label, v);
+    g.Style.FrameBorderSize = backup_borderSize;
     g.Style.FramePadding.y = backup_padding_y;
     return pressed;
 }
