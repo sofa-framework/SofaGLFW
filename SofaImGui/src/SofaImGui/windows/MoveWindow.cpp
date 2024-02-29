@@ -69,11 +69,12 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
             ImGui::Indent();
 
-            showSliderInt("X", "##Xpos", "##XposInput", &x, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            const auto &initPosition = m_TCPTarget->getInitPosition();
+            showSliderInt("X", "##Xpos", "##XposInput", &x, initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderInt("Y", "##Ypos", "##YposInput", &y, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            showSliderInt("Y", "##Ypos", "##YposInput", &y, initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderInt("Z", "##Zpos", "##ZposInput", &z, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            showSliderInt("Z", "##Zpos", "##ZposInput", &z, initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
             ImGui::Spacing();
 
             ImGui::Unindent();
@@ -114,7 +115,7 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
     }
 }
 
-void MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const ImVec4& color)
+void MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int &offset, const ImVec4& color)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
@@ -123,7 +124,7 @@ void MoveWindow::showSliderInt(const char* name, const char* label1, const char*
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    ImGui::SliderInt(label1, v, -500, 500);
+    ImGui::SliderInt(label1, v, -500 + offset, 500 + offset);
     ImGui::PopStyleColor();
 
     ImGui::SameLine();

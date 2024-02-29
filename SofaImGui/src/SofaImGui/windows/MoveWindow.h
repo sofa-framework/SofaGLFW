@@ -40,7 +40,7 @@ class MoveWindow : public BaseWindow
 
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
 
-    void showSliderInt(const char *name, const char* label1, const char *label2, int* v, const ImVec4& color);
+    void showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int &offset, const ImVec4& color);
     void showSliderFloat(const char *name, const char* label1, const char *label2, float* v, const ImVec4 &color);
 };
 

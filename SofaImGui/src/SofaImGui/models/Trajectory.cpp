@@ -31,12 +31,21 @@ int TrajectoryClass = sofa::core::RegisterObject(" ")
 
 void Trajectory::draw(const sofa::core::visual::VisualParams* vparams)
 {
+    const auto &defaultColor = sofa::type::RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, 0.5f);
+    const auto &highlightColor = sofa::type::RGBAColor::fromFloat(0.75f, 0.31f, 0.31f, 1.0f);
     if (f_listening.getValue())
     {
         vparams->drawTool()->disableLighting();
-        vparams->drawTool()->drawSphere(m_positions[1].getCenter(), 10.f, sofa::type::RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, m_highlight? 1.f: 0.5f));
-        vparams->drawTool()->drawLine(m_positions[0].getCenter(), m_positions[1].getCenter(), sofa::type::RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, 0.5f));
-        vparams->drawTool()->enableLighting();
+        vparams->drawTool()->drawSphere(m_positions[0].getCenter(),
+                                        10.f,
+                                        m_highlight? highlightColor: defaultColor);
+        vparams->drawTool()->drawSphere(m_positions[1].getCenter(),
+                                        m_highlight? 15.f : 10.f,
+                                        m_highlight? highlightColor: defaultColor);
+        vparams->drawTool()->drawLines(std::vector<sofa::type::Vec3>{m_positions[0].getCenter(), m_positions[1].getCenter()},
+                                       m_highlight? 10.f : 5.f,
+                                       m_highlight? highlightColor: defaultColor);
+        // vparams->drawTool()->enableLighting();
     }
 }
 

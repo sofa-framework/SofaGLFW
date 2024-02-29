@@ -132,17 +132,18 @@ void ProgramWindow::showProgramButtons()
     ImGui::SameLine();
     ImGui::SetCursorPosX(positionMiddle); // Set position to right of the header
 
-    if (m_time==0.f || !isDrivingSimulation())
+    if (!isDrivingSimulation())
         ImGui::BeginDisabled();
 
     if (ImGui::Button("Restart"))
     {
         auto groot = m_baseGUI->getRootNode().get();
         groot->setTime(0.);
+        m_time = 0.f;
     }
     ImGui::SetItemTooltip("Reload the simulation and restart the program");
 
-    if (m_time==0.f || !isDrivingSimulation())
+    if (!isDrivingSimulation())
         ImGui::EndDisabled();
 
             // Right buttons
@@ -340,6 +341,16 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
                 {
                     track->insertMove(actionID + 1);
                 }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Overwrite waypoint"))
+                {
+                    move->setWaypoint(m_TCPTarget->getPosition());
+                    track->updateNextMove(actionID);
+                }
+
+                ImGui::Separator();
 
                 if (ImGui::MenuItem("Delete"))
                 {
@@ -661,8 +672,8 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
 
         for (const auto& track: m_program.getTracks())
         {
-            float blockEnd = 0.;
-            float blockStart = 0.;
+            float blockEnd = 0.f;
+            float blockStart = 0.f;
             for (const auto& action: track->getActions())
             {
                 blockEnd += action->getDuration();
@@ -679,10 +690,19 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                 blockStart = blockEnd;
             }
 
-            if (m_time >= blockEnd)
+            if (m_time > blockEnd)
             {
                 if (m_repeat)
+                {
+                    m_time = 0.f;
                     groot->setTime(0.);
+                }
+                else
+                {
+                    m_time -= groot->getDt();
+                    groot->setTime(m_time);
+                    groot->setAnimate(false);
+                }
             }
         }
     }

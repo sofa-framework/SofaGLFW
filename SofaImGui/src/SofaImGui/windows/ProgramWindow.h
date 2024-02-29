@@ -52,6 +52,17 @@ class ProgramWindow : public BaseWindow
     void setTime(const float &time) {m_time=time;}
     void setTCPTarget(const std::shared_ptr<models::TCPTarget> &TCPTarget) {m_TCPTarget=TCPTarget;}
 
+    void setDrivingSimulation(const bool &isDrivingSimulation) override
+    {
+        if (isDrivingSimulation && !m_isDrivingSimulation)
+        {
+            const auto& groot = m_TCPTarget->getRootNode().get();
+            groot->setTime(0.f);
+            m_time = 0.f;
+        }
+        m_isDrivingSimulation=isDrivingSimulation;
+    }
+
    protected:
 
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
@@ -64,7 +75,7 @@ class ProgramWindow : public BaseWindow
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
-    bool m_drawTrajectory = false;
+    bool m_drawTrajectory = true;
     bool m_repeat = false;
     bool m_reverse = false;
 
