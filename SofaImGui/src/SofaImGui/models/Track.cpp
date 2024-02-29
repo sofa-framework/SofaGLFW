@@ -20,10 +20,94 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 #include <SofaImGui/models/Track.h>
-#include <SofaImGui/models/Move.h>
 
 
 namespace sofaimgui::models {
+
+
+std::shared_ptr<actions::Move> Track::getPreviousMove(const sofa::Index &actionID)
+{
+    if (actionID==0 || m_actions.empty())
+        return nullptr; // no previous move
+
+    for (int i=actionID - 1; i>=0; i--)
+    {
+        std::shared_ptr<actions::Move> previous = std::dynamic_pointer_cast<actions::Move>(m_actions[i]);
+        if (previous)
+            return previous;
+    }
+
+    return nullptr; // no previous move
+}
+
+std::shared_ptr<actions::Move> Track::getNextMove(const sofa::Index &actionID)
+{
+    if (actionID + 1==m_actions.size() || m_actions.empty())
+        return nullptr; // no next move
+
+    for (size_t i=actionID + 1; i<m_actions.size(); i++)
+    {
+        std::shared_ptr<actions::Move> next = std::dynamic_pointer_cast<actions::Move>(m_actions[i]);
+        if (next)
+            return next;
+    }
+
+    return nullptr; // no next move
+
+}
+
+void Track::pushAction(const std::shared_ptr<actions::Action> action)
+{
+    m_actions.push_back(action);
+}
+
+void Track::pushMove(const std::shared_ptr<actions::Move> move)
+{
+    std::shared_ptr<actions::Move> previous = getPreviousMove(m_actions.size());
+    move->setInitialPoint((previous!=nullptr)? previous->getWaypoint(): m_TCPTarget->getInitPosition());
+    pushAction(move);
+}
+
+void Track::pushMove()
+{
+    auto move = std::make_shared<actions::Move>(RigidCoord(),
+                                       m_TCPTarget->getPosition(),
+                                       actions::Action::DEFAULTDURATION,
+                                       m_TCPTarget->getRootNode().get(),
+                                       actions::Move::MoveType::LINE);
+    pushMove(move);
+}
+
+void Track::popAction()
+{
+    m_actions.pop_back();
+}
+
+void Track::insertAction(const sofa::Index &actionID, const std::shared_ptr<actions::Action>& action)
+{
+    if (actionID < m_actions.size())
+        m_actions.insert(m_actions.begin() + actionID, action);
+    else
+        pushAction(action);
+}
+
+void Track::insertMove(const sofa::Index &actionID)
+{
+    std::shared_ptr<actions::Move> previous = getPreviousMove(actionID);
+    auto move = std::make_shared<actions::Move>((previous!=nullptr)? previous->getWaypoint(): m_TCPTarget->getInitPosition(),
+                                       m_TCPTarget->getPosition(),
+                                       actions::Action::DEFAULTDURATION,
+                                       m_TCPTarget->getRootNode().get(),
+                                       actions::Move::MoveType::LINE);
+
+    // insert the new move
+    insertAction(actionID, move);
+
+    // update the next move
+    std::shared_ptr<actions::Move> next = getNextMove(actionID);
+    if (next)
+        next->setInitialPoint(move->getWaypoint());
+}
 
 void Track::deleteAction(const sofa::Index &actionID)
 {
@@ -31,64 +115,6 @@ void Track::deleteAction(const sofa::Index &actionID)
         m_actions.erase(m_actions.begin() + actionID);
     else
         dmsg_error("Track") << "ActionID";
-}
-
-void Track::insertAction(const sofa::Index &actionID, const std::shared_ptr<Action> action)
-{
-    if (actionID < m_actions.size())
-        m_actions.insert(m_actions.begin() + actionID, action);
-    else
-        m_actions.push_back(action);
-}
-
-void Track::pushMove()
-{
-    const RigidCoord &position = m_TCPTarget->getPosition();
-
-    RigidCoord position0 = m_TCPTarget->getInitPosition(); // default is initial position
-    if (!m_actions.empty()) // if this is not the first move
-    {
-        std::shared_ptr<Move> previousMove = std::dynamic_pointer_cast<Move>(m_actions.back());
-        if (previousMove)
-        {
-            position0 = previousMove->getWaypoint(); // get previous waypoint
-        }
-    }
-    
-    auto move = std::make_shared<models::Move>(position0, position, 3, m_TCPTarget->getRootNode().get(), models::Move::MoveType::LINE);
-    pushAction(move);
-}
-
-void Track::insertMove(const sofa::Index &actionID)
-{
-    if (actionID == m_actions.size()) // nothing after, just push the move
-    {
-        pushMove();
-    }
-    else
-    {
-        // get previous position
-        RigidCoord position0 = m_TCPTarget->getInitPosition(); // default is initial position
-        if (actionID > 0) // if this is not the first move
-        {
-            std::shared_ptr<Move> previousMove = std::dynamic_pointer_cast<Move>(m_actions[actionID - 1]); // TODO: find previous move
-            position0 = previousMove->getWaypoint(); // get previous waypoint
-        }
-
-        // create the new move
-        RigidCoord position1 = m_TCPTarget->getPosition();
-        auto move = std::make_shared<models::Move>(position0, position1, 3., m_TCPTarget->getRootNode().get(), models::Move::MoveType::LINE);
-
-        // update the next move
-        std::shared_ptr<Move> nextMove = std::dynamic_pointer_cast<Move>(m_actions[actionID]); // TODO: find next move
-        if (nextMove)
-        {
-            nextMove->setInitialPoint(position1);
-        }
-
-        // insert the new move
-        insertAction(actionID, move);
-    }
 }
 
 void Track::deleteMove(const sofa::Index &actionID)
@@ -99,35 +125,17 @@ void Track::deleteMove(const sofa::Index &actionID)
     }
     else
     {
-        // update next move
-        std::shared_ptr<Move> move = std::dynamic_pointer_cast<Move>(m_actions[actionID]);
-        std::shared_ptr<Move> nextMove = std::dynamic_pointer_cast<Move>(m_actions[actionID + 1]); // TODO: find next move
-
-        if (move && nextMove)
-        {
-            nextMove->setInitialPoint(move->getInitialPoint());
-        }
-
-        // delete move
+        std::shared_ptr<actions::Move> move = std::dynamic_pointer_cast<actions::Move>(m_actions[actionID]);
+        updateNextMoveInitialPoint(actionID, move->getInitialPoint());
         deleteAction(actionID);
     }
 }
 
-void Track::updateNextMove(const sofa::Index &actionID)
+void Track::updateNextMoveInitialPoint(const sofa::Index &actionID, const RigidCoord &initialPoint)
 {
-    if (actionID + 1 == m_actions.size()) // nothing after
-        return;
-
-    // get current position
-    std::shared_ptr<Move> move = std::dynamic_pointer_cast<Move>(m_actions[actionID]);
-    RigidCoord position0 = move->getWaypoint();
-
-    // update next move
-    std::shared_ptr<Move> nextMove = std::dynamic_pointer_cast<Move>(m_actions[actionID + 1]); // TODO: find next move
-    if (nextMove)
-    {
-        nextMove->setInitialPoint(position0);
-    }
+    std::shared_ptr<actions::Move> next = getNextMove(actionID);
+    if (next)
+        next->setInitialPoint(initialPoint);
 }
 
 } // namespace

@@ -21,12 +21,15 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/models/Track.h>
 #include <memory>
 #include <string>
 #include <vector>
-#include "SofaImGui/models/TCPTarget.h"
+
+#include <tinyxml2.h>
+
 #include <sofa/core/objectmodel/DataFileName.h>
+#include <SofaImGui/models/Track.h>
+#include <SofaImGui/models/TCPTarget.h>
 
 namespace sofaimgui::models {
 
@@ -37,10 +40,8 @@ class Program
    public:
 
     Program() = default;
-    Program(sofaglfw::SofaGLFWBaseGUI *baseGUI,
-            const std::shared_ptr<models::TCPTarget> &TCPTarget):
-                                                                   m_TCPTarget(TCPTarget),
-                                                                   m_baseGUI(baseGUI)
+    Program(const std::shared_ptr<models::TCPTarget> &TCPTarget):
+                                                                   m_TCPTarget(TCPTarget)
     {
         std::shared_ptr<models::Track> track = std::make_shared<models::Track>(TCPTarget);
         addTrack(track);
@@ -61,7 +62,9 @@ class Program
 
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
     std::vector<std::shared_ptr<Track>> m_tracks;
-    sofaglfw::SofaGLFWBaseGUI *m_baseGUI;
+
+    bool readMoveXMLElement(tinyxml2::XMLElement* e, std::shared_ptr<actions::Move> &move);
+    void writeMoveXMLElement(const std::shared_ptr<actions::Move> &move, tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack);
 
     bool checkExtension(const std::string &filename);
 

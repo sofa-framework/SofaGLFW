@@ -19,56 +19,22 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
-#pragma once
 
-#include <imgui.h>
-#include <tinyxml2.h>
+#include <SofaImGui/models/actions/Wait.h>
 
-namespace sofaimgui::models {
+namespace sofaimgui::models::actions {
 
-class Action
+Wait::Wait(const float &duration): Action(duration)
 {
-   public:
+    setComment("Wait");
+}
 
-    Action(const float& duration):
-                                  m_duration(duration)
-    {
-    }
-
-    Action() = default;
-    ~Action() = default;
-
-    static const int COMMENTSIZE{18};
-
-    virtual void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack)=0;
-    virtual void computeDuration()=0;
-    virtual void computeSpeed()=0;
-
-    const float& getDuration() {return m_duration;}
-    virtual void setDuration(const float& duration)
-    {
-        m_duration = duration;
-        computeSpeed();
-    }
-
-    const float& getSpeed() {return m_speed;}
-    virtual void setSpeed(const float& speed)
-    {
-        m_speed = speed;
-        computeDuration();
-    }
-
-    void setComment(const char* comment) {strncpy(m_comment, comment, COMMENTSIZE);}
-    void getComment(char* comment) {strncpy(comment, m_comment, COMMENTSIZE);}
-
-    char* getComment() {return m_comment;}
-
-   protected:
-
-    float m_duration;
-    float m_speed;
-    char m_comment[COMMENTSIZE];
-};
+void Wait::setDuration(const float& duration)
+{
+    m_duration = duration;
+    if (m_duration < m_minDuration)
+        m_duration = m_minDuration;
+}
 
 } // namespace
 

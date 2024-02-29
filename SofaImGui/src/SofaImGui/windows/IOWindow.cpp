@@ -58,7 +58,7 @@ void IOWindow::init()
 }
 
 void IOWindow::showWindow(sofa::simulation::Node *groot,
-                                  const ImGuiWindowFlags &windowFlags)
+                          const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
     {
@@ -96,7 +96,7 @@ std::map<std::string, std::vector<float>> IOWindow::getSimulationStateList(const
         const auto& data = node->getDataFields();
         for(auto d: data)
         {
-            if(d->getGroup().find("state") != std::string::npos)
+            if(d->getGroup().find("Simulation State") != std::string::npos)
             {
                 std::vector<float> vector;
                 std::stringstream str(d->getValueString());

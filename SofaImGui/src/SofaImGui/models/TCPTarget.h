@@ -52,12 +52,14 @@ class TCPTarget
     void setPosition(const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
+    bool isInSimulation() {return m_state!=nullptr;}
 
    protected:
 
     sofa::core::behavior::BaseMechanicalState::SPtr m_state;
     sofa::simulation::Node::SPtr m_groot;
     RigidCoord m_initPosition;
+
 };
 
 } // namespace

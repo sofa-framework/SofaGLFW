@@ -158,23 +158,30 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui::NewFrame();
 
     initDockSpace();
+    showMainMenuBar(baseGUI);
 
     static bool firstTime = true;
     if (firstTime)
     {
         firstTime = false;
 
-        // For mode
         m_TCPTarget = std::make_shared<models::TCPTarget>(baseGUI->getRootNode().get());
+
+        if (!m_TCPTarget->isInSimulation())
+        {
+            m_IOWindow.setWindowOpen(false);
+            m_moveWindow.setWindowOpen(false);
+            m_programWindow.setWindowOpen(false);
+            m_myRobotWindow.setWindowOpen(false);
+        }
+
         m_programWindow.setTCPTarget(m_TCPTarget);
         m_moveWindow.setTCPTarget(m_TCPTarget);
         m_IOWindow.setTCPTarget(m_TCPTarget);
     }
 
-
     showViewportWindow(baseGUI);
     showOptionWindows(baseGUI);
-    showMainMenuBar(baseGUI);
 
     ImGui::Render();
 
@@ -326,30 +333,33 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 
     // Driving Tab combo
-    static const char* listTabs[]{"Move", "Program", "IO"};
-    if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs)))
+    if (m_TCPTarget->isInSimulation())
     {
-        const auto filename = baseGUI->getFilename();
+        static const char* listTabs[]{"Move", "Program", "Input/Output"};
+        if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs)))
+        {
+            const auto filename = baseGUI->getFilename();
 
-        m_moveWindow.setDrivingSimulation(false);
-        m_programWindow.setDrivingSimulation(false);
-        m_IOWindow.setDrivingSimulation(false);
-        switch (m_mode) {
-            case 1:
-            {
-                m_programWindow.setTime(groot->getTime());
-                m_programWindow.setDrivingSimulation(true);
-                break;
-            }
-            case 2:
-            {
-                m_IOWindow.setDrivingSimulation(true);
-                break;
-            }
-            default:
-            {
-                m_moveWindow.setDrivingSimulation(true);
-                break;
+            m_moveWindow.setDrivingTCPTarget(false);
+            m_programWindow.setDrivingTCPTarget(false);
+            m_IOWindow.setDrivingTCPTarget(false);
+            switch (m_mode) {
+                case 1:
+                {
+                    m_programWindow.setTime(groot->getTime());
+                    m_programWindow.setDrivingTCPTarget(true);
+                    break;
+                }
+                case 2:
+                {
+                    m_IOWindow.setDrivingTCPTarget(true);
+                    break;
+                }
+                default:
+                {
+                    m_moveWindow.setDrivingTCPTarget(true);
+                    break;
+                }
             }
         }
     }
@@ -360,7 +370,6 @@ void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     auto groot = baseGUI->getRootNode();
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove ;
-
     // Down Dock
     m_programWindow.showWindow(baseGUI, windowFlags);
 
@@ -373,22 +382,29 @@ void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
 void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
-    auto groot = baseGUI->getRootNode();
-
     if (ImGui::BeginMainMenuBar())
     {
-        menus::FileMenu(baseGUI).addMenu();
+        if(menus::FileMenu(baseGUI).addMenu())
+        {
+            auto groot = baseGUI->getRootNode().get();
+            m_TCPTarget->init(groot);
+            m_programWindow.update(groot);
+        }
         menus::ViewMenu(baseGUI).addMenu(m_currentFBOSize, m_fbo->getColorTexture());
 
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.m_isWindowOpen);
-            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.m_isWindowOpen);
+            if (!m_TCPTarget->isInSimulation())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isWindowOpen());
+            ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.isWindowOpen());
+            ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isWindowOpen());
+            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
+            if (!m_TCPTarget->isInSimulation())
+                ImGui::EndDisabled();
+            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
             ImGui::Separator();
-            ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.m_isWindowOpen);
+            ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isWindowOpen());
             ImGui::EndMenu();
         }
 
@@ -423,6 +439,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             if (ImGui::IsItemClicked())
             {
+                auto groot = baseGUI->getRootNode().get();
                 const auto& node = groot->getChild("UserInterface");
                 if(node != nullptr)
                 {

@@ -21,32 +21,73 @@
  ******************************************************************************/
 #pragma once
 
-#include <string>
+#include <sofa/type/Vec.h>
+#include <sofa/defaulttype/RigidTypes.h>
 
 #include <sofa/simulation/Node.h>
-#include <SofaImGui/config.h>
+#include <SofaImGui/models/Trajectory.h>
+#include <SofaImGui/models/actions/Action.h>
 
-namespace sofaimgui::windows {
+namespace sofaimgui::models::actions {
 
-class BaseWindow
+class Move : public Action
 {
+    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::Rigid3Types::VecCoord VecCoord;
+
    public:
-    BaseWindow() = default;
-    ~BaseWindow() = default;
 
-    virtual void setDrivingTCPTarget(const bool &isDrivingSimulation) {m_isDrivingSimulation=isDrivingSimulation;}
-    bool isDrivingSimulation() {return m_isDrivingSimulation;}
+    enum MoveType {
+        LINE
+    };
 
-    std::string getName() const {return m_name;}
-    bool& isWindowOpen() {return m_isWindowOpen;}
-    void setWindowOpen(const bool &isOpen) {m_isWindowOpen=isOpen;}
+    Move(const RigidCoord& initialPoint,
+         const RigidCoord& waypoint,
+         const float& duration,
+         sofa::simulation::Node *groot,
+         MoveType type = LINE);
+
+    ~Move();
+
+    void computeDuration() override;
+    void computeSpeed() override;
+
+    void setDuration(const float& duration) override;
+    void setSpeed(const float& speed) override;
+
+    void setInitialPoint(const RigidCoord& initialPoint);
+    const RigidCoord& getInitialPoint() {return m_initialPoint;}
+
+    void setWaypoint(const RigidCoord& waypoint);
+    const RigidCoord& getWaypoint() {return m_waypoint;}
+
+    RigidCoord getInterpolatedPosition(const float& time);
+
+    void setType(MoveType type) {m_type = type;}
+    MoveType getType() {return m_type;}
+
+    void addTrajectory(sofa::simulation::Node* groot);
+    void highlightWaypoint(const bool &highlight) {m_trajectory->setHighlight(highlight);}
+    void drawTrajectory(const bool &drawTrajectory) {m_trajectory->f_listening.setValue(drawTrajectory);}
 
    protected:
 
-    bool m_isWindowOpen{false};
-    std::string m_name;
-    bool m_isDrivingSimulation{false};
+    RigidCoord m_initialPoint;
+    RigidCoord m_waypoint;
+
+    float m_minDuration{0.5};
+    float m_minSpeed{10};
+    float m_maxSpeed; // TODO: set
+
+    const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
+    sofa::simulation::Node* m_groot;
+
+    MoveType m_type;
+
+    void checkDuration();
+    void checkSpeed();
 };
 
-}
+} // namespace
+
 

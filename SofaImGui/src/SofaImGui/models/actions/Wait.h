@@ -19,40 +19,32 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
+#pragma once
 
+#include <sofa/type/Vec.h>
+#include <sofa/defaulttype/RigidTypes.h>
+
+#include <sofa/simulation/Node.h>
 #include <SofaImGui/models/Trajectory.h>
-#include <sofa/core/visual/VisualParams.h>
-#include <sofa/core/ObjectFactory.h>
+#include <SofaImGui/models/actions/Action.h>
 
-namespace sofaimgui::models {
+namespace sofaimgui::models::actions {
 
-using sofa::type::RGBAColor;
-
-int TrajectoryClass = sofa::core::RegisterObject(" ")
-                          .add< Trajectory >();
-
-void Trajectory::draw(const sofa::core::visual::VisualParams* vparams)
+class Wait : public Action
 {
-    const auto &defaultColor = RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, 0.5f);
-    const auto &highlightColor = RGBAColor::fromFloat(0.75f, 0.31f, 0.31f, 1.0f);
-    if (f_listening.getValue())
-    {
-        vparams->drawTool()->disableLighting();
-        vparams->drawTool()->drawSphere(m_positions[0].getCenter(),
-                                        10.f,
-                                        m_highlight? RGBAColor::fromFloat(0.75f, 0.31f, 0.31f, 0.8f): defaultColor);
-        vparams->drawTool()->drawSphere(m_positions[0].getCenter(),
-                                        7.5f,
-                                        m_highlight? RGBAColor::white(): defaultColor);
-        vparams->drawTool()->drawSphere(m_positions[1].getCenter(),
-                                        m_highlight? 15.f : 10.f,
-                                        m_highlight? highlightColor: defaultColor);
-        vparams->drawTool()->drawLines(std::vector<sofa::type::Vec3>{m_positions[0].getCenter(), m_positions[1].getCenter()},
-                                       m_highlight? 10.f : 5.f,
-                                       m_highlight? highlightColor: defaultColor);
-        vparams->drawTool()->enableLighting();
-    }
-}
+   public:
+
+    Wait(const float& duration = Action::DEFAULTDURATION);
+    ~Wait() = default;
+
+    void computeDuration() override {};
+    void computeSpeed() override {};
+
+    void setDuration(const float &duration) override;
+
+   protected:
+    float m_minDuration = 0.5;
+};
 
 } // namespace
 

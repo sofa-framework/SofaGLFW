@@ -33,16 +33,17 @@ class FileMenu
     FileMenu(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     ~FileMenu();
 
-    void addMenu();
+    bool addMenu();
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
    protected:
 
-    void addOpenSimulation();
-    void addReloadSimulation();
-    void addCloseSimulation();
+    bool addOpenSimulation();
+    bool addReloadSimulation();
     void addExit();
+
+    void saveProject();
 };
 
 }

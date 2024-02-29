@@ -23,7 +23,7 @@
 
 #include <string>
 #include <map>
-#include "SofaImGui/models/TCPTarget.h"
+#include <SofaImGui/models/TCPTarget.h>
 
 #include <SofaImGui/config.h>
 #include <SofaImGui/windows/BaseWindow.h>

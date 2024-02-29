@@ -21,73 +21,52 @@
  ******************************************************************************/
 #pragma once
 
-#include <sofa/type/Vec.h>
-#include <sofa/defaulttype/RigidTypes.h>
+#include <imgui.h>
 
-#include <SofaImGui/models/Action.h>
-#include <sofa/simulation/Node.h>
-#include <SofaImGui/models/Trajectory.h>
+namespace sofaimgui::models::actions {
 
-namespace sofaimgui::models {
-
-class Move : public Action
+class Action
 {
-    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
-    typedef sofa::defaulttype::Rigid3Types::VecCoord VecCoord;
-
    public:
 
-    enum MoveType {
-        LINE
-    };
+    inline static const int COMMENTSIZE = 18;
+    inline static const float DEFAULTDURATION = 3.f;
 
-    Move();
+    Action(const float& duration=DEFAULTDURATION):
+                                  m_duration(duration)
+    {
+    }
 
-    Move(const RigidCoord& initialPoint,
-         const RigidCoord& waypoint,
-         const float& duration,
-         sofa::simulation::Node::SPtr groot,
-         MoveType type = LINE);
+    ~Action() = default;
 
-    ~Move();
+    virtual void computeDuration()=0;
+    virtual void computeSpeed()=0;
 
-    void addXMLElement(tinyxml2::XMLDocument *document, tinyxml2::XMLNode *xmlTrack) override;
-    void computeDuration() override;
-    void computeSpeed() override;
+    const float& getDuration() {return m_duration;}
+    virtual void setDuration(const float& duration)
+    {
+        m_duration = duration;
+        computeSpeed();
+    }
 
-    void setDuration(const float& duration) override;
-    void setSpeed(const float& speed) override;
+    const float& getSpeed() {return m_speed;}
+    virtual void setSpeed(const float& speed)
+    {
+        m_speed = speed;
+        computeDuration();
+    }
 
-    void setInitialPoint(const RigidCoord& initialPoint);
-    const RigidCoord& getInitialPoint() {return m_initialPoint;}
+    void setComment(const char* comment) {strncpy(m_comment, comment, COMMENTSIZE);}
+    void getComment(char* comment) {strncpy(comment, m_comment, COMMENTSIZE);}
 
-    void setWaypoint(const RigidCoord& waypoint);
-    const RigidCoord& getWaypoint() {return m_waypoint;}
-
-    RigidCoord getInterpolatedPosition(const float& time);
-
-    void setType(MoveType type) {m_type = type;}
-
-    void highlightWaypoint(const bool &highlight) {m_trajectory->setHighlight(highlight);}
-    void drawTrajectory(const bool &drawTrajectory) {m_trajectory->f_listening.setValue(drawTrajectory);}
-
+    char* getComment() {return m_comment;}
 
    protected:
 
-    RigidCoord m_initialPoint;
-    RigidCoord m_waypoint;
+    float m_duration;
+    float m_speed;
+    char m_comment[COMMENTSIZE];
 
-    float m_minDuration{0.5};
-    float m_minSpeed{10};
-    float m_maxSpeed; // TODO: set
-
-    const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
-    sofa::simulation::Node::SPtr m_groot;
-
-    MoveType m_type;
-
-    void checkDuration();
-    void checkSpeed();
 };
 
 } // namespace

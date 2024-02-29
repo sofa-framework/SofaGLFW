@@ -20,18 +20,14 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
-#include <SofaImGui/models/Move.h>
+#include <SofaImGui/models/actions/Move.h>
 
-namespace sofaimgui::models {
-
-Move::Move(): Action()
-{
-}
+namespace sofaimgui::models::actions {
 
 Move::Move(const RigidCoord& initialPoint,
            const RigidCoord& waypoint,
            const float &duration,
-           sofa::simulation::Node::SPtr groot,
+           sofa::simulation::Node* groot,
            MoveType type):
                                             Action(duration),
                                             m_initialPoint(initialPoint),
@@ -42,14 +38,19 @@ Move::Move(const RigidCoord& initialPoint,
     checkDuration(); // minimum duration for a move is set to 1 second
     setComment("Move to waypoint");
     m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
-
-    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
-    m_groot->addObject(m_trajectory);
+    addTrajectory(groot);
 }
 
 Move::~Move()
 {
     m_groot->removeObject(m_trajectory);
+}
+
+void Move::addTrajectory(sofa::simulation::Node* groot)
+{
+    m_groot = groot;
+    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
+    groot->addObject(m_trajectory);
 }
 
 void Move::checkDuration()
@@ -118,39 +119,6 @@ sofa::defaulttype::RigidCoord<3, float> Move::getInterpolatedPosition(const floa
     }
 
     return interpolatedPosition;
-}
-
-void Move::addXMLElement(tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack)
-{
-    if (document && xmlTrack)
-    {
-        tinyxml2::XMLElement * xmlMove = document->NewElement("move");
-        if (xmlMove != nullptr)
-        {
-            std::string ip = std::to_string(m_initialPoint[0]) + " "
-                             + std::to_string(m_initialPoint[1]) + " "
-                             + std::to_string(m_initialPoint[2]) + " "
-                             + std::to_string(m_initialPoint[3]) + " "
-                             + std::to_string(m_initialPoint[4]) + " "
-                             + std::to_string(m_initialPoint[5]) + " "
-                             + std::to_string(m_initialPoint[6]) + " ";
-            xmlMove->SetAttribute("ip", ip.c_str());
-            std::string wp = std::to_string(m_waypoint[0]) + " "
-                             + std::to_string(m_waypoint[1]) + " "
-                             + std::to_string(m_waypoint[2]) + " "
-                             + std::to_string(m_waypoint[3]) + " "
-                             + std::to_string(m_waypoint[4]) + " "
-                             + std::to_string(m_waypoint[5]) + " "
-                             + std::to_string(m_waypoint[6]) + " ";
-            xmlMove->SetAttribute("wp", wp.c_str());
-            xmlMove->SetAttribute("duration", getDuration());
-            xmlMove->SetAttribute("type", m_type);
-            xmlMove->SetAttribute("comment", m_comment);
-            xmlTrack->InsertEndChild(xmlMove);
-        }
-    }
-    else
-        dmsg_error("Move") << "getXMLElement() with nullptr";
 }
 
 } // namespace

@@ -41,16 +41,17 @@ FileMenu::~FileMenu()
 {
 }
 
-void FileMenu::addMenu()
+bool FileMenu::addMenu()
 {
     if (m_baseGUI == nullptr)
-        return;
+        return false;
+
+    bool clicked = false;
 
     if (ImGui::BeginMenu("File"))
     {
-        addOpenSimulation();
-        addReloadSimulation();
-        addCloseSimulation();
+        clicked = addOpenSimulation();
+        clicked = addReloadSimulation();
 
         ImGui::Separator();
 
@@ -58,12 +59,16 @@ void FileMenu::addMenu()
 
         ImGui::EndMenu();
     }
+
+    return clicked;
 }
 
-void FileMenu::addOpenSimulation()
+bool FileMenu::addOpenSimulation()
 {
+    bool clicked = false;
     if (ImGui::MenuItem("Open Simulation"))
     {
+        clicked = true;
         sofa::simulation::SceneLoaderFactory::SceneLoaderList* loaders = sofa::simulation::SceneLoaderFactory::getInstance()->getEntries();
         std::vector<std::pair<std::string, std::string> > filterList;
         filterList.reserve(loaders->size());
@@ -110,28 +115,32 @@ void FileMenu::addOpenSimulation()
             NFD_FreePath(outPath);
         }
     }
+    return clicked;
 }
 
-void FileMenu::addReloadSimulation()
+bool FileMenu::addReloadSimulation()
 {
-    const auto filename = m_baseGUI->getFilename();
+    bool clicked = false;
+    const auto &filename = m_baseGUI->getFilename();
     if (ImGui::MenuItem("Reload Simulation"))
     {
+        clicked = true;
         Utils::reloadSimulation(m_baseGUI, filename);
     }
     ImGui::SetItemTooltip("%s", filename.c_str());
+
+    return clicked;
 }
 
-void FileMenu::addCloseSimulation()
+void FileMenu::saveProject()
 {
-    if (ImGui::MenuItem("Close Simulation"))
+    auto filename = m_baseGUI->getFilename();
+    filename += ".crproj";
+    if (ImGui::MenuItem("Save"))
     {
-        auto groot = m_baseGUI->getRootNode();
-        sofa::simulation::node::unload(groot);
-        m_baseGUI->setSimulationIsRunning(false);
-        sofa::simulation::node::initRoot(m_baseGUI->getRootNode().get());
-        return;
+
     }
+    ImGui::SetItemTooltip("%s", filename.c_str());
 }
 
 void FileMenu::addExit()

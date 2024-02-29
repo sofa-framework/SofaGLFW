@@ -28,7 +28,6 @@ namespace sofaimgui::models {
 TCPTarget::TCPTarget(sofa::simulation::Node::SPtr groot): m_groot(groot)
 {
     init(groot);
-    m_initPosition = getPosition();
 }
 
 void TCPTarget::init(sofa::simulation::Node::SPtr groot)
@@ -50,6 +49,7 @@ void TCPTarget::init(sofa::simulation::Node::SPtr groot)
                 if (mechanical)
                 {
                     m_state = mechanical;
+                    m_initPosition = getPosition();
                 }
             }
         }
