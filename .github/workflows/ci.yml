@@ -152,7 +152,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-12, windows-2019]
+        os: [ubuntu-22.04, macos-13, windows-2022]
         sofa_branch: [master]
 
     steps:          
@@ -174,7 +174,15 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get -qq install xorg-dev gtk+-3.0
+            sudo apt-get -qq install xorg-dev libtinyxml2-dev
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install tinyxml2
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            curl -L "https://www.sofa-framework.org/download/WinDepPack/VS-2017/latest" --output dependencies_tmp.zip
+            unzip dependencies_tmp.zip -d dependencies_tmp > /dev/null
+            CURR_DIR=$(pwd)
+            export CMAKE_LIBRARY_PATH=$CURR_DIR/dependencies_tmp/SOFA_WinDepPack_20230228/lib/win64
+            export CMAKE_INCLUDE_PATH=$CURR_DIR/dependencies_tmp/SOFA_WinDepPack_20230228/lib/include
           fi
 
       - name: Build and install
