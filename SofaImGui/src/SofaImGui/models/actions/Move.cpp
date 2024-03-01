@@ -109,7 +109,8 @@ void Move::setWaypoint(const RigidCoord& waypoint)
 sofa::defaulttype::RigidCoord<3, float> Move::getInterpolatedPosition(const float& time)
 {
     RigidCoord interpolatedPosition;
-    switch (m_type) {
+    switch (m_type)
+    {
         default: // LINE
             auto coef = time / m_duration;
             interpolatedPosition.getCenter() = m_initialPoint.getCenter() * (1 - coef) + m_waypoint.getCenter() * coef;

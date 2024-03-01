@@ -327,7 +327,7 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
 
         if (ImGui::BeginPopup(menuLabel.c_str()))
         {
-            if (ImGui::BeginMenu("Add left"))
+            if (ImGui::BeginMenu("Add before"))
             {
                 if (ImGui::MenuItem("Move"))
                     track->insertMove(actionID);
@@ -335,7 +335,7 @@ void ProgramWindow::showBlocks(const std::shared_ptr<models::Track> &track,
                     track->insertAction(actionID, std::make_shared<models::actions::Wait>());
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Add right"))
+            if (ImGui::BeginMenu("Add after"))
             {
                 if (ImGui::MenuItem("Move"))
                     track->insertMove(actionID + 1);
@@ -809,7 +809,7 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
             for (const auto& action: actions)
             {
                 blockEnd += action->getDuration();
-                if (blockEnd > m_time)
+                if (blockEnd >= m_time)
                 {
                     std::shared_ptr<models::actions::Move> move = std::dynamic_pointer_cast<models::actions::Move>(action);
                     if(move)
