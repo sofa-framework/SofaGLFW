@@ -89,7 +89,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.05f, 0.05f, 0.05f, 0.55f);
     colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.34f, 0.34f, 0.34f, 0.55f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
-    colors[ImGuiCol_SliderGrab]             = ImVec4(0.60f, 0.81f, 0.76f, 1.00f);
+    colors[ImGuiCol_SliderGrab]             = ImVec4(0.80f, 0.80f, 0.80f, 1.00f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
     colors[ImGuiCol_Button]                 = ImVec4(0.53f, 0.54f, 0.55f, 1.00f);
     colors[ImGuiCol_ButtonActive]           = ImVec4(0.53f, 0.54f, 0.55f, 1.00f);
@@ -135,7 +135,7 @@ void setLightStyle()
     colors[ImGuiCol_PopupBg]                = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
     colors[ImGuiCol_Border]                 = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_BorderShadow]           = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 0.80f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_FrameBgActive]          = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
     colors[ImGuiCol_TitleBg]                = ImVec4(0.92f, 0.92f, 0.92f, 0.92f);
     colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.92f, 0.92f, 0.92f, 0.92f);
@@ -145,7 +145,7 @@ void setLightStyle()
     colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
     colors[ImGuiCol_CheckMark]              = ImVec4(0.08f, 0.55f, 0.53f, 1.00f);
-    colors[ImGuiCol_SliderGrab]             = ImVec4(0.60f, 0.81f, 0.76f, 1.00f);
+    colors[ImGuiCol_SliderGrab]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
     colors[ImGuiCol_Button]                 = ImVec4(0.63f, 0.64f, 0.65f, 1.00f);
     colors[ImGuiCol_ButtonActive]           = ImVec4(0.63f, 0.64f, 0.65f, 1.00f);

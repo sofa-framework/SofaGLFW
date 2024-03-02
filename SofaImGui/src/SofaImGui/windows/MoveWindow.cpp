@@ -44,11 +44,6 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            if(!m_isDrivingSimulation)
-            {
-                ImGui::BeginDisabled();
-            }
-
             ImGui::Spacing();
 
             static int x=0;
@@ -101,11 +96,6 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
 
             if (m_isDrivingSimulation)
                 m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
-            else
-            {
-                ImGui::EndDisabled();
-                // ImGui::Text(ICON_FA_TRIANGLE_EXCLAMATION" Choose Move in the Mode panel to control the target with this tool.");
-            }
 
             ImGui::Unindent();
 

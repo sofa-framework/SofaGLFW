@@ -67,7 +67,6 @@ class ProgramWindow : public BaseWindow
     ImVec2 m_trackBeginPos;
     float m_timelineOneSecondSize;
     float m_time;
-    float m_trackHeight;
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
@@ -107,6 +106,14 @@ class ProgramWindow : public BaseWindow
     };
     ProgramColors m_colors;
     ProgramColors getColors() {return m_colors;}
+
+    struct ProgramSizes
+    {
+        float trackHeight;
+        float inputWidth;
+    };
+    ProgramSizes m_sizes;
+    ProgramSizes& getSizes() {return m_sizes;}
 
 };
 
