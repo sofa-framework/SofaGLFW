@@ -625,7 +625,7 @@ void ProgramWindow::showMoveBlock(const std::shared_ptr<models::Track> &track,
 
     text = "speed";
     textSize = ImGui::CalcTextSize(text.c_str());
-    float nx = ImGui::GetCursorPosX() + padding.x * 5;
+    float nx = x + alignWidth + getSizes().inputWidth + padding.x * 5;
 
     { // Speed
         bb.Min = ImVec2(nx, y);
