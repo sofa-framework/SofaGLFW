@@ -66,7 +66,6 @@ class ProgramWindow : public BaseWindow
 
     float m_cursor;
     ImVec2 m_trackBeginPos;
-    float m_timelineOneSecondSize;
     float m_time;
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
@@ -93,7 +92,7 @@ class ProgramWindow : public BaseWindow
     void showRepeatBlock(std::shared_ptr<models::modifiers::Repeat> repeat,
                          const std::string &label,
                          const ImVec2 &size, const bool &collapsed);
-    void showActionOptionButton(const std::string &menulabel,
+    void showBlockOptionButton(const std::string &menulabel,
                                 const std::string &label);
 
     bool importProgram();
@@ -120,6 +119,7 @@ class ProgramWindow : public BaseWindow
         float trackCollapsedHeight;
         float inputWidth;
         float alignWidth;
+        float timelineOneSecondSize;
     };
     ProgramSizes m_sizes;
     ProgramSizes& getSizes() {return m_sizes;}

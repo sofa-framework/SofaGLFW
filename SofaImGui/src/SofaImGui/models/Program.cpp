@@ -94,7 +94,7 @@ bool Program::importProgram(const std::string &filename)
                 }
             }
 
-            for(auto* e = t->FirstChildElement("modifier"); e != nullptr; e = e->NextSiblingElement("action"))
+            for(auto* e = t->FirstChildElement("modifier"); e != nullptr; e = e->NextSiblingElement("modifier"))
             {
                 if (strcmp(e->FirstAttribute()->Value(), "repeat") == 0)
                 {
@@ -117,6 +117,7 @@ bool Program::importProgram(const std::string &filename)
                     std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(iterations, endTime, startTime, type);
                     if (e->FindAttribute("comment"))
                         repeat->setComment(e->Attribute("comment"));
+
                     track->pushModifier(repeat);
                 }
             }

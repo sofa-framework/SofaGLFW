@@ -46,6 +46,13 @@ void Repeat::setStartTime(const float &startTime)
     computeDuration();
 }
 
+void Repeat::setEndTime(const float &endTime)
+{
+    m_endTime=endTime;
+    checkInterval();
+    computeDuration();
+}
+
 void Repeat::setInterval(const float &startTime, const float &endTime)
 {
     m_startTime = startTime;

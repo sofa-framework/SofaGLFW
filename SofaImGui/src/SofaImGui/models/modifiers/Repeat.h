@@ -53,6 +53,7 @@ class Repeat : public Modifier
 
     void setStartTime(const float &startTime);
     float& getStartTime() {return m_startTime;}
+    void setEndTime(const float &endTime);
     float getEndTime() {return m_endTime;}
     void setInterval(const float &startTime, const float &endTime);
 
