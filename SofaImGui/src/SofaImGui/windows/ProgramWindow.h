@@ -76,11 +76,12 @@ class ProgramWindow : public BaseWindow
     bool m_reverse = false;
 
     void showProgramButtons();
-    void showCursorMarker();
+    void showCursorMarker(const int &nbCollaspedTracks);
     void showTimeline();
-    void showTracks();
+    int showTracks();
+    bool showTrackButtons(const int &trackIndex, const char* const menuLabel);
     void showBlocks(std::shared_ptr<models::Track> track,
-                    const int &trackID);
+                    const int &trackID, const bool &collapsed);
     void showMoveBlock(std::shared_ptr<models::Track> track,
                        const sofa::Index &moveID,
                        std::shared_ptr<models::actions::Move> move,
@@ -116,6 +117,7 @@ class ProgramWindow : public BaseWindow
     struct ProgramSizes
     {
         float trackHeight;
+        float trackCollapsedHeight;
         float inputWidth;
         float alignWidth;
     };
