@@ -19,31 +19,52 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
-#pragma once
 
-#include <SofaImGui/windows/BaseWindow.h>
-#include <SofaImGui/models/TCPTarget.h>
-#include <imgui.h>
+#include <SofaImGui/models/modifiers/Repeat.h>
 
-namespace sofaimgui::windows {
+namespace sofaimgui::models::modifiers {
 
-class MoveWindow : public BaseWindow
+Repeat::Repeat(const int &iterations,
+               const float &endTime,
+               const float &startTime,
+               const Type &type):  Modifier(endTime - startTime),
+                                   m_iterations(iterations),
+                                   m_endTime(endTime),
+                                   m_startTime(startTime),
+                                   m_type(type)
 {
-   public:
-    MoveWindow(const std::string& name, const bool& isWindowOpen);
-    ~MoveWindow() = default;
-
-    void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
-
-   protected:
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
-
-    void showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int &offset, const ImVec4& color);
-    void showSliderFloat(const char *name, const char* label1, const char *label2, float* v, const ImVec4 &color);
-};
-
+    setComment("Repeat");
+    checkInterval();
+    m_duration = m_endTime - m_startTime;
 }
+
+
+void Repeat::setStartTime(const float &startTime)
+{
+    m_startTime=startTime;
+    checkInterval();
+    computeDuration();
+}
+
+void Repeat::setInterval(const float &startTime, const float &endTime)
+{
+    m_startTime = startTime;
+    m_endTime = endTime;
+    checkInterval();
+    computeDuration();
+}
+
+void Repeat::checkInterval()
+{
+    if (m_endTime <= m_startTime)
+        m_startTime = 0;
+}
+
+void Repeat::computeDuration()
+{
+    m_duration = m_endTime - m_startTime;
+}
+
+} // namespace
 
 

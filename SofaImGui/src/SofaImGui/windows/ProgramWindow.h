@@ -28,6 +28,7 @@
 
 #include <SofaImGui/models/actions/Move.h>
 #include <SofaImGui/models/actions/Wait.h>
+#include <SofaImGui/models/modifiers/Repeat.h>
 
 #include <SofaImGui/models/TCPTarget.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
@@ -54,7 +55,7 @@ class ProgramWindow : public BaseWindow
     void animateEndEvent(sofa::simulation::Node *groot);
 
     void setTime(const float &time) {m_time=time;}
-    void setTCPTarget(const std::shared_ptr<models::TCPTarget> &TCPTarget);
+    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
 
     void update(sofa::simulation::Node* groot);
@@ -78,16 +79,19 @@ class ProgramWindow : public BaseWindow
     void showCursorMarker();
     void showTimeline();
     void showTracks();
-    void showBlocks(const std::shared_ptr<models::Track>& track,
+    void showBlocks(std::shared_ptr<models::Track> track,
                     const int &trackID);
-    void showMoveBlock(const std::shared_ptr<models::Track> &track,
+    void showMoveBlock(std::shared_ptr<models::Track> track,
                        const sofa::Index &moveID,
-                       const std::shared_ptr<models::actions::Move> &move,
+                       std::shared_ptr<models::actions::Move> move,
                        const std::string &label,
                        const ImVec2 &size);
-    void showWaitBlock(const std::shared_ptr<models::actions::Wait> &wait,
+    void showWaitBlock(std::shared_ptr<models::actions::Wait> wait,
                        const std::string &label,
                        const ImVec2 &size);
+    void showRepeatBlock(std::shared_ptr<models::modifiers::Repeat> repeat,
+                         const std::string &label,
+                         const ImVec2 &size, const bool &collapsed);
     void showActionOptionButton(const std::string &menulabel,
                                 const std::string &label);
 
@@ -101,6 +105,8 @@ class ProgramWindow : public BaseWindow
         ImVec4 MoveBlockTitleBg{0.29f, 0.47f, 0.5f, 1.0f};
         ImVec4 WaitBlockBg{0.91f, 0.72f, 0.14f, 1.0f};
         ImVec4 WaitBlockTitleBg{0.93f, 0.57f, 0.13f, 1.0f};
+        ImVec4 RepeatBlockBg{0.58f, 0.50f, 0.92f, 1.0f};
+        ImVec4 RepeatBlockTitleBg{0.39f, 0.15f, 0.74f, 1.0f};
         ImVec4 Text{1.0f, 1.0f, 1.0f, 1.f};
         ImVec4 FrameText{0.f, 0.f, 0.f, 1.f};
     };
@@ -111,6 +117,7 @@ class ProgramWindow : public BaseWindow
     {
         float trackHeight;
         float inputWidth;
+        float alignWidth;
     };
     ProgramSizes m_sizes;
     ProgramSizes& getSizes() {return m_sizes;}

@@ -40,8 +40,7 @@ class Program
    public:
 
     Program() = default;
-    Program(const std::shared_ptr<models::TCPTarget> &TCPTarget):
-                                                                   m_TCPTarget(TCPTarget)
+    Program(std::shared_ptr<models::TCPTarget> TCPTarget): m_TCPTarget(TCPTarget)
     {
         std::shared_ptr<models::Track> track = std::make_shared<models::Track>(TCPTarget);
         addTrack(track);
@@ -62,9 +61,6 @@ class Program
 
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
     std::vector<std::shared_ptr<Track>> m_tracks;
-
-    bool readMoveXMLElement(tinyxml2::XMLElement* e, std::shared_ptr<actions::Move> &move);
-    void writeMoveXMLElement(const std::shared_ptr<actions::Move> &move, tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack);
 
     bool checkExtension(const std::string &filename);
 

@@ -20,17 +20,17 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 #include <SofaImGui/models/Track.h>
+#include <SofaImGui/models/modifiers/Repeat.h>
 
 
 namespace sofaimgui::models {
 
-
-std::shared_ptr<actions::Move> Track::getPreviousMove(const sofa::Index &actionID)
+std::shared_ptr<actions::Move> Track::getPreviousMove(const sofa::Index &actionIndex)
 {
-    if (actionID==0 || m_actions.empty())
+    if (actionIndex==0 || m_actions.empty())
         return nullptr; // no previous move
 
-    for (int i=actionID - 1; i>=0; i--)
+    for (int i=actionIndex - 1; i>=0; i--)
     {
         std::shared_ptr<actions::Move> previous = std::dynamic_pointer_cast<actions::Move>(m_actions[i]);
         if (previous)
@@ -40,12 +40,12 @@ std::shared_ptr<actions::Move> Track::getPreviousMove(const sofa::Index &actionI
     return nullptr; // no previous move
 }
 
-std::shared_ptr<actions::Move> Track::getNextMove(const sofa::Index &actionID)
+std::shared_ptr<actions::Move> Track::getNextMove(const sofa::Index &actionIndex)
 {
-    if (actionID + 1==m_actions.size() || m_actions.empty())
+    if (actionIndex + 1==m_actions.size() || m_actions.empty())
         return nullptr; // no next move
 
-    for (size_t i=actionID + 1; i<m_actions.size(); i++)
+    for (size_t i=actionIndex + 1; i<m_actions.size(); i++)
     {
         std::shared_ptr<actions::Move> next = std::dynamic_pointer_cast<actions::Move>(m_actions[i]);
         if (next)
@@ -53,15 +53,14 @@ std::shared_ptr<actions::Move> Track::getNextMove(const sofa::Index &actionID)
     }
 
     return nullptr; // no next move
-
 }
 
-void Track::pushAction(const std::shared_ptr<actions::Action> action)
+void Track::pushAction(std::shared_ptr<actions::Action> action)
 {
     m_actions.push_back(action);
 }
 
-void Track::pushMove(const std::shared_ptr<actions::Move> move)
+void Track::pushMove(std::shared_ptr<actions::Move> move)
 {
     std::shared_ptr<actions::Move> previous = getPreviousMove(m_actions.size());
     move->setInitialPoint((previous!=nullptr)? previous->getWaypoint(): m_TCPTarget->getInitPosition());
@@ -74,7 +73,7 @@ void Track::pushMove()
                                        m_TCPTarget->getPosition(),
                                        actions::Action::DEFAULTDURATION,
                                        m_TCPTarget->getRootNode().get(),
-                                       actions::Move::MoveType::LINE);
+                                                actions::Move::Type::LINE);
     pushMove(move);
 }
 
@@ -83,59 +82,98 @@ void Track::popAction()
     m_actions.pop_back();
 }
 
-void Track::insertAction(const sofa::Index &actionID, const std::shared_ptr<actions::Action>& action)
+void Track::insertAction(const sofa::Index &actionIndex, std::shared_ptr<actions::Action> action)
 {
-    if (actionID < m_actions.size())
-        m_actions.insert(m_actions.begin() + actionID, action);
+    if (actionIndex < m_actions.size())
+        m_actions.insert(m_actions.begin() + actionIndex, action);
     else
         pushAction(action);
 }
 
-void Track::insertMove(const sofa::Index &actionID)
+void Track::insertMove(const sofa::Index &actionIndex)
 {
-    std::shared_ptr<actions::Move> previous = getPreviousMove(actionID);
+    std::shared_ptr<actions::Move> previous = getPreviousMove(actionIndex);
     auto move = std::make_shared<actions::Move>((previous!=nullptr)? previous->getWaypoint(): m_TCPTarget->getInitPosition(),
                                        m_TCPTarget->getPosition(),
                                        actions::Action::DEFAULTDURATION,
                                        m_TCPTarget->getRootNode().get(),
-                                       actions::Move::MoveType::LINE);
+                                                actions::Move::Type::LINE);
 
     // insert the new move
-    insertAction(actionID, move);
+    insertAction(actionIndex, move);
 
     // update the next move
-    std::shared_ptr<actions::Move> next = getNextMove(actionID);
+    std::shared_ptr<actions::Move> next = getNextMove(actionIndex);
     if (next)
         next->setInitialPoint(move->getWaypoint());
 }
 
-void Track::deleteAction(const sofa::Index &actionID)
+void Track::deleteAction(const sofa::Index &actionIndex)
 {
-    if (actionID < m_actions.size())
-        m_actions.erase(m_actions.begin() + actionID);
+    if (actionIndex < m_actions.size())
+        m_actions.erase(m_actions.begin() + actionIndex);
     else
-        dmsg_error("Track") << "ActionID";
+        dmsg_error("Track") << "actionIndex";
 }
 
-void Track::deleteMove(const sofa::Index &actionID)
+void Track::deleteMove(const sofa::Index &actionIndex)
 {
-    if (actionID + 1 == m_actions.size()) // nothing after, just pop the move
+    if (actionIndex + 1 == m_actions.size()) // nothing after, just pop the move
     {
         popAction();
     }
     else
     {
-        std::shared_ptr<actions::Move> move = std::dynamic_pointer_cast<actions::Move>(m_actions[actionID]);
-        updateNextMoveInitialPoint(actionID, move->getInitialPoint());
-        deleteAction(actionID);
+        std::shared_ptr<actions::Move> move = std::dynamic_pointer_cast<actions::Move>(m_actions[actionIndex]);
+        updateNextMoveInitialPoint(actionIndex, move->getInitialPoint());
+        deleteAction(actionIndex);
     }
 }
 
-void Track::updateNextMoveInitialPoint(const sofa::Index &actionID, const RigidCoord &initialPoint)
+void Track::updateNextMoveInitialPoint(const sofa::Index &actionIndex, const RigidCoord &initialPoint)
 {
-    std::shared_ptr<actions::Move> next = getNextMove(actionID);
+    std::shared_ptr<actions::Move> next = getNextMove(actionIndex);
     if (next)
         next->setInitialPoint(initialPoint);
+}
+
+void Track::pushModifier(std::shared_ptr<modifiers::Modifier> modifier)
+{
+    m_modifiers.push_back(modifier);
+}
+
+void Track::pushRepeat()
+{
+    float endTime = 0.;
+    for (const auto& action: m_actions)
+        endTime += action->getDuration();
+    std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(1, endTime);
+    pushModifier(repeat);
+}
+
+void Track::insertModifier(const sofa::Index &modifierIndex, std::shared_ptr<modifiers::Modifier> modifier)
+{
+    if (modifierIndex < m_modifiers.size())
+        m_modifiers.insert(m_modifiers.begin() + modifierIndex, modifier);
+    else
+        pushModifier(modifier);
+}
+
+void Track::insertRepeat(const sofa::Index &modifierIndex)
+{
+    float endTime = 0.;
+    for (sofa::Index i=0; i<modifierIndex; i++)
+        endTime += m_modifiers[i]->getDuration();
+    std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(0.f, endTime);
+    insertModifier(modifierIndex, repeat);
+}
+
+void Track::deleteModifier(const sofa::Index &modifierIndex)
+{
+    if (modifierIndex < m_modifiers.size())
+        m_modifiers.erase(m_modifiers.begin() + modifierIndex);
+    else
+        dmsg_error("Track") << "modifierIndex";
 }
 
 } // namespace

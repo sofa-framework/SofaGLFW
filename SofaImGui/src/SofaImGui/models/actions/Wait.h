@@ -37,9 +37,6 @@ class Wait : public Action
     Wait(const float& duration = Action::DEFAULTDURATION);
     ~Wait() = default;
 
-    void computeDuration() override {};
-    void computeSpeed() override {};
-
     void setDuration(const float &duration) override;
 
    protected:

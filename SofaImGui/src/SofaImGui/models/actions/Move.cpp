@@ -28,7 +28,7 @@ Move::Move(const RigidCoord& initialPoint,
            const RigidCoord& waypoint,
            const float &duration,
            sofa::simulation::Node* groot,
-           MoveType type):
+           Type type):
                                             Action(duration),
                                             m_initialPoint(initialPoint),
                                             m_waypoint(waypoint),

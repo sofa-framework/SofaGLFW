@@ -122,7 +122,7 @@ class IOWindow : public BaseWindow
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);
 
-    void setTCPTarget(const std::shared_ptr<models::TCPTarget> &TCPTarget) {m_TCPTarget=TCPTarget;}
+    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
 
    protected:
 

@@ -37,7 +37,7 @@ class Move : public Action
 
    public:
 
-    enum MoveType {
+    enum Type {
         LINE
     };
 
@@ -45,7 +45,7 @@ class Move : public Action
          const RigidCoord& waypoint,
          const float& duration,
          sofa::simulation::Node *groot,
-         MoveType type = LINE);
+         Type type = LINE);
 
     ~Move();
 
@@ -63,8 +63,8 @@ class Move : public Action
 
     RigidCoord getInterpolatedPosition(const float& time);
 
-    void setType(MoveType type) {m_type = type;}
-    MoveType getType() {return m_type;}
+    void setType(Type type) {m_type = type;}
+    Type getType() {return m_type;}
 
     void addTrajectory(sofa::simulation::Node* groot);
     void highlightWaypoint(const bool &highlight) {m_trajectory->setHighlight(highlight);}
@@ -82,7 +82,7 @@ class Move : public Action
     const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
     sofa::simulation::Node* m_groot;
 
-    MoveType m_type;
+    Type m_type;
 
     void checkDuration();
     void checkSpeed();

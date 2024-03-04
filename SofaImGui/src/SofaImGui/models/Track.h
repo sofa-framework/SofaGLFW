@@ -23,6 +23,7 @@
 
 #include <memory>
 
+#include <SofaImGui/models/modifiers/Modifier.h>
 #include <SofaImGui/models/actions/Action.h>
 #include <SofaImGui/models/actions/Move.h>
 #include <SofaImGui/models/TCPTarget.h>
@@ -38,37 +39,52 @@ class Track
     typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
 
    public:
-    Track(const std::shared_ptr<TCPTarget>& TCPTarget):
+
+    Track(std::shared_ptr<TCPTarget> TCPTarget):
                                            m_TCPTarget(TCPTarget)
                                            {};
     ~Track() = default;
 
     void clear() {m_actions.clear();}
 
-    const std::vector<std::shared_ptr<actions::Action>>& getActions() {return m_actions;}
-    const std::shared_ptr<actions::Action>& getAction(const sofa::Index& actionID) {return m_actions[actionID];}
+    std::vector<std::shared_ptr<actions::Action>> getActions() {return m_actions;}
+    std::shared_ptr<actions::Action> getAction(const sofa::Index& actionIndex) {return m_actions[actionIndex];}
 
-    void pushAction(const std::shared_ptr<actions::Action> action);
-    void pushMove(const std::shared_ptr<actions::Move> move);
+    void pushAction(std::shared_ptr<actions::Action> action);
+    void pushMove(std::shared_ptr<actions::Move> move);
     void pushMove();
 
     void popAction();
 
-    void insertAction(const sofa::Index &actionID, const std::shared_ptr<actions::Action> &action);
-    void insertMove(const sofa::Index &actionID);
+    void insertAction(const sofa::Index &actionIndex, std::shared_ptr<actions::Action> action);
+    void insertMove(const sofa::Index &actionIndex);
 
-    void deleteAction(const sofa::Index &actionID);
-    void deleteMove(const sofa::Index &actionID);
+    void deleteAction(const sofa::Index &actionIndex);
+    void deleteMove(const sofa::Index &actionIndex);
 
-    void updateNextMoveInitialPoint(const sofa::Index &actionID, const RigidCoord &initialPoint);
+    void updateNextMoveInitialPoint(const sofa::Index &actionIndex, const RigidCoord &initialPoint);
+
+    const std::vector<std::shared_ptr<modifiers::Modifier>>& getModifiers() {return m_modifiers;}
+    std::shared_ptr<modifiers::Modifier> getModifier(const sofa::Index& modifierIndex) {return m_modifiers[modifierIndex];}
+
+    void pushModifier(std::shared_ptr<modifiers::Modifier> modifier);
+    void pushRepeat();
+
+    void popModifier();
+
+    void insertModifier(const sofa::Index &modifierIndex, std::shared_ptr<modifiers::Modifier> modifier);
+    void insertRepeat(const sofa::Index &modifierIndex);
+
+    void deleteModifier(const sofa::Index &modifierIndex);
 
    protected:
 
     std::shared_ptr<TCPTarget> m_TCPTarget;
     std::vector<std::shared_ptr<actions::Action>> m_actions;
+    std::vector<std::shared_ptr<modifiers::Modifier>> m_modifiers;
 
-    std::shared_ptr<actions::Move> getPreviousMove(const sofa::Index &actionID);
-    std::shared_ptr<actions::Move> getNextMove(const sofa::Index &actionID);
+    std::shared_ptr<actions::Move> getPreviousMove(const sofa::Index &actionIndex);
+    std::shared_ptr<actions::Move> getNextMove(const sofa::Index &actionIndex);
 
 };
 

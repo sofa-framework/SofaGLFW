@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <SofaImGui/models/Program.h>
+#include <SofaImGui/models/modifiers/Repeat.h>
 #include <SofaImGui/models/actions/Wait.h>
 
 
@@ -42,7 +43,7 @@ bool Program::importProgram(const std::string &filename)
 
         tinyxml2::XMLNode * root = document.RootElement();
 
-        m_tracks.clear();
+        std::vector<std::shared_ptr<Track>> tracks;
         for(auto* t = root->FirstChildElement("track"); t != nullptr; t = t->NextSiblingElement("track"))
         {
             std::shared_ptr<Track> track = std::make_shared<Track>(m_TCPTarget);
@@ -52,8 +53,32 @@ bool Program::importProgram(const std::string &filename)
                 if (strcmp(e->FirstAttribute()->Value(), "move") == 0)
                 {
                     std::shared_ptr<actions::Move> move;
-                    if (!readMoveXMLElement(e, move))
+                    if (!e->FindAttribute("wp"))
                         return false;
+                    RigidCoord wp;
+                    std::stringstream strWP(e->Attribute("wp"));
+                    std::string valueWP;
+                    int indexWP = 0;
+                    while (strWP >> valueWP)
+                        wp[indexWP++] = std::stof(valueWP);
+
+                    if (!e->FindAttribute("duration"))
+                        return false;
+                    float duration = e->FindAttribute("duration")->FloatValue();
+
+                    if (!e->FindAttribute("type"))
+                        return false;
+                    actions::Move::Type type = static_cast<actions::Move::Type>(e->FindAttribute("type")->IntValue());
+
+                            // Create the move
+                    move = std::make_shared<actions::Move>(RigidCoord(),
+                                                           wp,
+                                                           duration,
+                                                           m_TCPTarget->getRootNode().get(),
+                                                           type);
+
+                    if (e->FindAttribute("comment"))
+                        move->setComment(e->Attribute("comment"));
                     track->pushMove(move);
                 }
                 else if (strcmp(e->FirstAttribute()->Value(), "wait") == 0)
@@ -69,9 +94,42 @@ bool Program::importProgram(const std::string &filename)
                 }
             }
 
-            addTrack(track);
+            for(auto* e = t->FirstChildElement("modifier"); e != nullptr; e = e->NextSiblingElement("action"))
+            {
+                if (strcmp(e->FirstAttribute()->Value(), "repeat") == 0)
+                {
+                    if (!e->FindAttribute("iterations"))
+                        return false;
+                    int iterations = e->FindAttribute("iterations")->IntValue();
+
+                    if (!e->FindAttribute("endTime"))
+                        return false;
+                    float endTime = e->FindAttribute("endTime")->FloatValue();
+
+                    if (!e->FindAttribute("startTime"))
+                        return false;
+                    float startTime = e->FindAttribute("startTime")->FloatValue();
+
+                    if (!e->FindAttribute("type"))
+                        return false;
+                    modifiers::Repeat::Type type = static_cast<modifiers::Repeat::Type>(e->FindAttribute("type")->IntValue());
+
+                    std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(iterations, endTime, startTime, type);
+                    if (e->FindAttribute("comment"))
+                        repeat->setComment(e->Attribute("comment"));
+                    track->pushModifier(repeat);
+                }
+            }
+
+            tracks.push_back(track);
         }
+
+        m_tracks.clear();
+        m_tracks.reserve(tracks.size());
+        for (const auto &track : tracks)
+            m_tracks.push_back(track);
     }
+
     return true;
 }
 
@@ -98,7 +156,24 @@ void Program::exportProgram(const std::string &filename)
                 std::shared_ptr<actions::Move> move = std::dynamic_pointer_cast<actions::Move>(action);
                 if (move) // MOVE
                 {
-                    writeMoveXMLElement(move, &document, xmlTrack);
+                    tinyxml2::XMLElement * xmlMove = document.NewElement("action");
+                    if (xmlMove != nullptr)
+                    {
+                        xmlMove->SetAttribute("name", "move");
+                        const auto &waypoint = move->getWaypoint();
+                        std::string wp = std::to_string(waypoint[0]) + " "
+                                         + std::to_string(waypoint[1]) + " "
+                                         + std::to_string(waypoint[2]) + " "
+                                         + std::to_string(waypoint[3]) + " "
+                                         + std::to_string(waypoint[4]) + " "
+                                         + std::to_string(waypoint[5]) + " "
+                                         + std::to_string(waypoint[6]) + " ";
+                        xmlMove->SetAttribute("wp", wp.c_str());
+                        xmlMove->SetAttribute("duration", move->getDuration());
+                        xmlMove->SetAttribute("type", move->getType());
+                        xmlMove->SetAttribute("comment", move->getComment());
+                        xmlTrack->InsertEndChild(xmlMove);
+                    }
                     continue;
                 }
 
@@ -117,69 +192,31 @@ void Program::exportProgram(const std::string &filename)
                     continue;
                 }
             }
+            const auto modifiers = track->getModifiers();
+            for (const auto& modifier: modifiers)
+            {
+                std::shared_ptr<modifiers::Repeat> repeat = std::dynamic_pointer_cast<modifiers::Repeat>(modifier);
+                if (repeat) // REPEAT
+                {
+                    tinyxml2::XMLElement * xmlRepeat = document.NewElement("modifier");
+                    if (xmlRepeat != nullptr)
+                    {
+                        xmlRepeat->SetAttribute("name", "repeat");
+                        xmlRepeat->SetAttribute("iterations", repeat->getIterations());
+                        xmlRepeat->SetAttribute("endTime", repeat->getEndTime());
+                        xmlRepeat->SetAttribute("startTime", repeat->getStartTime());
+                        xmlRepeat->SetAttribute("type", repeat->getType());
+                        xmlRepeat->SetAttribute("comment", repeat->getComment());
+                        xmlRepeat->InsertEndChild(xmlRepeat);
+                        xmlTrack->InsertEndChild(xmlRepeat);
+                    }
+                    continue;
+                }
+            }
         }
 
         document.SaveFile(filename.c_str());
     }
-}
-
-bool Program::readMoveXMLElement(tinyxml2::XMLElement* e, std::shared_ptr<actions::Move>& move)
-{
-    if (!e->FindAttribute("wp"))
-        return false;
-    RigidCoord wp;
-    std::stringstream strWP(e->Attribute("wp"));
-    std::string valueWP;
-    int indexWP = 0;
-    while (strWP >> valueWP)
-        wp[indexWP++] = std::stof(valueWP);
-
-    if (!e->FindAttribute("duration"))
-        return false;
-    float duration = e->FindAttribute("duration")->FloatValue();
-
-    if (!e->FindAttribute("type"))
-        return false;
-    actions::Move::MoveType type = static_cast<actions::Move::MoveType>(e->FindAttribute("type")->IntValue());
-
-            // Create the move
-    move = std::make_shared<actions::Move>(RigidCoord(),
-                                  wp,
-                                  duration,
-                                  m_TCPTarget->getRootNode().get(),
-                                  type);
-
-    if (e->FindAttribute("comment"))
-        move->setComment(e->Attribute("comment"));
-
-    return true;
-}
-
-void Program::writeMoveXMLElement(const std::shared_ptr<actions::Move>& move, tinyxml2::XMLDocument* document, tinyxml2::XMLNode *xmlTrack)
-{
-    if (document && xmlTrack)
-    {
-        tinyxml2::XMLElement * xmlMove = document->NewElement("action");
-        if (xmlMove != nullptr)
-        {
-            xmlMove->SetAttribute("name", "move");
-            const auto &waypoint = move->getWaypoint();
-            std::string wp = std::to_string(waypoint[0]) + " "
-                             + std::to_string(waypoint[1]) + " "
-                             + std::to_string(waypoint[2]) + " "
-                             + std::to_string(waypoint[3]) + " "
-                             + std::to_string(waypoint[4]) + " "
-                             + std::to_string(waypoint[5]) + " "
-                             + std::to_string(waypoint[6]) + " ";
-            xmlMove->SetAttribute("wp", wp.c_str());
-            xmlMove->SetAttribute("duration", move->getDuration());
-            xmlMove->SetAttribute("type", move->getType());
-            xmlMove->SetAttribute("comment", move->getComment());
-            xmlTrack->InsertEndChild(xmlMove);
-        }
-    }
-    else
-        dmsg_error("Move") << "getXMLElement() with nullptr";
 }
 
 bool Program::checkExtension(const std::string &filename)

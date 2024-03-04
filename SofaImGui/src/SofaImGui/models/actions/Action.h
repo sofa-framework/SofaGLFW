@@ -39,8 +39,8 @@ class Action
 
     ~Action() = default;
 
-    virtual void computeDuration()=0;
-    virtual void computeSpeed()=0;
+    virtual void computeDuration(){};
+    virtual void computeSpeed(){};
 
     const float& getDuration() {return m_duration;}
     virtual void setDuration(const float& duration)
@@ -66,7 +66,6 @@ class Action
     float m_duration;
     float m_speed;
     char m_comment[COMMENTSIZE];
-
 };
 
 } // namespace

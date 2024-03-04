@@ -21,29 +21,39 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/windows/BaseWindow.h>
-#include <SofaImGui/models/TCPTarget.h>
 #include <imgui.h>
 
-namespace sofaimgui::windows {
+namespace sofaimgui::models::modifiers {
 
-class MoveWindow : public BaseWindow
+class Modifier
 {
    public:
-    MoveWindow(const std::string& name, const bool& isWindowOpen);
-    ~MoveWindow() = default;
 
-    void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
+    inline static const int COMMENTSIZE = 18;
+
+    Modifier(const float& duration): m_duration(duration)
+    {
+    }
+
+    ~Modifier() = default;
+
+    virtual void computeDuration(){};
+    virtual void computeSpeed(){};
+
+    const float& getDuration() {return m_duration;}
+    virtual void setDuration(const float& duration) {m_duration = duration;}
+
+    void setComment(const char* comment) {strncpy(m_comment, comment, COMMENTSIZE);}
+    void getComment(char* comment) {strncpy(comment, m_comment, COMMENTSIZE);}
+
+    char* getComment() {return m_comment;}
 
    protected:
 
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
-
-    void showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int &offset, const ImVec4& color);
-    void showSliderFloat(const char *name, const char* label1, const char *label2, float* v, const ImVec4 &color);
+    float m_duration;
+    char m_comment[COMMENTSIZE];
 };
 
-}
+} // namespace
 
 

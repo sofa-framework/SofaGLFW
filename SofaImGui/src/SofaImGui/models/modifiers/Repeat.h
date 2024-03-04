@@ -21,29 +21,55 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/windows/BaseWindow.h>
-#include <SofaImGui/models/TCPTarget.h>
-#include <imgui.h>
+#include <sofa/type/Vec.h>
+#include <sofa/defaulttype/RigidTypes.h>
 
-namespace sofaimgui::windows {
+#include <sofa/simulation/Node.h>
+#include <SofaImGui/models/Trajectory.h>
+#include <SofaImGui/models/modifiers/Modifier.h>
 
-class MoveWindow : public BaseWindow
+namespace sofaimgui::models::modifiers {
+
+class Repeat : public Modifier
 {
    public:
-    MoveWindow(const std::string& name, const bool& isWindowOpen);
-    ~MoveWindow() = default;
 
-    void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
+    enum Type{
+        REPEAT,
+        REVERSE
+    };
+
+    Repeat(const int &iterations,
+           const float &endTime,
+           const float &startTime=0.,
+           const Type &type=Type::REPEAT);
+    ~Repeat() = default;
+
+    void computeDuration() override;
+
+    void setIterations(const float &iterations) {m_iterations=iterations;}
+    int& getIterations() {return m_iterations;}
+    float getCount() {return m_count;}
+
+    void setStartTime(const float &startTime);
+    float& getStartTime() {return m_startTime;}
+    float getEndTime() {return m_endTime;}
+    void setInterval(const float &startTime, const float &endTime);
+
+    void setType(const Type& type) {m_type=type;}
+    const Type& getType() {return m_type;}
 
    protected:
 
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    int m_iterations;
+    float m_count;
+    float m_endTime;
+    float m_startTime;
+    Type m_type;
 
-    void showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int &offset, const ImVec4& color);
-    void showSliderFloat(const char *name, const char* label1, const char *label2, float* v, const ImVec4 &color);
+    void checkInterval();
 };
 
-}
+} // namespace
 
 
