@@ -80,7 +80,7 @@ class ProgramWindow : public BaseWindow
     int showTracks();
     bool showTrackButtons(const int &trackIndex, const char* const menuLabel);
     void showBlocks(std::shared_ptr<models::Track> track,
-                    const int &trackID, const bool &collapsed);
+                    const int &trackID);
     void showBlockOptionButton(const std::string &menulabel,
                                 const std::string &label);
 

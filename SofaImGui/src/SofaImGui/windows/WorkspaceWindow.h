@@ -36,5 +36,3 @@ class WorkspaceWindow : public BaseWindow
 };
 
 }
-
-

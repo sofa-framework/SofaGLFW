@@ -135,7 +135,7 @@ void setLightStyle()
     colors[ImGuiCol_PopupBg]                = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
     colors[ImGuiCol_Border]                 = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_BorderShadow]           = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 0.80f);
     colors[ImGuiCol_FrameBgActive]          = ImVec4(0.06f, 0.42f, 0.42f, 1.00f);
     colors[ImGuiCol_TitleBg]                = ImVec4(0.92f, 0.92f, 0.92f, 0.92f);
     colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.92f, 0.92f, 0.92f, 0.92f);
