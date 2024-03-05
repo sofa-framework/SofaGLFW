@@ -94,9 +94,9 @@ void MyRobotWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowF
                                 for (std::string v : values) // Values
                                 {
                                     std::replace(v.begin(), v.end(), '.', ',');
-                                    float buffer = std::stof(v);
+                                    double buffer = std::stod(v);
                                     ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                                    ImGui::InputFloat(("##" + group + name).c_str(), &buffer, 0, 0, "%.0f");
+                                    ImGui::InputDouble(("##" + group + name).c_str(), &buffer, 0, 0, "%.0f");
                                     uiValue += std::to_string(buffer) + " ";
                                     ImGui::PopItemWidth();
                                 }

@@ -25,6 +25,12 @@
 
 namespace sofaimgui::models {
 
+void Track::clear()
+{
+    m_actions.clear();
+    m_modifiers.clear();
+}
+
 std::shared_ptr<actions::Move> Track::getPreviousMove(const sofa::Index &actionIndex)
 {
     if (actionIndex==0 || m_actions.empty())
@@ -144,7 +150,7 @@ void Track::pushModifier(std::shared_ptr<modifiers::Modifier> modifier)
 
 void Track::pushRepeat()
 {
-    float endTime = 0.;
+    double endTime = 0.;
     for (const auto& action: m_actions)
         endTime += action->getDuration();
     std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(1, endTime);
@@ -161,7 +167,7 @@ void Track::insertModifier(const sofa::Index &modifierIndex, std::shared_ptr<mod
 
 void Track::insertRepeat(const sofa::Index &modifierIndex)
 {
-    float endTime = 0.;
+    double endTime = 0.;
     for (sofa::Index i=0; i<modifierIndex; i++)
         endTime += m_modifiers[i]->getDuration();
     std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(0.f, endTime);

@@ -33,6 +33,8 @@
 #include <nfd.h>
 #include <IconsFontAwesome6.h>
 
+#include <ProgramStyle.h>
+
 
 namespace sofaimgui::windows {
 
@@ -56,10 +58,10 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
         else
             return;
 
-        getSizes().trackHeight = ImGui::GetFrameHeightWithSpacing() * 4.55;
-        getSizes().trackCollapsedHeight = ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2.;
-        getSizes().inputWidth = ImGui::CalcTextSize("10000").x;
-        getSizes().alignWidth = ImGui::CalcTextSize("iterations    ").x;
+        ProgramSizes().TrackHeight = ImGui::GetFrameHeightWithSpacing() * 4.55;
+        ProgramSizes().TrackCollapsedHeight = ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2.;
+        ProgramSizes().InputWidth = ImGui::CalcTextSize("10000").x;
+        ProgramSizes().AlignWidth = ImGui::CalcTextSize("iterations    ").x;
 
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen,
                          windowFlags | ImGuiWindowFlags_AlwaysAutoResize
@@ -69,9 +71,9 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
 
             float width = ImGui::GetWindowWidth();
             float height = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() * 3.;
-            static float zoomCoef = 1.;
+            static float zoomCoef = 6.;
             static float minSize = ImGui::GetFrameHeight() * 1.5;
-            getSizes().timelineOneSecondSize = zoomCoef * minSize;
+            ProgramSizes().TimelineOneSecondSize = zoomCoef * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
             if (ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                        ImGuiWindowFlags_AlwaysHorizontalScrollbar))
@@ -184,10 +186,10 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     float thicknessRect = ImGui::GetStyle().SeparatorTextBorderSize;
     float widthTri = ImGui::GetStyle().ItemInnerSpacing.x * 2;
 
-    m_cursor = m_time * getSizes().timelineOneSecondSize;
+    m_cursor = m_time * ProgramSizes().TimelineOneSecondSize;
     ImVec2 p0Rect(m_trackBeginPos.x + m_cursor , m_trackBeginPos.y);
     ImVec2 p1Rect(p0Rect.x + thicknessRect,
-                  p0Rect.y + getSizes().trackHeight * (m_program.getNbTracks() - nbCollaspedTracks) + getSizes().trackCollapsedHeight * nbCollaspedTracks + ImGui::GetStyle().ItemSpacing.y * (m_program.getNbTracks() - 1));
+                  p0Rect.y + ProgramSizes().TrackHeight * (m_program.getNbTracks() - nbCollaspedTracks) + ProgramSizes().TrackCollapsedHeight * nbCollaspedTracks + ImGui::GetStyle().ItemSpacing.y * (m_program.getNbTracks() - 1));
 
     ImVec2 p0Tri(p0Rect.x + thicknessRect / 2.f, p0Rect.y);
     ImVec2 p1Tri(p0Tri.x - widthTri / 2.f, p0Tri.y - widthTri);
@@ -200,7 +202,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
 void ProgramWindow::showTimeline()
 {
     float width = ImGui::GetWindowWidth() + ImGui::GetScrollX();
-    int nbSteps = width / getSizes().timelineOneSecondSize + 1;
+    int nbSteps = width / ProgramSizes().TimelineOneSecondSize + 1;
 
     float indentSize = ImGui::GetFrameHeight();
     ImGui::Indent(indentSize);
@@ -210,7 +212,7 @@ void ProgramWindow::showTimeline()
     {
         std::string text = std::to_string(i) + " s";
         float textSize = ImGui::CalcTextSize(text.c_str()).x;
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(getSizes().timelineOneSecondSize - textSize, 0.f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ProgramSizes().TimelineOneSecondSize - textSize, 0.f));
         ImGui::Text("%s", text.c_str());
         ImGui::SameLine();
         ImGui::PopStyleVar();
@@ -223,7 +225,7 @@ void ProgramWindow::showTimeline()
     ImGui::NewLine();
     ImGui::BeginGroup(); // Timeline's lines
     ImGui::SameLine();
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(getSizes().timelineOneSecondSize / 10, 0.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ProgramSizes().TimelineOneSecondSize / 10, 0.f));
     float height = ImGui::GetFrameHeight() / 3.f;
     float heightSpace = height / 4.f;
     float y1 = window->DC.CursorPos.y;
@@ -287,6 +289,18 @@ int ProgramWindow::showTracks()
                 }
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu(("Add modifier##" + std::to_string(trackIndex)).c_str()))
+            {
+                if (track->getActions().empty() || !track->getModifiers().empty()) // TODO: handle showing multiple modifiers
+                    ImGui::BeginDisabled();
+                if (ImGui::MenuItem(("Repeat##" + std::to_string(trackIndex)).c_str()))
+                {
+                    track->pushRepeat();
+                }
+                ImGui::EndMenu();
+                if (track->getActions().empty() || !track->getModifiers().empty())
+                    ImGui::EndDisabled();
+            }
             ImGui::EndPopup();
         }
 
@@ -310,7 +324,7 @@ bool ProgramWindow::showTrackButtons(const int &trackIndex, const char* const me
     static bool collapsed = false;
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    ImVec2 size(ImGui::GetFrameHeight(), collapsed? getSizes().trackCollapsedHeight : getSizes().trackHeight);
+    ImVec2 size(ImGui::GetFrameHeight(), collapsed? ProgramSizes().TrackCollapsedHeight : ProgramSizes().TrackHeight);
 
     float x = window->DC.CursorPos.x ;
     float y = window->DC.CursorPos.y ;
@@ -347,7 +361,8 @@ bool ProgramWindow::showTrackButtons(const int &trackIndex, const char* const me
     }
 
     window->DC.CursorPos.x = x;
-    window->DC.CursorPos.y = y + (collapsed? getSizes().trackCollapsedHeight : getSizes().trackHeight) - ImGui::GetFrameHeight();
+    window->DC.CursorPos.y = y + (collapsed? (ProgramSizes().TrackCollapsedHeight - ImGui::GetFrameHeight()) / 2.f :
+                                              ProgramSizes().TrackHeight - ImGui::GetFrameHeight()) ;
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5, 1)); // Align icon down middle
     std::string collapselabel = collapsed? ICON_FA_EXPAND : ICON_FA_COMPRESS;
     collapselabel += "##TrackCollapse" + std::to_string(trackIndex);
@@ -369,14 +384,50 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
                                const int& trackIndex,
                                const bool &collapsed)
 {
+    float x = ImGui::GetCurrentWindow()->DC.CursorPos.x ;
+    float y = ImGui::GetCurrentWindow()->DC.CursorPos.y ;
+    float blockHeight = collapsed? ProgramSizes().TrackCollapsedHeight: ProgramSizes().TrackHeight;
+
+    // Modifiers blocks
+    const std::vector<std::shared_ptr<models::modifiers::Modifier>> &modifiers = track->getModifiers();
+    sofa::Index modifierIndex = 0;
+    while(modifierIndex < modifiers.size())
+    {
+        std::shared_ptr<models::modifiers::Modifier> modifier = modifiers[modifierIndex];
+        float blockWidth = modifier->getDuration() * ProgramSizes().TimelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
+        std::string blockLabel = "##Modifier" + std::to_string(trackIndex) + std::to_string(modifierIndex);
+        std::string menuLabel = std::string("##ModifierOptionsMenu" + blockLabel);
+        ImGui::SameLine();
+
+        modifier->getView()->showBlock(blockLabel, ImVec2(blockWidth, blockHeight), m_trackBeginPos);
+
+        if (ImGui::BeginPopup(menuLabel.c_str()))
+        {
+            if (ImGui::MenuItem("Delete"))
+            {
+                track->deleteModifier(modifierIndex);
+            }
+            else
+                modifierIndex++;
+            ImGui::EndPopup();
+        } else {
+            modifierIndex++;
+        }
+
+        if (blockWidth > ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.x * 2.0f)
+            showBlockOptionButton(menuLabel, blockLabel);
+    }
+
+    ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.x = x;
+    ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.y = y;
+
             // Action blocks
     const std::vector<std::shared_ptr<models::actions::Action>> &actions = track->getActions();
     sofa::Index actionIndex = 0;
     while(actionIndex < actions.size())
     {
         std::shared_ptr<models::actions::Action> action = actions[actionIndex];
-        float blockWidth = action->getDuration() * getSizes().timelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
-        float blockHeight = collapsed? getSizes().trackCollapsedHeight: getSizes().trackHeight;
+        float blockWidth = action->getDuration() * ProgramSizes().TimelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
         std::string blockLabel = "##Action" + std::to_string(trackIndex) + std::to_string(actionIndex);
         std::string menuLabel = std::string("##ActionOptionsMenu" + blockLabel);
         ImGui::SameLine();
@@ -407,8 +458,11 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
         std::shared_ptr<models::actions::Move> move = std::dynamic_pointer_cast<models::actions::Move>(action);
         if (move)
         {
-            move->drawTrajectory(m_drawTrajectory);
-            showMoveBlock(track, actionIndex, move, blockLabel, ImVec2(blockWidth, blockHeight));
+            move->setDrawTrajectory(m_drawTrajectory);
+            if(move->getView()->showBlock(blockLabel, ImVec2(blockWidth, blockHeight)))
+            {
+                track->updateNextMoveInitialPoint(actionIndex, move->getWaypoint());
+            }
             // Options menu
             if (ImGui::BeginPopup(menuLabel.c_str()))
             {
@@ -420,12 +474,8 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
                 ImGui::Separator();
                 ImGui::EndPopup();
             }
-        }
-
-        std::shared_ptr<models::actions::Wait> wait = std::dynamic_pointer_cast<models::actions::Wait>(action);
-        if (wait)
-        {
-            showWaitBlock(wait, blockLabel, ImVec2(blockWidth, blockHeight));
+        } else {
+            action->getView()->showBlock(blockLabel, ImVec2(blockWidth, blockHeight));
         }
 
         if (ImGui::BeginPopup(menuLabel.c_str()))
@@ -451,7 +501,7 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
     { // Empty track background
         ImGui::SameLine();
         std::string trackLabel = "##Track" + std::to_string(trackIndex) + "Empty";
-        ImVec2 size(ImGui::GetWindowWidth() + ImGui::GetScrollX(), collapsed? getSizes().trackCollapsedHeight : getSizes().trackHeight);
+        ImVec2 size(ImGui::GetWindowWidth() + ImGui::GetScrollX(), collapsed? ProgramSizes().TrackCollapsedHeight : ProgramSizes().TrackHeight);
 
         float x = ImGui::GetCurrentWindow()->DC.CursorPos.x ;
         float y = ImGui::GetCurrentWindow()->DC.CursorPos.y ;
@@ -468,612 +518,6 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
                                                       ImDrawFlags_None);
         }
     }
-
-            // Modifiers blocks
-    const std::vector<std::shared_ptr<models::modifiers::Modifier>> &modifiers = track->getModifiers();
-    sofa::Index modifierIndex = 0;
-    while(modifierIndex < modifiers.size())
-    {
-        std::shared_ptr<models::modifiers::Modifier> modifier = modifiers[modifierIndex];
-        float blockWidth = modifier->getDuration() * getSizes().timelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
-        float blockHeight = collapsed? getSizes().trackCollapsedHeight: getSizes().trackHeight;
-        std::string blockLabel = "##Modifier" + std::to_string(trackIndex) + std::to_string(modifierIndex);
-        std::string menuLabel = std::string("##ModifierOptionsMenu" + blockLabel);
-        ImGui::SameLine();
-
-        std::shared_ptr<models::modifiers::Repeat> repeat = std::dynamic_pointer_cast<models::modifiers::Repeat>(modifier);
-        if (repeat)
-        {
-            showRepeatBlock(repeat, blockLabel, ImVec2(blockWidth, blockHeight), collapsed);
-        }
-
-        if (ImGui::BeginPopup(menuLabel.c_str()))
-        {
-            if (ImGui::MenuItem("Delete"))
-            {
-                track->deleteModifier(modifierIndex);
-            }
-            else
-                modifierIndex++;
-            ImGui::EndPopup();
-        } else {
-            modifierIndex++;
-        }
-
-        if (blockWidth > ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.x * 2.0f)
-            showBlockOptionButton(menuLabel, blockLabel);
-    }
-}
-
-void ProgramWindow::showRepeatBlock(std::shared_ptr<models::modifiers::Repeat> repeat,
-                                    const std::string &label,
-                                    const ImVec2 &size,
-                                    const bool& collapsed)
-{
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    float alignWidth = getSizes().alignWidth;
-    ImVec2 padding(ImGui::GetStyle().FramePadding);
-    ImVec2 spacing(ImGui::GetStyle().ItemSpacing);
-    float x = repeat->getStartTime() * getSizes().timelineOneSecondSize + m_trackBeginPos.x;
-    float y = window->DC.CursorPos.y + size.y + spacing.y;
-
-    ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + (collapsed? ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2.: size.y)));
-    ImVec2 topRight = ImVec2(bb.Max.x, bb.Min.y);
-
-    ImGui::ItemSize(size);
-    const ImGuiID id = ImGui::GetID(label.c_str());
-    if (!ImGui::ItemAdd(bb, id))
-        return;
-
-    { // Block backgroung
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(getColors().RepeatBlockBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-    }
-
-    std::string text = "Repeat";
-    ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
-
-    auto rectMin = ImGui::GetItemRectMin();
-    auto rectMax = ImGui::GetItemRectMax();
-    rectMax.x -= padding.x;
-    ImGui::PushClipRect(rectMin, rectMax, true);
-
-    ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-    { // Reapeat
-        x += padding.y;
-        y += padding.y;
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + size.x - padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(getColors().RepeatBlockTitleBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-
-        window->DC.CursorPos.x = x;
-        window->DC.CursorPos.y = y;
-
-        auto rectMin = ImGui::GetItemRectMin();
-        auto rectMax = ImGui::GetItemRectMax();
-        rectMax.x -= padding.x * 2 + ImGui::GetFrameHeight(); // leave space for option button
-        ImGui::PushClipRect(rectMin, rectMax, true);
-
-        std::string id = "##comment" + std::to_string(window->DC.CursorPos.x) + std::to_string(window->DC.CursorPos.y);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0., 0., 0., 0.));
-        ImGui::InputText(id.c_str(), repeat->getComment(), models::actions::Action::COMMENTSIZE);
-        ImGui::PopStyleColor();
-
-        ImGui::PopClipRect();
-    }
-    ImGui::PopStyleColor();
-
-    text = "iterations";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = padding.y + bb.Max.y;
-
-    { // Iterations
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth(getSizes().inputWidth * 2);
-        std::string id = "##iterations" + std::to_string(window->DC.CursorPos.x) + std::to_string(window->DC.CursorPos.y);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        ImGui::InputInt(id.c_str(), &repeat->getIterations());
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    text = "start time";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = spacing.y + bb.Max.y;
-
-    { // Start time
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth(getSizes().inputWidth);
-        std::string id = "##starttime" + std::to_string(window->DC.CursorPos.x) + std::to_string(window->DC.CursorPos.y);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        float startTime = repeat->getStartTime();
-        if (ImGui::InputFloat(id.c_str(), &startTime, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
-        {
-            repeat->setStartTime(startTime);
-        }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    text = "end time";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = spacing.y + bb.Max.y;
-
-    { // End time
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth(getSizes().inputWidth);
-        std::string id = "##endtime" + std::to_string(window->DC.CursorPos.x) + std::to_string(window->DC.CursorPos.y);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        float endTime = repeat->getEndTime();
-        if (ImGui::InputFloat(id.c_str(), &endTime, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
-        {
-            repeat->setEndTime(endTime);
-        }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    text = "type";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = spacing.y + bb.Max.y;
-
-    { // Way point rotation
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth((getSizes().inputWidth + spacing.x) * 4);
-        std::string id = "##speed" + std::to_string(window->DC.CursorPos.x) + std::to_string(window->DC.CursorPos.y);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        static const char* items[]{"REPEAT", "REVERSE"};
-        int type = repeat->getType();
-        if (ImGui::Combo(id.c_str(), &type, items, IM_ARRAYSIZE(items)))
-        {
-            repeat->setType(models::modifiers::Repeat::Type(type));
-        }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    window->DC.CursorPosPrevLine.x = topRight.x;
-    window->DC.CursorPosPrevLine.y = topRight.y;
-
-    ImGui::PopClipRect();
-}
-
-void ProgramWindow::showWaitBlock(std::shared_ptr<models::actions::Wait> wait,
-                                  const std::string &label,
-                                  const ImVec2 &size)
-{
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    float alignWidth = getSizes().alignWidth;
-    float x = window->DC.CursorPos.x ;
-    float y = window->DC.CursorPos.y ;
-
-    ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
-    ImVec2 topRight = ImVec2(x + size.x, y);
-
-    ImGui::ItemSize(size);
-    const ImGuiID id = ImGui::GetID(label.c_str());
-    if (!ImGui::ItemAdd(bb, id))
-        return;
-
-    { // Block backgroung
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(getColors().WaitBlockBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-    }
-
-    std::string text = "Move to Way Point";
-    ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
-    ImVec2 padding(ImGui::GetStyle().FramePadding);
-
-    auto rectMin = ImGui::GetItemRectMin();
-    auto rectMax = ImGui::GetItemRectMax();
-    rectMax.x -= padding.x;
-    ImGui::PushClipRect(rectMin, rectMax, true);
-
-    ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-    { // Wait
-        x += padding.y;
-        y += padding.y;
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + size.x - padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(getColors().WaitBlockTitleBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-
-        window->DC.CursorPos.x = x;
-        window->DC.CursorPos.y = y;
-
-        auto rectMin = ImGui::GetItemRectMin();
-        auto rectMax = ImGui::GetItemRectMax();
-        rectMax.x -= padding.x * 2 + ImGui::GetFrameHeight(); // leave space for option button
-        ImGui::PushClipRect(rectMin, rectMax, true);
-
-        std::string id = "##comment" + std::to_string(window->DC.CursorPos.x);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0., 0., 0., 0.));
-        ImGui::InputText(id.c_str(), wait->getComment(), models::actions::Action::COMMENTSIZE);
-        ImGui::PopStyleColor();
-
-        ImGui::PopClipRect();
-    }
-    ImGui::PopStyleColor();
-
-    text = "duration";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = padding.y + bb.Max.y;
-
-    { // Duration
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth(getSizes().inputWidth);
-        std::string id = "##duration" + std::to_string(window->DC.CursorPos.x);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        float duration = wait->getDuration();
-        if (ImGui::InputFloat(id.c_str(), &duration, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
-        {
-            wait->setDuration(duration);
-        }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    window->DC.CursorPosPrevLine.x = topRight.x;
-    window->DC.CursorPosPrevLine.y = topRight.y;
-
-    ImGui::PopClipRect();
-}
-
-void ProgramWindow::showMoveBlock(std::shared_ptr<models::Track> track,
-                                  const sofa::Index &moveID,
-                                  std::shared_ptr<models::actions::Move> move,
-                                  const std::string &label,
-                                  const ImVec2 &size)
-{
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    float alignWidth = getSizes().alignWidth;
-    float x = window->DC.CursorPos.x ;
-    float y = window->DC.CursorPos.y ;
-
-    ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
-    ImVec2 topRight = ImVec2(x + size.x, y);
-
-    ImGui::ItemSize(size);
-    const ImGuiID id = ImGui::GetID(label.c_str());
-    if (!ImGui::ItemAdd(bb, id))
-        return;
-
-    { // Block backgroung
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(getColors().MoveBlockBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-    }
-
-    if (ImGui::IsItemHovered())
-        move->highlightWaypoint(true);
-    else
-        move->highlightWaypoint(false);
-
-    std::string text = "Move to Way Point";
-    ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
-    ImVec2 padding(ImGui::GetStyle().FramePadding);
-    ImVec2 spacing(ImGui::GetStyle().ItemSpacing);
-
-    auto rectMin = ImGui::GetItemRectMin();
-    auto rectMax = ImGui::GetItemRectMax();
-    rectMax.x -= padding.x;
-    ImGui::PushClipRect(rectMin, rectMax, true);
-
-    ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-    { // Move
-        x += padding.y;
-        y += padding.y;
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + size.x - padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(getColors().MoveBlockTitleBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-
-        window->DC.CursorPos.x = x;
-        window->DC.CursorPos.y = y;
-
-        auto rectMin = ImGui::GetItemRectMin();
-        auto rectMax = ImGui::GetItemRectMax();
-        rectMax.x -= padding.x * 2 + ImGui::GetFrameHeight(); // leave space for option button
-        ImGui::PushClipRect(rectMin, rectMax, true);
-
-        std::string id = "##comment" + std::to_string(window->DC.CursorPos.x);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0., 0., 0., 0.));
-        ImGui::InputText(id.c_str(), move->getComment(), models::actions::Action::COMMENTSIZE);
-        ImGui::PopStyleColor();
-
-        ImGui::PopClipRect();
-    }
-    ImGui::PopStyleColor();
-
-    text = "duration";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = padding.y + bb.Max.y;
-
-    { // Duration
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth(getSizes().inputWidth);
-        std::string id = "##duration" + std::to_string(window->DC.CursorPos.x);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        float duration = move->getDuration();
-        if (ImGui::InputFloat(id.c_str(), &duration, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
-        {
-            move->setDuration(duration);
-        }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    text = "speed";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    float nx = x + alignWidth + getSizes().inputWidth + spacing.x * 4;
-
-    { // Speed
-        bb.Min = ImVec2(nx, y);
-        bb.Max = ImVec2(nx + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(nx + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = nx + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth(getSizes().inputWidth);
-        std::string id = "##speed" + std::to_string(window->DC.CursorPos.x);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        float speed = move->getSpeed();
-        if (ImGui::InputFloat(id.c_str(), &speed, 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
-        {
-            move->setSpeed(speed);
-        }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    text = "wp.pos";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = spacing.y + bb.Max.y;
-
-    { // Way point position
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        RigidCoord waypoint = move->getWaypoint();
-        for (int i=0; i<3; i++)
-        {
-            window->DC.CursorPos.y = y;
-            std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
-
-            ImGui::PushItemWidth(getSizes().inputWidth);
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-            ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-            if (ImGui::InputFloat(id.c_str(), &waypoint[i], 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
-            {
-                move->setWaypoint(waypoint);
-                track->updateNextMoveInitialPoint(moveID, move->getWaypoint());
-            }
-            ImGui::PopStyleColor(2);
-            ImGui::PopItemWidth();
-
-            ImGui::SameLine();
-        }
-        ImGui::PopStyleVar();
-    }
-
-    text = "wp.rot";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = spacing.y + bb.Max.y;
-
-    { // Way point rotation
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        RigidCoord waypoint = move->getWaypoint();
-        for (int i=3; i<7; i++)
-        {
-            window->DC.CursorPos.y = y;
-            std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
-
-            ImGui::PushItemWidth(getSizes().inputWidth);
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-            ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-            if (ImGui::InputFloat(id.c_str(), &waypoint[i], 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
-            {
-                move->setWaypoint(waypoint);
-                track->updateNextMoveInitialPoint(moveID, move->getWaypoint());
-                move->computeSpeed();
-            }
-            ImGui::PopStyleColor(2);
-            ImGui::PopItemWidth();
-
-            ImGui::SameLine();
-        }
-        ImGui::PopStyleVar();
-    }
-
-    text = "type";
-    textSize = ImGui::CalcTextSize(text.c_str());
-    y = spacing.y + bb.Max.y;
-
-    { // Way point rotation
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
-
-        window->DC.CursorPos.x = x + alignWidth;
-        window->DC.CursorPos.y = y;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth((getSizes().inputWidth + spacing.x) * 4);
-        std::string id = "##speed" + std::to_string(window->DC.CursorPos.x);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, getColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, getColors().FrameText);
-        static const char* items[]{"LINE"};
-        int type = move->getType();
-        if (ImGui::Combo(id.c_str(), &type, items, IM_ARRAYSIZE(items)))
-        {
-            move->setType(models::actions::Move::Type(type));
-        }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
-        ImGui::PopStyleVar();
-    }
-
-    window->DC.CursorPosPrevLine.x = topRight.x;
-    window->DC.CursorPosPrevLine.y = topRight.y;
-
-    ImGui::PopClipRect();
 }
 
 void ProgramWindow::showBlockOptionButton(const std::string &menulabel,
@@ -1148,27 +592,27 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
 
         for (const auto& track: m_program.getTracks())
         {
-            float blockEnd = 0.f;
-            float blockStart = 0.f;
+            const auto& modifiers = track->getModifiers();
+            for (const auto& modifier: modifiers)
+            {
+                modifier->modify(m_time);
+                groot->setTime(m_time);
+            }
+
+            double blockEnd = 0.f;
+            double blockStart = 0.f;
             const auto& actions = track->getActions();
             for (const auto& action: actions)
             {
                 blockEnd += action->getDuration();
                 if ((blockEnd >= m_time && !reverse) || (blockEnd > m_time && reverse))
                 {
-                    std::shared_ptr<models::actions::Move> move = std::dynamic_pointer_cast<models::actions::Move>(action);
-                    if(move)
+                    RigidCoord position;
+                    if (action->getTCPAtTime(position, m_time - blockStart))
                     {
-                        RigidCoord position = move->getInterpolatedPosition(m_time - blockStart);
                         m_TCPTarget->setPosition(position);
-                        break;
                     }
-
-                    std::shared_ptr<models::actions::Wait> wait = std::dynamic_pointer_cast<models::actions::Wait>(action);
-                    if(wait)
-                    {
-                        break;
-                    }
+                    break;
                 }
                 blockStart = blockEnd;
             }
@@ -1178,8 +622,13 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                 if (m_repeat)
                 {
                     m_time = 0.f;
-                    groot->setTime(0.);
-                } else if (m_reverse)
+                    groot->setTime(0.f);
+
+                    const auto& modifiers = track->getModifiers();
+                    for (const auto& modifier: modifiers)
+                        modifier->reset();
+                }
+                else if (m_reverse)
                 {
                     reverse = true;
                 }
@@ -1226,7 +675,7 @@ void ProgramWindow::update(sofa::simulation::Node* groot)
         {
             std::shared_ptr<models::actions::Move> move = std::dynamic_pointer_cast<models::actions::Move>(action);
             if(move)
-                move->addTrajectory(groot);
+                move->addTrajectoryComponent(groot);
         }
     }
 }

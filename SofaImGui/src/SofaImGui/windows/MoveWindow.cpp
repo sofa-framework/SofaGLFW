@@ -49,9 +49,9 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             static int x=0;
             static int y=0;
             static int z=0;
-            static float rx=0.;
-            static float ry=0.;
-            static float rz=0.;
+            static double rx=0.;
+            static double ry=0.;
+            static double rz=0.;
 
             if(m_isDrivingSimulation)
                 m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
@@ -85,11 +85,11 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
             ImGui::Indent();
 
-            showSliderFloat("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            showSliderDouble("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderFloat("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            showSliderDouble("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderFloat("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            showSliderDouble("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
             ImGui::Spacing();
 
             ImGui::Unindent();
@@ -124,9 +124,10 @@ void MoveWindow::showSliderInt(const char* name, const char* label1, const char*
     ImGui::PopItemWidth();
 }
 
-void MoveWindow::showSliderFloat(const char* name, const char* label1, const char *label2, float* v, const ImVec4& color)
+void MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const ImVec4& color)
 {
-    float pi = 3.1415;
+    double pi = 3.1415;
+    double mpi = -pi;
 
     ImGui::AlignTextToFramePadding();
     ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
@@ -135,13 +136,13 @@ void MoveWindow::showSliderFloat(const char* name, const char* label1, const cha
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    ImGui::SliderFloat(label1, v, -pi, pi, "%0.2f");
+    ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &mpi, &pi, "%0.2f");
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    ImGui::InputFloat(label2, v, 0.01, 0.1, "%0.2f");
+    ImGui::InputDouble(label2, v, 0.01, 0.1, "%0.2f");
     ImGui::PopItemWidth();
 }
 

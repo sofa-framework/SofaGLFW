@@ -34,13 +34,29 @@ class Wait : public Action
 {
    public:
 
-    Wait(const float& duration = Action::DEFAULTDURATION);
+    Wait(const double& duration = Action::DEFAULTDURATION);
     ~Wait() = default;
 
-    void setDuration(const float &duration) override;
+    void setDuration(const double &duration) override;
 
    protected:
-    float m_minDuration = 0.5;
+    double m_minDuration = 0.5;
+
+    class WaitView : public ActionView
+    {
+       public:
+        WaitView(Wait &_wait) : wait(_wait) {}
+        bool showBlock(const std::string &label,
+                       const ImVec2 &size) override;
+
+       protected:
+        Wait &wait;
+    };
+    WaitView view;
+
+   public :
+
+    ActionView* getView() override {return &view;}
 };
 
 } // namespace

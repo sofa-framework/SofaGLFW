@@ -21,36 +21,41 @@
  ******************************************************************************/
 #pragma once
 
+#include <sofa/defaulttype/RigidTypes.h>
 #include <imgui.h>
+#include <string>
 
 namespace sofaimgui::models::actions {
 
 class Action
 {
+    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
+
    public:
 
     inline static const int COMMENTSIZE = 18;
-    inline static const float DEFAULTDURATION = 3.f;
+    inline static const double DEFAULTDURATION = 3.;
 
-    Action(const float& duration=DEFAULTDURATION):
+    Action(const double& duration=DEFAULTDURATION):
                                   m_duration(duration)
     {
     }
 
     ~Action() = default;
 
-    virtual void computeDuration(){};
-    virtual void computeSpeed(){};
+    virtual bool getTCPAtTime(RigidCoord&, const double&){return false;}
+    virtual void computeDuration(){}
+    virtual void computeSpeed(){}
 
-    const float& getDuration() {return m_duration;}
-    virtual void setDuration(const float& duration)
+    const double& getDuration() {return m_duration;}
+    virtual void setDuration(const double& duration)
     {
         m_duration = duration;
         computeSpeed();
     }
 
-    const float& getSpeed() {return m_speed;}
-    virtual void setSpeed(const float& speed)
+    const double& getSpeed() {return m_speed;}
+    virtual void setSpeed(const double& speed)
     {
         m_speed = speed;
         computeDuration();
@@ -63,9 +68,21 @@ class Action
 
    protected:
 
-    float m_duration;
-    float m_speed;
+    double m_duration;
+    double m_speed;
     char m_comment[COMMENTSIZE];
+
+    class ActionView
+    {
+       public:
+        virtual bool showBlock(const std::string &,
+                               const ImVec2 &) {return false;}
+    };
+    ActionView view;
+
+   public :
+
+    virtual ActionView* getView() {return &view;}
 };
 
 } // namespace

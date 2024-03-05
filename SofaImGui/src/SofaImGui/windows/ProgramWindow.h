@@ -40,7 +40,7 @@ namespace sofaimgui::windows {
 
 class ProgramWindow : public BaseWindow
 {
-    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
     ProgramWindow(const std::string& name, const bool& isWindowOpen);
@@ -54,7 +54,7 @@ class ProgramWindow : public BaseWindow
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);
 
-    void setTime(const float &time) {m_time=time;}
+    void setTime(const double &time) {m_time=time;}
     void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
 
@@ -66,7 +66,7 @@ class ProgramWindow : public BaseWindow
 
     float m_cursor;
     ImVec2 m_trackBeginPos;
-    float m_time;
+    double m_time;
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
@@ -81,49 +81,11 @@ class ProgramWindow : public BaseWindow
     bool showTrackButtons(const int &trackIndex, const char* const menuLabel);
     void showBlocks(std::shared_ptr<models::Track> track,
                     const int &trackID, const bool &collapsed);
-    void showMoveBlock(std::shared_ptr<models::Track> track,
-                       const sofa::Index &moveID,
-                       std::shared_ptr<models::actions::Move> move,
-                       const std::string &label,
-                       const ImVec2 &size);
-    void showWaitBlock(std::shared_ptr<models::actions::Wait> wait,
-                       const std::string &label,
-                       const ImVec2 &size);
-    void showRepeatBlock(std::shared_ptr<models::modifiers::Repeat> repeat,
-                         const std::string &label,
-                         const ImVec2 &size, const bool &collapsed);
     void showBlockOptionButton(const std::string &menulabel,
                                 const std::string &label);
 
     bool importProgram();
     void exportProgram();
-
-    struct ProgramColors
-    {
-        ImVec4 FrameBg{1.f, 1.f, 1.f, .3f};
-        ImVec4 MoveBlockBg{0.39f, 0.57f, 0.6f, 1.0f};
-        ImVec4 MoveBlockTitleBg{0.29f, 0.47f, 0.5f, 1.0f};
-        ImVec4 WaitBlockBg{0.91f, 0.72f, 0.14f, 1.0f};
-        ImVec4 WaitBlockTitleBg{0.93f, 0.57f, 0.13f, 1.0f};
-        ImVec4 RepeatBlockBg{0.58f, 0.50f, 0.92f, 1.0f};
-        ImVec4 RepeatBlockTitleBg{0.39f, 0.15f, 0.74f, 1.0f};
-        ImVec4 Text{1.0f, 1.0f, 1.0f, 1.f};
-        ImVec4 FrameText{0.f, 0.f, 0.f, 1.f};
-    };
-    ProgramColors m_colors;
-    ProgramColors getColors() {return m_colors;}
-
-    struct ProgramSizes
-    {
-        float trackHeight;
-        float trackCollapsedHeight;
-        float inputWidth;
-        float alignWidth;
-        float timelineOneSecondSize;
-    };
-    ProgramSizes m_sizes;
-    ProgramSizes& getSizes() {return m_sizes;}
-
 };
 
 } // namespace

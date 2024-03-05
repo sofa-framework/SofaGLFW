@@ -22,6 +22,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <string>
 
 namespace sofaimgui::models::modifiers {
 
@@ -30,18 +31,19 @@ class Modifier
    public:
 
     inline static const int COMMENTSIZE = 18;
-
-    Modifier(const float& duration): m_duration(duration)
+    Modifier(const double& duration): m_duration(duration)
     {
     }
 
     ~Modifier() = default;
 
+    virtual void modify(double &time) = 0;
+    virtual void reset() = 0;
     virtual void computeDuration(){};
     virtual void computeSpeed(){};
 
-    const float& getDuration() {return m_duration;}
-    virtual void setDuration(const float& duration) {m_duration = duration;}
+    const double& getDuration() {return m_duration;}
+    virtual void setDuration(const double& duration) {m_duration = duration;}
 
     void setComment(const char* comment) {strncpy(m_comment, comment, COMMENTSIZE);}
     void getComment(char* comment) {strncpy(comment, m_comment, COMMENTSIZE);}
@@ -50,8 +52,21 @@ class Modifier
 
    protected:
 
-    float m_duration;
+    double m_duration;
     char m_comment[COMMENTSIZE];
+
+    class ModifierView
+    {
+       public:
+        virtual bool showBlock(const std::string &,
+                               const ImVec2 &,
+                               const ImVec2 &) {return false;}
+    };
+    ModifierView view;
+
+   public :
+
+    virtual ModifierView* getView() {return &view;}
 };
 
 } // namespace

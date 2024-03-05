@@ -62,6 +62,7 @@ set(IMGUI_HEADER_FILES
     resources/fa-solid-900.h
     resources/OpenSans-Regular.h
     resources/Style.h
+    resources/ProgramStyle.h
 )
 set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
@@ -75,6 +76,7 @@ set(IMGUI_SOURCE_FILES
     ${implot_SOURCE_DIR}/implot.cpp
     ${implot_SOURCE_DIR}/implot_items.cpp
     resources/Style.cpp
+    resources/ProgramStyle.cpp
 )
 
 set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
@@ -134,6 +136,10 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/models/actions/Move.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/actions/Wait.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/modifiers/Repeat.cpp
+
+    ${SOFAIMGUI_SOURCE_DIR}/models/actions/views/MoveView.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/actions/views/WaitView.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/modifiers/views/RepeatView.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/TCPTarget.cpp

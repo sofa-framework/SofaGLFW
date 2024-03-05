@@ -40,35 +40,58 @@ class Repeat : public Modifier
     };
 
     Repeat(const int &iterations,
-           const float &endTime,
-           const float &startTime=0.,
+           const double &endTime,
+           const double &startTime=0.,
            const Type &type=Type::REPEAT);
     ~Repeat() = default;
 
+    void modify(double &time) override;
+    void reset() override;
     void computeDuration() override;
 
-    void setIterations(const float &iterations) {m_iterations=iterations;}
+    void setIterations(const double &iterations);
     int& getIterations() {return m_iterations;}
-    float getCount() {return m_count;}
+    void setCounts(const double &counts) {m_counts=counts;}
+    int& getCounts() {return m_counts;}
 
-    void setStartTime(const float &startTime);
-    float& getStartTime() {return m_startTime;}
-    void setEndTime(const float &endTime);
-    float getEndTime() {return m_endTime;}
-    void setInterval(const float &startTime, const float &endTime);
+    void setStartTime(const double &startTime);
+    double& getStartTime() {return m_startTime;}
+    void setEndTime(const double &endTime);
+    double getEndTime() {return m_endTime;}
+    void setInterval(const double &startTime, const double &endTime);
 
     void setType(const Type& type) {m_type=type;}
     const Type& getType() {return m_type;}
 
    protected:
 
+    int m_actionIndexStart;
+    int m_actionIndexEnd;
+
     int m_iterations;
-    float m_count;
-    float m_endTime;
-    float m_startTime;
+    int m_counts;
+    double m_endTime;
+    double m_startTime;
     Type m_type;
 
     void checkInterval();
+
+    class RepeatView : public ModifierView
+    {
+       public:
+        RepeatView(Repeat &_repeat) : repeat(_repeat) {}
+        bool showBlock(const std::string &label,
+                       const ImVec2 &size,
+                       const ImVec2 &trackBeginPos);
+
+       protected:
+        Repeat &repeat;
+    };
+    RepeatView view;
+
+   public :
+
+    ModifierView* getView() override {return &view;}
 };
 
 } // namespace

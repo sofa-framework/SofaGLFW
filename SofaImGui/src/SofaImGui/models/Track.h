@@ -36,7 +36,7 @@ namespace sofaimgui::models {
 
 class Track
 {
-    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
 
@@ -45,7 +45,7 @@ class Track
                                            {};
     ~Track() = default;
 
-    void clear() {m_actions.clear();}
+    void clear();
 
     std::vector<std::shared_ptr<actions::Action>> getActions() {return m_actions;}
     std::shared_ptr<actions::Action> getAction(const sofa::Index& actionIndex) {return m_actions[actionIndex];}

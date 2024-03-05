@@ -32,7 +32,7 @@ namespace sofaimgui::models::actions {
 
 class Move : public Action
 {
-    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
     typedef sofa::defaulttype::Rigid3Types::VecCoord VecCoord;
 
    public:
@@ -43,41 +43,40 @@ class Move : public Action
 
     Move(const RigidCoord& initialPoint,
          const RigidCoord& waypoint,
-         const float& duration,
+         const double& duration,
          sofa::simulation::Node *groot,
          Type type = LINE);
 
     ~Move();
 
+    bool getTCPAtTime(RigidCoord&, const double &time) override;
     void computeDuration() override;
     void computeSpeed() override;
-
-    void setDuration(const float& duration) override;
-    void setSpeed(const float& speed) override;
+    void setDuration(const double& duration) override;
+    void setSpeed(const double& speed) override;
 
     void setInitialPoint(const RigidCoord& initialPoint);
     const RigidCoord& getInitialPoint() {return m_initialPoint;}
-
     void setWaypoint(const RigidCoord& waypoint);
     const RigidCoord& getWaypoint() {return m_waypoint;}
 
-    RigidCoord getInterpolatedPosition(const float& time);
+    RigidCoord getInterpolatedPosition(const double& time);
 
     void setType(Type type) {m_type = type;}
     Type getType() {return m_type;}
 
-    void addTrajectory(sofa::simulation::Node* groot);
-    void highlightWaypoint(const bool &highlight) {m_trajectory->setHighlight(highlight);}
-    void drawTrajectory(const bool &drawTrajectory) {m_trajectory->f_listening.setValue(drawTrajectory);}
+    void addTrajectoryComponent(sofa::simulation::Node* groot);
+    void highlightTrajectory(const bool &highlight);
+    void setDrawTrajectory(const bool &drawTrajectory);
 
    protected:
 
     RigidCoord m_initialPoint;
     RigidCoord m_waypoint;
 
-    float m_minDuration{0.5};
-    float m_minSpeed{10};
-    float m_maxSpeed; // TODO: set
+    double m_minDuration{0.5};
+    double m_minSpeed{10};
+    double m_maxSpeed; // TODO: set
 
     const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
     sofa::simulation::Node* m_groot;
@@ -86,6 +85,22 @@ class Move : public Action
 
     void checkDuration();
     void checkSpeed();
+
+    class MoveView : public ActionView
+    {
+       public:
+        MoveView(Move &_move) : move(_move) {}
+        bool showBlock(const std::string &label,
+                       const ImVec2 &size);
+
+       protected:
+        Move &move;
+    };
+    MoveView view;
+
+   public :
+
+    ActionView* getView() override {return &view;}
 };
 
 } // namespace

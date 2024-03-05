@@ -64,7 +64,7 @@ bool Program::importProgram(const std::string &filename)
 
                     if (!e->FindAttribute("duration"))
                         return false;
-                    float duration = e->FindAttribute("duration")->FloatValue();
+                    double duration = e->FindAttribute("duration")->DoubleValue();
 
                     if (!e->FindAttribute("type"))
                         return false;
@@ -85,7 +85,7 @@ bool Program::importProgram(const std::string &filename)
                 {
                     if (!e->FindAttribute("duration"))
                         return false;
-                    float duration = e->FindAttribute("duration")->FloatValue();
+                    double duration = e->FindAttribute("duration")->DoubleValue();
 
                     std::shared_ptr<actions::Wait> wait = std::make_shared<actions::Wait>(duration);
                     if (e->FindAttribute("comment"))
@@ -104,11 +104,11 @@ bool Program::importProgram(const std::string &filename)
 
                     if (!e->FindAttribute("endTime"))
                         return false;
-                    float endTime = e->FindAttribute("endTime")->FloatValue();
+                    double endTime = e->FindAttribute("endTime")->DoubleValue();
 
                     if (!e->FindAttribute("startTime"))
                         return false;
-                    float startTime = e->FindAttribute("startTime")->FloatValue();
+                    double startTime = e->FindAttribute("startTime")->DoubleValue();
 
                     if (!e->FindAttribute("type"))
                         return false;

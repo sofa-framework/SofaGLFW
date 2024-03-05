@@ -95,9 +95,9 @@ void StateWindow::showWindow(sofa::simulation::Node* groot)
                                     for (std::string v : values) // Values
                                     {
                                         std::replace(v.begin(), v.end(), '.', ',');
-                                        float buffer = std::stof(v);
+                                        double buffer = std::stod(v);
                                         ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                                        ImGui::InputFloat("##0", &buffer, 0, 0, "%.2f");
+                                        ImGui::InputDouble("##0", &buffer, 0, 0, "%.2f");
                                         ImGui::SameLine();
                                         ImGui::PopItemWidth();
                                     }

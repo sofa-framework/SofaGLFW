@@ -56,12 +56,12 @@ void TCPTarget::init(sofa::simulation::Node::SPtr groot)
     }
 }
 
-const sofa::defaulttype::RigidCoord<3, float>& TCPTarget::getInitPosition()
+const sofa::defaulttype::RigidCoord<3, double>& TCPTarget::getInitPosition()
 {
     return m_initPosition;
 }
 
-sofa::defaulttype::RigidCoord<3, float> TCPTarget::getPosition()
+sofa::defaulttype::RigidCoord<3, double> TCPTarget::getPosition()
 {
     RigidCoord position;
     if (m_state != nullptr)
@@ -81,7 +81,7 @@ sofa::defaulttype::RigidCoord<3, float> TCPTarget::getPosition()
     return position;
 }
 
-void TCPTarget::getPosition(int &x, int &y, int &z, float &rx, float &ry, float &rz)
+void TCPTarget::getPosition(int &x, int &y, int &z, double &rx, double &ry, double &rz)
 {
     if (m_state != nullptr)
     {
@@ -122,7 +122,7 @@ void TCPTarget::setPosition(const RigidCoord& position)
     }
 }
 
-void TCPTarget::setPosition(const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz)
+void TCPTarget::setPosition(const int &x, const int &y, const int &z, const double &rx, const double &ry, const double &rz)
 {
     if (m_state != nullptr)
     {

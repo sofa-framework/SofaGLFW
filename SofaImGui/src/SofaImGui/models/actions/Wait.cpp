@@ -24,12 +24,13 @@
 
 namespace sofaimgui::models::actions {
 
-Wait::Wait(const float &duration): Action(duration)
+Wait::Wait(const double &duration): Action(duration),
+                                   view(*this)
 {
     setComment("Wait");
 }
 
-void Wait::setDuration(const float& duration)
+void Wait::setDuration(const double& duration)
 {
     m_duration = duration;
     if (m_duration < m_minDuration)

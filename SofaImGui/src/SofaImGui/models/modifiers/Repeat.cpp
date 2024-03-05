@@ -25,35 +25,69 @@
 namespace sofaimgui::models::modifiers {
 
 Repeat::Repeat(const int &iterations,
-               const float &endTime,
-               const float &startTime,
+               const double &endTime,
+               const double &startTime,
                const Type &type):  Modifier(endTime - startTime),
                                    m_iterations(iterations),
                                    m_endTime(endTime),
                                    m_startTime(startTime),
-                                   m_type(type)
+                                   m_type(type),
+                                   view(*this)
 {
     setComment("Repeat");
     checkInterval();
     m_duration = m_endTime - m_startTime;
+    m_counts = m_iterations;
 }
 
-
-void Repeat::setStartTime(const float &startTime)
+void Repeat::modify(double &time)
 {
-    m_startTime=startTime;
+    if (time > m_endTime && m_counts > 0)
+    {
+        time = m_startTime;
+        m_counts--;
+    }
+}
+
+void Repeat::reset()
+{
+    m_counts = m_iterations;
+}
+
+void Repeat::computeDuration()
+{
+    m_duration = m_endTime - m_startTime;
+}
+
+void Repeat::setIterations(const double &iterations)
+{
+    m_iterations = iterations;
+
+    if (m_counts > m_iterations)
+        m_counts = m_iterations;
+}
+
+void Repeat::setStartTime(const double &startTime)
+{
+    if (startTime < 0)
+        m_startTime = 0;
+    else
+        m_startTime = startTime;
     checkInterval();
     computeDuration();
 }
 
-void Repeat::setEndTime(const float &endTime)
+void Repeat::setEndTime(const double &endTime)
 {
-    m_endTime=endTime;
+    if (endTime < 0)
+        m_endTime = 0;
+    else
+        m_endTime = endTime;
     checkInterval();
     computeDuration();
 }
 
-void Repeat::setInterval(const float &startTime, const float &endTime)
+void Repeat::setInterval(const double &startTime, const double &endTime)
 {
     m_startTime = startTime;
     m_endTime = endTime;
@@ -65,11 +99,6 @@ void Repeat::checkInterval()
 {
     if (m_endTime <= m_startTime)
         m_startTime = 0;
-}
-
-void Repeat::computeDuration()
-{
-    m_duration = m_endTime - m_startTime;
 }
 
 } // namespace

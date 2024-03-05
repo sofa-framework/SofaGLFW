@@ -30,7 +30,7 @@ namespace sofaimgui::models {
 
 class TCPTarget
 {
-   typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+   typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
 
@@ -46,10 +46,10 @@ class TCPTarget
     const RigidCoord& getInitPosition();
 
     RigidCoord getPosition();
-    void getPosition(int &x, int &y, int &z, float &rx, float &ry, float &rz);
+    void getPosition(int &x, int &y, int &z, double &rx, double &ry, double &rz);
 
     void setPosition(const RigidCoord& position);
-    void setPosition(const int &x, const int &y, const int &z, const float &rx, const float &ry, const float &rz);
+    void setPosition(const int &x, const int &y, const int &z, const double &rx, const double &ry, const double &rz);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
     bool isInSimulation() {return m_state!=nullptr;}

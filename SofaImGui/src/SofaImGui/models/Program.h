@@ -35,7 +35,7 @@ namespace sofaimgui::models {
 
 class Program
 {
-    typedef sofa::defaulttype::RigidCoord<3, float> RigidCoord;
+    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
 

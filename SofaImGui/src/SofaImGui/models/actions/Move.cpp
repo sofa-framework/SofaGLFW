@@ -26,19 +26,20 @@ namespace sofaimgui::models::actions {
 
 Move::Move(const RigidCoord& initialPoint,
            const RigidCoord& waypoint,
-           const float &duration,
+           const double &duration,
            sofa::simulation::Node* groot,
            Type type):
                                             Action(duration),
                                             m_initialPoint(initialPoint),
                                             m_waypoint(waypoint),
                                             m_groot(groot),
-                                            m_type(type)
+                                            m_type(type),
+                                            view(*this)
 {
     checkDuration(); // minimum duration for a move is set to 1 second
     setComment("Move to waypoint");
     m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
-    addTrajectory(groot);
+    addTrajectoryComponent(groot);
 }
 
 Move::~Move()
@@ -46,11 +47,28 @@ Move::~Move()
     m_groot->removeObject(m_trajectory);
 }
 
-void Move::addTrajectory(sofa::simulation::Node* groot)
+bool Move::getTCPAtTime(RigidCoord &position, const double &time)
+{
+    bool hasChanged = true;
+    position = getInterpolatedPosition(time);
+    return hasChanged;
+}
+
+void Move::addTrajectoryComponent(sofa::simulation::Node* groot)
 {
     m_groot = groot;
     m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
     groot->addObject(m_trajectory);
+}
+
+void Move::highlightTrajectory(const bool &highlight)
+{
+    m_trajectory->setHighlight(highlight);
+}
+
+void Move::setDrawTrajectory(const bool &drawTrajectory)
+{
+    m_trajectory->f_listening.setValue(drawTrajectory);
 }
 
 void Move::checkDuration()
@@ -76,14 +94,14 @@ void Move::computeDuration()
     checkDuration();
 }
 
-void Move::setDuration(const float& duration)
+void Move::setDuration(const double& duration)
 {
     m_duration = duration;
     checkDuration();
     computeSpeed();
 }
 
-void Move::setSpeed(const float& speed)
+void Move::setSpeed(const double& speed)
 {
     m_speed = speed;
     checkSpeed();
@@ -106,7 +124,7 @@ void Move::setWaypoint(const RigidCoord& waypoint)
     m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
 }
 
-sofa::defaulttype::RigidCoord<3, float> Move::getInterpolatedPosition(const float& time)
+sofa::defaulttype::RigidCoord<3, double> Move::getInterpolatedPosition(const double& time)
 {
     RigidCoord interpolatedPosition;
     switch (m_type)
