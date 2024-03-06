@@ -62,9 +62,13 @@ void Repeat::computeDuration()
 void Repeat::setIterations(const double &iterations)
 {
     m_iterations = iterations;
+    checkCounts();
+}
 
-    if (m_counts > m_iterations)
-        m_counts = m_iterations;
+void Repeat::setCounts(const double &counts)
+{
+    m_counts = counts;
+    checkCounts();
 }
 
 void Repeat::setStartTime(const double &startTime)
@@ -100,6 +104,13 @@ void Repeat::checkInterval()
     if (m_endTime <= m_startTime)
         m_startTime = 0;
 }
+
+void Repeat::checkCounts()
+{
+    if (m_counts > m_iterations)
+        m_counts = m_iterations;
+}
+
 
 } // namespace
 

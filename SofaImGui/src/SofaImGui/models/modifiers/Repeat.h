@@ -51,7 +51,7 @@ class Repeat : public Modifier
 
     void setIterations(const double &iterations);
     int& getIterations() {return m_iterations;}
-    void setCounts(const double &counts) {m_counts=counts;}
+    void setCounts(const double &counts);
     int& getCounts() {return m_counts;}
 
     void setStartTime(const double &startTime);
@@ -75,6 +75,7 @@ class Repeat : public Modifier
     Type m_type;
 
     void checkInterval();
+    void checkCounts();
 
     class RepeatView : public ModifierView
     {

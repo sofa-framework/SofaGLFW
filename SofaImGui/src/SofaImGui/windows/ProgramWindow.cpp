@@ -144,7 +144,7 @@ void ProgramWindow::showProgramButtons()
         groot->setTime(0.);
         m_time = 0.f;
     }
-    ImGui::SetItemTooltip("Reload the simulation and restart the program");
+    ImGui::SetItemTooltip("Restart the program");
 
     if (!isDrivingSimulation())
         ImGui::EndDisabled();
@@ -600,16 +600,19 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
     if (m_isDrivingSimulation)
     {
         static bool reverse = false;
+        static bool isProgramEmpty = false;
+
         if (reverse)
         {
             groot->setTime(groot->getTime() - 2 * groot->getDt());
-            if (groot->getTime() <= 0.)
+            if (groot->getTime() <= 0. || isProgramEmpty)
             {
                 reverse = false;
             }
         }
         m_time = groot->getTime();
 
+        isProgramEmpty = true;
         for (const auto& track: m_program.getTracks())
         {
             const auto& modifiers = track->getModifiers();
@@ -624,6 +627,7 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
             const auto& actions = track->getActions();
             for (const auto& action: actions)
             {
+                isProgramEmpty = false;
                 blockEnd += action->getDuration();
                 if ((blockEnd >= m_time && !reverse) || (blockEnd > m_time && reverse))
                 {
@@ -642,13 +646,13 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                 if (m_repeat)
                 {
                     m_time = 0.f;
-                    groot->setTime(0.f);
+                    groot->setTime(m_time);
 
                     const auto& modifiers = track->getModifiers();
                     for (const auto& modifier: modifiers)
                         modifier->reset();
                 }
-                else if (m_reverse)
+                else if (m_reverse && !isProgramEmpty)
                 {
                     reverse = true;
                 }
@@ -656,9 +660,14 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                 {
                     m_time -= groot->getDt();
                     groot->setTime(m_time);
-                    groot->setAnimate(false);
                 }
             }
+        }
+
+        if (isProgramEmpty)
+        {
+            m_time = 0.f;
+            groot->setTime(m_time);
         }
     }
 }

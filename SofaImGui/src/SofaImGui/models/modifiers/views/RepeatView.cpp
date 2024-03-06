@@ -123,7 +123,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
         ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
         if (ImGui::InputInt(id.c_str(), &repeat.getIterations()))
         {
-            repeat.setCounts(repeat.getIterations());
+            repeat.checkCounts();
             hasValuesChanged = true;
         }
         ImGui::PopStyleColor(2);
@@ -136,7 +136,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
     textSize = ImGui::CalcTextSize(text.c_str());
     double nx = x + alignWidth + ProgramSizes().InputWidth * 2 + spacing.x * 4;
 
-    { // Speed
+    { // Counts
         bb.Min = ImVec2(nx, y);
         bb.Max = ImVec2(nx + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
@@ -157,6 +157,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
         ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
         if (ImGui::InputInt(id.c_str(), &repeat.getCounts()))
         {
+            repeat.checkCounts();
             hasValuesChanged = true;
         }
         ImGui::PopStyleColor(2);
