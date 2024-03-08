@@ -59,15 +59,21 @@ void Repeat::computeDuration()
     m_duration = m_endTime - m_startTime;
 }
 
-void Repeat::setIterations(const double &iterations)
+void Repeat::setIterations(const int &iterations)
 {
-    m_iterations = iterations;
+    if (iterations < 0)
+        m_iterations = 0;
+    else
+        m_iterations = iterations;
     checkCounts();
 }
 
-void Repeat::setCounts(const double &counts)
+void Repeat::setCounts(const int &counts)
 {
-    m_counts = counts;
+    if (counts < 0)
+        m_counts = 0;
+    else
+        m_counts = counts;
     checkCounts();
 }
 

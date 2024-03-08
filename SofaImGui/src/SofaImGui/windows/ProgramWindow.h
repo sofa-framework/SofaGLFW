@@ -64,7 +64,7 @@ class ProgramWindow : public BaseWindow
 
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
 
-    float m_cursor;
+    double m_cursor;
     ImVec2 m_trackBeginPos;
     double m_time;
 
@@ -83,6 +83,8 @@ class ProgramWindow : public BaseWindow
                     const int &trackID);
     void showBlockOptionButton(const std::string &menulabel,
                                 const std::string &label);
+
+    void stepProgram();
 
     bool importProgram();
     void exportProgram();

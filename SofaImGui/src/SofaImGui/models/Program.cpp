@@ -48,7 +48,7 @@ bool Program::importProgram(const std::string &filename)
         {
             std::shared_ptr<Track> track = std::make_shared<Track>(m_TCPTarget);
 
-            for(auto* e = t->FirstChildElement("action"); e != nullptr; e = e->NextSiblingElement("action"))
+            for(const auto* e = t->FirstChildElement("action"); e != nullptr; e = e->NextSiblingElement("action"))
             {
                 if (strcmp(e->FirstAttribute()->Value(), "move") == 0)
                 {
@@ -94,7 +94,7 @@ bool Program::importProgram(const std::string &filename)
                 }
             }
 
-            for(auto* e = t->FirstChildElement("modifier"); e != nullptr; e = e->NextSiblingElement("modifier"))
+            for(const auto* e = t->FirstChildElement("modifier"); e != nullptr; e = e->NextSiblingElement("modifier"))
             {
                 if (strcmp(e->FirstAttribute()->Value(), "repeat") == 0)
                 {

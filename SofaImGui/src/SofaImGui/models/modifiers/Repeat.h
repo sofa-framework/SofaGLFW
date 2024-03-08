@@ -49,10 +49,10 @@ class Repeat : public Modifier
     void reset() override;
     void computeDuration() override;
 
-    void setIterations(const double &iterations);
-    int& getIterations() {return m_iterations;}
-    void setCounts(const double &counts);
-    int& getCounts() {return m_counts;}
+    void setIterations(const int &iterations);
+    int getIterations() {return m_iterations;}
+    void setCounts(const int &counts);
+    int getCounts() {return m_counts;}
 
     void setStartTime(const double &startTime);
     double& getStartTime() {return m_startTime;}

@@ -114,7 +114,7 @@ void MoveWindow::showSliderInt(const char* name, const char* label1, const char*
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    ImGui::SliderInt(label1, v, -500 + offset, 500 + offset);
+    ImGui::SliderInt(label1, v, -500 + offset, 500 + offset, "%0.f", ImGuiSliderFlags_NoInput);
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
@@ -136,7 +136,7 @@ void MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &mpi, &pi, "%0.2f");
+    ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &mpi, &pi, "%0.2f", ImGuiSliderFlags_NoInput);
     ImGui::PopStyleColor();
 
     ImGui::SameLine();

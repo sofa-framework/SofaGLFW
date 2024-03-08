@@ -143,63 +143,127 @@ void ProgramWindow::showProgramButtons()
         auto groot = m_baseGUI->getRootNode().get();
         groot->setTime(0.);
         m_time = 0.f;
+
+        for (const auto& track: m_program.getTracks())
+        {
+            const auto& modifiers = track->getModifiers();
+            for (const auto& modifier: modifiers)
+                modifier->reset();
+        }
     }
     ImGui::SetItemTooltip("Restart the program");
 
     if (!isDrivingSimulation())
         ImGui::EndDisabled();
 
-            // Right buttons
+            // Right pushed buttons
     ImGui::SameLine();
     ImGui::SetCursorPosX(positionRight); // Set position to right of the header
 
-    ImGui::PushStyleColor(ImGuiCol_Button, m_drawTrajectory? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImVec4 colorActive{0.25f, 0.25f, 0.25f, 1.00f};
+
+    ImGui::PushStyleColor(ImGuiCol_Button, m_drawTrajectory? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     if (ImGui::Button(ICON_FA_DRAW_POLYGON"##Draw", buttonSize))
     {
         m_drawTrajectory = !m_drawTrajectory;
     }
-    ImGui::PopStyleColor();
+    ImGui::PopStyleColor(3);
     ImGui::SetItemTooltip("Draw trajectory");
 
     ImGui::SameLine();
 
-    ImGui::PushStyleColor(ImGuiCol_Button, m_repeat? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_Button, m_repeat? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     if (ImGui::Button(ICON_FA_REPEAT"##Repeat", buttonSize))
     {
         m_reverse = false;
         m_repeat = !m_repeat;
     }
-    ImGui::PopStyleColor();
+    ImGui::PopStyleColor(3);
     ImGui::SetItemTooltip("Repeat program");
 
     ImGui::SameLine();
 
-    ImGui::PushStyleColor(ImGuiCol_Button, m_reverse? ImVec4(0.25f, 0.25f, 0.25f, 1.00f) : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_Button, m_reverse? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     if (ImGui::Button(ICON_FA_ARROWS_LEFT_RIGHT"##Reverse", buttonSize))
     {
         m_repeat = false;
         m_reverse = !m_reverse;
     }
-    ImGui::PopStyleColor();
+    ImGui::PopStyleColor(3);
     ImGui::SetItemTooltip("Reverse and repeat program");
 }
 
 void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
 {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return;
+
     ImVec4 color(0.95f, 0.f, 0.f, 1.0f);
 
     float thicknessRect = ImGui::GetStyle().SeparatorTextBorderSize;
     float widthTri = ImGui::GetStyle().ItemInnerSpacing.x * 2;
 
     m_cursor = m_time * ProgramSizes().TimelineOneSecondSize;
-    ImVec2 p0Rect(m_trackBeginPos.x + m_cursor , m_trackBeginPos.y);
+    double max = ImGui::GetWindowWidth() + ImGui::GetScrollX();
+    ImRect grab_bb(ImVec2(m_trackBeginPos.x + m_cursor - widthTri / 2., m_trackBeginPos.y - widthTri),
+                   ImVec2(m_trackBeginPos.x + m_cursor + widthTri / 2., m_trackBeginPos.y));
+    const ImRect frame_bb(ImVec2(m_trackBeginPos.x, m_trackBeginPos.y - widthTri),
+                          ImVec2(m_trackBeginPos.x + max, m_trackBeginPos.y));
+
+    ImVec2 p0Rect(grab_bb.Min.x + widthTri / 2., grab_bb.Max.y);
     ImVec2 p1Rect(p0Rect.x + thicknessRect,
                   p0Rect.y + ProgramSizes().TrackHeight * m_program.getNbTracks() + ImGui::GetStyle().ItemSpacing.y * (m_program.getNbTracks() - 1)); // TODO: case multiple tracks
 
     ImVec2 p0Tri(p0Rect.x + thicknessRect / 2.f, p0Rect.y);
     ImVec2 p1Tri(p0Tri.x - widthTri / 2.f, p0Tri.y - widthTri);
     ImVec2 p2Tri(p0Tri.x + widthTri / 2.f,  p0Tri.y - widthTri);
+
+    ImGui::ItemSize(ImVec2(widthTri, widthTri));
+    const ImGuiID id = ImGui::GetID("##cursormarker");
+    if (!ImGui::ItemAdd(frame_bb, id))
+        return;
+
+    ImGuiContext& g = *GImGui;
+    const bool hovered = ImGui::ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
+    const bool clicked = hovered && ImGui::IsMouseClicked(0, id);
+    const bool make_active = (clicked || g.NavActivateId == id);
+    if (clicked)
+        ImGui::SetKeyOwner(ImGuiKey_MouseLeft, id);
+
+    if (make_active)
+    {
+        ImGui::SetActiveID(id, window);
+        ImGui::SetFocusID(id, window);
+        ImGui::FocusWindow(window);
+        g.ActiveIdUsingNavDirMask |= (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
+    }
+
+    ImGui::RenderNavHighlight(frame_bb, id);
+
+    double min = 0;
+    const bool value_changed = ImGui::SliderBehavior(frame_bb, id, ImGuiDataType_Double,
+                                                     &m_cursor, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput, &grab_bb);
+    if (value_changed)
+    {
+        ImGui::MarkItemEdited(id);
+
+        const auto& groot = m_TCPTarget->getRootNode().get();
+        if (!(groot->getAnimate() && m_isDrivingSimulation)) // we can only move the cursor by hand if the program is not running
+        {
+            m_time = m_cursor / ProgramSizes().TimelineOneSecondSize;
+            groot->setTime(m_time);
+            stepProgram();
+        } else {
+            m_cursor = m_time * ProgramSizes().TimelineOneSecondSize;
+        }
+    }
 
     window->DrawList->AddTriangleFilled(p0Tri, p1Tri, p2Tri, ImGui::GetColorU32(color));
     window->DrawList->AddRectFilled(p0Rect, p1Rect, ImGui::GetColorU32(color), ImGui::GetStyle().FrameRounding / 2.f);
@@ -594,9 +658,35 @@ void ProgramWindow::exportProgram()
         m_program.exportProgram(outPath);
 }
 
+void ProgramWindow::stepProgram()
+{
+    if (m_isDrivingSimulation)
+    {
+        for (const auto& track: m_program.getTracks())
+        {
+            double blockEnd = 0.f;
+            double blockStart = 0.f;
+            const auto& actions = track->getActions();
+            for (const auto& action: actions)
+            {
+                blockEnd += action->getDuration();
+                if (blockEnd >= m_time)
+                {
+                    RigidCoord position;
+                    if (action->getTCPAtTime(position, m_time - blockStart))
+                    {
+                        m_TCPTarget->setPosition(position);
+                    }
+                    break;
+                }
+                blockStart = blockEnd;
+            }
+        }
+    }
+}
+
 void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
 {
-    SOFA_UNUSED(groot);
     if (m_isDrivingSimulation)
     {
         static bool reverse = false;

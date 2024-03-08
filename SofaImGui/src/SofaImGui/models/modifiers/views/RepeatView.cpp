@@ -121,9 +121,11 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
         std::string id = "##iterations" + std::to_string(window->DC.CursorPos.x) + std::to_string(window->DC.CursorPos.y);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
         ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
-        if (ImGui::InputInt(id.c_str(), &repeat.getIterations()))
+        int iterations = repeat.getIterations();
+        if (ImGui::InputInt(id.c_str(), &iterations))
         {
-            repeat.checkCounts();
+            repeat.setIterations(iterations);
+            repeat.setCounts(iterations);
             hasValuesChanged = true;
         }
         ImGui::PopStyleColor(2);
@@ -155,9 +157,10 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
         std::string id = "##counts" + std::to_string(window->DC.CursorPos.x) + std::to_string(window->DC.CursorPos.y);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
         ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
-        if (ImGui::InputInt(id.c_str(), &repeat.getCounts()))
+        int counts = repeat.getCounts();
+        if (ImGui::InputInt(id.c_str(), &counts))
         {
-            repeat.checkCounts();
+            repeat.setCounts(counts);
             hasValuesChanged = true;
         }
         ImGui::PopStyleColor(2);
