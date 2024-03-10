@@ -24,6 +24,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ProgramStyle.h>
+#include <SofaImGui/widgets/Buttons.h>
 
 
 namespace sofaimgui::models::actions {
@@ -38,24 +39,15 @@ bool Wait::WaitView::showBlock(const std::string &label,
     float x = window->DC.CursorPos.x ;
     float y = window->DC.CursorPos.y ;
 
+    ImVec2 padding(ImGui::GetStyle().FramePadding);
     ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
     ImVec2 topRight = ImVec2(x + size.x, y);
 
-    ImGui::ItemSize(size);
-    const ImGuiID id = ImGui::GetID(label.c_str());
-    if (!ImGui::ItemAdd(bb, id))
-        return hasValuesChanged;
+    ImGui::ActionBlock(label.c_str(), bb, ProgramColors().WaitBlockBg);
 
-    { // Block backgroung
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ProgramColors().WaitBlockBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-    }
-
-    std::string text = "Move to Way Point";
+    std::string text = "Wait";
     ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
-    ImVec2 padding(ImGui::GetStyle().FramePadding);
+
 
     auto rectMin = ImGui::GetItemRectMin();
     auto rectMax = ImGui::GetItemRectMax();
@@ -66,13 +58,6 @@ bool Wait::WaitView::showBlock(const std::string &label,
     { // Wait
         x += padding.y;
         y += padding.y;
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + size.x - padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ProgramColors().WaitBlockTitleBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
 
         window->DC.CursorPos.x = x;
         window->DC.CursorPos.y = y;
@@ -96,7 +81,7 @@ bool Wait::WaitView::showBlock(const std::string &label,
 
     text = "duration";
     textSize = ImGui::CalcTextSize(text.c_str());
-    y = padding.y + bb.Max.y;
+    y += textSize.y + padding.y * 3;
 
     { // Duration
         bb.Min = ImVec2(x, y);

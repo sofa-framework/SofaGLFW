@@ -23,6 +23,7 @@
 #include <SofaImGui/models/actions/Move.h>
 #include <imgui_internal.h>
 #include <ProgramStyle.h>
+#include <SofaImGui/widgets/Buttons.h>
 
 namespace sofaimgui::models::actions {
 
@@ -33,24 +34,13 @@ bool Move::MoveView::showBlock(const std::string &label,
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-    double alignWidth = ProgramSizes().AlignWidth;
     double x = window->DC.CursorPos.x ;
     double y = window->DC.CursorPos.y ;
 
     ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
     ImVec2 topRight = ImVec2(x + size.x, y);
 
-    ImGui::ItemSize(size);
-    const ImGuiID id = ImGui::GetID(label.c_str());
-    if (!ImGui::ItemAdd(bb, id))
-        return hasValuesChanged;
-
-    { // Block backgroung
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ProgramColors().MoveBlockBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-    }
+    ImGui::ActionBlock(label.c_str(), bb, ProgramColors().MoveBlockBg);
 
     if (ImGui::IsItemHovered())
         move.highlightTrajectory(true);
@@ -71,13 +61,6 @@ bool Move::MoveView::showBlock(const std::string &label,
     { // Move
         x += padding.y;
         y += padding.y;
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + size.x - padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ProgramColors().MoveBlockTitleBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
 
         window->DC.CursorPos.x = x;
         window->DC.CursorPos.y = y;
@@ -101,7 +84,7 @@ bool Move::MoveView::showBlock(const std::string &label,
 
     text = "duration";
     textSize = ImGui::CalcTextSize(text.c_str());
-    y = padding.y + bb.Max.y;
+    y += textSize.y + padding.y * 3;
 
     { // Duration
         bb.Min = ImVec2(x, y);
@@ -114,7 +97,7 @@ bool Move::MoveView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
@@ -136,7 +119,7 @@ bool Move::MoveView::showBlock(const std::string &label,
 
     text = "speed";
     textSize = ImGui::CalcTextSize(text.c_str());
-    double nx = x + alignWidth + ProgramSizes().InputWidth + spacing.x * 4;
+    double nx = x + ProgramSizes().AlignWidth + ProgramSizes().InputWidth + spacing.x * 4;
 
     { // Speed
         bb.Min = ImVec2(nx, y);
@@ -149,7 +132,7 @@ bool Move::MoveView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = nx + alignWidth;
+        window->DC.CursorPos.x = nx + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
@@ -184,7 +167,7 @@ bool Move::MoveView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
         RigidCoord waypoint = move.getWaypoint();
@@ -225,7 +208,7 @@ bool Move::MoveView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
         RigidCoord waypoint = move.getWaypoint();
@@ -266,7 +249,7 @@ bool Move::MoveView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);

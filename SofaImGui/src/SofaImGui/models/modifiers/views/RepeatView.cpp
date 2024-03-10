@@ -24,6 +24,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ProgramStyle.h>
+#include <SofaImGui/widgets/Buttons.h>
 
 
 namespace sofaimgui::models::modifiers {
@@ -36,27 +37,21 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-    float alignWidth = ProgramSizes().AlignWidth;
     ImVec2 padding(ImGui::GetStyle().FramePadding);
     ImVec2 spacing(ImGui::GetStyle().ItemSpacing);
-    float x = repeat.getStartTime() * ProgramSizes().TimelineOneSecondSize + trackBeginPos.x + spacing.x;
-    float y = window->DC.CursorPos.y + size.y - spacing.y;
 
+    window->DC.CursorPos.x = repeat.getStartTime() * ProgramSizes().TimelineOneSecondSize + trackBeginPos.x + spacing.x;
+    window->DC.CursorPos.y = window->DC.CursorPos.y + size.y;
+
+    float x = window->DC.CursorPos.x ;
+    float y = window->DC.CursorPos.y ;
     ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
     ImVec2 topRight = ImVec2(bb.Max.x, bb.Min.y);
 
-    ImGui::ItemSize(size);
-    const ImGuiID id = ImGui::GetID(label.c_str());
-    if (!ImGui::ItemAdd(bb, id))
-        return hasValuesChanged;
-
-    { // Block backgroung
-        drawList->AddRectFilled(ImVec2(bb.Min.x, bb.Min.y - size.y),
-                                ImVec2(bb.Max.x, bb.Max.y),
-                                ImGui::GetColorU32(ProgramColors().RepeatBlockBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
-    }
+    double dragright, dragleft;
+    ImGui::ModifierBlock(label.c_str(), bb, &dragleft, &dragright, ProgramColors().RepeatBlockBg);
+    repeat.setEndTime(repeat.getEndTime() + dragright / ProgramSizes().TimelineOneSecondSize);
+    repeat.setStartTime(repeat.getStartTime() + dragleft / ProgramSizes().TimelineOneSecondSize);
 
     std::string text = "Repeat";
     ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
@@ -67,16 +62,9 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
     ImGui::PushClipRect(rectMin, rectMax, true);
 
     ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().Text);
-    { // Reapeat
+    { // Repeat
         x += padding.y;
         y += padding.y ;
-        bb.Min = ImVec2(x, y);
-        bb.Max = ImVec2(x + size.x - padding.x * 2,
-                        y + textSize.y + padding.y * 2);
-        drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ProgramColors().RepeatBlockTitleBg),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
 
         window->DC.CursorPos.x = x;
         window->DC.CursorPos.y = y;
@@ -100,7 +88,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
 
     text = "iterations";
     textSize = ImGui::CalcTextSize(text.c_str());
-    y = padding.y + bb.Max.y;
+    y += textSize.y + padding.y * 3;
 
     { // Iterations
         bb.Min = ImVec2(x, y);
@@ -113,7 +101,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
@@ -136,7 +124,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
 
     text = "counts";
     textSize = ImGui::CalcTextSize(text.c_str());
-    double nx = x + alignWidth + ProgramSizes().InputWidth * 2 + spacing.x * 4;
+    double nx = x + ProgramSizes().AlignWidth + ProgramSizes().InputWidth * 2 + spacing.x * 4;
 
     { // Counts
         bb.Min = ImVec2(nx, y);
@@ -149,7 +137,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = nx + alignWidth;
+        window->DC.CursorPos.x = nx + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
@@ -184,7 +172,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
@@ -219,7 +207,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
@@ -254,7 +242,7 @@ bool Repeat::RepeatView::showBlock(const std::string &label,
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
         ImGui::PopStyleColor();
 
-        window->DC.CursorPos.x = x + alignWidth;
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
         window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);

@@ -217,11 +217,11 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     const ImRect frame_bb(ImVec2(m_trackBeginPos.x, m_trackBeginPos.y - widthTri),
                           ImVec2(m_trackBeginPos.x + max, m_trackBeginPos.y));
 
-    ImVec2 p0Rect(grab_bb.Min.x + widthTri / 2., grab_bb.Max.y);
+    ImVec2 p0Rect(grab_bb.Min.x + widthTri / 2., grab_bb.Min.y);
     ImVec2 p1Rect(p0Rect.x + thicknessRect,
-                  p0Rect.y + ProgramSizes().TrackHeight * m_program.getNbTracks() + ImGui::GetStyle().ItemSpacing.y * (m_program.getNbTracks() - 1)); // TODO: case multiple tracks
+                  m_trackBeginPos.y + ProgramSizes().TrackHeight * m_program.getNbTracks() + ImGui::GetStyle().ItemSpacing.y * (m_program.getNbTracks() - 1)); // TODO: case multiple tracks
 
-    ImVec2 p0Tri(p0Rect.x + thicknessRect / 2.f, p0Rect.y);
+    ImVec2 p0Tri(p0Rect.x + thicknessRect / 2.f, grab_bb.Max.y);
     ImVec2 p1Tri(p0Tri.x - widthTri / 2.f, p0Tri.y - widthTri);
     ImVec2 p2Tri(p0Tri.x + widthTri / 2.f,  p0Tri.y - widthTri);
 
@@ -245,24 +245,16 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
         g.ActiveIdUsingNavDirMask |= (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
     }
 
-    ImGui::RenderNavHighlight(frame_bb, id);
-
     double min = 0;
     const bool value_changed = ImGui::SliderBehavior(frame_bb, id, ImGuiDataType_Double,
                                                      &m_cursor, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput, &grab_bb);
     if (value_changed)
     {
         ImGui::MarkItemEdited(id);
-
         const auto& groot = m_TCPTarget->getRootNode().get();
-        if (!(groot->getAnimate() && m_isDrivingSimulation)) // we can only move the cursor by hand if the program is not running
-        {
-            m_time = m_cursor / ProgramSizes().TimelineOneSecondSize;
-            groot->setTime(m_time);
-            stepProgram();
-        } else {
-            m_cursor = m_time * ProgramSizes().TimelineOneSecondSize;
-        }
+        m_time = m_cursor / ProgramSizes().TimelineOneSecondSize;
+        groot->setTime(m_time);
+        stepProgram();
     }
 
     window->DrawList->AddTriangleFilled(p0Tri, p1Tri, p2Tri, ImGui::GetColorU32(color));
@@ -775,12 +767,6 @@ void ProgramWindow::setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget)
 
 void ProgramWindow::setDrivingTCPTarget(const bool &isDrivingSimulation)
 {
-    if (isDrivingSimulation && !m_isDrivingSimulation)
-    {
-        const auto& groot = m_TCPTarget->getRootNode().get();
-        groot->setTime(0.f);
-        m_time = 0.f;
-    }
     m_isDrivingSimulation=isDrivingSimulation;
 }
 

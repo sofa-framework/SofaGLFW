@@ -1,5 +1,6 @@
 #pragma once
 #include <imgui.h>
+#include <imgui_internal.h>
 
 namespace ImGui
 {
@@ -11,5 +12,13 @@ void LocalToggleButton(const char* str_id, bool* v);
 bool LocalCheckBox(const char* label, bool* v);
 
 bool LocalCheckBoxEx(const char* label, bool* v);
+
+void Block(const char* label, const ImRect &bb, const ImVec4 &color, const float &offset);
+
+void ActionBlock(const char* label, const ImRect &bb, const ImVec4 &color);
+
+void ModifierBlock(const char* label, const ImRect &bb, double *dragleft, double *dragright, const ImVec4 &color);
+
+void Drag(const char* label, const ImRect &bb, double *value);
 
 }
