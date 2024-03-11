@@ -681,21 +681,15 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
 {
     if (m_isDrivingSimulation)
     {
+        if (m_program.isEmpty())
+            return;
+
+        double eps = 1e-5;
         static bool reverse = false;
-        static bool isProgramEmpty = false;
+        double dt = reverse? -groot->getDt(): groot->getDt();
+        double programDuration = m_program.getDuration();
 
-        if (reverse)
-        {
-            groot->setTime(groot->getTime() - 2 * groot->getDt());
-            if (groot->getTime() <= 0. || isProgramEmpty)
-            {
-                reverse = false;
-            }
-        }
-        m_time = groot->getTime();
-
-        isProgramEmpty = true;
-        for (const auto& track: m_program.getTracks())
+        for (const auto& track: m_program.getTracks()) // allow the mofifiers to do their jobs first
         {
             const auto& modifiers = track->getModifiers();
             for (const auto& modifier: modifiers)
@@ -703,18 +697,57 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                 modifier->modify(m_time);
                 groot->setTime(m_time);
             }
+        }
 
-            double blockEnd = 0.f;
-            double blockStart = 0.f;
+        if (groot->getTime() >= programDuration - eps) // if we've reached the end of the program
+        {
+            if (m_repeat) // start from beginning
+            {
+                groot->setTime(0.);
+
+                for (const auto& track: m_program.getTracks())
+                {
+                    const auto& modifiers = track->getModifiers();
+                    for (const auto& modifier: modifiers)
+                        modifier->reset();
+                }
+            }
+            else if (m_reverse)
+            {
+                reverse = true;
+                dt = -groot->getDt();
+            }
+            else // nothing to do, exit
+            {
+                groot->setTime(programDuration);
+                m_time = programDuration;
+                return;
+            }
+        }
+
+        if (reverse)
+        {
+            if (groot->getTime() <= eps)
+            {
+                reverse = false;
+                dt = groot->getDt();
+            }
+        }
+
+        m_time = groot->getTime(); // time at the beginning of the time step
+
+        for (const auto& track: m_program.getTracks())
+        {
+            double blockEnd = 0;
+            double blockStart = 0;
             const auto& actions = track->getActions();
             for (const auto& action: actions)
             {
-                isProgramEmpty = false;
                 blockEnd += action->getDuration();
-                if ((blockEnd >= m_time && !reverse) || (blockEnd > m_time && reverse))
+                if ((!reverse && (blockEnd - m_time) > eps) || (reverse && (blockEnd - m_time - dt) > eps))
                 {
                     RigidCoord position;
-                    if (action->getTCPAtTime(position, m_time - blockStart))
+                    if (action->getTCPAtTime(position, m_time + dt - blockStart)) // apply the time corresponding to the end of the time step
                     {
                         m_TCPTarget->setPosition(position);
                     }
@@ -722,41 +755,16 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                 }
                 blockStart = blockEnd;
             }
-
-            if (m_time > blockEnd)
-            {
-                if (m_repeat)
-                {
-                    m_time = 0.f;
-                    groot->setTime(m_time);
-
-                    const auto& modifiers = track->getModifiers();
-                    for (const auto& modifier: modifiers)
-                        modifier->reset();
-                }
-                else if (m_reverse && !isProgramEmpty)
-                {
-                    reverse = true;
-                }
-                else
-                {
-                    m_time -= groot->getDt();
-                    groot->setTime(m_time);
-                }
-            }
         }
 
-        if (isProgramEmpty)
-        {
-            m_time = 0.f;
-            groot->setTime(m_time);
-        }
-    }
+        m_time += dt; // for cursor display
+    } // isDrivingSimulation
 }
 
 void ProgramWindow::animateEndEvent(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
+    groot->setTime(m_time);
 }
 
 void ProgramWindow::setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget)

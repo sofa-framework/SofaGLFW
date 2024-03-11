@@ -230,6 +230,37 @@ bool Program::checkExtension(const std::string &filename)
     return isExtensionKnown;
 }
 
+double Program::getDuration()
+{
+    double duration = 0.;
+
+    for (const auto& track: m_tracks)
+    {
+        double trackDuration = 0.;
+        const auto& actions = track->getActions();
+        for (const auto& action: actions)
+        {
+            trackDuration += action->getDuration();
+        }
+        if (duration < trackDuration)
+            duration = trackDuration;
+    }
+
+    return duration;
+}
+
+bool Program::isEmpty()
+{
+    for (const auto& track: m_tracks)
+    {
+        const auto& actions = track->getActions();
+        if (!actions.empty())
+            return false;
+    }
+
+    return true;
+}
+
 } // namespace
 
 

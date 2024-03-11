@@ -42,7 +42,7 @@ Repeat::Repeat(const int &iterations,
 
 void Repeat::modify(double &time)
 {
-    if (time > m_endTime && m_counts > 0)
+    if (time + 1e-5 > m_endTime && m_counts > 0)
     {
         time = m_startTime;
         m_counts--;

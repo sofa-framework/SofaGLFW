@@ -57,6 +57,9 @@ class Program
     void removeTrack(const sofa::Index &index) {m_tracks.erase(m_tracks.begin() + index);}
     void clearTracks();
 
+    double getDuration();
+    bool isEmpty();
+
    protected:
 
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
