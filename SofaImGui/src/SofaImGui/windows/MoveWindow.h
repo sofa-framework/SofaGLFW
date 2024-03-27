@@ -38,10 +38,21 @@ class MoveWindow : public BaseWindow
 
    protected:
 
+    int m_TCPMaxPosition{500};
+    int m_TCPMinPosition{-500};
+    double m_TCPMaxOrientation{M_PI};
+    double m_TCPMinOrientation{-M_PI};
+
+    int m_maxActuatorPosition{500};
+    int m_minActuatorPosition{-500};
+    double m_maxActuatorOrientation{M_PI};
+    double m_minActuatorOrientation{-M_PI};
+
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
 
-    void showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int &offset, const ImVec4& color);
-    void showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const ImVec4 &color);
+    void checkLimits(sofa::simulation::Node* groot);
+    bool showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int &offset, const ImVec4& color);
+    bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const ImVec4 &color);
 };
 
 }

@@ -37,11 +37,54 @@ MoveWindow::MoveWindow(const std::string& name,
     m_isDrivingSimulation = true;
 }
 
+
+void MoveWindow::checkLimits(sofa::simulation::Node* groot)
+{
+    const auto& node = groot->getChild("UserInterface");
+    if(node != nullptr)
+    {
+        const auto& data = node->getDataFields();
+        for(auto d: data)
+        {
+            const std::string& value = d->getValueString();
+            std::string name = d->getName();
+            const std::string& group = d->getGroup();
+
+            if(group.find("Move") != std::string::npos)
+            {
+                if(name.find("TCP") != std::string::npos)
+                {
+                    if(name.find("MinPosition") != std::string::npos)
+                        m_TCPMinPosition = std::stoi(value);
+                    if(name.find("MaxPosition") != std::string::npos)
+                        m_TCPMaxPosition = std::stoi(value);
+                    if(name.find("MinOrientation") != std::string::npos)
+                        m_TCPMinOrientation = std::stod(value);
+                    if(name.find("MaxOrientation") != std::string::npos)
+                        m_TCPMaxOrientation = std::stod(value);
+                }
+                else if (name.find("Actuators") != std::string::npos)
+                {
+
+                }
+
+            }
+        }
+    }
+}
+
+
 void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlags &windowFlags)
 {
-    SOFA_UNUSED(groot);
     if (m_isWindowOpen)
     {
+        static bool firstTime = true;
+        if (firstTime)
+        {
+            checkLimits(groot);
+            firstTime = false;
+        }
+
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             ImGui::Spacing();
@@ -93,11 +136,12 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Spacing();
 
             ImGui::Unindent();
+            ImGui::Unindent();
+
+            ImGui::Spacing();
 
             if (m_isDrivingSimulation)
                 m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
-
-            ImGui::Unindent();
 
             ImGui::End();
         }
@@ -105,8 +149,9 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
     }
 }
 
-void MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int &offset, const ImVec4& color)
+bool MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int &offset, const ImVec4& color)
 {
+    bool hasValueChanged = false;
     ImGui::AlignTextToFramePadding();
     ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
     ImGui::Text("%s", name);
@@ -114,20 +159,23 @@ void MoveWindow::showSliderInt(const char* name, const char* label1, const char*
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    ImGui::SliderInt(label1, v, -500 + offset, 500 + offset, "%0.f", ImGuiSliderFlags_NoInput);
+    if (ImGui::SliderInt(label1, v, m_TCPMinPosition + offset, m_TCPMaxPosition + offset, "%0.f", ImGuiSliderFlags_NoInput))
+        hasValueChanged = true;
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    ImGui::InputInt(label2, v, 1, 5);
+    if (ImGui::InputInt(label2, v, 1, 5))
+        hasValueChanged = true;
     ImGui::PopItemWidth();
+
+    return hasValueChanged;
 }
 
-void MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const ImVec4& color)
+bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const ImVec4& color)
 {
-    double pi = 3.1415;
-    double mpi = -pi;
+    bool hasValueChanged = false;
 
     ImGui::AlignTextToFramePadding();
     ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
@@ -136,14 +184,18 @@ void MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &mpi, &pi, "%0.2f", ImGuiSliderFlags_NoInput);
+    if (ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &m_TCPMinOrientation, &m_TCPMaxOrientation, "%0.2f", ImGuiSliderFlags_NoInput))
+        hasValueChanged=true;
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    ImGui::InputDouble(label2, v, 0.01, 0.1, "%0.2f");
+    if (ImGui::InputDouble(label2, v, 0.01, 0.1, "%0.2f"))
+        hasValueChanged=true;
     ImGui::PopItemWidth();
+
+    return hasValueChanged;
 }
 
 }
