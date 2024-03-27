@@ -32,9 +32,9 @@
 #if SOFAIMGUI_WITH_ROS == 1
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float32_multi_array.hpp>
+using namespace std::chrono_literals;
 #endif
 
-using namespace std::chrono_literals;
 
 namespace sofaimgui::windows {
 
