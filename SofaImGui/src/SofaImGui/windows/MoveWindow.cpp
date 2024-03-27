@@ -165,8 +165,9 @@ bool MoveWindow::showSliderInt(const char* name, const char* label1, const char*
 
     ImGui::SameLine();
 
+    double step = m_TCPMaxPosition - m_TCPMinPosition;
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    if (ImGui::InputInt(label2, v, 1, 5))
+    if (ImGui::InputInt(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1))
         hasValueChanged = true;
     ImGui::PopItemWidth();
 
@@ -190,8 +191,10 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
 
     ImGui::SameLine();
 
+    double step = m_TCPMaxOrientation - m_TCPMinOrientation;
+
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    if (ImGui::InputDouble(label2, v, 0.01, 0.1, "%0.2f"))
+    if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, "%0.2f"))
         hasValueChanged=true;
     ImGui::PopItemWidth();
 
