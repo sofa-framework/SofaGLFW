@@ -485,11 +485,14 @@ void SofaGLFWBaseGUI::terminate()
 
 void SofaGLFWBaseGUI::error_callback(int error, const char* description)
 {
+    SOFA_UNUSED(error);
     msg_error("SofaGLFWBaseGUI") << "Error: " << description << ".";
 }
  
 void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    SOFA_UNUSED(scancode);
+
     switch (key)
     {
         case GLFW_KEY_F:
@@ -611,6 +614,8 @@ void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
 
 void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
 {
+    SOFA_UNUSED(window);
+    SOFA_UNUSED(focused);
     //if (focused)
     //{
     //    // The window gained input focus
@@ -622,6 +627,9 @@ void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
 }
 void SofaGLFWBaseGUI::cursor_enter_callback(GLFWwindow* window, int entered)
 {
+    SOFA_UNUSED(window);
+    SOFA_UNUSED(entered);
+
     //if (entered)
     //{
     //    // The cursor entered the content area of the window
@@ -633,6 +641,9 @@ void SofaGLFWBaseGUI::cursor_enter_callback(GLFWwindow* window, int entered)
 }
 void SofaGLFWBaseGUI::monitor_callback(GLFWmonitor* monitor, int event)
 {
+    SOFA_UNUSED(monitor);
+    SOFA_UNUSED(event);
+
     //if (event == GLFW_CONNECTED)
     //{
     //    // The monitor was connected
@@ -645,6 +656,9 @@ void SofaGLFWBaseGUI::monitor_callback(GLFWmonitor* monitor, int event)
 
 void SofaGLFWBaseGUI::character_callback(GLFWwindow* window, unsigned int codepoint)
 {
+    SOFA_UNUSED(window);
+    SOFA_UNUSED(codepoint);
+
     // The callback function receives Unicode code points for key events
     // that would have led to regular text input and generally behaves as a standard text field on that platform.
 }
