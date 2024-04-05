@@ -64,6 +64,7 @@ set(IMGUI_HEADER_FILES
     resources/Style.h
     resources/ProgramStyle.h
 )
+
 set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp

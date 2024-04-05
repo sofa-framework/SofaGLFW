@@ -32,7 +32,25 @@ class MyRobotWindow : public BaseWindow
     MyRobotWindow(const std::string& name, const bool& isWindowOpen);
     ~MyRobotWindow() = default;
 
-    void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
+    void showWindow(const ImGuiWindowFlags &windowFlags);
+
+    struct Information{
+        std::string description;
+        sofa::core::BaseData* data;
+    };
+
+    struct Setting{
+        std::string description;
+        sofa::core::BaseData* data;
+    };
+
+    void addInformation(const Information &info) {m_informations.push_back(info);}
+    void addSetting(const Setting &setting) {m_settings.push_back(setting);}
+
+   protected:
+
+    std::vector<Information> m_informations;
+    std::vector<Setting> m_settings;
 };
 
 }

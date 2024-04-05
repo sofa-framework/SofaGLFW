@@ -60,7 +60,7 @@ void IOWindow::init()
 void IOWindow::showWindow(sofa::simulation::Node *groot,
                           const ImGuiWindowFlags &windowFlags)
 {
-    if (m_isWindowOpen)
+    if (m_isWindowOpen && m_TCPTarget != nullptr)
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {

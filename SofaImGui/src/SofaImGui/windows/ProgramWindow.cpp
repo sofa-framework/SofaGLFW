@@ -51,7 +51,7 @@ ProgramWindow::ProgramWindow(const std::string& name,
 void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                                const ImGuiWindowFlags& windowFlags)
 {
-    if (m_isWindowOpen)
+    if (m_isWindowOpen && m_TCPTarget != nullptr)
     {
         if (baseGUI)
             m_baseGUI = baseGUI;

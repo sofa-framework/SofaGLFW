@@ -37,54 +37,24 @@ MoveWindow::MoveWindow(const std::string& name,
     m_isDrivingSimulation = true;
 }
 
-
-void MoveWindow::checkLimits(sofa::simulation::Node* groot)
+void MoveWindow::setTCPLimits(int minPosition, int maxPosition, double minOrientation, double maxOrientation)
 {
-    const auto& node = groot->getChild("UserInterface");
-    if(node != nullptr)
-    {
-        const auto& data = node->getDataFields();
-        for(auto d: data)
-        {
-            const std::string& value = d->getValueString();
-            std::string name = d->getName();
-            const std::string& group = d->getGroup();
-
-            if(group.find("Move") != std::string::npos)
-            {
-                if(name.find("TCP") != std::string::npos)
-                {
-                    if(name.find("MinPosition") != std::string::npos)
-                        m_TCPMinPosition = std::stoi(value);
-                    if(name.find("MaxPosition") != std::string::npos)
-                        m_TCPMaxPosition = std::stoi(value);
-                    if(name.find("MinOrientation") != std::string::npos)
-                        m_TCPMinOrientation = std::stod(value);
-                    if(name.find("MaxOrientation") != std::string::npos)
-                        m_TCPMaxOrientation = std::stod(value);
-                }
-                else if (name.find("Actuators") != std::string::npos)
-                {
-
-                }
-
-            }
-        }
-    }
+    m_TCPMinPosition = minPosition;
+    m_TCPMaxPosition = maxPosition;
+    m_TCPMinOrientation = minOrientation;
+    m_TCPMaxOrientation = maxOrientation;
 }
 
+void MoveWindow::setActuatorsLimits(double min, double max)
+{
+    m_actuatorsMin = min;
+    m_actuatorsMax = max;
+}
 
-void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlags &windowFlags)
+void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
     {
-        static bool firstTime = true;
-        if (firstTime)
-        {
-            checkLimits(groot);
-            firstTime = false;
-        }
-
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             ImGui::Spacing();
@@ -108,11 +78,11 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
 
             const auto &initPosition = m_TCPTarget->getInitPosition();
-            showSliderInt("X", "##Xpos", "##XposInput", &x, initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            showSliderInt("X", "##XSlider", "##XInput", &x, m_TCPMinPosition, m_TCPMaxPosition, initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderInt("Y", "##Ypos", "##YposInput", &y, initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            showSliderInt("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition, m_TCPMaxPosition, initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderInt("Z", "##Zpos", "##ZposInput", &z, initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            showSliderInt("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition, m_TCPMaxPosition, initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
             ImGui::Spacing();
 
             ImGui::Unindent();
@@ -128,44 +98,77 @@ void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlag
             ImGui::Indent();
             ImGui::Indent();
 
-            showSliderDouble("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderDouble("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Spacing();
-            showSliderDouble("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
             ImGui::Spacing();
 
             ImGui::Unindent();
             ImGui::Unindent();
-
-            ImGui::Spacing();
 
             if (m_isDrivingSimulation)
                 m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
 
+            ImGui::Spacing();
+
+            if (!m_actuators.empty())
+            {
+                ImGui::Indent();
+                ImGui::Text("Motors effort:");
+                ImGui::Spacing();
+                ImGui::Unindent();
+
+                ImGui::Indent();
+                ImGui::Indent();
+
+                int nbActuators = m_actuators.size();
+                for (int i=0; i<nbActuators; i++)
+                {
+                    std::string name = "M" + std::to_string(i);
+                    double buffer = std::stod(m_actuators[i]->getValueString());
+                    bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax);
+                    if (hasChanged)
+                        m_actuators[i]->read(std::to_string(buffer));
+                }
+
+                ImGui::Unindent();
+                ImGui::Unindent();
+            }
+
             ImGui::End();
         }
-
     }
 }
 
-bool MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int &offset, const ImVec4& color)
+bool MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int & min, const int & max, const int &offset, const ImVec4& color)
+{
+    ImGui::AlignTextToFramePadding();
+    ImGui::PushStyleColor(ImGuiCol_Text, color);
+    ImGui::Text("l");
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+
+    return showSliderInt(name, label1, label2, v, min, max, offset);
+}
+
+bool MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int & min, const int & max, const int &offset)
 {
     bool hasValueChanged = false;
-    ImGui::AlignTextToFramePadding();
-    ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
-    ImGui::Text("%s", name);
 
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("%s", name);
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    if (ImGui::SliderInt(label1, v, m_TCPMinPosition + offset, m_TCPMaxPosition + offset, "%0.f", ImGuiSliderFlags_NoInput))
+    if (ImGui::SliderInt(label1, v, min + offset, max + offset, "%0.f", ImGuiSliderFlags_NoInput))
         hasValueChanged = true;
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
-    double step = m_TCPMaxPosition - m_TCPMinPosition;
+    double step = max - min;
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
     if (ImGui::InputInt(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1))
         hasValueChanged = true;
@@ -174,24 +177,33 @@ bool MoveWindow::showSliderInt(const char* name, const char* label1, const char*
     return hasValueChanged;
 }
 
-bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const ImVec4& color)
+bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4& color)
+{
+    ImGui::AlignTextToFramePadding();
+    ImGui::PushStyleColor(ImGuiCol_Text, color);
+    ImGui::Text("l");
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+
+    return showSliderDouble(name, label1, label2, v, min, max);
+}
+
+bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const double& min, const double& max)
 {
     bool hasValueChanged = false;
 
     ImGui::AlignTextToFramePadding();
-    ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
     ImGui::Text("%s", name);
-
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    if (ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &m_TCPMinOrientation, &m_TCPMaxOrientation, "%0.2f", ImGuiSliderFlags_NoInput))
+    if (ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput))
         hasValueChanged=true;
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
-    double step = m_TCPMaxOrientation - m_TCPMinOrientation;
+    double step = max - min;
 
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
     if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, "%0.2f"))

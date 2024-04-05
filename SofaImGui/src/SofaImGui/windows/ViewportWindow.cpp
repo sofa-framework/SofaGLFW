@@ -54,7 +54,7 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
 
             m_isMouseOnViewport = ImGui::IsItemHovered();
 
-            addStateWindow(groot);
+            addStateWindow();
             addSimulationTimeAndFPS(groot);
 
             ImGui::EndChild();
@@ -63,10 +63,10 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
     }
 }
 
-void ViewportWindow::addStateWindow(sofa::simulation::Node* groot)
+void ViewportWindow::addStateWindow()
 {
     ImGui::SetNextWindowPos(ImGui::GetWindowPos());  // attach the state window to top left of the viewport window
-    m_stateWindow.showWindow(groot);
+    m_stateWindow.showWindow();
 }
 
 bool ViewportWindow::addStepButton()

@@ -38,10 +38,10 @@ class TCPTarget
         LINEAR
     };
 
-    TCPTarget(sofa::simulation::Node::SPtr groot);
+    TCPTarget(sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
     ~TCPTarget() = default;
 
-    void init(sofa::simulation::Node::SPtr groot);
+    void init();
 
     const RigidCoord& getInitPosition();
 
@@ -52,12 +52,11 @@ class TCPTarget
     void setPosition(const int &x, const int &y, const int &z, const double &rx, const double &ry, const double &rz);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
-    bool isInSimulation() {return m_state!=nullptr;}
 
    protected:
 
-    sofa::core::behavior::BaseMechanicalState::SPtr m_state;
     sofa::simulation::Node::SPtr m_groot;
+    sofa::core::behavior::BaseMechanicalState::SPtr m_state;
     RigidCoord m_initPosition;
 
 };

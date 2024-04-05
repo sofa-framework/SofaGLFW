@@ -68,9 +68,7 @@ public:
     void animateBeginEvent(sofa::simulation::Node* groot) override;
     void animateEndEvent(sofa::simulation::Node* groot) override;
 
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
+    void setTCPTarget(sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
 
     // windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", false);
     windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("       Viewport", true);
@@ -79,6 +77,10 @@ protected:
     windows::ProgramWindow m_programWindow = windows::ProgramWindow("       Program", true);
     windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("       My Robot", true);
     windows::MoveWindow m_moveWindow = windows::MoveWindow("       Move", true);
+
+protected:
+    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
+    std::pair<unsigned int, unsigned int> m_currentFBOSize;
 
     CSimpleIniA ini;
 

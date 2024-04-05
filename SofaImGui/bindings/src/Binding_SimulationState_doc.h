@@ -1,6 +1,6 @@
 /******************************************************************************
-*                 SOFA, Simulation Open-Framework Architecture                *
-*                    (c) 2021 INRIA, USTL, UJF, CNRS, MGH                     *
+*                              SofaPython3 plugin                             *
+*                  (c) 2021 CNRS, University of Lille, INRIA                  *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -18,39 +18,15 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-#include <pybind11/pybind11.h>
+#pragma once
 
-#include <SofaImGui/init.h>
-#include <Binding_MoveWindow.h>
-#include <Binding_MyRobotWindow.h>
-#include <Binding_SimulationState.h>
-
-#include <sofa/gui/common/GUIManager.h>
-#include <sofa/core/behavior/BaseMechanicalState.h>
-
-#include <SofaImGui/ImGuiGUI.h>
-#include <SofaImGui/ImGuiGUIEngine.h>
-
-
-namespace py { using namespace pybind11; }
-
-namespace sofaimgui::python3
+namespace sofaimgui::python3::doc
 {
+static auto SimulationState = R"(
+        Usage:
 
-void setTCPTarget(sofa::simulation::Node &target)
-{
-    ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
-    std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
-    engine->setTCPTarget(target.getMechanicalState());
+        import Sofa.ImGui
+
+        Sofa.ImGui.SimulationState
+         )";
 }
-
-PYBIND11_MODULE(ImGui, m)
-{
-    m.def("setTCPTarget", &setTCPTarget);
-
-    moduleAddMoveWindow(m);
-    moduleAddMyRobotWindow(m);
-    moduleAddSimulationState(m);
-}
-
-} // namespace sofaimgui::python3

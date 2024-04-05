@@ -32,7 +32,19 @@ class StateWindow : public BaseWindow
     StateWindow(const std::string& name, const bool& isWindowOpen);
     ~StateWindow() = default;
 
-    void showWindow(sofa::simulation::Node *groot);
+    void showWindow();
+
+    struct StateData {
+        std::string group;
+        std::string description;
+        sofa::core::BaseData* data;
+    };
+
+    void clearStateData() {m_stateData.clear();}
+    void addStateData(StateData &data) {m_stateData.push_back(data);}
+
+  protected:
+    std::vector<StateData> m_stateData;
 };
 
 }

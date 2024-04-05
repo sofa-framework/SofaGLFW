@@ -43,11 +43,13 @@ class ViewportWindow : public BaseWindow
     std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};
 
+    StateWindow& getStateWindow() {return m_stateWindow;}
+
    protected:
 
     StateWindow m_stateWindow = windows::StateWindow("State", true);
 
-    void addStateWindow(sofa::simulation::Node* groot);
+    void addStateWindow();
     void addSimulationTimeAndFPS(sofa::simulation::Node *groot);
 
 };
