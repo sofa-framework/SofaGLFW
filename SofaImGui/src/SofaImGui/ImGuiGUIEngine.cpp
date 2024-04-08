@@ -175,11 +175,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         if (!m_TCPTarget)
         {
-            m_IOWindow.setWindowOpen(false);
-            m_moveWindow.setWindowOpen(false);
             m_programWindow.setWindowOpen(false);
             m_myRobotWindow.setWindowOpen(false);
         }
+
+        m_IOWindow.setSimulationState(m_simulationState);
+        m_stateWindow->setSimulationState(m_simulationState);
     }
 
     showViewportWindow(baseGUI);
@@ -285,10 +286,6 @@ void ImGuiGUIEngine::initDockSpace()
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.32f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
 
-        // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
-        // ImGui::DockBuilderDockWindow(m_workspaceWindow.m_name.c_str(), dock_id_left);
-        // ImGui::DockBuilderGetNode(dock_id_left)->WantHiddenTabBarToggle = true;
-
         ImGui::DockBuilderDockWindow(m_viewportWindow.getName().c_str(), dockspaceID);
         ImGui::DockBuilderGetNode(dockspaceID)->WantHiddenTabBarToggle = true;
 
@@ -386,19 +383,27 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     if (ImGui::BeginMainMenuBar())
     {
-        if(menus::FileMenu(baseGUI).addMenu())
+        menus::FileMenu fileMenu(baseGUI);
+        if(fileMenu.addMenu())
         {
+            m_simulationState.clearStateData();
+            m_myRobotWindow.clearData();
+
+            Utils::reloadSimulation(baseGUI, fileMenu.getFilename());
+
             auto groot = baseGUI->getRootNode().get();
-            m_programWindow.update(groot);
+            m_programWindow.addTrajectoryComponents(groot);
+            m_IOWindow.setSimulationState(m_simulationState);
+            m_stateWindow->setSimulationState(m_simulationState);
         }
         menus::ViewMenu(baseGUI).addMenu(m_currentFBOSize, m_fbo->getColorTexture());
 
         if (ImGui::BeginMenu("Windows"))
         {
-            if (!m_TCPTarget)
-                ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.isWindowOpen());
+            if (!m_TCPTarget)
+                ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
             if (!m_TCPTarget)
@@ -435,33 +440,8 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
 
         { // Simulation / Robot button
-            static bool connected = false;
-            ImGui::LocalToggleButton("Connection", &connected);
-
-            if (ImGui::IsItemClicked())
-            {
-                auto groot = baseGUI->getRootNode().get();
-                const auto& node = groot->getChild("UserInterface");
-                if(node != nullptr)
-                {
-                    auto& data = node->getDataFields();
-                    for(auto& d: data)
-                    {
-                        std::string name = d->getName();
-                        const std::string& group = d->getGroup();
-
-                        if(group.find("connection") != std::string::npos)
-                        {
-                            if(name.find("connectRobot") != std::string::npos)
-                            {
-                                d->read(connected? "1": "0");
-                            }
-                        }
-                    }
-                }
-            }
-
-            ImGui::Text(connected? "Robot" : "Simulation");
+            ImGui::LocalToggleButton("Connection", &m_robotConnection);
+            ImGui::Text(m_robotConnection? "Robot" : "Simulation");
         }
 
         const auto posX = ImGui::GetCursorPosX();

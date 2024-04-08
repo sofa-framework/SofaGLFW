@@ -57,8 +57,8 @@ class ProgramWindow : public BaseWindow
     void setTime(const double &time) {m_time=time;}
     void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
-
-    void update(sofa::simulation::Node* groot);
+    
+    void addTrajectoryComponents(sofa::simulation::Node* groot);
 
    protected:
 

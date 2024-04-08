@@ -27,6 +27,7 @@
 
 #include <SofaImGui/config.h>
 #include <SofaImGui/windows/BaseWindow.h>
+#include <SofaImGui/models/SimulationState.h>
 #include <imgui.h>
 
 #if SOFAIMGUI_WITH_ROS == 1
@@ -117,12 +118,15 @@ class IOWindow : public BaseWindow
     IOWindow(const std::string& name, const bool& isWindowOpen);
     ~IOWindow();
 
+    typedef typename sofa::defaulttype::RigidCoord<3, double> RigidCoord;
+
     void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
 
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);
 
     void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
+    void setSimulationState(const models::SimulationState &simulationState);
 
    protected:
 
@@ -138,15 +142,15 @@ class IOWindow : public BaseWindow
 
     void init();
 
-    void showOutput(const std::map<std::string, std::vector<float> > &simulationStateList);
-    void showInput(const std::map<std::string, std::vector<float> > &simulationStateList);
+    void showOutput();
+    void showInput();
 
-    std::map<std::string, std::vector<float> > getSimulationStateList(const sofa::core::sptr<sofa::simulation::Node>& groot);
+    std::map<std::string, std::vector<float> > m_simulationState;
 
 #if SOFAIMGUI_WITH_ROS == 1
     std::shared_ptr<ROSNode> m_rosnode;
 
-    void showROSWindow(const std::map<std::string, std::vector<float> > &simulationStateList);
+    void showROSWindow();
     void animateBeginEventROS(sofa::simulation::Node *groot);
     void animateEndEventROS(sofa::simulation::Node *groot);
 #endif

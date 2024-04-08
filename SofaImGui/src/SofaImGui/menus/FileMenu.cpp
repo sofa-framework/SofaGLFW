@@ -111,8 +111,12 @@ bool FileMenu::addOpenSimulation()
         nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
         if (result == NFD_OKAY)
         {
-            Utils::reloadSimulation(m_baseGUI, outPath);
+            m_filename = outPath;
             NFD_FreePath(outPath);
+        }
+        else
+        {
+            clicked = false;
         }
     }
     return clicked;
@@ -125,7 +129,7 @@ bool FileMenu::addReloadSimulation()
     if (ImGui::MenuItem("Reload Simulation"))
     {
         clicked = true;
-        Utils::reloadSimulation(m_baseGUI, filename);
+        m_filename = filename;
     }
     ImGui::SetItemTooltip("%s", filename.c_str());
 

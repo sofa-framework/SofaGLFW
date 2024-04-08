@@ -33,9 +33,14 @@ StateWindow::StateWindow(const std::string& name,
     m_isWindowOpen = isWindowOpen;
 }
 
+void StateWindow::setSimulationState(const models::SimulationState &simulationState)
+{
+    m_simulationStateData = simulationState.getStateData();
+}
+
 void StateWindow::showWindow()
 {
-    if (m_isWindowOpen)
+    if (m_isWindowOpen && !m_simulationStateData.empty())
     {
         static bool openstate = true;
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.20f, 0.34f, 0.05f));
@@ -47,7 +52,7 @@ void StateWindow::showWindow()
                 if (ImGui::BeginTable("StateColumns", 2, ImGuiTableFlags_None))
                 {
                     std::string groups;
-                    for (const auto& d: m_stateData)
+                    for (const auto& d: m_simulationStateData)
                     {
                         const std::string& value = d.data->getValueString();
                         const std::string& description = d.description;

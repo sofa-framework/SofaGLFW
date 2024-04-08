@@ -53,68 +53,71 @@ void MoveWindow::setActuatorsLimits(double min, double max)
 
 void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 {
-    if (m_isWindowOpen)
+    if (m_isWindowOpen && (m_TCPTarget != nullptr || !m_actuators.empty()))
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            ImGui::Spacing();
+            if (m_TCPTarget != nullptr)
+            {
+                ImGui::Spacing();
 
-            static int x=0;
-            static int y=0;
-            static int z=0;
-            static double rx=0.;
-            static double ry=0.;
-            static double rz=0.;
+                static int x=0;
+                static int y=0;
+                static int z=0;
+                static double rx=0.;
+                static double ry=0.;
+                static double rz=0.;
 
-            if(m_isDrivingSimulation)
-                m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
+                if(m_isDrivingSimulation)
+                    m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
 
-            ImGui::Indent();
-            ImGui::Text("TCP Target Position (mm):");
-            ImGui::Spacing();
-            ImGui::Unindent();
+                ImGui::Indent();
+                ImGui::Text("TCP Target Position (mm):");
+                ImGui::Spacing();
+                ImGui::Unindent();
 
-            ImGui::Indent();
-            ImGui::Indent();
+                ImGui::Indent();
+                ImGui::Indent();
 
-            const auto &initPosition = m_TCPTarget->getInitPosition();
-            showSliderInt("X", "##XSlider", "##XInput", &x, m_TCPMinPosition, m_TCPMaxPosition, initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderInt("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition, m_TCPMaxPosition, initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderInt("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition, m_TCPMaxPosition, initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-            ImGui::Spacing();
+                const auto &initPosition = m_TCPTarget->getInitPosition();
+                showSliderInt("X", "##XSlider", "##XInput", &x, m_TCPMinPosition, m_TCPMaxPosition, initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderInt("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition, m_TCPMaxPosition, initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderInt("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition, m_TCPMaxPosition, initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                ImGui::Spacing();
 
-            ImGui::Unindent();
-            ImGui::Unindent();
+                ImGui::Unindent();
+                ImGui::Unindent();
 
-            ImGui::Spacing();
+                ImGui::Spacing();
 
-            ImGui::Indent();
-            ImGui::Text("TCP Target Rotation (rad):");
-            ImGui::Spacing();
-            ImGui::Unindent();
+                ImGui::Indent();
+                ImGui::Text("TCP Target Rotation (rad):");
+                ImGui::Spacing();
+                ImGui::Unindent();
 
-            ImGui::Indent();
-            ImGui::Indent();
+                ImGui::Indent();
+                ImGui::Indent();
 
-            showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-            ImGui::Spacing();
+                showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                ImGui::Spacing();
 
-            ImGui::Unindent();
-            ImGui::Unindent();
+                ImGui::Unindent();
+                ImGui::Unindent();
 
-            if (m_isDrivingSimulation)
-                m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
-
-            ImGui::Spacing();
+                if (m_isDrivingSimulation)
+                    m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
+            }
 
             if (!m_actuators.empty())
             {
+                ImGui::Spacing();
+
                 ImGui::Indent();
                 ImGui::Text("Motors effort:");
                 ImGui::Spacing();
@@ -130,7 +133,11 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     double buffer = std::stod(m_actuators[i]->getValueString());
                     bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax);
                     if (hasChanged)
+                    {
                         m_actuators[i]->read(std::to_string(buffer));
+                    } else {
+
+                    }
                 }
 
                 ImGui::Unindent();

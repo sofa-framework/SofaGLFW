@@ -30,7 +30,7 @@ namespace sofaimgui::windows {
 class ViewportWindow : public BaseWindow
 {
    public:
-    ViewportWindow(const std::string& name, const bool& isWindowOpen);
+    ViewportWindow(const std::string& name, const bool& isWindowOpen, std::shared_ptr<StateWindow> stateWindow);
     ~ViewportWindow() = default;
 
     void showWindow(sofa::simulation::Node *groot, const ImTextureID& texture,
@@ -43,11 +43,9 @@ class ViewportWindow : public BaseWindow
     std::pair<float, float> m_windowSize{0., 0.};
     bool m_isMouseOnViewport{false};
 
-    StateWindow& getStateWindow() {return m_stateWindow;}
-
    protected:
 
-    StateWindow m_stateWindow = windows::StateWindow("State", true);
+    std::shared_ptr<StateWindow> m_stateWindow;
 
     void addStateWindow();
     void addSimulationTimeAndFPS(sofa::simulation::Node *groot);

@@ -91,7 +91,6 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.h
 
     ${SOFAIMGUI_SOURCE_DIR}/widgets/Buttons.h
 
@@ -105,6 +104,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/models/modifiers/Repeat.h
 
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.h
+    ${SOFAIMGUI_SOURCE_DIR}/models/SimulationState.h
     ${SOFAIMGUI_SOURCE_DIR}/models/TCPTarget.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Track.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.h
@@ -127,7 +127,6 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/widgets/Buttons.cpp
 
@@ -143,6 +142,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/models/modifiers/views/RepeatView.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/SimulationState.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/TCPTarget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/Track.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.cpp

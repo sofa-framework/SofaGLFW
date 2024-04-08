@@ -778,7 +778,7 @@ void ProgramWindow::setDrivingTCPTarget(const bool &isDrivingSimulation)
     m_isDrivingSimulation=isDrivingSimulation;
 }
 
-void ProgramWindow::update(sofa::simulation::Node* groot)
+void ProgramWindow::addTrajectoryComponents(sofa::simulation::Node* groot)
 {
     const auto& tracks = m_program.getTracks();
     for (const auto& track: tracks)

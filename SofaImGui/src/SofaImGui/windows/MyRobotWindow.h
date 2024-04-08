@@ -44,12 +44,13 @@ class MyRobotWindow : public BaseWindow
         sofa::core::BaseData* data;
     };
 
-    void addInformation(const Information &info) {m_informations.push_back(info);}
+    void clearData();
+    void addInformation(const Information &info) {m_information.push_back(info);}
     void addSetting(const Setting &setting) {m_settings.push_back(setting);}
 
    protected:
 
-    std::vector<Information> m_informations;
+    std::vector<Information> m_information;
     std::vector<Setting> m_settings;
 };
 

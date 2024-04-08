@@ -44,29 +44,32 @@ namespace sofaimgui::python3
 void moduleAddMoveWindow(py::module &m) {
 
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
-    std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
 
-    auto m_a = m.def_submodule("MoveWindow", "");
-    m_a.def("setTCPLimits",
-            [engine](const int &minPosition, const int &maxPosition, const double &minOrientation, const double &maxOrientation)
-            {
-                engine->m_moveWindow.setTCPLimits(minPosition, maxPosition, minOrientation, maxOrientation);
-            }, "Set the sliders limits."
-            );
+    if (gui)
+    {
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
+        auto m_a = m.def_submodule("MoveWindow", "");
+        m_a.def("setTCPLimits",
+                [engine](const int &minPosition, const int &maxPosition, const double &minOrientation, const double &maxOrientation)
+                {
+                    engine->m_moveWindow.setTCPLimits(minPosition, maxPosition, minOrientation, maxOrientation);
+                }, "Set the sliders limits."
+                );
 
-    m_a.def("setActuatorsLimits",
-            [engine](const double &min, const double &max)
-            {
-                engine->m_moveWindow.setActuatorsLimits(min, max);
-            }, "Set the sliders limits."
-            );
+        m_a.def("setActuatorsLimits",
+                [engine](const double &min, const double &max)
+                {
+                    engine->m_moveWindow.setActuatorsLimits(min, max);
+                }, "Set the sliders limits."
+                );
 
-    m_a.def("setActuators",
-            [engine](std::vector<sofa::core::objectmodel::BaseData*> actuators)
-            {
-                engine->m_moveWindow.setActuators(actuators);
-            }
-            );
+        m_a.def("setActuators",
+                [engine](std::vector<sofa::core::objectmodel::BaseData*> actuators)
+                {
+                    engine->m_moveWindow.setActuators(actuators);
+                }
+                );
+    }
  }
 
 

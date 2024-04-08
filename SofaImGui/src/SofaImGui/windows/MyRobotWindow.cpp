@@ -37,6 +37,12 @@ MyRobotWindow::MyRobotWindow(const std::string& name,
     m_isDrivingSimulation = true;
 }
 
+void MyRobotWindow::clearData()
+{
+    m_information.clear();
+    m_settings.clear();
+}
+
 void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
@@ -57,7 +63,7 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::TableNextColumn();
 
                 ImGui::BeginDisabled();
-                for (auto &information: m_informations)
+                for (auto &information: m_information)
                 {
                     ImGui::AlignTextToFramePadding();
                     ImGui::Text("%s: ", information.description.c_str());

@@ -44,19 +44,23 @@ namespace sofaimgui::python3
 void moduleAddSimulationState(py::module &m) {
 
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
-    std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
 
-    auto m_a = m.def_submodule("SimulationState", "");
-    m_a.def("addStateData",
-        [engine](std::string group, std::string description, sofa::core::BaseData* data)
-            {
-            windows::StateWindow::StateData stateData;
-            stateData.group = group;
-            stateData.description = description;
-            stateData.data = data;
-            engine->m_viewportWindow.getStateWindow().addStateData(stateData);
-            }
-            );
+    if (gui)
+    {
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
+
+        auto m_a = m.def_submodule("SimulationState", "");
+        m_a.def("addStateData",
+            [engine](std::string group, std::string description, sofa::core::BaseData* data)
+                {
+                    models::SimulationState::StateData stateData;
+                    stateData.group = group;
+                    stateData.description = description;
+                    stateData.data = data;
+                    engine->getSimulationState().addStateData(stateData);
+                }
+                );
+    }
  }
 
 }

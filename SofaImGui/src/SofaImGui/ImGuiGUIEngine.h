@@ -30,7 +30,6 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
-#include <SofaImGui/windows/WorkspaceWindow.h>
 #include <SofaImGui/windows/ViewportWindow.h>
 #include <SofaImGui/windows/SceneGraphWindow.h>
 #include <SofaImGui/windows/IOWindow.h>
@@ -39,6 +38,7 @@
 #include <SofaImGui/windows/ProgramWindow.h>
 
 #include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/SimulationState.h>
 
 
 struct GLFWwindow;
@@ -70,10 +70,13 @@ public:
 
     void setTCPTarget(sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
 
-    // windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", false);
-    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("       Viewport", true);
+    bool getRobotConnection() {return m_robotConnection;}
+    models::SimulationState& getSimulationState() {return m_simulationState;}
+
+    std::shared_ptr<windows::StateWindow> m_stateWindow = std::make_shared<windows::StateWindow>("State", true);
+    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("       Viewport", true, m_stateWindow);
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("       Scene Graph", false);
-    windows::IOWindow m_IOWindow = windows::IOWindow("       Input/Output", true);
+    windows::IOWindow m_IOWindow = windows::IOWindow("       Input/Output", false);
     windows::ProgramWindow m_programWindow = windows::ProgramWindow("       Program", true);
     windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("       My Robot", true);
     windows::MoveWindow m_moveWindow = windows::MoveWindow("       Move", true);
@@ -93,9 +96,11 @@ protected:
     void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
 
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    models::SimulationState m_simulationState;
     bool m_animate{false};
     int m_mode{0};
     bool m_nightStyle{false};
+    bool m_robotConnection{false};
 };
 
 } // namespace sofaimgui

@@ -26,7 +26,8 @@
 
 namespace sofaimgui::windows {
 
-ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen)
+ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen, std::shared_ptr<StateWindow> stateWindow)
+    : m_stateWindow(stateWindow)
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
@@ -66,7 +67,7 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
 void ViewportWindow::addStateWindow()
 {
     ImGui::SetNextWindowPos(ImGui::GetWindowPos());  // attach the state window to top left of the viewport window
-    m_stateWindow.showWindow();
+    m_stateWindow->showWindow();
 }
 
 bool ViewportWindow::addStepButton()

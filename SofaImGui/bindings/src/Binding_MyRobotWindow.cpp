@@ -43,28 +43,32 @@ namespace sofaimgui::python3
 void moduleAddMyRobotWindow(py::module &m) {
 
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
-    std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
 
-    auto m_a = m.def_submodule("MyRobotWindow", "");
-    m_a.def("addInformation",
-        [engine](const std::string &description, sofa::core::BaseData* data)
-            {
-                windows::MyRobotWindow::Information info;
-                info.description = description;
-                info.data = data;
-                engine->m_myRobotWindow.addInformation(info);
-            }, "Add an information to the window."
-            );
+    if (gui)
+    {
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
 
-    m_a.def("addSetting",
+        auto m_a = m.def_submodule("MyRobotWindow", "");
+        m_a.def("addInformation",
             [engine](const std::string &description, sofa::core::BaseData* data)
-            {
-                windows::MyRobotWindow::Setting setting;
-                setting.description = description;
-                setting.data = data;
-                engine->m_myRobotWindow.addSetting(setting);
-            }, "Add a setting to the window."
-            );
+                {
+                    windows::MyRobotWindow::Information info;
+                    info.description = description;
+                    info.data = data;
+                    engine->m_myRobotWindow.addInformation(info);
+                }, "Add an information to the window."
+                );
+
+        m_a.def("addSetting",
+                [engine](const std::string &description, sofa::core::BaseData* data)
+                {
+                    windows::MyRobotWindow::Setting setting;
+                    setting.description = description;
+                    setting.data = data;
+                    engine->m_myRobotWindow.addSetting(setting);
+                }, "Add a setting to the window."
+                );
+    }
  }
 
 
