@@ -46,12 +46,14 @@ bool FileMenu::addMenu()
     if (m_baseGUI == nullptr)
         return false;
 
-    bool clicked = false;
+    bool loadSimulation = false;
 
     if (ImGui::BeginMenu("File"))
     {
-        clicked = addOpenSimulation();
-        clicked = addReloadSimulation();
+        if(addOpenSimulation())
+            loadSimulation = true;
+        if(addReloadSimulation())
+            loadSimulation = true;
 
         ImGui::Separator();
 
@@ -60,7 +62,7 @@ bool FileMenu::addMenu()
         ImGui::EndMenu();
     }
 
-    return clicked;
+    return loadSimulation;
 }
 
 bool FileMenu::addOpenSimulation()

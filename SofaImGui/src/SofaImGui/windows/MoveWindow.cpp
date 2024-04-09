@@ -130,12 +130,19 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 for (int i=0; i<nbActuators; i++)
                 {
                     std::string name = "M" + std::to_string(i);
-                    double buffer = std::stod(m_actuators[i]->getValueString());
+
+                    std::string value = m_actuators[i]->getValueString();
+                    std::replace(value.begin(), value.end(), '.', ',');
+                    double buffer = std::stod(value);
                     bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax);
                     if (hasChanged)
                     {
-                        m_actuators[i]->read(std::to_string(buffer));
-                    } else {
+                        std::string value = std::to_string(buffer);
+                        std::replace(value.begin(), value.end(), ',', '.');
+                        m_actuators[i]->read(value);
+                    }
+                    else
+                    {
 
                     }
                 }
