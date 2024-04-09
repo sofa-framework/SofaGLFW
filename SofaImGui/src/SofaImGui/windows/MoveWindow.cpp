@@ -61,9 +61,9 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
             {
                 ImGui::Spacing();
 
-                static int x=0;
-                static int y=0;
-                static int z=0;
+                static double x=0;
+                static double y=0;
+                static double z=0;
                 static double rx=0.;
                 static double ry=0.;
                 static double rz=0.;
@@ -80,11 +80,11 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Indent();
 
                 const auto &initPosition = m_TCPTarget->getInitPosition();
-                showSliderInt("X", "##XSlider", "##XInput", &x, m_TCPMinPosition, m_TCPMaxPosition, initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                showSliderDouble("X", "##XSlider", "##XInput", &x, m_TCPMinPosition + initPosition[0], m_TCPMaxPosition + initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
                 ImGui::Spacing();
-                showSliderInt("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition, m_TCPMaxPosition, initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                showSliderDouble("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition + initPosition[1], m_TCPMaxPosition + initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
                 ImGui::Spacing();
-                showSliderInt("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition, m_TCPMaxPosition, initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                showSliderDouble("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition + initPosition[2], m_TCPMaxPosition + initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
                 ImGui::Spacing();
 
                 ImGui::Unindent();
@@ -156,40 +156,6 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
     }
 }
 
-bool MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int & min, const int & max, const int &offset, const ImVec4& color)
-{
-    ImGui::AlignTextToFramePadding();
-    ImGui::PushStyleColor(ImGuiCol_Text, color);
-    ImGui::Text("l");
-    ImGui::PopStyleColor();
-    ImGui::SameLine();
-
-    return showSliderInt(name, label1, label2, v, min, max, offset);
-}
-
-bool MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int & min, const int & max, const int &offset)
-{
-    bool hasValueChanged = false;
-
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text("%s", name);
-    ImGui::SameLine();
-
-    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    if (ImGui::SliderInt(label1, v, min + offset, max + offset, "%0.f", ImGuiSliderFlags_NoInput))
-        hasValueChanged = true;
-    ImGui::PopStyleColor();
-
-    ImGui::SameLine();
-
-    double step = max - min;
-    ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    if (ImGui::InputInt(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1))
-        hasValueChanged = true;
-    ImGui::PopItemWidth();
-
-    return hasValueChanged;
-}
 
 bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4& color)
 {
@@ -220,7 +186,8 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
     double step = max - min;
 
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, "%0.2f"))
+    const char* format = (log10f(abs(*v))>3)? "%0.2e": "%0.2f";
+    if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, format))
         hasValueChanged=true;
     ImGui::PopItemWidth();
 

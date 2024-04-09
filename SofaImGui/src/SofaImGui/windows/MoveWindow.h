@@ -41,8 +41,8 @@ class MoveWindow : public BaseWindow
 
    protected:
 
-    int m_TCPMinPosition{-500};
-    int m_TCPMaxPosition{500};
+    double m_TCPMinPosition{-500.};
+    double m_TCPMaxPosition{500.};
     double m_TCPMinOrientation{-M_PI};
     double m_TCPMaxOrientation{M_PI};
 
@@ -52,8 +52,6 @@ class MoveWindow : public BaseWindow
     std::shared_ptr<models::TCPTarget> m_TCPTarget;
     std::vector<sofa::core::BaseData*> m_actuators;
 
-    bool showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int& min, const int& max, const int &offset, const ImVec4& color);
-    bool showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int& min, const int& max, const int &offset);
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4 &color);
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max);
 };

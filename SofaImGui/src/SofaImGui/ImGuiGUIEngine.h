@@ -68,7 +68,7 @@ public:
     void animateBeginEvent(sofa::simulation::Node* groot) override;
     void animateEndEvent(sofa::simulation::Node* groot) override;
 
-    void setTCPTarget(sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
+    void setTCPTarget(sofa::simulation::Node::SPtr groot, sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
 
     bool getRobotConnection() {return m_robotConnection;}
     models::SimulationState& getSimulationState() {return m_simulationState;}

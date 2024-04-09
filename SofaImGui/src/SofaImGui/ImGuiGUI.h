@@ -35,7 +35,7 @@ public:
     ~ImGuiGUI() override = default;
 
     static sofa::gui::common::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
-    std::shared_ptr<sofaglfw::BaseGUIEngine> getEngine() {return this->m_baseGUI.getGUIEngine();}
+    std::shared_ptr<sofaglfw::BaseGUIEngine> getGUIEngine() {return this->m_baseGUI.getGUIEngine();}
 
 };
 

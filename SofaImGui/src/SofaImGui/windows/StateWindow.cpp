@@ -88,8 +88,9 @@ void StateWindow::showWindow()
                             {
                                 std::replace(v.begin(), v.end(), '.', ',');
                                 double buffer = std::stod(v);
-                                ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                                ImGui::InputDouble("##0", &buffer, 0, 0, "%.2f");
+                                ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
+                                const char* format = (log10f(abs(buffer))>3)? "%0.2e": "%0.2f";
+                                ImGui::InputDouble("##0", &buffer, 0, 0, format);
                                 ImGui::SameLine();
                                 ImGui::PopItemWidth();
                             }

@@ -39,21 +39,32 @@ namespace sofaimgui::python3
 
 void setTCPTarget(sofa::simulation::Node &target)
 {
+
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
+
     if (gui)
     {
-        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
-        engine->setTCPTarget(target.getMechanicalState());
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+
+        if (engine)
+        {
+            sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(target.getRoot());
+            engine->setTCPTarget(groot, target.getMechanicalState());
+        }
     }
 }
 
 bool getRobotConnection()
 {
+
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
+
     if (gui)
     {
-        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
-        return engine->getRobotConnection();
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+
+        if (engine)
+            return engine->getRobotConnection();
     }
 
     return false;

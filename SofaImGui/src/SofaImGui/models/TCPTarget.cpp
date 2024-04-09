@@ -25,8 +25,9 @@
 
 namespace sofaimgui::models {
 
-TCPTarget::TCPTarget(sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
-    : m_state(mechanical)
+TCPTarget::TCPTarget(sofa::simulation::Node::SPtr groot, sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
+    : m_groot(groot)
+    , m_state(mechanical)
 {
     init();
 }
@@ -64,7 +65,7 @@ sofa::defaulttype::RigidCoord<3, double> TCPTarget::getPosition()
     return position;
 }
 
-void TCPTarget::getPosition(int &x, int &y, int &z, double &rx, double &ry, double &rz)
+void TCPTarget::getPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz)
 {
     if (m_state != nullptr)
     {
@@ -105,7 +106,7 @@ void TCPTarget::setPosition(const RigidCoord& position)
     }
 }
 
-void TCPTarget::setPosition(const int &x, const int &y, const int &z, const double &rx, const double &ry, const double &rz)
+void TCPTarget::setPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz)
 {
     if (m_state != nullptr)
     {

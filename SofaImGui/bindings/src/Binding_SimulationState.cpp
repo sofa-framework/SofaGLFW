@@ -47,19 +47,22 @@ void moduleAddSimulationState(py::module &m) {
 
     if (gui)
     {
-        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getEngine());
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
 
-        auto m_a = m.def_submodule("SimulationState", "");
-        m_a.def("addStateData",
-            [engine](std::string group, std::string description, sofa::core::BaseData* data)
-                {
-                    models::SimulationState::StateData stateData;
-                    stateData.group = group;
-                    stateData.description = description;
-                    stateData.data = data;
-                    engine->getSimulationState().addStateData(stateData);
-                }
-                );
+        if (engine)
+        {
+            auto m_a = m.def_submodule("SimulationState", "");
+            m_a.def("addStateData",
+                [engine](std::string group, std::string description, sofa::core::BaseData* data)
+                    {
+                        models::SimulationState::StateData stateData;
+                        stateData.group = group;
+                        stateData.description = description;
+                        stateData.data = data;
+                        engine->getSimulationState().addStateData(stateData);
+                    }
+                    );
+        }
     }
  }
 
