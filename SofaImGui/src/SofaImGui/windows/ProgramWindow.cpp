@@ -51,7 +51,7 @@ ProgramWindow::ProgramWindow(const std::string& name,
 void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                                const ImGuiWindowFlags& windowFlags)
 {
-    if (m_isWindowOpen && m_TCPTarget != nullptr)
+    if (m_isWindowOpen && m_IPController != nullptr)
     {
         if (baseGUI)
             m_baseGUI = baseGUI;
@@ -251,7 +251,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     if (value_changed)
     {
         ImGui::MarkItemEdited(id);
-        const auto& groot = m_TCPTarget->getRootNode().get();
+        const auto& groot = m_IPController->getRootNode().get();
         m_time = m_cursor / ProgramSizes().TimelineOneSecondSize;
         groot->setTime(m_time);
         stepProgram();
@@ -330,7 +330,7 @@ int ProgramWindow::showTracks()
             }
             if (ImGui::MenuItem(("Add track##" + std::to_string(trackIndex)).c_str(), nullptr, false, false))
             {
-                m_program.addTrack(std::make_shared<models::Track>(m_TCPTarget));
+                m_program.addTrack(std::make_shared<models::Track>(m_IPController));
             }
             if (ImGui::MenuItem(("Remove track##" + std::to_string(trackIndex)).c_str(), nullptr, false, (trackIndex>0)? true : false))
             {
@@ -565,7 +565,7 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
             {
                 if (ImGui::MenuItem("Overwrite waypoint"))
                 {
-                    move->setWaypoint(m_TCPTarget->getPosition());
+                    move->setWaypoint(m_IPController->getTCPTargetPosition());
                     track->updateNextMoveInitialPoint(actionIndex, move->getWaypoint());
                 }
                 ImGui::Separator();
@@ -667,7 +667,7 @@ void ProgramWindow::stepProgram()
                     RigidCoord position;
                     if (action->getTCPAtTime(position, m_time - blockStart))
                     {
-                        m_TCPTarget->setPosition(position);
+                        m_IPController->setTCPTargetPosition(position);
                     }
                     break;
                 }
@@ -749,7 +749,7 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
                     RigidCoord position;
                     if (action->getTCPAtTime(position, m_time + dt - blockStart)) // apply the time corresponding to the end of the time step
                     {
-                        m_TCPTarget->setPosition(position);
+                        m_IPController->setTCPTargetPosition(position);
                     }
                     break;
                 }
@@ -767,10 +767,10 @@ void ProgramWindow::animateEndEvent(sofa::simulation::Node *groot)
     groot->setTime(m_time);
 }
 
-void ProgramWindow::setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget)
+void ProgramWindow::setIPController(std::shared_ptr<models::IPController> IPController)
 {
-    m_TCPTarget = TCPTarget;
-    m_program = models::Program(TCPTarget);
+    m_IPController = IPController;
+    m_program = models::Program(IPController);
 }
 
 void ProgramWindow::setDrivingTCPTarget(const bool &isDrivingSimulation)

@@ -37,7 +37,7 @@
 #include <SofaImGui/windows/MoveWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
 
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 #include <SofaImGui/models/SimulationState.h>
 #include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
 
@@ -69,7 +69,7 @@ public:
     void animateBeginEvent(sofa::simulation::Node* groot) override;
     void animateEndEvent(sofa::simulation::Node* groot) override;
 
-    void setTCPTarget(sofa::simulation::Node::SPtr groot, softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver, sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
+    void setIPController(sofa::simulation::Node::SPtr groot, softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver, sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
 
     bool getRobotConnection() {return m_robotConnection;}
     models::SimulationState& getSimulationState() {return m_simulationState;}
@@ -95,8 +95,8 @@ protected:
     void showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    
+    std::shared_ptr<models::IPController> m_IPController;
     models::SimulationState m_simulationState;
     bool m_animate{false};
     int m_mode{0};

@@ -30,7 +30,7 @@
 #include <SofaImGui/models/actions/Wait.h>
 #include <SofaImGui/models/modifiers/Repeat.h>
 
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 struct ImDrawList;
@@ -55,14 +55,14 @@ class ProgramWindow : public BaseWindow
     void animateEndEvent(sofa::simulation::Node *groot);
 
     void setTime(const double &time) {m_time=time;}
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget);
+    void setIPController(std::shared_ptr<models::IPController> IPController);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
     
     void addTrajectoryComponents(sofa::simulation::Node* groot);
 
    protected:
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    
+    std::shared_ptr<models::IPController> m_IPController;
 
     double m_cursor;
     ImVec2 m_trackBeginPos;

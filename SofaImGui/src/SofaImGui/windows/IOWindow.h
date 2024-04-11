@@ -23,7 +23,7 @@
 
 #include <string>
 #include <map>
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 
 #include <SofaImGui/config.h>
 #include <SofaImGui/windows/BaseWindow.h>
@@ -124,13 +124,13 @@ class IOWindow : public BaseWindow
 
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);
-
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
+    
+    void setIPController(std::shared_ptr<models::IPController> IPController) {m_IPController=IPController;}
     void setSimulationState(const models::SimulationState &simulationState);
 
    protected:
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    
+    std::shared_ptr<models::IPController> m_IPController;
     std::string m_defaultNodeName = "SofaComplianceRobotics";
     int m_method;
     bool m_isPublishing;

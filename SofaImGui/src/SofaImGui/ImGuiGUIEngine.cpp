@@ -83,14 +83,14 @@ const std::string& ImGuiGUIEngine::getAppIniFile()
     return appIniFile;
 }
 
-void ImGuiGUIEngine::setTCPTarget(sofa::simulation::Node::SPtr groot,
+void ImGuiGUIEngine::setIPController(sofa::simulation::Node::SPtr groot,
                                   softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                                   sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
 {
-    m_TCPTarget = std::make_shared<models::TCPTarget>(groot, solver, mechanical);
-    m_programWindow.setTCPTarget(m_TCPTarget);
-    m_moveWindow.setTCPTarget(m_TCPTarget);
-    m_IOWindow.setTCPTarget(m_TCPTarget);
+    m_IPController = std::make_shared<models::IPController>(groot, solver, mechanical);
+    m_programWindow.setIPController(m_IPController);
+    m_moveWindow.setIPController(m_IPController);
+    m_IOWindow.setIPController(m_IPController);
 }
 
 void ImGuiGUIEngine::init()
@@ -175,7 +175,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     {
         firstTime = false;
 
-        if (!m_TCPTarget)
+        if (!m_IPController)
         {
             m_programWindow.setWindowOpen(false);
             m_myRobotWindow.setWindowOpen(false);
@@ -334,7 +334,7 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 
     // Driving Tab combo
-    if (m_TCPTarget)
+    if (m_IPController)
     {
         static const char* listTabs[]{"Move", "Program", "Input/Output"};
         if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs)))
@@ -404,11 +404,11 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.isWindowOpen());
-            if (!m_TCPTarget)
+            if (!m_IPController)
                 ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
-            if (!m_TCPTarget)
+            if (!m_IPController)
                 ImGui::EndDisabled();
             ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
             ImGui::Separator();

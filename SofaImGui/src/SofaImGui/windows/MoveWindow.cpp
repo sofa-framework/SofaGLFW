@@ -65,11 +65,11 @@ void MoveWindow::setActuatorsLimits(double min, double max)
 
 void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 {
-    if (m_isWindowOpen && (m_TCPTarget != nullptr || !m_actuators.empty()))
+    if (m_isWindowOpen && (m_IPController != nullptr || !m_actuators.empty()))
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            if (m_TCPTarget != nullptr)
+            if (m_IPController != nullptr)
             {
                 ImGui::Spacing();
 
@@ -81,7 +81,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 static double rz=0.;
 
                 if(m_isDrivingSimulation)
-                    m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
+                    m_IPController->getTCPTargetPosition(x, y, z, rx, ry, rz);
 
                 ImGui::Indent();
                 ImGui::Text("%s", m_TCPPositionDescription.c_str());
@@ -91,7 +91,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Indent();
                 ImGui::Indent();
 
-                const auto &initPosition = m_TCPTarget->getInitPosition();
+                const auto &initPosition = m_IPController->getTCPTargetInitPosition();
                 showSliderDouble("X", "##XSlider", "##XInput", &x, m_TCPMinPosition + initPosition[0], m_TCPMaxPosition + initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
                 ImGui::Spacing();
                 showSliderDouble("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition + initPosition[1], m_TCPMaxPosition + initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -123,7 +123,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Unindent();
 
                 if (m_isDrivingSimulation)
-                    m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
+                    m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
             }
 
             if (!m_actuators.empty())
@@ -157,10 +157,10 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     }
                     m_actuators[i].value=buffer;
                 }
-                if (m_TCPTarget && !solveInverseProblem)
+                if (m_IPController && !solveInverseProblem)
                 {
                     // TODO: don't solve the inverse problem since we'll overwrite the solution
-                    m_TCPTarget->setSolution(m_actuators);
+                    m_IPController->setActuators(m_actuators);
                 }
 
                 ImGui::Unindent();

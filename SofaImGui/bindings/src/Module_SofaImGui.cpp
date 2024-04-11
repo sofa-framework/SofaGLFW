@@ -39,7 +39,7 @@ namespace py { using namespace pybind11; }
 namespace sofaimgui::python3
 {
 
-void setTCPTarget(sofa::simulation::Node &target, sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
+void setIPController(sofa::simulation::Node &target, sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
 {
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
 
@@ -51,7 +51,7 @@ void setTCPTarget(sofa::simulation::Node &target, sofa::component::constraint::l
         if (engine && qpsolver)
         {
             sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(target.getRoot());
-            engine->setTCPTarget(groot, qpsolver, target.getMechanicalState());
+            engine->setIPController(groot, qpsolver, target.getMechanicalState());
         }
     }
 }
@@ -74,7 +74,7 @@ bool getRobotConnection()
 
 PYBIND11_MODULE(ImGui, m)
 {
-    m.def("setTCPTarget", &setTCPTarget);
+    m.def("setIPController", &setIPController);
     m.def("getRobotConnection", &getRobotConnection);
 
     moduleAddMoveWindow(m);

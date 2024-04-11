@@ -20,40 +20,40 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
 #include <sofa/simulation/events/SolveConstraintSystemEndEvent.h>
 #include <sofa/simulation/AnimateEndEvent.h>
 
 namespace sofaimgui::models {
 
-TCPTarget::TCPTarget(sofa::simulation::Node::SPtr groot,
+IPController::IPController(sofa::simulation::Node::SPtr groot,
                      softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                      sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
     : m_groot(groot)
     , m_solver(solver)
-    , m_state(mechanical)
+    , m_TCPTargetState(mechanical)
 {
-    if (m_state && groot)
+    if (m_TCPTargetState && groot)
     {
         f_listening = true;
-        m_initPosition = getPosition();
+        m_initTCPTargetPosition = getTCPTargetPosition();
         groot->addObject(this);
     }
 }
 
-const sofa::defaulttype::RigidCoord<3, double>& TCPTarget::getInitPosition()
+const sofa::defaulttype::RigidCoord<3, double>& IPController::getTCPTargetInitPosition()
 {
-    return m_initPosition;
+    return m_initTCPTargetPosition;
 }
 
-sofa::defaulttype::RigidCoord<3, double> TCPTarget::getPosition()
+sofa::defaulttype::RigidCoord<3, double> IPController::getTCPTargetPosition()
 {
     RigidCoord position;
-    if (m_state)
+    if (m_TCPTargetState)
     {
         std::stringstream frame;
-        m_state->writeVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->writeVec(sofa::core::VecId::position(), frame);
 
         frame >> position[0];
         frame >> position[1];
@@ -67,12 +67,12 @@ sofa::defaulttype::RigidCoord<3, double> TCPTarget::getPosition()
     return position;
 }
 
-void TCPTarget::getPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz)
+void IPController::getTCPTargetPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz)
 {
-    if (m_state)
+    if (m_TCPTargetState)
     {
         std::stringstream frame;
-        m_state->writeVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->writeVec(sofa::core::VecId::position(), frame);
 
         frame >> x;
         frame >> y;
@@ -92,9 +92,9 @@ void TCPTarget::getPosition(double &x, double &y, double &z, double &rx, double 
     }
 }
 
-void TCPTarget::setPosition(const RigidCoord& position)
+void IPController::setTCPTargetPosition(const RigidCoord& position)
 {
-    if (m_state)
+    if (m_TCPTargetState)
     {
         std::stringstream frame;
         frame << position[0] << " ";
@@ -104,13 +104,13 @@ void TCPTarget::setPosition(const RigidCoord& position)
         frame << position[4] << " ";
         frame << position[5] << " ";
         frame << position[6] << " ";
-        m_state->readVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->readVec(sofa::core::VecId::position(), frame);
     }
 }
 
-void TCPTarget::setPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz)
+void IPController::setTCPTargetPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz)
 {
-    if (m_state)
+    if (m_TCPTargetState)
     {
         sofa::type::Vec3 rotation(rx, ry, rz);
         sofa::type::Quat<SReal> q = sofa::type::Quat<SReal>::createQuaterFromEuler(rotation);
@@ -123,17 +123,17 @@ void TCPTarget::setPosition(const double &x, const double &y, const double &z, c
         frame << q[1] << " ";
         frame << q[2] << " ";
         frame << q[3] << " ";
-        m_state->readVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->readVec(sofa::core::VecId::position(), frame);
     }
 }
 
-void TCPTarget::setSolution(const std::vector<Actuator> &actuators)
+void IPController::setActuators(const std::vector<Actuator> &actuators)
 {
     m_actuators = actuators;
     m_updateSolutionOnSolveEndEvent = true;
 }
 
-void TCPTarget::handleEvent(sofa::core::objectmodel::Event *event)
+void IPController::handleEvent(sofa::core::objectmodel::Event *event)
 {
     if (sofa::simulation::SolveConstraintSystemEndEvent::checkEventType(event) && m_updateSolutionOnSolveEndEvent)
     {

@@ -22,7 +22,7 @@
 #pragma once
 
 #include <SofaImGui/windows/BaseWindow.h>
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 #include <imgui.h>
 
 namespace sofaimgui::windows {
@@ -36,24 +36,24 @@ class MoveWindow : public BaseWindow
     void showWindow(const ImGuiWindowFlags &windowFlags);
 
     void setTCPDescriptions(const std::string &positionDescription, const std::string &rotationDescription);
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
+    void setIPController(std::shared_ptr<models::IPController> IPController) {m_IPController=IPController;}
     void setTCPLimits(int minPosition, int maxPosition, double minOrientation, double maxOrientation);
 
     void setActuatorsDescriptions(const std::string &description);
     void setActuatorsLimits(double min, double max);
-    void setActuators(std::vector<models::TCPTarget::Actuator> actuators) {m_actuators = actuators;}
+    void setActuators(std::vector<models::IPController::Actuator> actuators) {m_actuators = actuators;}
 
    protected:
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    
+    std::shared_ptr<models::IPController> m_IPController;
     std::string m_TCPPositionDescription{"TCP Target Position (mm):"};
     std::string m_TCPRotationDescription{"TCP Target Rotation (rad):"};
     double m_TCPMinPosition{-500.};
     double m_TCPMaxPosition{500.};
     double m_TCPMinOrientation{-M_PI};
     double m_TCPMaxOrientation{M_PI};
-
-    std::vector<models::TCPTarget::Actuator> m_actuators;
+    
+    std::vector<models::IPController::Actuator> m_actuators;
     std::string m_actuatorsDescription{"Motors Position (rad):"};
     double m_actuatorsMin{-500.};
     double m_actuatorsMax{500.};

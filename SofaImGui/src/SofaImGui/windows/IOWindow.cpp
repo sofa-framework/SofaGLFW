@@ -455,7 +455,7 @@ void IOWindow::showInput()
 
 void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 {
-    if (m_isReadyToPublish && m_isDrivingSimulation && m_TCPTarget)
+    if (m_isReadyToPublish && m_isDrivingSimulation && m_IPController)
     {
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
         for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
@@ -464,8 +464,8 @@ void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
             {
                 if (stateValue.size() == IOWindow::RigidCoord::total_size)
                 {
-                    m_TCPTarget->setPosition(IOWindow::RigidCoord(sofa::type::Vec3(stateValue[0], stateValue[1], stateValue[2]),
-                                                                  sofa::type::Quat<SReal>(stateValue[3], stateValue[4], stateValue[5], stateValue[6])));
+                    m_IPController->setTCPTargetPosition(IOWindow::RigidCoord(sofa::type::Vec3(stateValue[0], stateValue[1], stateValue[2]),
+                                                         sofa::type::Quat<SReal>(stateValue[3], stateValue[4], stateValue[5], stateValue[6])));
                 }
             }
             // for actuator, is it interesting to send actuation to the simulation ? => direct mode

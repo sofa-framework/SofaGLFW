@@ -86,11 +86,11 @@ void moduleAddMoveWindow(py::module &m) {
                              const std::string valueType)
                     {
                         size_t nbActuators = std::min(actuatorsData.size(), indicesInProblem.size());
-                        std::vector<models::TCPTarget::Actuator> actuators;
+                        std::vector<models::IPController::Actuator> actuators;
                         actuators.reserve(nbActuators);
                         for (size_t i=0; i< nbActuators; i++)
                         {
-                            models::TCPTarget::Actuator actuator;
+                            models::IPController::Actuator actuator;
                             actuator.data = actuatorsData[i];
                             actuator.indexInProblem = indicesInProblem[i];
                             actuator.valueType.setSelectedItem(valueType);

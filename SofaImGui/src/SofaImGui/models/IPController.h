@@ -30,9 +30,7 @@
 
 namespace sofaimgui::models {
 
-struct Actuator;
-
-class TCPTarget : public sofa::component::controller::Controller
+class IPController : public sofa::component::controller::Controller
 {
    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
@@ -45,19 +43,19 @@ class TCPTarget : public sofa::component::controller::Controller
        sofa::helper::OptionsGroup valueType{"force", "displacement"};
     };
 
-    TCPTarget(sofa::simulation::Node::SPtr groot,
+    IPController(sofa::simulation::Node::SPtr groot,
               softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
               sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
-    ~TCPTarget() = default;
-
-    const RigidCoord& getInitPosition();
-    RigidCoord getPosition();
-    void getPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz);
-    void setPosition(const RigidCoord& position);
-    void setPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz);
+    ~IPController() = default;
+    
+    const RigidCoord& getTCPTargetInitPosition();
+    RigidCoord getTCPTargetPosition();
+    void getTCPTargetPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz);
+    void setTCPTargetPosition(const RigidCoord& position);
+    void setTCPTargetPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
-    void setSolution(const std::vector<Actuator> &actuators);
+    void setActuators(const std::vector<Actuator> &actuators);
 
     void handleEvent(sofa::core::objectmodel::Event *event) override;
 
@@ -65,8 +63,8 @@ class TCPTarget : public sofa::component::controller::Controller
 
     sofa::simulation::Node::SPtr m_groot;
     softrobotsinverse::solver::QPInverseProblemSolver::SPtr m_solver;
-    sofa::core::behavior::BaseMechanicalState::SPtr m_state;
-    RigidCoord m_initPosition;
+    sofa::core::behavior::BaseMechanicalState::SPtr m_TCPTargetState;
+    RigidCoord m_initTCPTargetPosition;
 
     std::vector<Actuator> m_actuators;
     
