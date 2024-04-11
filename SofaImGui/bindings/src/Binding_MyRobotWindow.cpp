@@ -1,6 +1,6 @@
 /******************************************************************************
- *                              SofaPython3 plugin                             *
- *                  (c) 2021 CNRS, University of Lille, INRIA                  *
+ *                 SOFA, Simulation Open-Framework Architecture                *
+ *                    (c) 2021 INRIA, USTL, UJF, CNRS, MGH                     *
  *                                                                             *
  * This program is free software; you can redistribute it and/or modify it     *
  * under the terms of the GNU Lesser General Public License as published by    *
