@@ -25,39 +25,52 @@
 #include <sofa/defaulttype/RigidTypes.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
+#include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <sofa/component/controller/Controller.h>
 
 namespace sofaimgui::models {
 
-class TCPTarget
+struct Actuator;
+
+class TCPTarget : public sofa::component::controller::Controller
 {
    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
 
-    enum TCPTargetType {
-        LINEAR
+    struct Actuator{
+       sofa::core::BaseData* data;
+       size_t indexInProblem;
+       double value;
+       sofa::helper::OptionsGroup valueType{"force", "displacement"};
     };
 
-    TCPTarget(sofa::simulation::Node::SPtr groot, sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
+    TCPTarget(sofa::simulation::Node::SPtr groot,
+              softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+              sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
     ~TCPTarget() = default;
 
-    void init();
-
     const RigidCoord& getInitPosition();
-
     RigidCoord getPosition();
     void getPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz);
-
     void setPosition(const RigidCoord& position);
     void setPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
+    void setSolution(const std::vector<Actuator> &actuators);
+
+    void handleEvent(sofa::core::objectmodel::Event *event) override;
 
    protected:
 
     sofa::simulation::Node::SPtr m_groot;
+    softrobotsinverse::solver::QPInverseProblemSolver::SPtr m_solver;
     sofa::core::behavior::BaseMechanicalState::SPtr m_state;
     RigidCoord m_initPosition;
+
+    std::vector<Actuator> m_actuators;
+    
+    bool m_updateSolutionOnSolveEndEvent{false};
 
 };
 

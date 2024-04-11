@@ -30,6 +30,8 @@
 
 #include <SofaImGui/ImGuiGUI.h>
 #include <SofaImGui/ImGuiGUIEngine.h>
+#include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <sofa/component/constraint/lagrangian/solver/ConstraintSolverImpl.h>
 
 
 namespace py { using namespace pybind11; }
@@ -37,19 +39,19 @@ namespace py { using namespace pybind11; }
 namespace sofaimgui::python3
 {
 
-void setTCPTarget(sofa::simulation::Node &target)
+void setTCPTarget(sofa::simulation::Node &target, sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
 {
-
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
 
     if (gui)
     {
         std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+        softrobotsinverse::solver::QPInverseProblemSolver::SPtr qpsolver = dynamic_cast<softrobotsinverse::solver::QPInverseProblemSolver*>(&solver);
 
-        if (engine)
+        if (engine && qpsolver)
         {
             sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(target.getRoot());
-            engine->setTCPTarget(groot, target.getMechanicalState());
+            engine->setTCPTarget(groot, qpsolver, target.getMechanicalState());
         }
     }
 }

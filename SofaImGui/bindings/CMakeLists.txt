@@ -17,11 +17,11 @@ set(SOURCE_FILES
 )
 
 if (NOT TARGET SofaPython3::Plugin)
-    find_package(SofaPython3 REQUIRED COMPONENTS SofaGLFW SofaImGui Bindings.Sofa Sofa.Simulation.Common)
+    find_package(SofaPython3 REQUIRED COMPONENTS SofaGLFW SofaImGui Bindings.Sofa Sofa.Simulation.Common SoftRobots SoftRobots.Inverse)
 endif()
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
-include_directories(${IMGUI_SOURCE_DIR} ${ROS_INCLUDE_DIRS})
+include_directories(${IMGUI_SOURCE_DIR} ${ROS_INCLUDE_DIRS} ${QPOASES_INCLUDE_DIR})
 
 SP3_add_python_module(
     TARGET       ${PROJECT_NAME}
@@ -30,6 +30,6 @@ SP3_add_python_module(
     DESTINATION  Sofa
     HEADERS      ${HEADER_FILES}
     SOURCES      ${SOURCE_FILES}
-    DEPENDS      SofaPython3::Plugin SofaPython3::Bindings.Sofa SofaGLFW SofaImGui Sofa.Simulation.Common
+    DEPENDS      SofaPython3::Plugin SofaPython3::Bindings.Sofa SofaGLFW SofaImGui Sofa.Simulation.Common SoftRobots SoftRobots.Inverse
 )
 message("-- SofaPython3 bindings for SofaImGui will be created.")

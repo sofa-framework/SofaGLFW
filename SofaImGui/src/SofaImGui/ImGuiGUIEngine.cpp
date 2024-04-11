@@ -83,9 +83,11 @@ const std::string& ImGuiGUIEngine::getAppIniFile()
     return appIniFile;
 }
 
-void ImGuiGUIEngine::setTCPTarget(sofa::simulation::Node::SPtr groot, sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
+void ImGuiGUIEngine::setTCPTarget(sofa::simulation::Node::SPtr groot,
+                                  softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+                                  sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
 {
-    m_TCPTarget = std::make_shared<models::TCPTarget>(groot, mechanical);
+    m_TCPTarget = std::make_shared<models::TCPTarget>(groot, solver, mechanical);
     m_programWindow.setTCPTarget(m_TCPTarget);
     m_moveWindow.setTCPTarget(m_TCPTarget);
     m_IOWindow.setTCPTarget(m_TCPTarget);

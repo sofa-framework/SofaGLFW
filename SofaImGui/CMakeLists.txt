@@ -155,6 +155,8 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
 )
 
+sofa_find_package(TinyXML2 REQUIRED)
+
 find_package(ROS QUIET)
 set(SOFAIMGUI_WITH_ROS ${ROS_FOUND})
 message("SOFAIMGUI_WITH_ROS = " ${SOFAIMGUI_WITH_ROS})
@@ -162,11 +164,11 @@ message("SOFAIMGUI_WITH_ROS = " ${SOFAIMGUI_WITH_ROS})
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR} ${QPOASES_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback SoftRobots SoftRobots.Inverse ${CMAKE_DL_LIBS})
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw tinyxml2)
+target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw tinyxml2::tinyxml2)
 
 if(ROS_FOUND)
     target_include_directories(${PROJECT_NAME} PRIVATE ${ROS_INCLUDE_DIRS})

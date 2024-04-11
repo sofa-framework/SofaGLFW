@@ -37,12 +37,24 @@ MoveWindow::MoveWindow(const std::string& name,
     m_isDrivingSimulation = true;
 }
 
+
+void MoveWindow::setTCPDescriptions(const std::string &positionDescription, const std::string &rotationDescription)
+{
+    m_TCPPositionDescription = positionDescription;
+    m_TCPRotationDescription = rotationDescription;
+}
+
 void MoveWindow::setTCPLimits(int minPosition, int maxPosition, double minOrientation, double maxOrientation)
 {
     m_TCPMinPosition = minPosition;
     m_TCPMaxPosition = maxPosition;
     m_TCPMinOrientation = minOrientation;
     m_TCPMaxOrientation = maxOrientation;
+}
+
+void MoveWindow::setActuatorsDescriptions(const std::string &description)
+{
+    m_actuatorsDescription = description;
 }
 
 void MoveWindow::setActuatorsLimits(double min, double max)
@@ -72,7 +84,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
 
                 ImGui::Indent();
-                ImGui::Text("TCP Target Position (mm):");
+                ImGui::Text("%s", m_TCPPositionDescription.c_str());
                 ImGui::Spacing();
                 ImGui::Unindent();
 
@@ -93,7 +105,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Spacing();
 
                 ImGui::Indent();
-                ImGui::Text("TCP Target Rotation (rad):");
+                ImGui::Text("%s", m_TCPRotationDescription.c_str());
                 ImGui::Spacing();
                 ImGui::Unindent();
 
@@ -119,7 +131,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Spacing();
 
                 ImGui::Indent();
-                ImGui::Text("Motors effort:");
+                ImGui::Text("%s", m_actuatorsDescription.c_str());
                 ImGui::Spacing();
                 ImGui::Unindent();
 
@@ -127,11 +139,12 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Indent();
 
                 int nbActuators = m_actuators.size();
+                bool solveInverseProblem = true;
                 for (int i=0; i<nbActuators; i++)
                 {
                     std::string name = "M" + std::to_string(i);
 
-                    std::string value = m_actuators[i]->getValueString();
+                    std::string value = m_actuators[i].data->getValueString();
                     std::replace(value.begin(), value.end(), '.', ',');
                     double buffer = std::stod(value);
                     bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax);
@@ -139,12 +152,15 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     {
                         std::string value = std::to_string(buffer);
                         std::replace(value.begin(), value.end(), ',', '.');
-                        m_actuators[i]->read(value);
+                        m_actuators[i].data->read(value);
+                        solveInverseProblem = false;
                     }
-                    else
-                    {
-
-                    }
+                    m_actuators[i].value=buffer;
+                }
+                if (m_TCPTarget && !solveInverseProblem)
+                {
+                    // TODO: don't solve the inverse problem since we'll overwrite the solution
+                    m_TCPTarget->setSolution(m_actuators);
                 }
 
                 ImGui::Unindent();
@@ -155,7 +171,6 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
         }
     }
 }
-
 
 bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4& color)
 {

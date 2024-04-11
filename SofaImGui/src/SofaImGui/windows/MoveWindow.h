@@ -34,23 +34,30 @@ class MoveWindow : public BaseWindow
     ~MoveWindow() = default;
 
     void showWindow(const ImGuiWindowFlags &windowFlags);
+
+    void setTCPDescriptions(const std::string &positionDescription, const std::string &rotationDescription);
     void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
     void setTCPLimits(int minPosition, int maxPosition, double minOrientation, double maxOrientation);
+
+    void setActuatorsDescriptions(const std::string &description);
     void setActuatorsLimits(double min, double max);
-    void setActuators(std::vector<sofa::core::BaseData*> actuators) {m_actuators = actuators;}
+    void setActuators(std::vector<models::TCPTarget::Actuator> actuators) {m_actuators = actuators;}
 
    protected:
 
+    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    std::string m_TCPPositionDescription{"TCP Target Position (mm):"};
+    std::string m_TCPRotationDescription{"TCP Target Rotation (rad):"};
     double m_TCPMinPosition{-500.};
     double m_TCPMaxPosition{500.};
     double m_TCPMinOrientation{-M_PI};
     double m_TCPMaxOrientation{M_PI};
 
+    std::vector<models::TCPTarget::Actuator> m_actuators;
+    std::string m_actuatorsDescription{"Motors Position (rad):"};
     double m_actuatorsMin{-500.};
     double m_actuatorsMax{500.};
 
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
-    std::vector<sofa::core::BaseData*> m_actuators;
 
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4 &color);
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max);

@@ -39,6 +39,7 @@
 
 #include <SofaImGui/models/TCPTarget.h>
 #include <SofaImGui/models/SimulationState.h>
+#include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
 
 
 struct GLFWwindow;
@@ -68,7 +69,7 @@ public:
     void animateBeginEvent(sofa::simulation::Node* groot) override;
     void animateEndEvent(sofa::simulation::Node* groot) override;
 
-    void setTCPTarget(sofa::simulation::Node::SPtr groot, sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
+    void setTCPTarget(sofa::simulation::Node::SPtr groot, softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver, sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
 
     bool getRobotConnection() {return m_robotConnection;}
     models::SimulationState& getSimulationState() {return m_simulationState;}
