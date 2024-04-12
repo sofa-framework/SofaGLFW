@@ -54,7 +54,8 @@ void StateWindow::showWindow()
                     std::string groups;
                     for (const auto& d: m_simulationStateData)
                     {
-                        const std::string& value = d.data->getValueString();
+                        auto* typeinfo = d.data->getValueTypeInfo();
+                        auto* values = d.data->getValueVoidPtr();
                         const std::string& description = d.description;
                         const std::string& group = d.group;
                         if (groups.find(group) == std::string::npos)
@@ -77,17 +78,10 @@ void StateWindow::showWindow()
                             ImGui::AlignTextToFramePadding();
                             ImGui::Text("%s ", description.c_str()); // Value description
 
-                            std::istringstream iss(value);
-                            std::vector<std::string> values;
-                            copy(std::istream_iterator<std::string>(iss),
-                                 std::istream_iterator<std::string>(),
-                                 back_inserter(values));
-
                             ImGui::BeginDisabled();
-                            for (std::string v : values) // Values
+                            for (size_t i=0; i<typeinfo->size(); i++) // Values
                             {
-                                std::replace(v.begin(), v.end(), '.', ',');
-                                double buffer = std::stod(v);
+                                double buffer = typeinfo->getScalarValue(values, i);
                                 ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
                                 const char* format = (log10f(abs(buffer))>3)? "%0.2e": "%0.2f";
                                 ImGui::InputDouble("##0", &buffer, 0, 0, format);

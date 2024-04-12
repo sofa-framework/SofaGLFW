@@ -144,9 +144,9 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 {
                     std::string name = "M" + std::to_string(i);
 
-                    std::string value = m_actuators[i].data->getValueString();
-                    std::replace(value.begin(), value.end(), '.', ',');
-                    double buffer = std::stod(value);
+                    auto* typeinfo = m_actuators[i].data->getValueTypeInfo();
+                    auto* value = m_actuators[i].data->getValueVoidPtr();
+                    double buffer = typeinfo->getScalarValue(value, 0);
                     bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax);
                     if (hasChanged)
                     {

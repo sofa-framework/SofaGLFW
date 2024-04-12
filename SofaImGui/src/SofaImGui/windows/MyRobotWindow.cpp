@@ -53,75 +53,71 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 
             if (ImGui::BeginTable("StateColumns", 3, ImGuiTableFlags_None))
             {
-                ImGui::Spacing();
-                ImGui::TableNextColumn();
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("Information");
-                ImGui::TableNextColumn();
-                ImGui::AlignTextToFramePadding();
-                ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-                ImGui::TableNextColumn();
-
-                ImGui::BeginDisabled();
-                for (auto &information: m_information)
+                if (!m_information.empty())
                 {
+                    ImGui::Spacing();
+                    ImGui::TableNextColumn();
                     ImGui::AlignTextToFramePadding();
-                    ImGui::Text("%s: ", information.description.c_str());
-                    ImGui::SameLine();
+                    ImGui::Text("Information");
+                    ImGui::TableNextColumn();
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                    ImGui::TableNextColumn();
 
-                    std::istringstream iss(information.data->getValueString());
-                    std::vector<std::string> values;
-                    copy(std::istream_iterator<std::string>(iss),
-                         std::istream_iterator<std::string>(),
-                         back_inserter(values));
-
-                    std::string uiValue;
-                    for (std::string v : values)
+                    ImGui::BeginDisabled();
+                    for (auto &information: m_information)
                     {
-                        std::replace(v.begin(), v.end(), '.', ',');
-                        double buffer = std::stod(v);
-                        ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                        ImGui::InputDouble(("##setting" + information.description).c_str(), &buffer, 0, 0, "%.2f");
-                        uiValue += std::to_string(buffer) + " ";
-                        ImGui::PopItemWidth();
+                        ImGui::AlignTextToFramePadding();
+                        ImGui::Text("%s: ", information.description.c_str());
+                        ImGui::SameLine();
+
+                        auto* typeinfo = information.data->getValueTypeInfo();
+                        auto* values = information.data->getValueVoidPtr();
+
+                        for (size_t i=0; i<typeinfo->size(); i++)
+                        {
+                            double buffer = typeinfo->getScalarValue(values, i);
+                            ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
+                            ImGui::InputDouble(("##setting" + information.description).c_str(), &buffer, 0, 0, "%.2f");
+                            ImGui::PopItemWidth();
+                        }
                     }
+                    ImGui::EndDisabled();
+
+                    ImGui::NewLine();
                 }
-                ImGui::EndDisabled();
 
-                ImGui::NewLine();
-
-                ImGui::Spacing();
-                ImGui::TableNextColumn();
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("Settings");
-                ImGui::TableNextColumn();
-                ImGui::AlignTextToFramePadding();
-                ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-                ImGui::TableNextColumn();
-
-                for (auto &setting: m_settings)
+                if (!m_settings.empty())
                 {
+                    ImGui::Spacing();
+                    ImGui::TableNextColumn();
                     ImGui::AlignTextToFramePadding();
-                    ImGui::Text("%s: ", setting.description.c_str());
-                    ImGui::SameLine();
+                    ImGui::Text("Settings");
+                    ImGui::TableNextColumn();
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                    ImGui::TableNextColumn();
 
-                    std::istringstream iss(setting.data->getValueString());
-                    std::vector<std::string> values;
-                    copy(std::istream_iterator<std::string>(iss),
-                         std::istream_iterator<std::string>(),
-                         back_inserter(values));
-
-                    std::string uiValue;
-                    for (std::string v : values)
+                    for (auto &setting: m_settings)
                     {
-                        std::replace(v.begin(), v.end(), '.', ',');
-                        double buffer = std::stod(v);
-                        ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                        ImGui::InputDouble(("##setting" + setting.description).c_str(), &buffer, 0, 0, "%.2f");
-                        uiValue += std::to_string(buffer) + " ";
-                        ImGui::PopItemWidth();
+                        ImGui::AlignTextToFramePadding();
+                        ImGui::Text("%s: ", setting.description.c_str());
+                        ImGui::SameLine();
+
+                        auto* typeinfo = setting.data->getValueTypeInfo();
+                        auto* values = setting.data->getValueVoidPtr();
+
+                        std::string uiValue;
+                        for (size_t i=0; i<typeinfo->size(); i++)
+                        {
+                            double buffer = typeinfo->getScalarValue(values, i);
+                            ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
+                            ImGui::InputDouble(("##setting" + setting.description).c_str(), &buffer, 0, 0, "%.2f");
+                            uiValue += std::to_string(buffer) + " ";
+                            ImGui::PopItemWidth();
+                        }
+                        setting.data->read(uiValue);
                     }
-                    setting.data->read(uiValue);
                 }
 
                 ImGui::EndTable();

@@ -90,14 +90,14 @@ void IOWindow::setSimulationState(const models::SimulationState &simulationState
     const auto &stateData = simulationState.getStateData();
     for(const models::SimulationState::StateData& d: stateData)
     {
-        std::vector<float> vector;
-        std::stringstream str(d.data->getValueString());
-        std::string value;
-        while (str >> value)
-        {
-            std::replace(value.begin(), value.end(), '.', ',');
-            vector.push_back(std::stof(value));
-        }
+        auto* typeinfo = d.data->getValueTypeInfo();
+        auto* values = d.data->getValueVoidPtr();
+        size_t nbValue = typeinfo->size();
+        std::vector<float> vector(nbValue);
+
+        for (size_t i=0; i<nbValue; i++) // Values
+            vector[i]=typeinfo->getScalarValue(values, i);
+
         m_simulationState[d.group + "/" + d.description] = vector;
     }
 }
