@@ -28,9 +28,6 @@ namespace sofaimgui::models {
 
 using sofa::type::RGBAColor;
 
-int TrajectoryClass = sofa::core::RegisterObject(" ")
-                          .add< Trajectory >();
-
 void Trajectory::draw(const sofa::core::visual::VisualParams* vparams)
 {
     const auto &defaultColor = RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, 0.5f);

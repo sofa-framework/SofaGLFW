@@ -133,7 +133,7 @@ void ProgramWindow::showProgramButtons()
 
             // Middle button
     ImGui::SameLine();
-    ImGui::SetCursorPosX(positionMiddle); // Set position to right of the header
+    ImGui::SetCursorPosX(positionMiddle); // Set position to middle of the header
 
     if (!isDrivingSimulation())
         ImGui::BeginDisabled();
@@ -764,10 +764,11 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
 void ProgramWindow::animateEndEvent(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
-    groot->setTime(m_time);
+    if (m_isDrivingSimulation)
+        groot->setTime(m_time);
 }
 
-void ProgramWindow::setIPController(std::shared_ptr<models::IPController> IPController)
+void ProgramWindow::setIPController(models::IPController::SPtr IPController)
 {
     m_IPController = IPController;
     m_program = models::Program(IPController);

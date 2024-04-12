@@ -40,7 +40,7 @@ class Program
    public:
 
     Program() = default;
-    Program(std::shared_ptr<models::IPController> IPController): m_IPController(IPController)
+    Program(models::IPController::SPtr IPController): m_IPController(IPController)
     {
         std::shared_ptr<models::Track> track = std::make_shared<models::Track>(IPController);
         addTrack(track);
@@ -62,7 +62,7 @@ class Program
 
    protected:
     
-    std::shared_ptr<models::IPController> m_IPController;
+    models::IPController::SPtr m_IPController;
     std::vector<std::shared_ptr<Track>> m_tracks;
 
     bool checkExtension(const std::string &filename);

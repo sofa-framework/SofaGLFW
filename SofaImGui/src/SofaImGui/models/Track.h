@@ -40,9 +40,7 @@ class Track
 
    public:
     
-    Track(std::shared_ptr<IPController> IPController):
-                                                     m_IPController(IPController)
-                                           {};
+    Track(models::IPController::SPtr IPController): m_IPController(IPController) {};
     ~Track() = default;
 
     void clear();
@@ -79,7 +77,7 @@ class Track
 
    protected:
     
-    std::shared_ptr<IPController> m_IPController;
+    models::IPController::SPtr m_IPController;
     std::vector<std::shared_ptr<actions::Action>> m_actions;
     std::vector<std::shared_ptr<modifiers::Modifier>> m_modifiers;
 

@@ -7,12 +7,15 @@ set(HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MyRobotWindow_doc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState_doc.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_PlottingWindow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_PlottingWindow_doc.h
 )
 
 set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MoveWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MyRobotWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_PlottingWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Module_SofaImGui.cpp
 )
 

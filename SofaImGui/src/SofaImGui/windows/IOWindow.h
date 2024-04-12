@@ -125,12 +125,12 @@ class IOWindow : public BaseWindow
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);
     
-    void setIPController(std::shared_ptr<models::IPController> IPController) {m_IPController=IPController;}
+    void setIPController(models::IPController::SPtr IPController) {m_IPController=IPController;}
     void setSimulationState(const models::SimulationState &simulationState);
 
    protected:
     
-    std::shared_ptr<models::IPController> m_IPController;
+    models::IPController::SPtr m_IPController;
     std::string m_defaultNodeName = "SofaComplianceRobotics";
     int m_method;
     bool m_isPublishing;

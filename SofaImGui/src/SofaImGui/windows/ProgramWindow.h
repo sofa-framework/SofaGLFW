@@ -55,14 +55,14 @@ class ProgramWindow : public BaseWindow
     void animateEndEvent(sofa::simulation::Node *groot);
 
     void setTime(const double &time) {m_time=time;}
-    void setIPController(std::shared_ptr<models::IPController> IPController);
+    void setIPController(models::IPController::SPtr IPController);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
     
     void addTrajectoryComponents(sofa::simulation::Node* groot);
 
    protected:
     
-    std::shared_ptr<models::IPController> m_IPController;
+    models::IPController::SPtr m_IPController;
 
     double m_cursor;
     ImVec2 m_trackBeginPos;

@@ -35,6 +35,7 @@
 #include <SofaImGui/windows/IOWindow.h>
 #include <SofaImGui/windows/MyRobotWindow.h>
 #include <SofaImGui/windows/MoveWindow.h>
+#include <SofaImGui/windows/PlottingWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
 
 #include <SofaImGui/models/IPController.h>
@@ -79,6 +80,7 @@ public:
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("       Scene Graph", false);
     windows::IOWindow m_IOWindow = windows::IOWindow("       Input/Output", false);
     windows::ProgramWindow m_programWindow = windows::ProgramWindow("       Program", true);
+    windows::PlottingWindow m_plottingWindow = windows::PlottingWindow("       Plotting", false);
     windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("       My Robot", true);
     windows::MoveWindow m_moveWindow = windows::MoveWindow("       Move", true);
 
@@ -96,7 +98,7 @@ protected:
     void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
     
-    std::shared_ptr<models::IPController> m_IPController;
+    models::IPController::SPtr m_IPController;
     models::SimulationState m_simulationState;
     bool m_animate{false};
     int m_mode{0};

@@ -36,7 +36,7 @@ class MoveWindow : public BaseWindow
     void showWindow(const ImGuiWindowFlags &windowFlags);
 
     void setTCPDescriptions(const std::string &positionDescription, const std::string &rotationDescription);
-    void setIPController(std::shared_ptr<models::IPController> IPController) {m_IPController=IPController;}
+    void setIPController(models::IPController::SPtr IPController) {m_IPController=IPController;}
     void setTCPLimits(int minPosition, int maxPosition, double minOrientation, double maxOrientation);
 
     void setActuatorsDescriptions(const std::string &description);
@@ -45,7 +45,7 @@ class MoveWindow : public BaseWindow
 
    protected:
     
-    std::shared_ptr<models::IPController> m_IPController;
+    models::IPController::SPtr m_IPController;
     std::string m_TCPPositionDescription{"TCP Target Position (mm):"};
     std::string m_TCPRotationDescription{"TCP Target Rotation (rad):"};
     double m_TCPMinPosition{-500.};

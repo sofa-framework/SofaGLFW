@@ -22,34 +22,47 @@
 #pragma once
 
 #include <SofaImGui/windows/BaseWindow.h>
-#include <SofaImGui/windows/StateWindow.h>
 #include <imgui.h>
 
 namespace sofaimgui::windows {
 
-class ViewportWindow : public BaseWindow
+class PlottingWindow : public BaseWindow
 {
    public:
-    ViewportWindow(const std::string& name, const bool& isWindowOpen, std::shared_ptr<StateWindow> stateWindow);
-    ~ViewportWindow() = default;
 
-    void showWindow(sofa::simulation::Node *groot, const ImTextureID& texture,
-                    const ImGuiWindowFlags &windowFlags);
-    
-    bool addStepButton();
-    bool addAnimateButton(bool *animate);
-    bool addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes, const double &maxItemWidth);
+    struct RollingBuffer {
+        float Span;
+        ImVector<ImVec2> Data;
+        RollingBuffer()
+        {
+            Span = 20.0f;
+            Data.reserve(2000);
+        }
+        void addPoint(float x, float y)
+        {
+            float xmod = fmodf(x, Span);
+            if (!Data.empty() && xmod < Data.back().x)
+                Data.shrink(0);
+            Data.push_back(ImVec2(xmod, y));
+        }
+    };
 
-    std::pair<float, float> m_windowSize{0., 0.};
-    bool m_isMouseOnViewport{false};
+    struct PlottingData{
+        sofa::core::objectmodel::BaseData* value;
+        std::string description;
+        int idSubplot{0};
+    };
+
+    PlottingWindow(const std::string& name, const bool& isWindowOpen);
+    ~PlottingWindow() = default;
+
+    void showWindow(sofa::simulation::Node::SPtr groot, const ImGuiWindowFlags &windowFlags);
+    void addData(const PlottingData data) {m_data.push_back(data);}
+    void clearData();
 
    protected:
-
-    std::shared_ptr<StateWindow> m_stateWindow;
-
-    void addStateWindow();
-    void addSimulationTimeAndFPS(sofa::simulation::Node *groot);
-
+    std::vector<PlottingData> m_data;
+    std::vector<RollingBuffer> m_buffers;
 };
 
 }

@@ -38,7 +38,6 @@ IPController::IPController(sofa::simulation::Node::SPtr groot,
     {
         f_listening = true;
         m_initTCPTargetPosition = getTCPTargetPosition();
-        groot->addObject(this);
     }
 }
 

@@ -36,6 +36,8 @@ class IPController : public sofa::component::controller::Controller
 
    public:
 
+    SOFA_CLASS(IPController, sofa::component::controller::Controller);
+
     struct Actuator{
        sofa::core::BaseData* data;
        size_t indexInProblem;
@@ -44,8 +46,8 @@ class IPController : public sofa::component::controller::Controller
     };
 
     IPController(sofa::simulation::Node::SPtr groot,
-              softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
-              sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
+                 softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+                 sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
     ~IPController() = default;
     
     const RigidCoord& getTCPTargetInitPosition();

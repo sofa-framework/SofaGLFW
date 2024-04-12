@@ -87,7 +87,8 @@ void ImGuiGUIEngine::setIPController(sofa::simulation::Node::SPtr groot,
                                   softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                                   sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
 {
-    m_IPController = std::make_shared<models::IPController>(groot, solver, mechanical);
+    m_IPController = sofa::core::objectmodel::New<models::IPController>(groot, solver, mechanical);
+    groot->addObject(m_IPController.get());
     m_programWindow.setIPController(m_IPController);
     m_moveWindow.setIPController(m_IPController);
     m_IOWindow.setIPController(m_IPController);
@@ -287,6 +288,7 @@ void ImGuiGUIEngine::initDockSpace()
 
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.32f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
+        ImGui::DockBuilderDockWindow(m_plottingWindow.getName().c_str(), dock_id_down);
 
         ImGui::DockBuilderDockWindow(m_viewportWindow.getName().c_str(), dockspaceID);
         ImGui::DockBuilderGetNode(dockspaceID)->WantHiddenTabBarToggle = true;
@@ -337,7 +339,8 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if (m_IPController)
     {
         static const char* listTabs[]{"Move", "Program", "Input/Output"};
-        if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs)))
+        double maxItemWidth = ImGui::CalcTextSize("Input/Output").x;
+        if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs), maxItemWidth))
         {
             const auto filename = baseGUI->getFilename();
 
@@ -368,17 +371,18 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
 void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
-    auto groot = baseGUI->getRootNode();
+    auto groot = baseGUI->getRootNode().get();
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove ;
-    // Down Dock
-    m_programWindow.showWindow(baseGUI, windowFlags);
 
-    // Right Dock
-    m_IOWindow.showWindow(groot.get(), windowFlags);
-    m_myRobotWindow.showWindow(windowFlags);
+    m_programWindow.showWindow(baseGUI, windowFlags);
+    m_plottingWindow.showWindow(groot, windowFlags);
+
+    m_IOWindow.showWindow(groot, windowFlags);
     m_moveWindow.showWindow(windowFlags);
-    m_sceneGraphWindow.showWindow(groot.get(), windowFlags);
+    m_myRobotWindow.showWindow(windowFlags);
+    m_sceneGraphWindow.showWindow(groot, windowFlags);
+
 }
 
 void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -390,6 +394,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             m_simulationState.clearStateData();
             m_myRobotWindow.clearData();
+            m_plottingWindow.clearData();
 
             Utils::reloadSimulation(baseGUI, fileMenu.getFilename());
 
@@ -407,12 +412,19 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             if (!m_IPController)
                 ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isWindowOpen());
-            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
             if (!m_IPController)
                 ImGui::EndDisabled();
-            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
+
             ImGui::Separator();
+
+            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
+            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
+            ImGui::LocalCheckBox(m_plottingWindow.getName().c_str(), &m_plottingWindow.isWindowOpen());
+
+            ImGui::Separator();
+
             ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isWindowOpen());
+
             ImGui::EndMenu();
         }
 
