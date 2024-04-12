@@ -63,6 +63,8 @@ class PlottingWindow : public BaseWindow
    protected:
     std::vector<PlottingData> m_data;
     std::vector<RollingBuffer> m_buffers;
+
+    void exportData();
 };
 
 }

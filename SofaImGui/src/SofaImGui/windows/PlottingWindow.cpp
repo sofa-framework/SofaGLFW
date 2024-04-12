@@ -21,11 +21,17 @@
  ******************************************************************************/
 
 #include <sofa/type/Quat.h>
-#include <imgui_internal.h>
+
 #include <SofaImGui/windows/PlottingWindow.h>
+
 #include <implot.h>
 #include <implot_demo.cpp>
+#include <imgui_internal.h>
 #include <IconsFontAwesome6.h>
+
+#include <iostream>
+#include <fstream>
+#include <nfd.h>
 
 namespace sofaimgui::windows {
 
@@ -42,6 +48,40 @@ void PlottingWindow::clearData()
     m_buffers.clear();
 }
 
+void PlottingWindow::exportData()
+{
+    nfdchar_t *outPath;
+    size_t nbData = m_data.size();
+
+    const nfdresult_t result = NFD_SaveDialog(&outPath, nullptr, 0, nullptr, "plotting.csv");
+    if (result == NFD_OKAY)
+    {
+        if (nbData)
+        {
+            std::ofstream outputFile;
+            outputFile.open(outPath, std::ios::out);
+
+            if (outputFile.is_open())
+            {
+                outputFile << "time,";
+                for (const auto& d : m_buffers[0].Data)
+                    outputFile << d.x << ",";
+                outputFile << "\n";
+
+                for (size_t i=0; i<nbData; i++)
+                {
+                    outputFile << m_data[i].description << ",";
+                    auto buffer = m_buffers[i];
+                    for (const auto& d : buffer.Data)
+                        outputFile << d.y << ",";
+                    outputFile << "\n";
+                }
+                outputFile.close();
+            }
+        }
+    }
+}
+
 void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiWindowFlags &windowFlags)
 {
     static bool firstTime = true;
@@ -52,10 +92,12 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
         {
             static int nbRows = 1;
             static bool lockedAxis = true;
+            static float span = 20.;
             static ImPlotAxisFlags axesFlags = ImPlotAxisFlags_AutoFit;
             static PlottingData* dragedData;
             ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
             auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 3 - ImGui::GetStyle().ItemSpacing.y * 4; // Get position for right buttons
+            auto positionMiddle = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x / 2.f; // Get position for middle button
 
             size_t nbData = m_data.size();
             if (m_buffers.empty())
@@ -66,6 +108,28 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
                 for(auto& buffer: m_buffers)
                     buffer.Data.clear();
             }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Export"))
+            {
+                exportData();
+            }
+
+            ImGui::SameLine();
+
+            ImGui::SetCursorPosX(positionMiddle); // Set position to right of the header
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("Clear every (s):");
+            ImGui::SameLine();
+            ImGui::PushItemWidth(ImGui::CalcTextSize("10000.00").x);
+            if (ImGui::InputFloat("##span", &span, 0, 0, "%0.1f"))
+            {
+                for(auto& buffer: m_buffers)
+                    buffer.Span=span;
+            }
+            ImGui::PopItemWidth();
 
             ImGui::SameLine();
             ImGui::SetCursorPosX(positionRight); // Set position to right of the header
