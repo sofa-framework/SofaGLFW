@@ -114,16 +114,15 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 
                 ImGui::SameLine();
 
-                static bool unlockedRotation = false;
-                ImGui::SetCursorPosX(positionRight - (unlockedRotation? ImGui::CalcTextSize("Unlocked").x: ImGui::CalcTextSize("Locked").x) - ImGui::GetFrameHeightWithSpacing() * 2); // Set position to right of the header
-                ImGui::Text(unlockedRotation? "Unlocked": "Locked");
-                ImGui::SameLine();
-                ImGui::LocalToggleButton("Lock rotation", &unlockedRotation);
+                static bool lockedRotation = true;
+                ImGui::SetCursorPosX(positionRight - ImGui::GetFrameHeightWithSpacing() * 1 - ImGuiStyleVar_IndentSpacing * 2); // Set position to right of the header
+                if (ImGui::Button(lockedRotation? ICON_FA_LOCK: ICON_FA_LOCK_OPEN, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                    lockedRotation = !lockedRotation;
 
                 ImGui::Spacing();
                 ImGui::Unindent();
 
-                if (!unlockedRotation)
+                if (lockedRotation)
                     ImGui::BeginDisabled();
 
                 ImGui::Indent();
@@ -139,13 +138,13 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Unindent();
                 ImGui::Unindent();
 
-                if (!unlockedRotation)
+                if (lockedRotation)
                     ImGui::EndDisabled();
 
                 if (m_isDrivingSimulation)
                 {
                     m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
-                    if (!unlockedRotation)
+                    if (lockedRotation)
                     {
                         auto TCP = m_IPController->getTCPPosition();
                         TCP[0] = x;
