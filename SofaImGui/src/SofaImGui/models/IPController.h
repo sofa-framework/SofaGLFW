@@ -47,7 +47,8 @@ class IPController : public sofa::component::controller::Controller
 
     IPController(sofa::simulation::Node::SPtr groot,
                  softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
-                 sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
+                 sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
+                 sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical);
     ~IPController() = default;
     
     const RigidCoord& getTCPTargetInitPosition();
@@ -55,6 +56,8 @@ class IPController : public sofa::component::controller::Controller
     void getTCPTargetPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz);
     void setTCPTargetPosition(const RigidCoord& position);
     void setTCPTargetPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz);
+
+    RigidCoord getTCPPosition();
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
     void setActuators(const std::vector<Actuator> &actuators);
@@ -66,6 +69,7 @@ class IPController : public sofa::component::controller::Controller
     sofa::simulation::Node::SPtr m_groot;
     softrobotsinverse::solver::QPInverseProblemSolver::SPtr m_solver;
     sofa::core::behavior::BaseMechanicalState::SPtr m_TCPTargetState;
+    sofa::core::behavior::BaseMechanicalState::SPtr m_TCPState;
     RigidCoord m_initTCPTargetPosition;
 
     std::vector<Actuator> m_actuators;

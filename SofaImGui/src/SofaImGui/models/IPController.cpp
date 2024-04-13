@@ -28,17 +28,39 @@
 namespace sofaimgui::models {
 
 IPController::IPController(sofa::simulation::Node::SPtr groot,
-                     softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
-                     sofa::core::behavior::BaseMechanicalState::SPtr mechanical)
+                           softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+                           sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
+                           sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical)
     : m_groot(groot)
     , m_solver(solver)
-    , m_TCPTargetState(mechanical)
+    , m_TCPTargetState(TCPTargetMechanical)
+    , m_TCPState(TCPMechanical)
 {
     if (m_TCPTargetState && groot)
     {
         f_listening = true;
         m_initTCPTargetPosition = getTCPTargetPosition();
     }
+}
+
+sofa::defaulttype::RigidCoord<3, double> IPController::getTCPPosition()
+{
+    RigidCoord position;
+    if (m_TCPState)
+    {
+        std::stringstream frame;
+        m_TCPState->writeVec(sofa::core::VecId::position(), frame);
+
+        frame >> position[0];
+        frame >> position[1];
+        frame >> position[2];
+        frame >> position[3];
+        frame >> position[4];
+        frame >> position[5];
+        frame >> position[6];
+    }
+
+    return position;
 }
 
 const sofa::defaulttype::RigidCoord<3, double>& IPController::getTCPTargetInitPosition()
@@ -200,8 +222,7 @@ void IPController::handleEvent(sofa::core::objectmodel::Event *event)
 
     if (sofa::simulation::AnimateEndEvent::checkEventType(event) && m_updateSolutionOnSolveEndEvent)
     {
-        // TODO: setPosition(); update TCP target with the position of the effector
-        // --> needs to provide a pointer on the state of the effector
+        setTCPTargetPosition(getTCPPosition());
         m_updateSolutionOnSolveEndEvent = false;
     }
 }

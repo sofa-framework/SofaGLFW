@@ -26,6 +26,7 @@
 #include <IconsFontAwesome6.h>
 
 #include <SofaImGui/windows/MoveWindow.h>
+#include <SofaImGui/widgets/Buttons.h>
 
 namespace sofaimgui::windows {
 
@@ -72,6 +73,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
             if (m_IPController != nullptr)
             {
                 ImGui::Spacing();
+                auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x; // Get position for right buttons
 
                 static double x=0;
                 static double y=0;
@@ -103,11 +105,26 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Unindent();
 
                 ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
 
                 ImGui::Indent();
+                ImGui::AlignTextToFramePadding();
                 ImGui::Text("%s", m_TCPRotationDescription.c_str());
+
+                ImGui::SameLine();
+
+                static bool unlockedRotation = false;
+                ImGui::SetCursorPosX(positionRight - (unlockedRotation? ImGui::CalcTextSize("Unlocked").x: ImGui::CalcTextSize("Locked").x) - ImGui::GetFrameHeightWithSpacing() * 2); // Set position to right of the header
+                ImGui::Text(unlockedRotation? "Unlocked": "Locked");
+                ImGui::SameLine();
+                ImGui::LocalToggleButton("Lock rotation", &unlockedRotation);
+
                 ImGui::Spacing();
                 ImGui::Unindent();
+
+                if (!unlockedRotation)
+                    ImGui::BeginDisabled();
 
                 ImGui::Indent();
                 ImGui::Indent();
@@ -122,12 +139,27 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Unindent();
                 ImGui::Unindent();
 
+                if (!unlockedRotation)
+                    ImGui::EndDisabled();
+
                 if (m_isDrivingSimulation)
+                {
                     m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
+                    if (!unlockedRotation)
+                    {
+                        auto TCP = m_IPController->getTCPPosition();
+                        TCP[0] = x;
+                        TCP[1] = y;
+                        TCP[2] = z;
+                        m_IPController->setTCPTargetPosition(TCP);
+                    }
+                }
             }
 
             if (!m_actuators.empty())
             {
+                ImGui::Spacing();
+                ImGui::Separator();
                 ImGui::Spacing();
 
                 ImGui::Indent();

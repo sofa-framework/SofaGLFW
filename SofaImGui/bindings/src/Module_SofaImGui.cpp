@@ -40,7 +40,9 @@ namespace py { using namespace pybind11; }
 namespace sofaimgui::python3
 {
 
-void setIPController(sofa::simulation::Node &target, sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
+void setIPController(sofa::simulation::Node &TCPTarget,
+                     sofa::simulation::Node &TCP,
+                     sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
 {
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
 
@@ -51,8 +53,8 @@ void setIPController(sofa::simulation::Node &target, sofa::component::constraint
 
         if (engine && qpsolver)
         {
-            sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(target.getRoot());
-            engine->setIPController(groot, qpsolver, target.getMechanicalState());
+            sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(TCPTarget.getRoot());
+            engine->setIPController(groot, qpsolver, TCPTarget.getMechanicalState(), TCP.getMechanicalState());
         }
     }
 }

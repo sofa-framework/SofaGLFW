@@ -70,7 +70,10 @@ public:
     void animateBeginEvent(sofa::simulation::Node* groot) override;
     void animateEndEvent(sofa::simulation::Node* groot) override;
 
-    void setIPController(sofa::simulation::Node::SPtr groot, softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver, sofa::core::behavior::BaseMechanicalState::SPtr mechanical);
+    void setIPController(sofa::simulation::Node::SPtr groot,
+                         softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+                         sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
+                         sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical);
 
     bool getRobotConnection() {return m_robotConnection;}
     models::SimulationState& getSimulationState() {return m_simulationState;}
