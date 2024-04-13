@@ -84,6 +84,7 @@ void PlottingWindow::exportData()
 
 void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiWindowFlags &windowFlags)
 {
+    SOFA_UNUSED(windowFlags);
     static bool firstTime = true;
 
     if (m_isWindowOpen)
@@ -91,6 +92,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, ImGuiWindowFlags_NoScrollbar))
         {
             static int nbRows = 1;
+            static int nbCols = 1;
             static bool lockedAxis = true;
             static float span = 20.;
             static ImPlotAxisFlags axesFlags = ImPlotAxisFlags_AutoFit;
@@ -118,7 +120,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 
             ImGui::SameLine();
 
-            ImGui::SetCursorPosX(positionMiddle); // Set position to right of the header
+            ImGui::SetCursorPosX(positionMiddle - ImGui::CalcTextSize("Clear every (s):").x); // Set position to the middle of the header
 
             ImGui::AlignTextToFramePadding();
             ImGui::Text("Clear every (s):");
@@ -126,9 +128,12 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
             ImGui::PushItemWidth(ImGui::CalcTextSize("10000.00").x);
             if (ImGui::InputFloat("##span", &span, 0, 0, "%0.1f"))
             {
+                if (span>20)
+                    span = 20;
                 for(auto& buffer: m_buffers)
                     buffer.Span=span;
             }
+            ImGui::SetItemTooltip("Maximum 20 s.");
             ImGui::PopItemWidth();
 
             ImGui::SameLine();
@@ -161,14 +166,20 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
 
-            if (ImPlot::BeginSubplots("##myplots", nbRows, 1, ImVec2(-1, -1), ImPlotSubplotFlags_ShareItems))
+            bool portraitLayout = (ImGui::GetWindowWidth() < ImGui::GetWindowHeight());
+            if (ImPlot::BeginSubplots("##myplots",
+                                      portraitLayout? nbRows: nbCols,
+                                      portraitLayout? nbCols: nbRows,
+                                      ImVec2(-1, -1),
+                                      ImPlotSubplotFlags_ShareItems
+                                      ))
             {
-                for (int i=0; i<nbRows; i++)
+                for (int i=0; i<nbRows * nbCols; i++)
                 {
-                    if (ImPlot::BeginPlot(("##" +std::to_string(i)).c_str(), ImVec2(-1, 150),
+                    if (ImPlot::BeginPlot(("##" +std::to_string(i)).c_str(), ImVec2(-1, 0),
                                            ImPlotFlags_NoMouseText))
                     {
-                        ImPlot::SetupLegend(ImPlotLocation_East, ImPlotLegendFlags_Sort | ImPlotLegendFlags_Outside);
+                        ImPlot::SetupLegend(ImPlotLocation_NorthEast, ImPlotLegendFlags_Sort | ImPlotLegendFlags_Outside);
                         ImPlot::SetupAxes("Time (s)", nullptr,
                                           axesFlags,
                                           axesFlags);
@@ -197,7 +208,6 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
                                     ImPlot::ItemIcon(ImPlot::GetLastItemColor());
                                     ImGui::SameLine();
                                     ImGui::TextUnformatted(data.description.c_str());
-                                    ImGui::Spacing();
                                     ImPlot::EndDragDropSource();
                                 }
                             }
@@ -225,9 +235,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 
                         ImPlot::EndPlot();
                     }
-                    ImGui::Spacing();
                 }
-
                 ImPlot::EndSubplots();
             }
 
