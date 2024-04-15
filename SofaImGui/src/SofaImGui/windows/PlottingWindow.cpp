@@ -95,7 +95,6 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
             static int nbRows = 1;
             static int nbCols = 1;
             static bool autoFit = true;
-            static float span = 20.;
             static ImPlotAxisFlags axesFlags = ImPlotAxisFlags_AutoFit;
             static PlottingData* dragedData;
             ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
@@ -121,21 +120,10 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 
             ImGui::SameLine();
 
-            ImGui::SetCursorPosX(positionMiddle - ImGui::CalcTextSize("Clear every (s):").x); // Set position to the middle of the header
+            ImGui::SetCursorPosX(positionMiddle - ImGui::CalcTextSize("Clears every 20 s").x / 2.); // Set position to the middle of the header
 
             ImGui::AlignTextToFramePadding();
-            ImGui::Text("Clear every (s):");
-            ImGui::SameLine();
-            ImGui::PushItemWidth(ImGui::CalcTextSize("10000.00").x);
-            if (ImGui::InputFloat("##span", &span, 0, 0, "%0.1f"))
-            {
-                if (span>20)
-                    span = 20;
-                for(auto& buffer: m_buffers)
-                    buffer.Span=span;
-            }
-            ImGui::SetItemTooltip("Maximum 20 s.");
-            ImGui::PopItemWidth();
+            ImGui::Text("Clears every 20 s");
 
             ImGui::SameLine();
             ImGui::SetCursorPosX(positionRight); // Set position to right of the header
