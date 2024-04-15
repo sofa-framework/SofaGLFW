@@ -110,25 +110,32 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Separator();
                 ImGui::Spacing();
 
+                static bool freeInRotation = true;
+                if (freeInRotation)
+                    ImGui::BeginDisabled();
+
                 ImGui::Indent();
                 ImGui::AlignTextToFramePadding();
                 ImGui::Text("%s", m_TCPRotationDescription.c_str());
 
+                if (freeInRotation)
+                    ImGui::EndDisabled();
+
                 ImGui::SameLine();
 
-                static bool freeInRotation = true;
                 ImGui::SetCursorPosX(cursorX - ImGui::GetFrameHeightWithSpacing() * 1); // Set position to right of the line
                 if (ImGui::Button(freeInRotation? ICON_FA_LOCK_OPEN: ICON_FA_LOCK, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
                     freeInRotation = !freeInRotation;
                 ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
-                if (freeInRotation)
-                    ImGui::BeginDisabled();
 
                 ImGui::Spacing();
                 ImGui::Unindent();
 
                 ImGui::Indent();
                 ImGui::Indent();
+
+                if (freeInRotation)
+                    ImGui::BeginDisabled();
 
                 showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
                 ImGui::Spacing();
@@ -137,11 +144,11 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
                 ImGui::Spacing();
 
-                ImGui::Unindent();
-                ImGui::Unindent();
-
                 if (freeInRotation)
                     ImGui::EndDisabled();
+
+                ImGui::Unindent();
+                ImGui::Unindent();
 
                 if (m_isDrivingSimulation)
                 {
