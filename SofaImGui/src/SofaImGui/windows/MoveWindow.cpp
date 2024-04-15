@@ -73,7 +73,6 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
             if (m_IPController != nullptr)
             {
                 ImGui::Spacing();
-                auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x; // Get position for right buttons
 
                 static double x=0;
                 static double y=0;
@@ -99,6 +98,9 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 showSliderDouble("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition + initPosition[1], m_TCPMaxPosition + initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
                 ImGui::Spacing();
                 showSliderDouble("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition + initPosition[2], m_TCPMaxPosition + initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                ImGui::SameLine();
+                double cursorX = ImGui::GetCursorPosX();
+
                 ImGui::Spacing();
 
                 ImGui::Unindent();
@@ -115,16 +117,15 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::SameLine();
 
                 static bool freeInRotation = true;
-                ImGui::SetCursorPosX(positionRight - ImGui::GetFrameHeightWithSpacing() * 1 - ImGuiStyleVar_IndentSpacing * 2); // Set position to right of the header
+                ImGui::SetCursorPosX(cursorX - ImGui::GetFrameHeightWithSpacing() * 1); // Set position to right of the line
                 if (ImGui::Button(freeInRotation? ICON_FA_LOCK_OPEN: ICON_FA_LOCK, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
                     freeInRotation = !freeInRotation;
                 ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
+                if (freeInRotation)
+                    ImGui::BeginDisabled();
 
                 ImGui::Spacing();
                 ImGui::Unindent();
-
-                if (freeInRotation)
-                    ImGui::BeginDisabled();
 
                 ImGui::Indent();
                 ImGui::Indent();
