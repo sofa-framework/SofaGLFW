@@ -24,6 +24,7 @@
 #include <imgui_internal.h>
 #include <ProgramStyle.h>
 #include <SofaImGui/widgets/Buttons.h>
+#include <IconsFontAwesome6.h>
 
 namespace sofaimgui::models::actions {
 
@@ -205,10 +206,12 @@ bool Move::MoveView::showBlock(const std::string &label,
         window->DC.CursorPos.x = x;
         window->DC.CursorPos.y = y;
 
-        bool isFreeInRotation = move.isFreeInRotation();
-        ImGui::LocalPushButton((text + "##wp.rot" + std::to_string(window->DC.CursorPos.x)).c_str(), &isFreeInRotation);
-        move.setFreeInRotation(isFreeInRotation);
-        ImGui::SetItemTooltip("Free TCP movement in rotation.");
+        std::string label = text + " " + (move.isFreeInRotation()? ICON_FA_LOCK_OPEN: ICON_FA_LOCK) + "##wp.rot" + std::to_string(window->DC.CursorPos.x);
+        if (ImGui::Button(label.c_str()))
+        {
+            move.setFreeInRotation(!move.isFreeInRotation());
+        }
+        ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
 
         window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
 
