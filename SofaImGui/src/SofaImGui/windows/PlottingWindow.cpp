@@ -88,7 +88,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
     SOFA_UNUSED(windowFlags);
     static bool firstTime = true;
 
-    if (m_isWindowOpen)
+    if (m_isWindowOpen && !m_data.empty())
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, ImGuiWindowFlags_NoScrollbar))
         {

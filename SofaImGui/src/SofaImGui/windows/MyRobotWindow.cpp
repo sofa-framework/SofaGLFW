@@ -64,7 +64,6 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
                     ImGui::TableNextColumn();
 
-                    ImGui::BeginDisabled();
                     for (auto &information: m_information)
                     {
                         ImGui::AlignTextToFramePadding();
@@ -74,6 +73,7 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         auto* typeinfo = information.data->getValueTypeInfo();
                         auto* values = information.data->getValueVoidPtr();
 
+                        ImGui::BeginDisabled();
                         for (size_t i=0; i<typeinfo->size(); i++)
                         {
                             double buffer = typeinfo->getScalarValue(values, i);
@@ -81,8 +81,8 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                             ImGui::InputDouble(("##setting" + information.description).c_str(), &buffer, 0, 0, "%.2f");
                             ImGui::PopItemWidth();
                         }
+                        ImGui::EndDisabled();
                     }
-                    ImGui::EndDisabled();
 
                     ImGui::NewLine();
                 }
