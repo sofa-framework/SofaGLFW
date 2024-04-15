@@ -55,7 +55,7 @@ void LocalPushButton(const char* str_id, bool* v, const ImVec2 &buttonSize)
 {
     ImVec4 colorActive{0.25f, 0.25f, 0.25f, 1.00f};
     ImGui::PushStyleColor(ImGuiCol_Button, *v? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, *v? colorActive : ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     if(ImGui::Button(str_id, buttonSize))
     {
