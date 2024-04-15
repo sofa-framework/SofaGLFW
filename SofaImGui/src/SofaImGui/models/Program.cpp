@@ -66,6 +66,10 @@ bool Program::importProgram(const std::string &filename)
                         return false;
                     double duration = e->FindAttribute("duration")->DoubleValue();
 
+                    if (!e->FindAttribute("freeInRotation"))
+                        return false;
+                    bool freeInRotation = e->FindAttribute("freeInRotation")->BoolValue();
+
                     if (!e->FindAttribute("type"))
                         return false;
                     actions::Move::Type type = static_cast<actions::Move::Type>(e->FindAttribute("type")->IntValue());
@@ -75,6 +79,7 @@ bool Program::importProgram(const std::string &filename)
                                                            wp,
                                                            duration,
                                                            m_IPController->getRootNode().get(),
+                                                           freeInRotation,
                                                            type);
 
                     if (e->FindAttribute("comment"))
@@ -171,6 +176,7 @@ void Program::exportProgram(const std::string &filename)
                                          + std::to_string(waypoint[6]) + " ";
                         xmlMove->SetAttribute("wp", wp.c_str());
                         xmlMove->SetAttribute("duration", move->getDuration());
+                        xmlMove->SetAttribute("freeInRotation", move->isFreeInRotation());
                         xmlMove->SetAttribute("type", move->getType());
                         xmlMove->SetAttribute("comment", move->getComment());
                         xmlTrack->InsertEndChild(xmlMove);

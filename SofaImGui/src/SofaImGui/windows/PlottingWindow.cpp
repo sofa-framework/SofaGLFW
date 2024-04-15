@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <SofaImGui/widgets/Buttons.h>
 #include <nfd.h>
 
 namespace sofaimgui::windows {
@@ -93,7 +94,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
         {
             static int nbRows = 1;
             static int nbCols = 1;
-            static bool lockedAxis = true;
+            static bool autoFit = true;
             static float span = 20.;
             static ImPlotAxisFlags axesFlags = ImPlotAxisFlags_AutoFit;
             static PlottingData* dragedData;
@@ -139,12 +140,9 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
             ImGui::SameLine();
             ImGui::SetCursorPosX(positionRight); // Set position to right of the header
 
-            if(ImGui::Button((lockedAxis)? ICON_FA_LOCK: ICON_FA_LOCK_OPEN, buttonSize))
-            {
-                lockedAxis = !lockedAxis;
-                axesFlags = (lockedAxis)? ImPlotAxisFlags_AutoFit: ImPlotAxisFlags_None;
-            }
-            ImGui::SetItemTooltip("Lock x and y axes to fit content.");
+            ImGui::LocalPushButton(ICON_FA_EXPAND, &autoFit, buttonSize);
+            axesFlags = (autoFit)? ImPlotAxisFlags_AutoFit: ImPlotAxisFlags_None;
+            ImGui::SetItemTooltip("Auto fit content.");
 
             ImGui::SameLine();
 

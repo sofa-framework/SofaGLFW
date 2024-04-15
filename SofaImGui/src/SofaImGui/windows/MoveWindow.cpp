@@ -114,15 +114,16 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 
                 ImGui::SameLine();
 
-                static bool lockedRotation = true;
+                static bool freeInRotation = true;
                 ImGui::SetCursorPosX(positionRight - ImGui::GetFrameHeightWithSpacing() * 1 - ImGuiStyleVar_IndentSpacing * 2); // Set position to right of the header
-                if (ImGui::Button(lockedRotation? ICON_FA_LOCK: ICON_FA_LOCK_OPEN, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
-                    lockedRotation = !lockedRotation;
+                if (ImGui::Button(freeInRotation? ICON_FA_LOCK_OPEN: ICON_FA_LOCK, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                    freeInRotation = !freeInRotation;
+                ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
 
                 ImGui::Spacing();
                 ImGui::Unindent();
 
-                if (lockedRotation)
+                if (freeInRotation)
                     ImGui::BeginDisabled();
 
                 ImGui::Indent();
@@ -138,19 +139,22 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Unindent();
                 ImGui::Unindent();
 
-                if (lockedRotation)
+                if (freeInRotation)
                     ImGui::EndDisabled();
 
                 if (m_isDrivingSimulation)
                 {
-                    m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
-                    if (lockedRotation)
+                    if (freeInRotation)
                     {
                         auto TCP = m_IPController->getTCPPosition();
                         TCP[0] = x;
                         TCP[1] = y;
                         TCP[2] = z;
                         m_IPController->setTCPTargetPosition(TCP);
+                    }
+                    else
+                    {
+                        m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
                     }
                 }
             }

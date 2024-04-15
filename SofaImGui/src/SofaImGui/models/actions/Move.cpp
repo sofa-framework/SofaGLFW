@@ -28,13 +28,15 @@ Move::Move(const RigidCoord& initialPoint,
            const RigidCoord& waypoint,
            const double &duration,
            sofa::simulation::Node* groot,
+           const bool &freeInRotation,
            Type type):
-                                            Action(duration),
-                                            m_initialPoint(initialPoint),
-                                            m_waypoint(waypoint),
-                                            m_groot(groot),
-                                            m_type(type),
-                                            view(*this)
+                        Action(duration),
+                        m_initialPoint(initialPoint),
+                        m_waypoint(waypoint),
+                        m_groot(groot),
+                        m_freeInRotation(freeInRotation),
+                        m_type(type),
+                        view(*this)
 {
     checkDuration(); // minimum duration for a move is set to 1 second
     setComment("Move to waypoint");
@@ -47,10 +49,21 @@ Move::~Move()
     m_groot->removeObject(m_trajectory);
 }
 
-bool Move::getTCPAtTime(RigidCoord &position, const double &time)
+bool Move::getTCPTargetAtTime(RigidCoord &position, const double &time)
 {
     bool hasChanged = true;
-    position = getInterpolatedPosition(time);
+
+    if (m_freeInRotation)
+    {
+        RigidCoord interpolatedPosition = getInterpolatedPosition(time);
+        position[0] = interpolatedPosition[0];
+        position[1] = interpolatedPosition[1];
+        position[2] = interpolatedPosition[2];
+    }
+    else
+    {
+        position = getInterpolatedPosition(time);
+    }
     return hasChanged;
 }
 

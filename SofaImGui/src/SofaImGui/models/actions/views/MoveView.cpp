@@ -202,11 +202,13 @@ bool Move::MoveView::showBlock(const std::string &label,
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
+        window->DC.CursorPos.x = x;
+        window->DC.CursorPos.y = y;
+
+        bool isFreeInRotation = move.isFreeInRotation();
+        ImGui::LocalPushButton((text + "##wp.rot" + std::to_string(window->DC.CursorPos.x)).c_str(), &isFreeInRotation);
+        move.setFreeInRotation(isFreeInRotation);
+        ImGui::SetItemTooltip("Free TCP movement in rotation.");
 
         window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
 
@@ -220,12 +222,18 @@ bool Move::MoveView::showBlock(const std::string &label,
             ImGui::PushItemWidth(ProgramSizes().InputWidth);
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
             ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
+
+            if(move.isFreeInRotation())
+                ImGui::BeginDisabled();
             if (ImGui::InputDouble(id.c_str(), &waypoint[i], 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
             {
                 hasValuesChanged = true;
                 move.setWaypoint(waypoint);
                 move.computeSpeed();
             }
+            if(move.isFreeInRotation())
+                ImGui::EndDisabled();
+
             ImGui::PopStyleColor(2);
             ImGui::PopItemWidth();
 
@@ -238,7 +246,7 @@ bool Move::MoveView::showBlock(const std::string &label,
     textSize = ImGui::CalcTextSize(text.c_str());
     y = spacing.y + bb.Max.y;
 
-    { // Way point rotation
+    { // Type
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);

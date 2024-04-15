@@ -103,6 +103,7 @@ void Track::insertMove(const sofa::Index &actionIndex)
                                                 m_IPController->getTCPTargetPosition(),
                                                 actions::Action::DEFAULTDURATION,
                                                 m_IPController->getRootNode().get(),
+                                                false,
                                                 actions::Move::Type::LINE);
 
     // insert the new move

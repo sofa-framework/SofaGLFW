@@ -160,43 +160,22 @@ void ProgramWindow::showProgramButtons()
     ImGui::SameLine();
     ImGui::SetCursorPosX(positionRight); // Set position to right of the header
 
-    ImVec4 colorActive{0.25f, 0.25f, 0.25f, 1.00f};
-
-    ImGui::PushStyleColor(ImGuiCol_Button, m_drawTrajectory? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    if (ImGui::Button(ICON_FA_DRAW_POLYGON"##Draw", buttonSize))
-    {
-        m_drawTrajectory = !m_drawTrajectory;
-    }
-    ImGui::PopStyleColor(3);
+    ImGui::LocalPushButton(ICON_FA_DRAW_POLYGON"##Draw", &m_drawTrajectory, buttonSize);
     ImGui::SetItemTooltip("Draw trajectory");
 
     ImGui::SameLine();
 
-    ImGui::PushStyleColor(ImGuiCol_Button, m_repeat? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    if (ImGui::Button(ICON_FA_REPEAT"##Repeat", buttonSize))
-    {
-        m_reverse = false;
-        m_repeat = !m_repeat;
-    }
-    ImGui::PopStyleColor(3);
+    ImGui::LocalPushButton(ICON_FA_REPEAT"##Repeat", &m_repeat, buttonSize);
     ImGui::SetItemTooltip("Repeat program");
+    if (m_repeat)
+        m_reverse = false;
 
     ImGui::SameLine();
 
-    ImGui::PushStyleColor(ImGuiCol_Button, m_reverse? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-    if (ImGui::Button(ICON_FA_ARROWS_LEFT_RIGHT"##Reverse", buttonSize))
-    {
-        m_repeat = false;
-        m_reverse = !m_reverse;
-    }
-    ImGui::PopStyleColor(3);
+    ImGui::LocalPushButton(ICON_FA_ARROWS_LEFT_RIGHT"##Reverse", &m_reverse, buttonSize);
     ImGui::SetItemTooltip("Reverse and repeat program");
+    if (m_reverse)
+        m_repeat = false;
 }
 
 void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
@@ -650,22 +629,23 @@ void ProgramWindow::exportProgram()
         m_program.exportProgram(outPath);
 }
 
-void ProgramWindow::stepProgram()
+void ProgramWindow::stepProgram(const double &dt, const bool &reverse)
 {
     if (m_isDrivingSimulation)
     {
+        double eps = 1e-5;
         for (const auto& track: m_program.getTracks())
         {
-            double blockEnd = 0.f;
-            double blockStart = 0.f;
+            double blockEnd = 0;
+            double blockStart = 0;
             const auto& actions = track->getActions();
             for (const auto& action: actions)
             {
                 blockEnd += action->getDuration();
-                if (blockEnd >= m_time)
+                if ((!reverse && (blockEnd - m_time) > eps) || (reverse && (blockEnd - m_time - dt) > eps))
                 {
-                    RigidCoord position;
-                    if (action->getTCPAtTime(position, m_time - blockStart))
+                    RigidCoord position = m_IPController->getTCPPosition();
+                    if (action->getTCPTargetAtTime(position, m_time + dt - blockStart)) // apply the time corresponding to the end of the time step
                     {
                         m_IPController->setTCPTargetPosition(position);
                     }
@@ -736,26 +716,7 @@ void ProgramWindow::animateBeginEvent(sofa::simulation::Node *groot)
 
         m_time = groot->getTime(); // time at the beginning of the time step
 
-        for (const auto& track: m_program.getTracks())
-        {
-            double blockEnd = 0;
-            double blockStart = 0;
-            const auto& actions = track->getActions();
-            for (const auto& action: actions)
-            {
-                blockEnd += action->getDuration();
-                if ((!reverse && (blockEnd - m_time) > eps) || (reverse && (blockEnd - m_time - dt) > eps))
-                {
-                    RigidCoord position;
-                    if (action->getTCPAtTime(position, m_time + dt - blockStart)) // apply the time corresponding to the end of the time step
-                    {
-                        m_IPController->setTCPTargetPosition(position);
-                    }
-                    break;
-                }
-                blockStart = blockEnd;
-            }
-        }
+        stepProgram(dt, reverse);
 
         m_time += dt; // for cursor display
     } // isDrivingSimulation

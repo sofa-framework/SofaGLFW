@@ -45,11 +45,12 @@ class Move : public Action
          const RigidCoord& waypoint,
          const double& duration,
          sofa::simulation::Node *groot,
+         const bool& freeInRotation,
          Type type = LINE);
 
     ~Move();
 
-    bool getTCPAtTime(RigidCoord&, const double &time) override;
+    bool getTCPTargetAtTime(RigidCoord&, const double &time) override;
     void computeDuration() override;
     void computeSpeed() override;
     void setDuration(const double& duration) override;
@@ -69,6 +70,9 @@ class Move : public Action
     void highlightTrajectory(const bool &highlight);
     void setDrawTrajectory(const bool &drawTrajectory);
 
+    bool isFreeInRotation() {return m_freeInRotation;}
+    void setFreeInRotation(const bool &freeInRotation) {m_freeInRotation=freeInRotation;}
+
    protected:
 
     RigidCoord m_initialPoint;
@@ -81,6 +85,7 @@ class Move : public Action
     const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
     sofa::simulation::Node* m_groot;
 
+    bool m_freeInRotation;
     Type m_type;
 
     void checkDuration();

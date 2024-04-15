@@ -84,7 +84,7 @@ class ProgramWindow : public BaseWindow
     void showBlockOptionButton(const std::string &menulabel,
                                 const std::string &label);
 
-    void stepProgram();
+    void stepProgram(const double &dt=0., const bool &reverse=false);
 
     bool importProgram();
     void exportProgram();
