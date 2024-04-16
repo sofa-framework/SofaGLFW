@@ -41,6 +41,7 @@
 #include <SofaImGui/models/IPController.h>
 #include <SofaImGui/models/SimulationState.h>
 #include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <SoftRobots.Inverse/component/constraint/PositionEffector.h>
 
 
 struct GLFWwindow;
@@ -73,7 +74,8 @@ public:
     void setIPController(sofa::simulation::Node::SPtr groot,
                          softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                          sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
-                         sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical);
+                         sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical,
+                         softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr rotationEffector);
 
     bool getRobotConnection() {return m_robotConnection;}
     models::SimulationState& getSimulationState() {return m_simulationState;}

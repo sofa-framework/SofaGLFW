@@ -125,7 +125,10 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 
                 ImGui::SetCursorPosX(cursorX - ImGui::GetFrameHeightWithSpacing() * 1); // Set position to right of the line
                 if (ImGui::Button(freeInRotation? ICON_FA_LOCK_OPEN: ICON_FA_LOCK, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                {
                     freeInRotation = !freeInRotation;
+                }
+                m_IPController->setFreeInRotation(freeInRotation);
                 ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
 
                 ImGui::Spacing();

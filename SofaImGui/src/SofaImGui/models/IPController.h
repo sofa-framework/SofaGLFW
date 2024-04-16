@@ -26,6 +26,7 @@
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
 #include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <SoftRobots.Inverse/component/constraint/PositionEffector.h>
 #include <sofa/component/controller/Controller.h>
 
 namespace sofaimgui::models {
@@ -48,7 +49,8 @@ class IPController : public sofa::component::controller::Controller
     IPController(sofa::simulation::Node::SPtr groot,
                  softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                  sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
-                 sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical);
+                 sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical,
+                 softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr rotationEffector);
     ~IPController() = default;
     
     const RigidCoord& getTCPTargetInitPosition();
@@ -58,6 +60,8 @@ class IPController : public sofa::component::controller::Controller
     void setTCPTargetPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz);
 
     RigidCoord getTCPPosition();
+
+    void setFreeInRotation(const bool &freeInRotation);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
     void setActuators(const std::vector<Actuator> &actuators);
@@ -70,8 +74,10 @@ class IPController : public sofa::component::controller::Controller
     softrobotsinverse::solver::QPInverseProblemSolver::SPtr m_solver;
     sofa::core::behavior::BaseMechanicalState::SPtr m_TCPTargetState;
     sofa::core::behavior::BaseMechanicalState::SPtr m_TCPState;
+    softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr m_rotationEffector;
     RigidCoord m_initTCPTargetPosition;
 
+    double m_initRotationWeight;
     std::vector<Actuator> m_actuators;
     
     bool m_updateSolutionOnSolveEndEvent{false};

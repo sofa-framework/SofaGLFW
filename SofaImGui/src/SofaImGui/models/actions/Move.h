@@ -27,6 +27,7 @@
 #include <sofa/simulation/Node.h>
 #include <SofaImGui/models/Trajectory.h>
 #include <SofaImGui/models/actions/Action.h>
+#include <SofaImGui/models/IPController.h>
 
 namespace sofaimgui::models::actions {
 
@@ -44,13 +45,13 @@ class Move : public Action
     Move(const RigidCoord& initialPoint,
          const RigidCoord& waypoint,
          const double& duration,
-         sofa::simulation::Node *groot,
+         IPController::SPtr IPController,
          const bool& freeInRotation,
          Type type = LINE);
 
     ~Move();
-
-    bool getTCPTargetAtTime(RigidCoord&, const double &time) override;
+    
+    bool apply(RigidCoord&, const double &time) override;
     void computeDuration() override;
     void computeSpeed() override;
     void setDuration(const double& duration) override;
@@ -66,7 +67,7 @@ class Move : public Action
     void setType(Type type) {m_type = type;}
     Type getType() {return m_type;}
 
-    void addTrajectoryComponent(sofa::simulation::Node* groot);
+    void addTrajectoryComponent(sofa::simulation::Node::SPtr groot);
     void highlightTrajectory(const bool &highlight);
     void setDrawTrajectory(const bool &drawTrajectory);
 
@@ -82,8 +83,9 @@ class Move : public Action
     double m_minSpeed{10};
     double m_maxSpeed; // TODO: set
 
+    IPController::SPtr m_IPController;
     const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
-    sofa::simulation::Node* m_groot;
+    sofa::simulation::Node::SPtr m_groot;
 
     bool m_freeInRotation;
     Type m_type;

@@ -32,6 +32,7 @@
 #include <SofaImGui/ImGuiGUI.h>
 #include <SofaImGui/ImGuiGUIEngine.h>
 #include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <SoftRobots.Inverse/component/constraint/PositionEffector.h>
 #include <sofa/component/constraint/lagrangian/solver/ConstraintSolverImpl.h>
 
 
@@ -40,8 +41,8 @@ namespace py { using namespace pybind11; }
 namespace sofaimgui::python3
 {
 
-void setIPController(sofa::simulation::Node &TCPTarget,
-                     sofa::simulation::Node &TCP,
+void setIPController(sofa::simulation::Node &TCPTargetNode,
+                     sofa::simulation::Node &TCPNode,
                      sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
 {
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
@@ -53,8 +54,22 @@ void setIPController(sofa::simulation::Node &TCPTarget,
 
         if (engine && qpsolver)
         {
-            sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(TCPTarget.getRoot());
-            engine->setIPController(groot, qpsolver, TCPTarget.getMechanicalState(), TCP.getMechanicalState());
+            sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(TCPTargetNode.getRoot());
+
+            // Find the PositionEffector component corresponding to the rotation if any
+            sofa::type::vector<softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3dTypes> *> effectors;
+            groot->getContext()->getObjects(effectors, sofa::core::objectmodel::BaseContext::SearchDirection::SearchRoot);
+            softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3dTypes> * rotationEffector;
+            for (auto* effector: effectors)
+            {
+                auto useDirections = effector->d_useDirections.getValue();
+                if (useDirections[0] || useDirections[1] || useDirections[2])
+                    continue;
+                rotationEffector = effector;
+                break;
+            }
+
+            engine->setIPController(groot, qpsolver, TCPTargetNode.getMechanicalState(), TCPNode.getMechanicalState(), rotationEffector);
         }
     }
 }

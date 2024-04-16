@@ -645,7 +645,7 @@ void ProgramWindow::stepProgram(const double &dt, const bool &reverse)
                 if ((!reverse && (blockEnd - m_time) > eps) || (reverse && (blockEnd - m_time - dt) > eps))
                 {
                     RigidCoord position = m_IPController->getTCPPosition();
-                    if (action->getTCPTargetAtTime(position, m_time + dt - blockStart)) // apply the time corresponding to the end of the time step
+                    if (action->apply(position, m_time + dt - blockStart)) // apply the time corresponding to the end of the time step
                     {
                         m_IPController->setTCPTargetPosition(position);
                     }

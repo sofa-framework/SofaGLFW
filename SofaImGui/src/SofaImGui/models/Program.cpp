@@ -78,7 +78,7 @@ bool Program::importProgram(const std::string &filename)
                     move = std::make_shared<actions::Move>(RigidCoord(),
                                                            wp,
                                                            duration,
-                                                           m_IPController->getRootNode().get(),
+                                                           m_IPController,
                                                            freeInRotation,
                                                            type);
 

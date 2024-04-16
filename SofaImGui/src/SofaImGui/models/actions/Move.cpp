@@ -27,13 +27,13 @@ namespace sofaimgui::models::actions {
 Move::Move(const RigidCoord& initialPoint,
            const RigidCoord& waypoint,
            const double &duration,
-           sofa::simulation::Node* groot,
+           IPController::SPtr IPController,
            const bool &freeInRotation,
            Type type):
                         Action(duration),
                         m_initialPoint(initialPoint),
                         m_waypoint(waypoint),
-                        m_groot(groot),
+                        m_IPController(IPController),
                         m_freeInRotation(freeInRotation),
                         m_type(type),
                         view(*this)
@@ -41,15 +41,17 @@ Move::Move(const RigidCoord& initialPoint,
     checkDuration(); // minimum duration for a move is set to 1 second
     setComment("Move to waypoint");
     m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
-    addTrajectoryComponent(groot);
+    m_groot = m_IPController->getRootNode();
+    addTrajectoryComponent(m_groot);
 }
 
 Move::~Move()
 {
-    m_groot->removeObject(m_trajectory);
+    if (m_groot)
+        m_groot->removeObject(m_trajectory);
 }
 
-bool Move::getTCPTargetAtTime(RigidCoord &position, const double &time)
+bool Move::apply(RigidCoord &position, const double &time)
 {
     bool hasChanged = true;
 
@@ -64,14 +66,20 @@ bool Move::getTCPTargetAtTime(RigidCoord &position, const double &time)
     {
         position = getInterpolatedPosition(time);
     }
+
+    m_IPController->setFreeInRotation(m_freeInRotation);
+
     return hasChanged;
 }
 
-void Move::addTrajectoryComponent(sofa::simulation::Node* groot)
+void Move::addTrajectoryComponent(sofa::simulation::Node::SPtr groot)
 {
-    m_groot = groot;
-    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
-    groot->addObject(m_trajectory);
+    if (groot)
+    {
+        m_groot = groot;
+        m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
+        groot->addObject(m_trajectory);
+    }
 }
 
 void Move::highlightTrajectory(const bool &highlight)

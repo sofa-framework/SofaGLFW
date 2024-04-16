@@ -30,16 +30,28 @@ namespace sofaimgui::models {
 IPController::IPController(sofa::simulation::Node::SPtr groot,
                            softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                            sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
-                           sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical)
+                           sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical,
+                           softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr rotationEffector)
     : m_groot(groot)
     , m_solver(solver)
     , m_TCPTargetState(TCPTargetMechanical)
     , m_TCPState(TCPMechanical)
+    , m_rotationEffector(rotationEffector)
 {
     if (m_TCPTargetState && groot)
     {
         f_listening = true;
         m_initTCPTargetPosition = getTCPTargetPosition();
+        if (rotationEffector)
+            m_initRotationWeight = rotationEffector->d_weight.getValue();
+    }
+}
+
+void IPController::setFreeInRotation(const bool &freeInRotation)
+{
+    if(m_rotationEffector)
+    {
+        m_rotationEffector->d_weight.setValue(freeInRotation? 0: m_initRotationWeight);
     }
 }
 

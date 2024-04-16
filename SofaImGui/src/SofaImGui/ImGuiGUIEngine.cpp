@@ -86,9 +86,10 @@ const std::string& ImGuiGUIEngine::getAppIniFile()
 void ImGuiGUIEngine::setIPController(sofa::simulation::Node::SPtr groot,
                                      softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                                      sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
-                                     core::behavior::BaseMechanicalState::SPtr TCPMechanical)
+                                     core::behavior::BaseMechanicalState::SPtr TCPMechanical,
+                                     softrobotsinverse::constraint::PositionEffector<defaulttype::Rigid3Types>::SPtr rotationEffector)
 {
-    m_IPController = sofa::core::objectmodel::New<models::IPController>(groot, solver, TCPTargetMechanical, TCPMechanical);
+    m_IPController = sofa::core::objectmodel::New<models::IPController>(groot, solver, TCPTargetMechanical, TCPMechanical, rotationEffector);
     groot->addObject(m_IPController.get());
     m_programWindow.setIPController(m_IPController);
     m_moveWindow.setIPController(m_IPController);

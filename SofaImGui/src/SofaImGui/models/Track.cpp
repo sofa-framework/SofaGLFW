@@ -78,7 +78,7 @@ void Track::pushMove()
     auto move = std::make_shared<actions::Move>(RigidCoord(),
                                                 m_IPController->getTCPTargetPosition(),
                                                 actions::Action::DEFAULTDURATION,
-                                                m_IPController->getRootNode().get(),
+                                                m_IPController,
                                                 actions::Move::Type::LINE);
     pushMove(move);
 }
@@ -102,7 +102,7 @@ void Track::insertMove(const sofa::Index &actionIndex)
     auto move = std::make_shared<actions::Move>((previous!=nullptr)? previous->getWaypoint(): m_IPController->getTCPTargetInitPosition(),
                                                 m_IPController->getTCPTargetPosition(),
                                                 actions::Action::DEFAULTDURATION,
-                                                m_IPController->getRootNode().get(),
+                                                m_IPController,
                                                 false,
                                                 actions::Move::Type::LINE);
 
