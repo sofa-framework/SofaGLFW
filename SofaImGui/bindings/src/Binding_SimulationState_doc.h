@@ -29,4 +29,19 @@ static auto SimulationState = R"(
 
         Sofa.ImGui.SimulationState
          )";
+
+static auto addData =
+    R"(
+        Add data to the SimulationState pane of the GUI
+
+        :param group: The data are displayed by group, name of the group which will be displayed on the GUI
+        :type group: string
+        :param description: Description of the data that will be displayed on the GUI
+        :type description: string
+        :param data: Data to be displayed
+        :type data: BaseData*
+        :returns:  None.
+    )";
 }
+
+

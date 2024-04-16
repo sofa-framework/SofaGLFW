@@ -29,7 +29,6 @@
 #include <SofaPython3/PythonEnvironment.h>
 
 #include <sofa/gui/common/GUIManager.h>
-
 #include <SofaImGui/ImGuiGUI.h>
 #include <SofaImGui/ImGuiGUIEngine.h>
 
@@ -41,29 +40,27 @@ namespace py { using namespace pybind11; }
 namespace sofaimgui::python3
 {
 
-void moduleAddSimulationState(py::module &m) {
-
+void moduleAddSimulationState(py::module &m)
+{
     ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
+    std::shared_ptr<ImGuiGUIEngine> engine = gui? std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine()) : nullptr;
 
-    if (gui)
-    {
-        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+    auto m_a = m.def_submodule("SimulationState", "");
 
-        if (engine)
+    m_a.def("addData",
+        [engine](std::string group, std::string description, sofa::core::BaseData* data)
         {
-            auto m_a = m.def_submodule("SimulationState", "");
-            m_a.def("addStateData",
-                [engine](std::string group, std::string description, sofa::core::BaseData* data)
-                    {
-                        models::SimulationState::StateData stateData;
-                        stateData.group = group;
-                        stateData.description = description;
-                        stateData.data = data;
-                        engine->getSimulationState().addStateData(stateData);
-                    }
-                    );
+            if (engine)
+            {
+                models::SimulationState::StateData stateData;
+                stateData.group = group;
+                stateData.description = description;
+                stateData.data = data;
+                engine->getSimulationState().addStateData(stateData);
+            }
         }
-    }
- }
+        );
+}
 
 }
+
