@@ -1469,6 +1469,7 @@ void ImGuiGUIEngine::showComponents(const char* const& windowNameComponents, boo
                                         ImGui::PopStyleColor();
                                     }
                                 }
+                                ImGui::Unindent();
                             }
                         }
                     }
