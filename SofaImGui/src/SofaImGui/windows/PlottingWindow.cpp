@@ -24,8 +24,6 @@
 
 #include <SofaImGui/windows/PlottingWindow.h>
 
-#include <implot.h>
-#include <implot_demo.cpp>
 #include <imgui_internal.h>
 #include <IconsFontAwesome6.h>
 
@@ -65,7 +63,7 @@ void PlottingWindow::exportData()
             if (outputFile.is_open())
             {
                 outputFile << "time,";
-                for (const auto& d : m_buffers[0].Data)
+                for (const auto& d : m_buffers[0].data)
                     outputFile << d.x << ",";
                 outputFile << "\n";
 
@@ -73,7 +71,7 @@ void PlottingWindow::exportData()
                 {
                     outputFile << m_data[i].description << ",";
                     auto buffer = m_buffers[i];
-                    for (const auto& d : buffer.Data)
+                    for (const auto& d : buffer.data)
                         outputFile << d.y << ",";
                     outputFile << "\n";
                 }
@@ -86,7 +84,6 @@ void PlottingWindow::exportData()
 void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiWindowFlags &windowFlags)
 {
     SOFA_UNUSED(windowFlags);
-    static bool firstTime = true;
 
     if (m_isWindowOpen && !m_data.empty())
     {
@@ -108,12 +105,12 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
             if (ImGui::Button("Clear"))
             {
                 for(auto& buffer: m_buffers)
-                    buffer.Data.clear();
+                    buffer.data.clear();
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("Export"))
+            if (ImGui::Button(ICON_FA_ARROW_UP_FROM_BRACKET, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
             {
                 exportData();
             }
@@ -136,7 +133,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 
             if(ImGui::Button("+##plotting", buttonSize))
             {
-                if (nbRows<4)
+                if (nbRows<MAX_NB_PLOT)
                     nbRows+=1;
             }
             ImGui::SetItemTooltip("Show an additional subplot.");
@@ -163,7 +160,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
                 for (int i=0; i<nbRows * nbCols; i++)
                 {
                     if (ImPlot::BeginPlot(("##" +std::to_string(i)).c_str(), ImVec2(-1, 0),
-                                           ImPlotFlags_NoMouseText))
+                                           ImPlotFlags_NoMouseText | ImPlotFlags_NoMenus))
                     {
                         ImPlot::SetupLegend(ImPlotLocation_NorthEast, ImPlotLegendFlags_Sort | ImPlotLegendFlags_Outside);
                         ImPlot::SetupAxes("Time (s)", nullptr,
@@ -183,9 +180,9 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
                                     buffer.addPoint(time, value);
 
                                 ImPlot::PlotLine(data.description.c_str(),
-                                                 &buffer.Data[0].x,
-                                                 &buffer.Data[0].y,
-                                                 buffer.Data.size(),
+                                                 &buffer.data[0].x,
+                                                 &buffer.data[0].y,
+                                                 buffer.data.size(),
                                                  0, 0, 2 * sizeof(float));
 
                                 if (ImPlot::BeginDragDropSourceItem(data.description.c_str())) {
@@ -209,26 +206,88 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
                             ImPlot::EndDragDropTarget();
                         }
 
-                        if (firstTime)
-                        {
-                            for (size_t k=0; k<nbData; k++)
-                            {
-                                auto item = ImPlot::GetItem(m_data[k].description.c_str());
-                                if (item && k!=0)
-                                    item->Show = false;
-                            }
-                        }
+                        ImPlotContext& gp = *GImPlot;
+                        ImPlotPlot &plot  = *gp.CurrentPlot;
 
                         ImPlot::EndPlot();
+
+                        ImGui::PushOverrideID(plot.ID);
+
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) &&
+                            !plot.Items.Legend.Hovered &&
+                            plot.Hovered)
+                        {
+                            ImGui::OpenPopup("##MyPlotContext");
+                        }
+
+                        if (ImGui::BeginPopup("##MyPlotContext"))
+                        {
+                            ImGui::PopStyleColor();
+                            showMenu(plot, i);
+                            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
+                            ImGui::EndPopup();
+                        }
+
+                        ImGui::PopID();
                     }
                 }
                 ImPlot::EndSubplots();
             }
-
-            ImGui::PopStyleColor(1);
+            ImGui::PopStyleColor();
         }
-        firstTime = false;
     }
+}
+
+void PlottingWindow::showMenu(ImPlotPlot &plot, const int &idSubplot)
+{
+    ImGui::PushID(plot.ID);
+    if (ImGui::BeginTable("Columns", 2, ImGuiTableFlags_None))
+    {
+        ImGui::TableNextColumn();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Ratio");
+        ImGui::TableNextColumn();
+        ImGui::SameLine();
+
+        float ratio = m_ratio[idSubplot];
+        ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
+        if (ImGui::InputFloat(("##Ratio" + std::to_string(idSubplot)).c_str(), &ratio, 0, 0, "%0.2e"))
+        {
+            size_t nbData = m_data.size();
+            for (size_t i=0; i<nbData; i++)
+            {
+                auto& data = m_data[i];
+                auto& buffer = m_buffers[i];
+                if (data.idSubplot == idSubplot)
+                {
+                    for (auto& point: buffer.data)
+                    {
+                        point.y /= buffer.ratio;
+                        point.y *= ratio;
+                    }
+                    buffer.ratio = ratio;
+                }
+            }
+            m_ratio[idSubplot] = ratio;
+        }
+        ImGui::PopItemWidth();
+        ImGui::EndTable();
+    }
+
+    ImGui::Separator();
+
+    bool showMousePosition = !ImHasFlag(plot.Flags, ImPlotFlags_NoMouseText);
+    if (ImGui::LocalCheckBox("Show mouse position", &showMousePosition))
+        ImFlipFlag(plot.Flags, ImPlotFlags_NoMouseText);
+
+    bool showGrid = !ImHasFlag(plot.XAxis(idSubplot).Flags, ImPlotAxisFlags_NoGridLines);
+    if (ImGui::LocalCheckBox("Show grid", &showGrid))
+    {
+        ImFlipFlag(plot.XAxis(idSubplot).Flags, ImPlotAxisFlags_NoGridLines);
+        ImFlipFlag(plot.YAxis(idSubplot).Flags, ImPlotAxisFlags_NoGridLines);
+    }
+
+    ImGui::PopID();
 }
 
 }

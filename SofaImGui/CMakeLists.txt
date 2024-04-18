@@ -31,7 +31,7 @@ FetchContent_MakeAvailable(nfd)
 
 FetchContent_Declare(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
-        GIT_TAG        18c72431f8265e2b0b5378a3a73d8a883b2175ff
+        GIT_TAG        f156599faefe316f7dd20fe6c783bf87c8bb6fd9
 )
 FetchContent_MakeAvailable(ImPlot)
 

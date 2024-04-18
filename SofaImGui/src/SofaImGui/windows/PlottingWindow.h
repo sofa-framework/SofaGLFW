@@ -23,31 +23,38 @@
 
 #include <SofaImGui/windows/BaseWindow.h>
 #include <imgui.h>
+#include <implot.h>
+#include <implot_internal.h>
 
 namespace sofaimgui::windows {
+
+#define MAX_NB_PLOT 4
 
 class PlottingWindow : public BaseWindow
 {
    public:
 
-    struct RollingBuffer {
-        float Span;
-        ImVector<ImVec2> Data;
+    struct RollingBuffer
+    {
+        float span;
+        float ratio = 1;
+        ImVector<ImVec2> data;
         RollingBuffer()
         {
-            Span = 20.0f;
-            Data.reserve(2000);
+            span = 20.0f;
+            data.reserve(2000);
         }
         void addPoint(float x, float y)
         {
-            float xmod = fmodf(x, Span);
-            if (!Data.empty() && xmod < Data.back().x)
-                Data.shrink(0);
-            Data.push_back(ImVec2(xmod, y));
+            float xmod = fmodf(x, span);
+            if (!data.empty() && xmod < data.back().x)
+                data.shrink(0);
+            data.push_back(ImVec2(xmod, y * ratio));
         }
     };
 
-    struct PlottingData{
+    struct PlottingData
+    {
         sofa::core::objectmodel::BaseData* value;
         std::string description;
         int idSubplot{0};
@@ -63,8 +70,10 @@ class PlottingWindow : public BaseWindow
    protected:
     std::vector<PlottingData> m_data;
     std::vector<RollingBuffer> m_buffers;
+    float m_ratio[MAX_NB_PLOT] = {1, 1, 1, 1};
 
     void exportData();
+    void showMenu(ImPlotPlot &plot, const int &idSubplot);
 };
 
 }
