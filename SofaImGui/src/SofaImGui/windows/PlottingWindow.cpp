@@ -91,11 +91,9 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
         {
             static int nbRows = 1;
             static int nbCols = 1;
-            static bool autoFit = true;
-            static ImPlotAxisFlags axesFlags = ImPlotAxisFlags_AutoFit;
             static PlottingData* dragedData;
             ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
-            auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 3 - ImGui::GetStyle().ItemSpacing.y * 4; // Get position for right buttons
+            auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 2 - ImGui::GetStyle().ItemSpacing.y * 3; // Get position for right buttons
             auto positionMiddle = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x / 2.f; // Get position for middle button
 
             size_t nbData = m_data.size();
@@ -125,12 +123,6 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
             ImGui::SameLine();
             ImGui::SetCursorPosX(positionRight); // Set position to right of the header
 
-            ImGui::LocalPushButton(ICON_FA_EXPAND, &autoFit, buttonSize);
-            axesFlags = (autoFit)? ImPlotAxisFlags_AutoFit: ImPlotAxisFlags_None;
-            ImGui::SetItemTooltip("Auto fit content.");
-
-            ImGui::SameLine();
-
             if(ImGui::Button("+##plotting", buttonSize))
             {
                 if (nbRows<MAX_NB_PLOT)
@@ -149,7 +141,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
 
-            bool portraitLayout = (ImGui::GetWindowWidth() < ImGui::GetWindowHeight());
+            bool portraitLayout = (ImGui::GetWindowWidth() * 0.75 < ImGui::GetWindowHeight());
             if (ImPlot::BeginSubplots("##myplots",
                                       portraitLayout? nbRows: nbCols,
                                       portraitLayout? nbCols: nbRows,
@@ -164,8 +156,8 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
                     {
                         ImPlot::SetupLegend(ImPlotLocation_NorthEast, ImPlotLegendFlags_Sort | ImPlotLegendFlags_Outside);
                         ImPlot::SetupAxes("Time (s)", nullptr,
-                                          axesFlags,
-                                          axesFlags);
+                                          ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoSideSwitch | ImPlotAxisFlags_NoHighlight,
+                                          ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoSideSwitch | ImPlotAxisFlags_NoHighlight);
                         for (size_t k=0; k<nbData; k++)
                         {
                             auto& data = m_data[k];
@@ -280,11 +272,18 @@ void PlottingWindow::showMenu(ImPlotPlot &plot, const int &idSubplot)
     if (ImGui::LocalCheckBox("Show mouse position", &showMousePosition))
         ImFlipFlag(plot.Flags, ImPlotFlags_NoMouseText);
 
-    bool showGrid = !ImHasFlag(plot.XAxis(idSubplot).Flags, ImPlotAxisFlags_NoGridLines);
+    bool showGrid = !ImHasFlag(plot.XAxis(0).Flags, ImPlotAxisFlags_NoGridLines);
     if (ImGui::LocalCheckBox("Show grid", &showGrid))
     {
-        ImFlipFlag(plot.XAxis(idSubplot).Flags, ImPlotAxisFlags_NoGridLines);
-        ImFlipFlag(plot.YAxis(idSubplot).Flags, ImPlotAxisFlags_NoGridLines);
+        ImFlipFlag(plot.XAxis(0).Flags, ImPlotAxisFlags_NoGridLines);
+        ImFlipFlag(plot.YAxis(0).Flags, ImPlotAxisFlags_NoGridLines);
+    }
+
+    bool autofit = ImHasFlag(plot.XAxis(0).Flags, ImPlotAxisFlags_AutoFit);
+    if (ImGui::LocalCheckBox("Auto fit content", &autofit))
+    {
+        ImFlipFlag(plot.XAxis(0).Flags, ImPlotAxisFlags_AutoFit);
+        ImFlipFlag(plot.YAxis(0).Flags, ImPlotAxisFlags_AutoFit);
     }
 
     ImGui::PopID();
