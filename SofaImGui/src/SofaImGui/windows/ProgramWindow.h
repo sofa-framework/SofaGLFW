@@ -30,7 +30,7 @@
 #include <SofaImGui/models/actions/Wait.h>
 #include <SofaImGui/models/modifiers/Repeat.h>
 
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 struct ImDrawList;
@@ -55,14 +55,14 @@ class ProgramWindow : public BaseWindow
     void animateEndEvent(sofa::simulation::Node *groot);
 
     void setTime(const double &time) {m_time=time;}
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget);
+    void setIPController(models::IPController::SPtr IPController);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
-
-    void update(sofa::simulation::Node* groot);
+    
+    void addTrajectoryComponents(sofa::simulation::Node* groot);
 
    protected:
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    
+    models::IPController::SPtr m_IPController;
 
     double m_cursor;
     ImVec2 m_trackBeginPos;
@@ -84,7 +84,7 @@ class ProgramWindow : public BaseWindow
     void showBlockOptionButton(const std::string &menulabel,
                                 const std::string &label);
 
-    void stepProgram();
+    void stepProgram(const double &dt=0., const bool &reverse=false);
 
     bool importProgram();
     void exportProgram();

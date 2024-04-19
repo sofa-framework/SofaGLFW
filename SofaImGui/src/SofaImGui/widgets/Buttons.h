@@ -9,6 +9,8 @@ bool LocalSliderFloatWithSteps(const char* label, float* v, float v_min, float v
 
 void LocalToggleButton(const char* str_id, bool* v);
 
+void LocalPushButton(const char* str_id, bool *v, const ImVec2 &buttonSize = ImVec2(0, 0));
+
 bool LocalCheckBox(const char* label, bool* v);
 
 bool LocalCheckBoxEx(const char* label, bool* v);

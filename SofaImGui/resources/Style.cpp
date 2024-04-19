@@ -74,7 +74,7 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ButtonText]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TabText]                = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TabTextActive]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
     colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
     colors[ImGuiCol_WindowBg]               = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
     colors[ImGuiCol_ChildBg]                = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);

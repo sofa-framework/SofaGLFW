@@ -29,7 +29,7 @@
 
 #include <sofa/core/objectmodel/DataFileName.h>
 #include <SofaImGui/models/Track.h>
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 
 namespace sofaimgui::models {
 
@@ -40,9 +40,9 @@ class Program
    public:
 
     Program() = default;
-    Program(std::shared_ptr<models::TCPTarget> TCPTarget): m_TCPTarget(TCPTarget)
+    Program(models::IPController::SPtr IPController): m_IPController(IPController)
     {
-        std::shared_ptr<models::Track> track = std::make_shared<models::Track>(TCPTarget);
+        std::shared_ptr<models::Track> track = std::make_shared<models::Track>(IPController);
         addTrack(track);
     }
     ~Program() = default;
@@ -61,8 +61,8 @@ class Program
     bool isEmpty();
 
    protected:
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    
+    models::IPController::SPtr m_IPController;
     std::vector<std::shared_ptr<Track>> m_tracks;
 
     bool checkExtension(const std::string &filename);

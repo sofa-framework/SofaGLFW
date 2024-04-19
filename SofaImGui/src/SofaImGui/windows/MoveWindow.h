@@ -22,7 +22,7 @@
 #pragma once
 
 #include <SofaImGui/windows/BaseWindow.h>
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 #include <imgui.h>
 
 namespace sofaimgui::windows {
@@ -33,26 +33,34 @@ class MoveWindow : public BaseWindow
     MoveWindow(const std::string& name, const bool& isWindowOpen);
     ~MoveWindow() = default;
 
-    void showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags &windowFlags);
-    void setTCPTarget(std::shared_ptr<models::TCPTarget> TCPTarget) {m_TCPTarget=TCPTarget;}
+    void showWindow(const ImGuiWindowFlags &windowFlags);
+
+    void setTCPDescriptions(const std::string &positionDescription, const std::string &rotationDescription);
+    void setIPController(models::IPController::SPtr IPController) {m_IPController=IPController;}
+    void setTCPLimits(int minPosition, int maxPosition, double minOrientation, double maxOrientation);
+
+    void setActuatorsDescriptions(const std::string &description);
+    void setActuatorsLimits(double min, double max);
+    void setActuators(std::vector<models::IPController::Actuator> actuators) {m_actuators = actuators;}
 
    protected:
-
-    int m_TCPMaxPosition{500};
-    int m_TCPMinPosition{-500};
-    double m_TCPMaxOrientation{M_PI};
+    
+    models::IPController::SPtr m_IPController;
+    std::string m_TCPPositionDescription{"TCP Target Position (mm):"};
+    std::string m_TCPRotationDescription{"TCP Target Rotation (rad):"};
+    double m_TCPMinPosition{-500.};
+    double m_TCPMaxPosition{500.};
     double m_TCPMinOrientation{-M_PI};
+    double m_TCPMaxOrientation{M_PI};
+    
+    std::vector<models::IPController::Actuator> m_actuators;
+    std::string m_actuatorsDescription{"Motors Position (rad):"};
+    double m_actuatorsMin{-500.};
+    double m_actuatorsMax{500.};
 
-    int m_maxActuatorPosition{500};
-    int m_minActuatorPosition{-500};
-    double m_maxActuatorOrientation{M_PI};
-    double m_minActuatorOrientation{-M_PI};
 
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
-
-    void checkLimits(sofa::simulation::Node* groot);
-    bool showSliderInt(const char *name, const char* label1, const char *label2, int* v, const int &offset, const ImVec4& color);
-    bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const ImVec4 &color);
+    bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4 &color);
+    bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max);
 };
 
 }

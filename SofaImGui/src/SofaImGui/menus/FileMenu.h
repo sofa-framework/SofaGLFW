@@ -34,6 +34,7 @@ class FileMenu
     ~FileMenu();
 
     bool addMenu();
+    const std::string& getFilename() const {return m_filename;}
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
@@ -44,6 +45,8 @@ class FileMenu
     void addExit();
 
     void saveProject();
+
+    std::string m_filename;
 };
 
 }

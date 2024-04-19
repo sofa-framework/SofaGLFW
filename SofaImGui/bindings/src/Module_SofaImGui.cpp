@@ -21,6 +21,19 @@
 #include <pybind11/pybind11.h>
 
 #include <SofaImGui/init.h>
+#include <Binding_MoveWindow.h>
+#include <Binding_MyRobotWindow.h>
+#include <Binding_SimulationState.h>
+#include <Binding_PlottingWindow.h>
+
+#include <sofa/gui/common/GUIManager.h>
+#include <sofa/core/behavior/BaseMechanicalState.h>
+
+#include <SofaImGui/ImGuiGUI.h>
+#include <SofaImGui/ImGuiGUIEngine.h>
+#include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <SoftRobots.Inverse/component/constraint/PositionEffector.h>
+#include <sofa/component/constraint/lagrangian/solver/ConstraintSolverImpl.h>
 
 
 namespace py { using namespace pybind11; }
@@ -28,9 +41,64 @@ namespace py { using namespace pybind11; }
 namespace sofaimgui::python3
 {
 
-PYBIND11_MODULE(SofaImGui, m)
+void setIPController(sofa::simulation::Node &TCPTargetNode,
+                     sofa::simulation::Node &TCPNode,
+                     sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
 {
-    sofaimgui::init();
+    ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
+
+    if (gui)
+    {
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+        softrobotsinverse::solver::QPInverseProblemSolver::SPtr qpsolver = dynamic_cast<softrobotsinverse::solver::QPInverseProblemSolver*>(&solver);
+
+        if (engine && qpsolver)
+        {
+            sofa::simulation::Node::SPtr groot = dynamic_cast<sofa::simulation::Node*>(TCPTargetNode.getRoot());
+
+            // Find the PositionEffector component corresponding to the rotation if any
+            sofa::type::vector<softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3dTypes> *> effectors;
+            groot->getContext()->getObjects(effectors, sofa::core::objectmodel::BaseContext::SearchDirection::SearchRoot);
+            softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3dTypes> * rotationEffector;
+            for (auto* effector: effectors)
+            {
+                auto useDirections = effector->d_useDirections.getValue();
+                if (useDirections[0] || useDirections[1] || useDirections[2])
+                    continue;
+                rotationEffector = effector;
+                break;
+            }
+
+            engine->setIPController(groot, qpsolver, TCPTargetNode.getMechanicalState(), TCPNode.getMechanicalState(), rotationEffector);
+        }
+    }
+}
+
+bool getRobotConnection()
+{
+
+    ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
+
+    if (gui)
+    {
+        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+
+        if (engine)
+            return engine->getRobotConnection();
+    }
+
+    return false;
+}
+
+PYBIND11_MODULE(ImGui, m)
+{
+    m.def("setIPController", &setIPController);
+    m.def("getRobotConnection", &getRobotConnection);
+
+    moduleAddMoveWindow(m);
+    moduleAddMyRobotWindow(m);
+    moduleAddSimulationState(m);
+    moduleAddPlottingWindow(m);
 }
 
 } // namespace sofaimgui::python3

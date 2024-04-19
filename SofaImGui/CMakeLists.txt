@@ -31,7 +31,7 @@ FetchContent_MakeAvailable(nfd)
 
 FetchContent_Declare(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
-        GIT_TAG        18c72431f8265e2b0b5378a3a73d8a883b2175ff
+        GIT_TAG        f156599faefe316f7dd20fe6c783bf87c8bb6fd9
 )
 FetchContent_MakeAvailable(ImPlot)
 
@@ -64,6 +64,7 @@ set(IMGUI_HEADER_FILES
     resources/Style.h
     resources/ProgramStyle.h
 )
+
 set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
@@ -88,9 +89,9 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/MoveWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/PlottingWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.h
 
     ${SOFAIMGUI_SOURCE_DIR}/widgets/Buttons.h
 
@@ -104,7 +105,8 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/models/modifiers/Repeat.h
 
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.h
-    ${SOFAIMGUI_SOURCE_DIR}/models/TCPTarget.h
+    ${SOFAIMGUI_SOURCE_DIR}/models/SimulationState.h
+    ${SOFAIMGUI_SOURCE_DIR}/models/IPController.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Track.h
     ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.h
 
@@ -124,9 +126,9 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/MoveWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/StateWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/PlottingWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ProgramWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewportWindow.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/windows/WorkspaceWindow.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/widgets/Buttons.cpp
 
@@ -142,7 +144,8 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/models/modifiers/views/RepeatView.cpp
 
     ${SOFAIMGUI_SOURCE_DIR}/models/Program.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/models/TCPTarget.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/SimulationState.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/models/IPController.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/Track.cpp
     ${SOFAIMGUI_SOURCE_DIR}/models/Trajectory.cpp
 
@@ -154,6 +157,8 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
 )
 
+sofa_find_package(TinyXML2 REQUIRED)
+
 find_package(ROS QUIET)
 set(SOFAIMGUI_WITH_ROS ${ROS_FOUND})
 message("SOFAIMGUI_WITH_ROS = " ${SOFAIMGUI_WITH_ROS})
@@ -161,11 +166,11 @@ message("SOFAIMGUI_WITH_ROS = " ${SOFAIMGUI_WITH_ROS})
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR} ${QPOASES_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D Sofa.Component.Playback SoftRobots SoftRobots.Inverse ${CMAKE_DL_LIBS})
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw tinyxml2)
+target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw tinyxml2::tinyxml2)
 
 if(ROS_FOUND)
     target_include_directories(${PROJECT_NAME} PRIVATE ${ROS_INCLUDE_DIRS})

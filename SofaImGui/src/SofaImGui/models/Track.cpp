@@ -69,16 +69,16 @@ void Track::pushAction(std::shared_ptr<actions::Action> action)
 void Track::pushMove(std::shared_ptr<actions::Move> move)
 {
     std::shared_ptr<actions::Move> previous = getPreviousMove(m_actions.size());
-    move->setInitialPoint((previous!=nullptr)? previous->getWaypoint(): m_TCPTarget->getInitPosition());
+    move->setInitialPoint((previous!=nullptr)? previous->getWaypoint(): m_IPController->getTCPTargetInitPosition());
     pushAction(move);
 }
 
 void Track::pushMove()
 {
     auto move = std::make_shared<actions::Move>(RigidCoord(),
-                                       m_TCPTarget->getPosition(),
-                                       actions::Action::DEFAULTDURATION,
-                                       m_TCPTarget->getRootNode().get(),
+                                                m_IPController->getTCPTargetPosition(),
+                                                actions::Action::DEFAULTDURATION,
+                                                m_IPController,
                                                 actions::Move::Type::LINE);
     pushMove(move);
 }
@@ -99,10 +99,11 @@ void Track::insertAction(const sofa::Index &actionIndex, std::shared_ptr<actions
 void Track::insertMove(const sofa::Index &actionIndex)
 {
     std::shared_ptr<actions::Move> previous = getPreviousMove(actionIndex);
-    auto move = std::make_shared<actions::Move>((previous!=nullptr)? previous->getWaypoint(): m_TCPTarget->getInitPosition(),
-                                       m_TCPTarget->getPosition(),
-                                       actions::Action::DEFAULTDURATION,
-                                       m_TCPTarget->getRootNode().get(),
+    auto move = std::make_shared<actions::Move>((previous!=nullptr)? previous->getWaypoint(): m_IPController->getTCPTargetInitPosition(),
+                                                m_IPController->getTCPTargetPosition(),
+                                                actions::Action::DEFAULTDURATION,
+                                                m_IPController,
+                                                false,
                                                 actions::Move::Type::LINE);
 
     // insert the new move

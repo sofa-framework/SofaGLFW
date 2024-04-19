@@ -22,6 +22,7 @@
 #pragma once
 
 #include <SofaImGui/windows/BaseWindow.h>
+#include <SofaImGui/models/SimulationState.h>
 #include <imgui.h>
 
 namespace sofaimgui::windows {
@@ -32,7 +33,11 @@ class StateWindow : public BaseWindow
     StateWindow(const std::string& name, const bool& isWindowOpen);
     ~StateWindow() = default;
 
-    void showWindow(sofa::simulation::Node *groot);
+    void showWindow();
+    void setSimulationState(const models::SimulationState &simulationState);
+
+  protected:
+    std::vector<models::SimulationState::StateData> m_simulationStateData;
 };
 
 }

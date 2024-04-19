@@ -26,7 +26,7 @@
 #include <SofaImGui/models/modifiers/Modifier.h>
 #include <SofaImGui/models/actions/Action.h>
 #include <SofaImGui/models/actions/Move.h>
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
 
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/objectmodel/DataFileName.h>
@@ -39,10 +39,8 @@ class Track
     typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
-
-    Track(std::shared_ptr<TCPTarget> TCPTarget):
-                                           m_TCPTarget(TCPTarget)
-                                           {};
+    
+    Track(models::IPController::SPtr IPController): m_IPController(IPController) {};
     ~Track() = default;
 
     void clear();
@@ -78,8 +76,8 @@ class Track
     void deleteModifier(const sofa::Index &modifierIndex);
 
    protected:
-
-    std::shared_ptr<TCPTarget> m_TCPTarget;
+    
+    models::IPController::SPtr m_IPController;
     std::vector<std::shared_ptr<actions::Action>> m_actions;
     std::vector<std::shared_ptr<modifiers::Modifier>> m_modifiers;
 

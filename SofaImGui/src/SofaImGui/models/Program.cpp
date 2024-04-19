@@ -30,7 +30,7 @@ namespace sofaimgui::models {
 void Program::clearTracks()
 {
     m_tracks.clear();
-    std::shared_ptr<models::Track> track = std::make_shared<models::Track>(m_TCPTarget);
+    std::shared_ptr<models::Track> track = std::make_shared<models::Track>(m_IPController);
     addTrack(track);
 }
 
@@ -46,7 +46,7 @@ bool Program::importProgram(const std::string &filename)
         std::vector<std::shared_ptr<Track>> tracks;
         for(auto* t = root->FirstChildElement("track"); t != nullptr; t = t->NextSiblingElement("track"))
         {
-            std::shared_ptr<Track> track = std::make_shared<Track>(m_TCPTarget);
+            std::shared_ptr<Track> track = std::make_shared<Track>(m_IPController);
 
             for(const auto* e = t->FirstChildElement("action"); e != nullptr; e = e->NextSiblingElement("action"))
             {
@@ -66,6 +66,10 @@ bool Program::importProgram(const std::string &filename)
                         return false;
                     double duration = e->FindAttribute("duration")->DoubleValue();
 
+                    if (!e->FindAttribute("freeInRotation"))
+                        return false;
+                    bool freeInRotation = e->FindAttribute("freeInRotation")->BoolValue();
+
                     if (!e->FindAttribute("type"))
                         return false;
                     actions::Move::Type type = static_cast<actions::Move::Type>(e->FindAttribute("type")->IntValue());
@@ -74,7 +78,8 @@ bool Program::importProgram(const std::string &filename)
                     move = std::make_shared<actions::Move>(RigidCoord(),
                                                            wp,
                                                            duration,
-                                                           m_TCPTarget->getRootNode().get(),
+                                                           m_IPController,
+                                                           freeInRotation,
                                                            type);
 
                     if (e->FindAttribute("comment"))
@@ -171,6 +176,7 @@ void Program::exportProgram(const std::string &filename)
                                          + std::to_string(waypoint[6]) + " ";
                         xmlMove->SetAttribute("wp", wp.c_str());
                         xmlMove->SetAttribute("duration", move->getDuration());
+                        xmlMove->SetAttribute("freeInRotation", move->isFreeInRotation());
                         xmlMove->SetAttribute("type", move->getType());
                         xmlMove->SetAttribute("comment", move->getComment());
                         xmlTrack->InsertEndChild(xmlMove);

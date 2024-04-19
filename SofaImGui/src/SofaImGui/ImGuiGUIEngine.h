@@ -30,15 +30,18 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
-#include <SofaImGui/windows/WorkspaceWindow.h>
 #include <SofaImGui/windows/ViewportWindow.h>
 #include <SofaImGui/windows/SceneGraphWindow.h>
 #include <SofaImGui/windows/IOWindow.h>
 #include <SofaImGui/windows/MyRobotWindow.h>
 #include <SofaImGui/windows/MoveWindow.h>
+#include <SofaImGui/windows/PlottingWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
 
-#include <SofaImGui/models/TCPTarget.h>
+#include <SofaImGui/models/IPController.h>
+#include <SofaImGui/models/SimulationState.h>
+#include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <SoftRobots.Inverse/component/constraint/PositionEffector.h>
 
 
 struct GLFWwindow;
@@ -68,17 +71,27 @@ public:
     void animateBeginEvent(sofa::simulation::Node* groot) override;
     void animateEndEvent(sofa::simulation::Node* groot) override;
 
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
+    void setIPController(sofa::simulation::Node::SPtr groot,
+                         softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+                         sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
+                         sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical,
+                         softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr rotationEffector);
 
-    // windows::WorkspaceWindow m_workspaceWindow = windows::WorkspaceWindow("Workspace", false);
-    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("       Viewport", true);
+    bool getRobotConnection() {return m_robotConnection;}
+    models::SimulationState& getSimulationState() {return m_simulationState;}
+
+    std::shared_ptr<windows::StateWindow> m_stateWindow = std::make_shared<windows::StateWindow>("State", true);
+    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("       Viewport", true, m_stateWindow);
     windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("       Scene Graph", false);
     windows::IOWindow m_IOWindow = windows::IOWindow("       Input/Output", true);
     windows::ProgramWindow m_programWindow = windows::ProgramWindow("       Program", true);
+    windows::PlottingWindow m_plottingWindow = windows::PlottingWindow("       Plotting", true);
     windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("       My Robot", true);
     windows::MoveWindow m_moveWindow = windows::MoveWindow("       Move", true);
+
+protected:
+    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
+    std::pair<unsigned int, unsigned int> m_currentFBOSize;
 
     CSimpleIniA ini;
 
@@ -89,11 +102,13 @@ protected:
     void showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
-
-    std::shared_ptr<models::TCPTarget> m_TCPTarget;
+    
+    models::IPController::SPtr m_IPController;
+    models::SimulationState m_simulationState;
     bool m_animate{false};
     int m_mode{0};
     bool m_nightStyle{false};
+    bool m_robotConnection{false};
 };
 
 } // namespace sofaimgui

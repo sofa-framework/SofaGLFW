@@ -25,40 +25,62 @@
 #include <sofa/defaulttype/RigidTypes.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
+#include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
+#include <SoftRobots.Inverse/component/constraint/PositionEffector.h>
+#include <sofa/component/controller/Controller.h>
 
 namespace sofaimgui::models {
 
-class TCPTarget
+class IPController : public sofa::component::controller::Controller
 {
    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
 
-    enum TCPTargetType {
-        LINEAR
+    SOFA_CLASS(IPController, sofa::component::controller::Controller);
+
+    struct Actuator{
+       sofa::core::BaseData* data;
+       size_t indexInProblem;
+       double value;
+       sofa::helper::OptionsGroup valueType{"force", "displacement"};
     };
 
-    TCPTarget(sofa::simulation::Node::SPtr groot);
-    ~TCPTarget() = default;
+    IPController(sofa::simulation::Node::SPtr groot,
+                 softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+                 sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
+                 sofa::core::behavior::BaseMechanicalState::SPtr TCPMechanical,
+                 softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr rotationEffector);
+    ~IPController() = default;
+    
+    const RigidCoord& getTCPTargetInitPosition();
+    RigidCoord getTCPTargetPosition();
+    void getTCPTargetPosition(double &x, double &y, double &z, double &rx, double &ry, double &rz);
+    void setTCPTargetPosition(const RigidCoord& position);
+    void setTCPTargetPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz);
 
-    void init(sofa::simulation::Node::SPtr groot);
+    RigidCoord getTCPPosition();
 
-    const RigidCoord& getInitPosition();
-
-    RigidCoord getPosition();
-    void getPosition(int &x, int &y, int &z, double &rx, double &ry, double &rz);
-
-    void setPosition(const RigidCoord& position);
-    void setPosition(const int &x, const int &y, const int &z, const double &rx, const double &ry, const double &rz);
+    void setFreeInRotation(const bool &freeInRotation);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
-    bool isInSimulation() {return m_state!=nullptr;}
+    void setActuators(const std::vector<Actuator> &actuators);
+
+    void handleEvent(sofa::core::objectmodel::Event *event) override;
 
    protected:
 
-    sofa::core::behavior::BaseMechanicalState::SPtr m_state;
     sofa::simulation::Node::SPtr m_groot;
-    RigidCoord m_initPosition;
+    softrobotsinverse::solver::QPInverseProblemSolver::SPtr m_solver;
+    sofa::core::behavior::BaseMechanicalState::SPtr m_TCPTargetState;
+    sofa::core::behavior::BaseMechanicalState::SPtr m_TCPState;
+    softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr m_rotationEffector;
+    RigidCoord m_initTCPTargetPosition;
+
+    double m_initRotationWeight;
+    std::vector<Actuator> m_actuators;
+    
+    bool m_updateSolutionOnSolveEndEvent{false};
 
 };
 

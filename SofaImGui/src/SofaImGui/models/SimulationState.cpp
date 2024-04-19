@@ -19,41 +19,27 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
-#pragma once
 
-#include <SofaImGui/windows/BaseWindow.h>
-#include <imgui.h>
+#include <SofaImGui/models/SimulationState.h>
 
-namespace sofaimgui::windows {
+namespace sofaimgui::models {
 
-class MyRobotWindow : public BaseWindow
+
+void SimulationState::clearStateData()
 {
-   public:
-    MyRobotWindow(const std::string& name, const bool& isWindowOpen);
-    ~MyRobotWindow() = default;
-
-    void showWindow(const ImGuiWindowFlags &windowFlags);
-
-    struct Information{
-        std::string description;
-        sofa::core::BaseData* data;
-    };
-
-    struct Setting{
-        std::string description;
-        sofa::core::BaseData* data;
-    };
-
-    void clearData();
-    void addInformation(const Information &info) {m_information.push_back(info);}
-    void addSetting(const Setting &setting) {m_settings.push_back(setting);}
-
-   protected:
-
-    std::vector<Information> m_information;
-    std::vector<Setting> m_settings;
-};
-
+    m_stateData.clear();
 }
+
+void SimulationState::addStateData(StateData &data)
+{
+    m_stateData.push_back(data);
+}
+
+const std::vector<SimulationState::StateData>& SimulationState::getStateData() const
+{
+    return m_stateData;
+}
+
+} // namespace
 
 

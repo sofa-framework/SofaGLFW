@@ -37,79 +37,92 @@ MyRobotWindow::MyRobotWindow(const std::string& name,
     m_isDrivingSimulation = true;
 }
 
-void MyRobotWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlags &windowFlags)
+void MyRobotWindow::clearData()
+{
+    m_information.clear();
+    m_settings.clear();
+}
+
+void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 {
     if (m_isWindowOpen)
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
             ImGui::Indent();
-            const auto& node = groot->getChild("UserInterface");
-            if(node != nullptr)
+
+            if (ImGui::BeginTable("StateColumns", 3, ImGuiTableFlags_None))
             {
-                if (ImGui::BeginTable("StateColumns", 3, ImGuiTableFlags_None))
+                if (!m_information.empty())
                 {
-                    const auto& data = node->getDataFields();
-                    std::string groups;
-                    std::string delimiter = "/";
-                    for(auto d: data)
+                    ImGui::Spacing();
+                    ImGui::TableNextColumn();
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text("Information");
+                    ImGui::TableNextColumn();
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                    ImGui::TableNextColumn();
+
+                    for (auto &information: m_information)
                     {
-                        const std::string& value = d->getValueString();
-                        std::string name = d->getName();
-                        const std::string& group = d->getGroup();
+                        ImGui::AlignTextToFramePadding();
+                        ImGui::Text("%s: ", information.description.c_str());
+                        ImGui::SameLine();
 
-                        if(group.find("My Robot") != std::string::npos)
+                        auto* typeinfo = information.data->getValueTypeInfo();
+                        auto* values = information.data->getValueVoidPtr();
+
+                        ImGui::BeginDisabled();
+                        for (size_t i=0; i<typeinfo->size(); i++)
                         {
-                            std::string group = name.substr(0, name.find(delimiter));
-
-                            if (groups.find(group) == std::string::npos)
-                            {
-                                ImGui::Spacing();
-                                ImGui::TableNextColumn();
-                                ImGui::AlignTextToFramePadding();
-                                ImGui::Text("%s     ", group.c_str()); // Group title
-                                groups += group + " ";
-                                ImGui::TableNextColumn();
-                                ImGui::AlignTextToFramePadding();
-                                ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-                                ImGui::TableNextColumn();
-                            }
-                            name.erase(0, name.find(delimiter) + delimiter.length());
-
-                            ImGui::BeginGroup();
-                            {
-                                ImGui::AlignTextToFramePadding();
-                                ImGui::Text("%s: ", name.c_str()); // Value name
-                                ImGui::SameLine();
-
-                                std::istringstream iss(value);
-                                std::vector<std::string> values;
-                                copy(std::istream_iterator<std::string>(iss),
-                                     std::istream_iterator<std::string>(),
-                                     back_inserter(values));
-
-                                if (group == "Information")
-                                    ImGui::BeginDisabled();
-                                std::string uiValue;
-                                for (std::string v : values) // Values
-                                {
-                                    std::replace(v.begin(), v.end(), '.', ',');
-                                    double buffer = std::stod(v);
-                                    ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                                    ImGui::InputDouble(("##" + group + name).c_str(), &buffer, 0, 0, "%.0f");
-                                    uiValue += std::to_string(buffer) + " ";
-                                    ImGui::PopItemWidth();
-                                }
-                                d->read(uiValue);
-                                if (group == "Information")
-                                    ImGui::EndDisabled();
-                            }
-                            ImGui::EndGroup();
+                            double buffer = typeinfo->getScalarValue(values, i);
+                            ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
+                            ImGui::InputDouble(("##setting" + information.description).c_str(), &buffer, 0, 0, "%.2f");
+                            ImGui::PopItemWidth();
                         }
+                        ImGui::EndDisabled();
                     }
-                    ImGui::EndTable();
+
+                    ImGui::NewLine();
                 }
+
+                if (!m_settings.empty())
+                {
+                    ImGui::Spacing();
+                    ImGui::TableNextColumn();
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text("Settings");
+                    ImGui::TableNextColumn();
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                    ImGui::TableNextColumn();
+
+                    for (auto &setting: m_settings)
+                    {
+                        ImGui::AlignTextToFramePadding();
+                        ImGui::Text("%s: ", setting.description.c_str());
+                        ImGui::SameLine();
+
+                        auto* typeinfo = setting.data->getValueTypeInfo();
+                        auto* values = setting.data->getValueVoidPtr();
+
+                        std::string uiValue;
+                        for (size_t i=0; i<typeinfo->size(); i++)
+                        {
+                            double buffer = typeinfo->getScalarValue(values, i);
+                            ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
+                            ImGui::InputDouble(("##setting" + setting.description).c_str(), &buffer, 0, 0, "%.2f");
+                            uiValue += std::to_string(buffer) + " ";
+                            ImGui::PopItemWidth();
+                        }
+                        setting.data->read(uiValue);
+                    }
+                }
+
+                ImGui::EndTable();
             }
+
             ImGui::Unindent();
             ImGui::End();
         }

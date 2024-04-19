@@ -26,6 +26,7 @@
 #include <IconsFontAwesome6.h>
 
 #include <SofaImGui/windows/MoveWindow.h>
+#include <SofaImGui/widgets/Buttons.h>
 
 namespace sofaimgui::windows {
 
@@ -38,163 +39,216 @@ MoveWindow::MoveWindow(const std::string& name,
 }
 
 
-void MoveWindow::checkLimits(sofa::simulation::Node* groot)
+void MoveWindow::setTCPDescriptions(const std::string &positionDescription, const std::string &rotationDescription)
 {
-    const auto& node = groot->getChild("UserInterface");
-    if(node != nullptr)
-    {
-        const auto& data = node->getDataFields();
-        for(auto d: data)
-        {
-            const std::string& value = d->getValueString();
-            std::string name = d->getName();
-            const std::string& group = d->getGroup();
-
-            if(group.find("Move") != std::string::npos)
-            {
-                if(name.find("TCP") != std::string::npos)
-                {
-                    if(name.find("MinPosition") != std::string::npos)
-                        m_TCPMinPosition = std::stoi(value);
-                    if(name.find("MaxPosition") != std::string::npos)
-                        m_TCPMaxPosition = std::stoi(value);
-                    if(name.find("MinOrientation") != std::string::npos)
-                        m_TCPMinOrientation = std::stod(value);
-                    if(name.find("MaxOrientation") != std::string::npos)
-                        m_TCPMaxOrientation = std::stod(value);
-                }
-                else if (name.find("Actuators") != std::string::npos)
-                {
-
-                }
-
-            }
-        }
-    }
+    m_TCPPositionDescription = positionDescription;
+    m_TCPRotationDescription = rotationDescription;
 }
 
-
-void MoveWindow::showWindow(sofa::simulation::Node* groot, const ImGuiWindowFlags &windowFlags)
+void MoveWindow::setTCPLimits(int minPosition, int maxPosition, double minOrientation, double maxOrientation)
 {
-    if (m_isWindowOpen)
-    {
-        static bool firstTime = true;
-        if (firstTime)
-        {
-            checkLimits(groot);
-            firstTime = false;
-        }
+    m_TCPMinPosition = minPosition;
+    m_TCPMaxPosition = maxPosition;
+    m_TCPMinOrientation = minOrientation;
+    m_TCPMaxOrientation = maxOrientation;
+}
 
+void MoveWindow::setActuatorsDescriptions(const std::string &description)
+{
+    m_actuatorsDescription = description;
+}
+
+void MoveWindow::setActuatorsLimits(double min, double max)
+{
+    m_actuatorsMin = min;
+    m_actuatorsMax = max;
+}
+
+void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
+{
+    if (m_isWindowOpen && (m_IPController != nullptr || !m_actuators.empty()))
+    {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            ImGui::Spacing();
+            if (m_IPController != nullptr)
+            {
+                ImGui::Spacing();
 
-            static int x=0;
-            static int y=0;
-            static int z=0;
-            static double rx=0.;
-            static double ry=0.;
-            static double rz=0.;
+                static double x=0;
+                static double y=0;
+                static double z=0;
+                static double rx=0.;
+                static double ry=0.;
+                static double rz=0.;
 
-            if(m_isDrivingSimulation)
-                m_TCPTarget->getPosition(x, y, z, rx, ry, rz);
+                if(m_isDrivingSimulation)
+                    m_IPController->getTCPTargetPosition(x, y, z, rx, ry, rz);
 
-            ImGui::Indent();
-            ImGui::Text("TCP Target Position (mm):");
-            ImGui::Spacing();
-            ImGui::Unindent();
+                ImGui::Indent();
+                ImGui::Text("%s", m_TCPPositionDescription.c_str());
+                ImGui::Spacing();
+                ImGui::Unindent();
 
-            ImGui::Indent();
-            ImGui::Indent();
+                ImGui::Indent();
+                ImGui::Indent();
 
-            const auto &initPosition = m_TCPTarget->getInitPosition();
-            showSliderInt("X", "##Xpos", "##XposInput", &x, initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderInt("Y", "##Ypos", "##YposInput", &y, initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderInt("Z", "##Zpos", "##ZposInput", &z, initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-            ImGui::Spacing();
+                const auto &initPosition = m_IPController->getTCPTargetInitPosition();
+                showSliderDouble("X", "##XSlider", "##XInput", &x, m_TCPMinPosition + initPosition[0], m_TCPMaxPosition + initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderDouble("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition + initPosition[1], m_TCPMaxPosition + initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderDouble("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition + initPosition[2], m_TCPMaxPosition + initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                ImGui::SameLine();
+                double cursorX = ImGui::GetCursorPosX();
 
-            ImGui::Unindent();
-            ImGui::Unindent();
+                ImGui::Spacing();
 
-            ImGui::Spacing();
+                ImGui::Unindent();
+                ImGui::Unindent();
 
-            ImGui::Indent();
-            ImGui::Text("TCP Target Rotation (rad):");
-            ImGui::Spacing();
-            ImGui::Unindent();
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
 
-            ImGui::Indent();
-            ImGui::Indent();
+                static bool freeInRotation = true;
+                if (freeInRotation)
+                    ImGui::BeginDisabled();
 
-            showSliderDouble("R", "##Rrot", "##RrotInput", &rx, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderDouble("P", "##Prot", "##ProtInput", &ry, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-            ImGui::Spacing();
-            showSliderDouble("Y", "##Yrot", "##YrotInput", &rz, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-            ImGui::Spacing();
+                ImGui::Indent();
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text("%s", m_TCPRotationDescription.c_str());
 
-            ImGui::Unindent();
-            ImGui::Unindent();
+                if (freeInRotation)
+                    ImGui::EndDisabled();
 
-            ImGui::Spacing();
+                ImGui::SameLine();
 
-            if (m_isDrivingSimulation)
-                m_TCPTarget->setPosition(x, y, z, rx, ry, rz);
+                ImGui::SetCursorPosX(cursorX - ImGui::GetFrameHeightWithSpacing() * 1); // Set position to right of the line
+                if (ImGui::Button(freeInRotation? ICON_FA_LOCK_OPEN: ICON_FA_LOCK, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                {
+                    freeInRotation = !freeInRotation;
+                }
+                m_IPController->setFreeInRotation(freeInRotation);
+                ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
+
+                ImGui::Spacing();
+                ImGui::Unindent();
+
+                ImGui::Indent();
+                ImGui::Indent();
+
+                if (freeInRotation)
+                    ImGui::BeginDisabled();
+
+                showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                ImGui::Spacing();
+                showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                ImGui::Spacing();
+
+                if (freeInRotation)
+                    ImGui::EndDisabled();
+
+                ImGui::Unindent();
+                ImGui::Unindent();
+
+                if (m_isDrivingSimulation)
+                {
+                    if (freeInRotation)
+                    {
+                        auto TCP = m_IPController->getTCPPosition();
+                        TCP[0] = x;
+                        TCP[1] = y;
+                        TCP[2] = z;
+                        m_IPController->setTCPTargetPosition(TCP);
+                    }
+                    else
+                    {
+                        m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
+                    }
+                }
+            }
+
+            if (!m_actuators.empty())
+            {
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Indent();
+                ImGui::Text("%s", m_actuatorsDescription.c_str());
+                ImGui::Spacing();
+                ImGui::Unindent();
+
+                ImGui::Indent();
+                ImGui::Indent();
+
+                int nbActuators = m_actuators.size();
+                bool solveInverseProblem = true;
+                for (int i=0; i<nbActuators; i++)
+                {
+                    std::string name = "M" + std::to_string(i);
+
+                    auto* typeinfo = m_actuators[i].data->getValueTypeInfo();
+                    auto* value = m_actuators[i].data->getValueVoidPtr();
+                    double buffer = typeinfo->getScalarValue(value, 0);
+                    bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax);
+                    if (hasChanged)
+                    {
+                        std::string value = std::to_string(buffer);
+                        std::replace(value.begin(), value.end(), ',', '.');
+                        m_actuators[i].data->read(value);
+                        solveInverseProblem = false;
+                    }
+                    m_actuators[i].value=buffer;
+                }
+                if (m_IPController && !solveInverseProblem)
+                {
+                    // TODO: don't solve the inverse problem since we'll overwrite the solution
+                    m_IPController->setActuators(m_actuators);
+                }
+
+                ImGui::Unindent();
+                ImGui::Unindent();
+            }
 
             ImGui::End();
         }
-
     }
 }
 
-bool MoveWindow::showSliderInt(const char* name, const char* label1, const char* label2, int* v, const int &offset, const ImVec4& color)
+bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4& color)
 {
-    bool hasValueChanged = false;
     ImGui::AlignTextToFramePadding();
-    ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
-    ImGui::Text("%s", name);
-
-    ImGui::SameLine();
-
-    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    if (ImGui::SliderInt(label1, v, m_TCPMinPosition + offset, m_TCPMaxPosition + offset, "%0.f", ImGuiSliderFlags_NoInput))
-        hasValueChanged = true;
+    ImGui::PushStyleColor(ImGuiCol_Text, color);
+    ImGui::Text("l");
     ImGui::PopStyleColor();
-
     ImGui::SameLine();
 
-    double step = m_TCPMaxPosition - m_TCPMinPosition;
-    ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    if (ImGui::InputInt(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1))
-        hasValueChanged = true;
-    ImGui::PopItemWidth();
-
-    return hasValueChanged;
+    return showSliderDouble(name, label1, label2, v, min, max);
 }
 
-bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const ImVec4& color)
+bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const double& min, const double& max)
 {
     bool hasValueChanged = false;
 
     ImGui::AlignTextToFramePadding();
-    ImGui::PushStyleColor(ImGuiCol_Text, color); ImGui::Text("l"); ImGui::PopStyleColor(); ImGui::SameLine();
     ImGui::Text("%s", name);
-
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-    if (ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &m_TCPMinOrientation, &m_TCPMaxOrientation, "%0.2f", ImGuiSliderFlags_NoInput))
+    if (ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput))
         hasValueChanged=true;
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
-    double step = m_TCPMaxOrientation - m_TCPMinOrientation;
+    double step = max - min;
 
     ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
-    if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, "%0.2f"))
+    const char* format = (log10f(abs(*v))>3)? "%0.2e": "%0.2f";
+    if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, format))
         hasValueChanged=true;
     ImGui::PopItemWidth();
 

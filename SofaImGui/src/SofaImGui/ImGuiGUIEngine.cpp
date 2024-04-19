@@ -83,6 +83,19 @@ const std::string& ImGuiGUIEngine::getAppIniFile()
     return appIniFile;
 }
 
+void ImGuiGUIEngine::setIPController(sofa::simulation::Node::SPtr groot,
+                                     softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
+                                     sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
+                                     core::behavior::BaseMechanicalState::SPtr TCPMechanical,
+                                     softrobotsinverse::constraint::PositionEffector<defaulttype::Rigid3Types>::SPtr rotationEffector)
+{
+    m_IPController = sofa::core::objectmodel::New<models::IPController>(groot, solver, TCPTargetMechanical, TCPMechanical, rotationEffector);
+    groot->addObject(m_IPController.get());
+    m_programWindow.setIPController(m_IPController);
+    m_moveWindow.setIPController(m_IPController);
+    m_IOWindow.setIPController(m_IPController);
+}
+
 void ImGuiGUIEngine::init()
 {
     IMGUI_CHECKVERSION();
@@ -165,19 +178,14 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     {
         firstTime = false;
 
-        m_TCPTarget = std::make_shared<models::TCPTarget>(baseGUI->getRootNode().get());
-
-        if (!m_TCPTarget->isInSimulation())
+        if (!m_IPController)
         {
-            m_IOWindow.setWindowOpen(false);
-            m_moveWindow.setWindowOpen(false);
             m_programWindow.setWindowOpen(false);
             m_myRobotWindow.setWindowOpen(false);
         }
 
-        m_programWindow.setTCPTarget(m_TCPTarget);
-        m_moveWindow.setTCPTarget(m_TCPTarget);
-        m_IOWindow.setTCPTarget(m_TCPTarget);
+        m_IOWindow.setSimulationState(m_simulationState);
+        m_stateWindow->setSimulationState(m_simulationState);
     }
 
     showViewportWindow(baseGUI);
@@ -282,10 +290,7 @@ void ImGuiGUIEngine::initDockSpace()
 
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.32f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
-
-        // auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
-        // ImGui::DockBuilderDockWindow(m_workspaceWindow.m_name.c_str(), dock_id_left);
-        // ImGui::DockBuilderGetNode(dock_id_left)->WantHiddenTabBarToggle = true;
+        ImGui::DockBuilderDockWindow(m_plottingWindow.getName().c_str(), dock_id_down);
 
         ImGui::DockBuilderDockWindow(m_viewportWindow.getName().c_str(), dockspaceID);
         ImGui::DockBuilderGetNode(dockspaceID)->WantHiddenTabBarToggle = true;
@@ -333,10 +338,11 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 
     // Driving Tab combo
-    if (m_TCPTarget->isInSimulation())
+    if (m_IPController)
     {
         static const char* listTabs[]{"Move", "Program", "Input/Output"};
-        if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs)))
+        double maxItemWidth = ImGui::CalcTextSize("Input/Output").x;
+        if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs), maxItemWidth))
         {
             const auto filename = baseGUI->getFilename();
 
@@ -367,44 +373,60 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
 void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
-    auto groot = baseGUI->getRootNode();
+    auto groot = baseGUI->getRootNode().get();
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove ;
-    // Down Dock
-    m_programWindow.showWindow(baseGUI, windowFlags);
 
-    // Right Dock
-    m_IOWindow.showWindow(groot.get(), windowFlags);
-    m_myRobotWindow.showWindow(groot.get(), windowFlags);
-    m_moveWindow.showWindow(groot.get(), windowFlags);
-    m_sceneGraphWindow.showWindow(groot.get(), windowFlags);
+    m_programWindow.showWindow(baseGUI, windowFlags);
+    m_plottingWindow.showWindow(groot, windowFlags);
+
+    m_IOWindow.showWindow(groot, windowFlags);
+    m_myRobotWindow.showWindow(windowFlags);
+    m_moveWindow.showWindow(windowFlags);
+    m_sceneGraphWindow.showWindow(groot, windowFlags);
+
 }
 
 void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     if (ImGui::BeginMainMenuBar())
     {
-        if(menus::FileMenu(baseGUI).addMenu())
+        menus::FileMenu fileMenu(baseGUI);
+        if(fileMenu.addMenu())
         {
+            m_simulationState.clearStateData();
+            m_myRobotWindow.clearData();
+            m_plottingWindow.clearData();
+
+            Utils::reloadSimulation(baseGUI, fileMenu.getFilename());
+
             auto groot = baseGUI->getRootNode().get();
-            m_TCPTarget->init(groot);
-            m_programWindow.update(groot);
+            m_programWindow.addTrajectoryComponents(groot);
+            m_IOWindow.setSimulationState(m_simulationState);
+            m_stateWindow->setSimulationState(m_simulationState);
         }
         menus::ViewMenu(baseGUI).addMenu(m_currentFBOSize, m_fbo->getColorTexture());
 
         if (ImGui::BeginMenu("Windows"))
         {
-            if (!m_TCPTarget->isInSimulation())
-                ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.isWindowOpen());
+            if (!m_IPController)
+                ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isWindowOpen());
-            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
-            if (!m_TCPTarget->isInSimulation())
+            if (!m_IPController)
                 ImGui::EndDisabled();
-            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
+
             ImGui::Separator();
+
+            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
+            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
+            ImGui::LocalCheckBox(m_plottingWindow.getName().c_str(), &m_plottingWindow.isWindowOpen());
+
+            ImGui::Separator();
+
             ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isWindowOpen());
+
             ImGui::EndMenu();
         }
 
@@ -434,33 +456,8 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
 
         { // Simulation / Robot button
-            static bool connected = false;
-            ImGui::LocalToggleButton("Connection", &connected);
-
-            if (ImGui::IsItemClicked())
-            {
-                auto groot = baseGUI->getRootNode().get();
-                const auto& node = groot->getChild("UserInterface");
-                if(node != nullptr)
-                {
-                    auto& data = node->getDataFields();
-                    for(auto& d: data)
-                    {
-                        std::string name = d->getName();
-                        const std::string& group = d->getGroup();
-
-                        if(group.find("connection") != std::string::npos)
-                        {
-                            if(name.find("connectRobot") != std::string::npos)
-                            {
-                                d->read(connected? "1": "0");
-                            }
-                        }
-                    }
-                }
-            }
-
-            ImGui::Text(connected? "Robot" : "Simulation");
+            ImGui::LocalToggleButton("Connection", &m_robotConnection);
+            ImGui::Text(m_robotConnection? "Robot" : "Simulation");
         }
 
         const auto posX = ImGui::GetCursorPosX();

@@ -26,7 +26,8 @@
 
 namespace sofaimgui::windows {
 
-ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen)
+ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen, std::shared_ptr<StateWindow> stateWindow)
+    : m_stateWindow(stateWindow)
 {
     m_name = name;
     m_isWindowOpen = isWindowOpen;
@@ -54,7 +55,7 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
 
             m_isMouseOnViewport = ImGui::IsItemHovered();
 
-            addStateWindow(groot);
+            addStateWindow();
             addSimulationTimeAndFPS(groot);
 
             ImGui::EndChild();
@@ -63,10 +64,10 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
     }
 }
 
-void ViewportWindow::addStateWindow(sofa::simulation::Node* groot)
+void ViewportWindow::addStateWindow()
 {
     ImGui::SetNextWindowPos(ImGui::GetWindowPos());  // attach the state window to top left of the viewport window
-    m_stateWindow.showWindow(groot);
+    m_stateWindow->showWindow();
 }
 
 bool ViewportWindow::addStepButton()
@@ -150,7 +151,7 @@ bool ViewportWindow::addAnimateButton(bool *animate)
     return isItemClicked;
 }
 
-bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes)
+bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes, const double &maxItemWidth)
 {
     bool hasValueChanged = false;
 
@@ -169,7 +170,9 @@ bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], cons
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();
+                    ImGui::PushItemWidth(maxItemWidth + ImGuiStyleVar_FramePadding * 2.0f + ImGui::GetTextLineHeightWithSpacing());
                     hasValueChanged = ImGui::Combo("Driving Tab##Viewport", mode, listModes, sizeListModes);
+                    ImGui::PopItemWidth();
                     ImGui::SetItemTooltip("Choose a tab to drive the TCP target");
 
                     ImGui::End();

@@ -76,42 +76,30 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
             ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
             ImGui::Unindent();
 
-            const std::map<std::string, std::vector<float>>& simulationStateList = getSimulationStateList(groot);
-
 #if SOFAIMGUI_WITH_ROS == 1
             if (m_method == 0) // ROS
-                showROSWindow(simulationStateList);
+                showROSWindow();
 #endif
         }
     }
 }
 
-std::map<std::string, std::vector<float>> IOWindow::getSimulationStateList(const sofa::core::sptr<sofa::simulation::Node>& groot)
+void IOWindow::setSimulationState(const models::SimulationState &simulationState)
 {
-    std::map<std::string, std::vector<float>> list;
-
-    const auto& node = groot->getChild("UserInterface");
-    if(node != nullptr)
+    m_simulationState.clear();
+    const auto &stateData = simulationState.getStateData();
+    for(const models::SimulationState::StateData& d: stateData)
     {
-        const auto& data = node->getDataFields();
-        for(auto d: data)
-        {
-            if(d->getGroup().find("Simulation State") != std::string::npos)
-            {
-                std::vector<float> vector;
-                std::stringstream str(d->getValueString());
-                std::string value;
-                while (str >> value)
-                {
-                    std::replace(value.begin(), value.end(), '.', ',');
-                    vector.push_back(std::stof(value));
-                }
-                list[d->getName()] = vector;
-            }
-        }
-    }
+        auto* typeinfo = d.data->getValueTypeInfo();
+        auto* values = d.data->getValueVoidPtr();
+        size_t nbValue = typeinfo->size();
+        std::vector<float> vector(nbValue);
 
-    return list;
+        for (size_t i=0; i<nbValue; i++) // Values
+            vector[i]=typeinfo->getScalarValue(values, i);
+
+        m_simulationState[d.group + "/" + d.description] = vector;
+    }
 }
 
 void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
@@ -132,7 +120,7 @@ void IOWindow::animateEndEvent(sofa::simulation::Node *groot)
 
 #if SOFAIMGUI_WITH_ROS == 1
 
-void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &simulationStateList)
+void IOWindow::showROSWindow()
 {
     static float pulseDuration = 0;
     pulseDuration += ImGui::GetIO().DeltaTime;
@@ -144,7 +132,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
     if (ImGui::CollapsingHeader("Output (Publishers)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
-        showOutput(simulationStateList);
+        showOutput();
     }
     else
     {
@@ -155,7 +143,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
     if (ImGui::CollapsingHeader("Input (Subscriptions)", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
-        showInput(simulationStateList);
+        showInput();
     }
     else
     {
@@ -164,7 +152,7 @@ void IOWindow::showROSWindow(const std::map<std::string, std::vector<float>> &si
 
 }
 
-void IOWindow::showOutput(const std::map<std::string, std::vector<float>> &simulationStateList)
+void IOWindow::showOutput()
 {
     ImGui::Indent();
     if (m_isPublishing)
@@ -215,7 +203,7 @@ void IOWindow::showOutput(const std::map<std::string, std::vector<float>> &simul
         {
             // State
             m_rosnode->m_selectedStateToPublish.clear();
-            for (const auto& [key, value] : simulationStateList)
+            for (const auto& [key, value] : m_simulationState)
             {
                 if (publishFirstTime)
                 {
@@ -300,7 +288,7 @@ void IOWindow::showOutput(const std::map<std::string, std::vector<float>> &simul
     m_isReadyToPublish = validNodeName;
 }
 
-void IOWindow::showInput(const std::map<std::string, std::vector<float> > &simulationStateList)
+void IOWindow::showInput()
 {
     if (m_isListening)
     {
@@ -363,7 +351,7 @@ void IOWindow::showInput(const std::map<std::string, std::vector<float> > &simul
             {
                 m_rosnode->m_selectedStateToOverwrite.clear();
             }
-            for (const auto& [simStateName, stateValue] : simulationStateList)
+            for (const auto& [simStateName, stateValue] : m_simulationState)
             {
                 std::string stateName = simStateName;
                 if (stateName.find("TCP")!=std::string::npos)
@@ -467,29 +455,17 @@ void IOWindow::showInput(const std::map<std::string, std::vector<float> > &simul
 
 void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 {
-    if (m_isReadyToPublish && m_isDrivingSimulation)
+    if (m_isReadyToPublish && m_isDrivingSimulation && m_IPController)
     {
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
         for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
         {
             if (stateName.find("TCPTarget") != std::string::npos)
             {
-                sofa::simulation::Node *modelling = groot->getChild("Modelling");
-
-                if (modelling != nullptr)
+                if (stateValue.size() == IOWindow::RigidCoord::total_size)
                 {
-                    sofa::simulation::Node *target = modelling->getChild("Target");
-                    if (target != nullptr)
-                    {
-                        sofa::core::behavior::BaseMechanicalState *mechanical = target->getMechanicalState();
-                        if (mechanical != nullptr)
-                        {
-                            std::stringstream str;
-                            for (const float& value: stateValue)
-                                str << value << " ";
-                            mechanical->readVec(sofa::core::VecId::position(), str);
-                        }
-                    }
+                    m_IPController->setTCPTargetPosition(IOWindow::RigidCoord(sofa::type::Vec3(stateValue[0], stateValue[1], stateValue[2]),
+                                                         sofa::type::Quat<SReal>(stateValue[3], stateValue[4], stateValue[5], stateValue[6])));
                 }
             }
             // for actuator, is it interesting to send actuation to the simulation ? => direct mode

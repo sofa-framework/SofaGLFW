@@ -74,3 +74,4 @@ Here are all the available windows:
 
 ## Screenshots
 
+![](doc/screenshot.png)

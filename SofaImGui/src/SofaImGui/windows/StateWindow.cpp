@@ -33,86 +33,71 @@ StateWindow::StateWindow(const std::string& name,
     m_isWindowOpen = isWindowOpen;
 }
 
-void StateWindow::showWindow(sofa::simulation::Node* groot)
+void StateWindow::setSimulationState(const models::SimulationState &simulationState)
 {
-    if (m_isWindowOpen)
+    m_simulationStateData = simulationState.getStateData();
+}
+
+void StateWindow::showWindow()
+{
+    if (m_isWindowOpen && !m_simulationStateData.empty())
     {
-        const auto& node = groot->getChild("UserInterface");
-        if(node != nullptr)
+        static bool openstate = true;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.20f, 0.34f, 0.05f));
+        if (ImGui::Begin("ViewportChildState", &openstate,
+                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
         {
-            bool unindent = false;
-
-            static bool openstate = true;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.20f, 0.34f, 0.05f));
-            if (ImGui::Begin("ViewportChildState", &openstate,
-                             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
+            if(ImGui::CollapsingHeader("Simulation State       "))
             {
-                if(ImGui::CollapsingHeader("Simulation State       "))
+                if (ImGui::BeginTable("StateColumns", 2, ImGuiTableFlags_None))
                 {
-                    if (ImGui::BeginTable("StateColumns", 2, ImGuiTableFlags_None))
+                    std::string groups;
+                    for (const auto& d: m_simulationStateData)
                     {
-                        const auto& data = node->getDataFields();
-                        std::string groups;
-                        std::string delimiter = "/";
-                        for(auto d: data)
+                        auto* typeinfo = d.data->getValueTypeInfo();
+                        auto* values = d.data->getValueVoidPtr();
+                        const std::string& description = d.description;
+                        const std::string& group = d.group;
+                        if (groups.find(group) == std::string::npos)
                         {
-                            const std::string& value = d->getValueString();
-                            std::string name = d->getName();
-                            const std::string& group = d->getGroup();
-
-                            if(group.find("Simulation State") != std::string::npos)
-                            {
-                                std::string group = name.substr(0, name.find(delimiter));
-
-                                if (groups.find(group) == std::string::npos)
-                                {
-                                    ImGui::TableNextColumn();
-                                    ImGui::AlignTextToFramePadding();
-                                    ImGui::Text("%s     ", group.c_str()); // Group title
-                                    groups += group + " ";
-                                    ImGui::TableNextColumn();
-                                    ImGui::AlignTextToFramePadding();
-                                    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-                                    ImGui::SameLine();
-                                } else
-                                {
-                                    ImGui::SameLine();
-                                }
-                                name.erase(0, name.find(delimiter) + delimiter.length());
-
-                                ImGui::BeginGroup();
-                                {
-                                    ImGui::AlignTextToFramePadding();
-                                    ImGui::Text("%s ", name.c_str()); // Value name
-
-                                    std::istringstream iss(value);
-                                    std::vector<std::string> values;
-                                    copy(std::istream_iterator<std::string>(iss),
-                                         std::istream_iterator<std::string>(),
-                                         back_inserter(values));
-
-                                    ImGui::BeginDisabled();
-                                    for (std::string v : values) // Values
-                                    {
-                                        std::replace(v.begin(), v.end(), '.', ',');
-                                        double buffer = std::stod(v);
-                                        ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                                        ImGui::InputDouble("##0", &buffer, 0, 0, "%.2f");
-                                        ImGui::SameLine();
-                                        ImGui::PopItemWidth();
-                                    }
-                                    ImGui::EndDisabled();
-                                }
-                                ImGui::EndGroup();
-                            }
+                            ImGui::TableNextColumn();
+                            ImGui::AlignTextToFramePadding();
+                            ImGui::Text("%s     ", group.c_str()); // Group title
+                            groups += group + " ";
+                            ImGui::TableNextColumn();
+                            ImGui::AlignTextToFramePadding();
+                            ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                            ImGui::SameLine();
+                        } else
+                        {
+                            ImGui::SameLine();
                         }
-                        ImGui::EndTable();
+
+                        ImGui::BeginGroup();
+                        {
+                            ImGui::AlignTextToFramePadding();
+                            ImGui::Text("%s ", description.c_str()); // Value description
+
+                            ImGui::BeginDisabled();
+                            for (size_t i=0; i<typeinfo->size(); i++) // Values
+                            {
+                                double buffer = typeinfo->getScalarValue(values, i);
+                                ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
+                                const char* format = (log10f(abs(buffer))>3)? "%0.2e": "%0.2f";
+                                ImGui::InputDouble("##0", &buffer, 0, 0, format);
+                                ImGui::SameLine();
+                                ImGui::PopItemWidth();
+                            }
+                            ImGui::EndDisabled();
+                        }
+                        ImGui::EndGroup();
                     }
+                    ImGui::EndTable();
                 }
-                ImGui::End();
             }
-            ImGui::PopStyleColor();
+            ImGui::End();
         }
+        ImGui::PopStyleColor();
     }
 }
 

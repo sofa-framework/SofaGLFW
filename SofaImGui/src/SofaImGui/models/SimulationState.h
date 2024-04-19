@@ -21,18 +21,35 @@
  ******************************************************************************/
 #pragma once
 
-#include <SofaImGui/windows/BaseWindow.h>
-#include <imgui.h>
+#include <sofa/type/Vec.h>
+#include <sofa/defaulttype/RigidTypes.h>
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
+#include <sofa/core/behavior/BaseMechanicalState.h>
 
-namespace sofaimgui::windows {
+namespace sofaimgui::models {
 
-class WorkspaceWindow : public BaseWindow
+class SimulationState
 {
    public:
-    WorkspaceWindow(const std::string& name, const bool& isWindowOpen);
-    ~WorkspaceWindow() = default;
 
-    void showWindow(const ImGuiWindowFlags &windowFlags);
+    struct StateData {
+        std::string group;
+        std::string description;
+        sofa::core::BaseData* data;
+    };
+
+    SimulationState() = default;
+    ~SimulationState() = default;
+
+    void clearStateData();
+    void addStateData(StateData &data);
+    const std::vector<StateData>& getStateData() const;
+
+   protected:
+    std::vector<StateData> m_stateData;
+
 };
 
-}
+} // namespace
+
+

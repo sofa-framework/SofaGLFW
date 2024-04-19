@@ -42,8 +42,8 @@ class Action
     }
 
     ~Action() = default;
-
-    virtual bool getTCPAtTime(RigidCoord&, const double&){return false;}
+    
+    virtual bool apply(RigidCoord&, const double&){return false;}
     virtual void computeDuration(){}
     virtual void computeSpeed(){}
 

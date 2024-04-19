@@ -19,41 +19,63 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
+#pragma once
 
-#include <SofaImGui/windows/WorkspaceWindow.h>
-#include <IconsFontAwesome6.h>
-
+#include <SofaImGui/windows/BaseWindow.h>
+#include <imgui.h>
+#include <implot.h>
+#include <implot_internal.h>
 
 namespace sofaimgui::windows {
 
-WorkspaceWindow::WorkspaceWindow(const std::string& name,
-                         const bool& isWindowOpen)
-{
-    m_name = name;
-    m_isWindowOpen = isWindowOpen;
-}
+#define MAX_NB_PLOT 4
 
-void WorkspaceWindow::showWindow(const ImGuiWindowFlags& windowFlags)
+class PlottingWindow : public BaseWindow
 {
-    if (m_isWindowOpen)
+   public:
+
+    struct RollingBuffer
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        float span;
+        float ratio = 1;
+        ImVector<ImVec2> data;
+        RollingBuffer()
         {
-            ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2.5); //approximatively the center of the window
-
-            ImGui::BeginDisabled();
-            ImGui::Button(ICON_FA_PENCIL);
-            ImGui::EndDisabled();
-
-            ImGui::Button(ICON_FA_CODE);
-\
-            ImGui::BeginDisabled();
-            ImGui::Button(ICON_FA_WAVE_SQUARE);
-            ImGui::EndDisabled();
+            span = 20.0f;
+            data.reserve(2000);
         }
-        ImGui::End();
-    }
-}
+        void addPoint(float x, float y)
+        {
+            float xmod = fmodf(x, span);
+            if (!data.empty() && xmod < data.back().x)
+                data.shrink(0);
+            data.push_back(ImVec2(xmod, y * ratio));
+        }
+    };
+
+    struct PlottingData
+    {
+        sofa::core::objectmodel::BaseData* value;
+        std::string description;
+        int idSubplot{0};
+    };
+
+    PlottingWindow(const std::string& name, const bool& isWindowOpen);
+    ~PlottingWindow() = default;
+
+    void showWindow(sofa::simulation::Node::SPtr groot, const ImGuiWindowFlags &windowFlags);
+    void addData(const PlottingData data) {m_data.push_back(data);}
+    void clearData();
+
+   protected:
+    std::vector<PlottingData> m_data;
+    std::vector<RollingBuffer> m_buffers;
+    float m_ratio[MAX_NB_PLOT] = {1, 1, 1, 1};
+
+    void exportData();
+    void showMenu(ImPlotPlot &plot, const int &idSubplot);
+};
 
 }
+
 

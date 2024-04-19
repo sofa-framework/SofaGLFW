@@ -24,6 +24,7 @@
 #include <imgui_internal.h>
 #include <ProgramStyle.h>
 #include <SofaImGui/widgets/Buttons.h>
+#include <IconsFontAwesome6.h>
 
 namespace sofaimgui::models::actions {
 
@@ -202,11 +203,15 @@ bool Move::MoveView::showBlock(const std::string &label,
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().Text);
-        drawList->AddText(ImVec2(x + padding.x,
-                                 y + padding.y),
-                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
+        window->DC.CursorPos.x = x;
+        window->DC.CursorPos.y = y;
+
+        std::string label = text + " " + (move.isFreeInRotation()? ICON_FA_LOCK_OPEN: ICON_FA_LOCK) + "##wp.rot" + std::to_string(window->DC.CursorPos.x);
+        if (ImGui::Button(label.c_str()))
+        {
+            move.setFreeInRotation(!move.isFreeInRotation());
+        }
+        ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
 
         window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
 
@@ -220,12 +225,18 @@ bool Move::MoveView::showBlock(const std::string &label,
             ImGui::PushItemWidth(ProgramSizes().InputWidth);
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
             ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
+
+            if(move.isFreeInRotation())
+                ImGui::BeginDisabled();
             if (ImGui::InputDouble(id.c_str(), &waypoint[i], 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
             {
                 hasValuesChanged = true;
                 move.setWaypoint(waypoint);
                 move.computeSpeed();
             }
+            if(move.isFreeInRotation())
+                ImGui::EndDisabled();
+
             ImGui::PopStyleColor(2);
             ImGui::PopItemWidth();
 
@@ -238,7 +249,7 @@ bool Move::MoveView::showBlock(const std::string &label,
     textSize = ImGui::CalcTextSize(text.c_str());
     y = spacing.y + bb.Max.y;
 
-    { // Way point rotation
+    { // Type
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
