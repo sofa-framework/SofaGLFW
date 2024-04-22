@@ -58,6 +58,9 @@ class MoveWindow : public BaseWindow
     double m_actuatorsMin{-500.};
     double m_actuatorsMax{500.};
 
+    bool m_freeRoll{true};
+    bool m_freePitch{true};
+    bool m_freeYaw{true};
 
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4 &color);
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max);

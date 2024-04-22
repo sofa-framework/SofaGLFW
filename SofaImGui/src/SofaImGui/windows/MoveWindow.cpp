@@ -72,17 +72,6 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
         {
             if (m_IPController != nullptr)
             {
-                if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered())
-                {
-                    ImGui::OpenPopup("##MoveOptions");
-                }
-
-                if (ImGui::BeginPopup("##MoveOptions"))
-                {
-                    showOptions();
-                    ImGui::EndPopup();
-                }
-
                 ImGui::Spacing();
 
                 static double x=0;
@@ -121,26 +110,30 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Separator();
                 ImGui::Spacing();
 
-                static bool freeInRotation = true;
-                if (freeInRotation)
-                    ImGui::BeginDisabled();
-
                 ImGui::Indent();
                 ImGui::AlignTextToFramePadding();
                 ImGui::Text("%s", m_TCPRotationDescription.c_str());
 
-                if (freeInRotation)
-                    ImGui::EndDisabled();
-
                 ImGui::SameLine();
 
-                ImGui::SetCursorPosX(cursorX - ImGui::GetFrameHeightWithSpacing() * 1); // Set position to right of the line
-                if (ImGui::Button(freeInRotation? ICON_FA_LOCK_OPEN: ICON_FA_LOCK, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                ImGui::SetCursorPosX(cursorX - ImGui::GetFrameHeightWithSpacing()); // Set position to right of the line
+
+                bool openOptions = false;
+                if (ImGui::Button(ICON_FA_BARS, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                    openOptions = true;
+
+                if (openOptions)
                 {
-                    freeInRotation = !freeInRotation;
+                    ImGui::OpenPopup("##MoveOptions");
                 }
-                m_IPController->setFreeInRotation(freeInRotation);
-                ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
+
+                if (ImGui::BeginPopup("##MoveOptions"))
+                {
+                    showOptions();
+                    ImGui::EndPopup();
+                }
+
+                m_IPController->setFreeInRotation(m_freeRoll, m_freePitch, m_freeYaw);
 
                 ImGui::Spacing();
                 ImGui::Unindent();
@@ -148,36 +141,42 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 ImGui::Indent();
                 ImGui::Indent();
 
-                if (freeInRotation)
+                if (m_freeRoll)
                     ImGui::BeginDisabled();
-
                 showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-                ImGui::Spacing();
-                showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-                ImGui::Spacing();
-                showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                if (m_freeRoll)
+                    ImGui::EndDisabled();
+
                 ImGui::Spacing();
 
-                if (freeInRotation)
+                if (m_freePitch)
+                    ImGui::BeginDisabled();
+                showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                if (m_freePitch)
                     ImGui::EndDisabled();
+
+                ImGui::Spacing();
+
+                if (m_freeYaw)
+                    ImGui::BeginDisabled();
+                showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                if (m_freeYaw)
+                    ImGui::EndDisabled();
+
+                ImGui::Spacing();
+
 
                 ImGui::Unindent();
                 ImGui::Unindent();
 
                 if (m_isDrivingSimulation)
                 {
-                    if (freeInRotation)
-                    {
-                        auto TCP = m_IPController->getTCPPosition();
-                        TCP[0] = x;
-                        TCP[1] = y;
-                        TCP[2] = z;
-                        m_IPController->setTCPTargetPosition(TCP);
-                    }
-                    else
-                    {
-                        m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
-                    }
+                    sofa::type::Quat<SReal> q = m_IPController->getTCPPosition().getOrientation();
+                    sofa::type::Vec3 rotation = q.toEulerVector();
+                    m_IPController->setTCPTargetPosition(x, y, z,
+                                                         m_freeRoll? rotation[0]: rx,
+                                                         m_freePitch? rotation[1]: ry,
+                                                         m_freeYaw? rotation[2]: rz);
                 }
             }
 
@@ -270,16 +269,27 @@ void MoveWindow::showOptions()
 {
     if (ImGui::BeginTable("Columns", 2, ImGuiTableFlags_None))
     {
-        ImGui::TableNextColumn();
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Rotation weight");
-        ImGui::TableNextColumn();
-        ImGui::SameLine();
-        ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
-        ImGui::InputDouble("##rotationweight", &m_IPController->getRotationWeight(), 0, 0, "%0.2f");
-        ImGui::PopItemWidth();
+        std::vector<std::string> text = {"Roll weight", "Pitch weight", "Yaw weight"};
+        auto* weight = m_IPController->getRotationWeight();
+        for (int i=0; i<3; i++)
+        {
+            double w = weight[i];
+            ImGui::TableNextColumn();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("%s", text[i].c_str());
+            ImGui::TableNextColumn();
+            ImGui::SameLine();
+            ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
+            ImGui::InputDouble(("##Input " + text[i]).c_str(), &w, 0, 0, "%0.2f");
+            weight[i] = w;
+            ImGui::PopItemWidth();
+        }
         ImGui::EndTable();
     }
+
+    ImGui::LocalCheckBox("Free roll", &m_freeRoll);
+    ImGui::LocalCheckBox("Free pitch", &m_freePitch);
+    ImGui::LocalCheckBox("Free yaw", &m_freeYaw);
 }
 
 }

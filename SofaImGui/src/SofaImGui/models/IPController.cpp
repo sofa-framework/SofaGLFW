@@ -43,15 +43,32 @@ IPController::IPController(sofa::simulation::Node::SPtr groot,
         f_listening = true;
         m_initTCPTargetPosition = getTCPTargetPosition();
         if (rotationEffector)
-            m_initRotationWeight = rotationEffector->d_weight.getValue();
+        {
+            const auto& weight = sofa::helper::getReadAccessor(rotationEffector->d_weight);
+            if (weight.size() > 5)
+            {
+                m_rotationWeight[0] = weight[3];
+                m_rotationWeight[1] = weight[4];
+                m_rotationWeight[2] = weight[5];
+            }
+            else if (!weight.empty())
+            {
+                m_rotationWeight[0] = weight[0];
+                m_rotationWeight[1] = weight[0];
+                m_rotationWeight[2] = weight[0];
+            }
+        }
     }
 }
 
-void IPController::setFreeInRotation(const bool &freeInRotation)
+void IPController::setFreeInRotation(const bool &freeRoll, const bool &freePitch, const bool &freeYaw)
 {
     if(m_rotationEffector)
     {
-        m_rotationEffector->d_weight.setValue(freeInRotation? 0: m_initRotationWeight);
+        auto weight = sofa::helper::getWriteAccessor(m_rotationEffector->d_weight);
+        weight[3] = freeRoll? 0: m_rotationWeight[0];
+        weight[4] = freePitch? 0: m_rotationWeight[1];
+        weight[5] = freeYaw? 0: m_rotationWeight[2];
     }
 }
 
