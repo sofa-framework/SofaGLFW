@@ -23,29 +23,36 @@
 #include <SofaImGui/models/Trajectory.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/ObjectFactory.h>
+#include <imgui.h>
 
 namespace sofaimgui::models {
 
 using sofa::type::RGBAColor;
 
+Trajectory::Trajectory()
+{
+    m_drawRatio *= ImGui::GetWindowDpiScale();
+}
+
 void Trajectory::draw(const sofa::core::visual::VisualParams* vparams)
 {
     const auto &defaultColor = RGBAColor::fromFloat(0.23f, 0.39f, 0.56f, 0.5f);
     const auto &highlightColor = RGBAColor::fromFloat(0.75f, 0.31f, 0.31f, 1.0f);
+
     if (f_listening.getValue())
     {
         vparams->drawTool()->disableLighting();
         vparams->drawTool()->drawSphere(m_positions[0].getCenter(),
-                                        10.f,
+                                        m_drawRatio,
                                         m_highlight? RGBAColor::fromFloat(0.75f, 0.31f, 0.31f, 0.8f): defaultColor);
         vparams->drawTool()->drawSphere(m_positions[0].getCenter(),
-                                        7.5f,
+                                        0.75f * m_drawRatio,
                                         m_highlight? RGBAColor::white(): defaultColor);
         vparams->drawTool()->drawSphere(m_positions[1].getCenter(),
-                                        m_highlight? 15.f : 10.f,
+                                        m_highlight? 1.5f * m_drawRatio : m_drawRatio,
                                         m_highlight? highlightColor: defaultColor);
         vparams->drawTool()->drawLines(std::vector<sofa::type::Vec3>{m_positions[0].getCenter(), m_positions[1].getCenter()},
-                                       m_highlight? 10.f : 5.f,
+                                       m_highlight? m_drawRatio : 0.5 * m_drawRatio,
                                        m_highlight? highlightColor: defaultColor);
         vparams->drawTool()->enableLighting();
     }

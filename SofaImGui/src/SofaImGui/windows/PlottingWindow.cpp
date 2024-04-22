@@ -237,7 +237,7 @@ void PlottingWindow::showMenu(ImPlotPlot &plot, const int &idSubplot)
     {
         ImGui::TableNextColumn();
         ImGui::AlignTextToFramePadding();
-        ImGui::Text("Ratio");
+        ImGui::Text("Y axis ratio");
         ImGui::TableNextColumn();
         ImGui::SameLine();
 

@@ -40,6 +40,7 @@ class MyRobotWindow : public BaseWindow
     };
 
     struct Setting{
+        double buffer;
         std::string description;
         sofa::core::BaseData* data;
     };

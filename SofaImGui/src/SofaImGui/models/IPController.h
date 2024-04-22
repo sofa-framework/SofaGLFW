@@ -61,6 +61,8 @@ class IPController : public sofa::component::controller::Controller
 
     RigidCoord getTCPPosition();
 
+    double& getRotationWeight() {return m_initRotationWeight;}
+
     void setFreeInRotation(const bool &freeInRotation);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}

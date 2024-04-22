@@ -63,7 +63,13 @@ void resetSimulationView(sofaglfw::SofaGLFWBaseGUI *baseGUI)
             if (camera && fileExists)
             {
                 if (camera->importParametersFromFile(viewFileName))
-                    msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
+                {
+                    msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << ".";
+                }
+                else
+                {
+                    msg_error("GUI") << "Could not import camera parameters from " << viewFileName << ".";
+                }
             }
         }
     }

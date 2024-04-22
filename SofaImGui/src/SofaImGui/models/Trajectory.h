@@ -35,18 +35,20 @@ class Trajectory : public sofa::core::objectmodel::BaseObject
 
     SOFA_CLASS(Trajectory, sofa::core::objectmodel::BaseObject);
 
-    Trajectory() = default;
+    Trajectory();
     ~Trajectory() = default;
 
     void draw(const sofa::core::visual::VisualParams* vparams) override;
     void setPositions(const VecCoord &positions) {m_positions=positions;}
 
     void setHighlight(const bool &highlight) {m_highlight=highlight;}
+    void setDrawRatio(const double &drawRatio) {m_drawRatio=drawRatio;}
 
    protected:
 
     bool m_highlight{false};
     VecCoord m_positions;
+    double m_drawRatio{5.};
 
 };
 

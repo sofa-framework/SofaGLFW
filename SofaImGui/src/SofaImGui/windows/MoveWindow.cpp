@@ -72,6 +72,17 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
         {
             if (m_IPController != nullptr)
             {
+                if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered())
+                {
+                    ImGui::OpenPopup("##MoveOptions");
+                }
+
+                if (ImGui::BeginPopup("##MoveOptions"))
+                {
+                    showOptions();
+                    ImGui::EndPopup();
+                }
+
                 ImGui::Spacing();
 
                 static double x=0;
@@ -253,6 +264,22 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
     ImGui::PopItemWidth();
 
     return hasValueChanged;
+}
+
+void MoveWindow::showOptions()
+{
+    if (ImGui::BeginTable("Columns", 2, ImGuiTableFlags_None))
+    {
+        ImGui::TableNextColumn();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Rotation weight");
+        ImGui::TableNextColumn();
+        ImGui::SameLine();
+        ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
+        ImGui::InputDouble("##rotationweight", &m_IPController->getRotationWeight(), 0, 0, "%0.2f");
+        ImGui::PopItemWidth();
+        ImGui::EndTable();
+    }
 }
 
 }

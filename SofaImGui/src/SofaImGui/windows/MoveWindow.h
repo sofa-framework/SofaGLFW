@@ -61,6 +61,7 @@ class MoveWindow : public BaseWindow
 
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4 &color);
     bool showSliderDouble(const char *name, const char* label1, const char *label2, double* v, const double& min, const double& max);
+    void showOptions();
 };
 
 }
