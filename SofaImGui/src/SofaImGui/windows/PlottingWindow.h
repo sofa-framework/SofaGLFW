@@ -48,8 +48,8 @@ class PlottingWindow : public BaseWindow
         {
             float xmod = fmodf(x, span);
             if (!data.empty() && xmod < data.back().x)
-                data.shrink(0);
-            data.push_back(ImVec2(xmod, y * ratio));
+                data.erase(data.begin());
+            data.push_back(ImVec2(x, y * ratio));
         }
     };
 

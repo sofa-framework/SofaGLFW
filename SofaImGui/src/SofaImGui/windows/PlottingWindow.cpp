@@ -113,10 +113,11 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 
             ImGui::SameLine();
 
-            ImGui::SetCursorPosX(positionMiddle - ImGui::CalcTextSize("Clears every 20 s").x / 2.); // Set position to the middle of the header
+            char text[] = "Time interval 20 s";
+            ImGui::SetCursorPosX(positionMiddle - ImGui::CalcTextSize(text).x / 2.); // Set position to the middle of the header
 
             ImGui::AlignTextToFramePadding();
-            ImGui::Text("Clears every 20 s");
+            ImGui::Text("%s", text);
 
             ImGui::SameLine();
             ImGui::SetCursorPosX(positionRight); // Set position to right of the header
