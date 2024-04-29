@@ -396,6 +396,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             m_simulationState.clearStateData();
             m_myRobotWindow.clearData();
+            m_moveWindow.clearData();
             m_plottingWindow.clearData();
 
             Utils::reloadSimulation(baseGUI, fileMenu.getFilename());

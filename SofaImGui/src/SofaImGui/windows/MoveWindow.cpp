@@ -72,17 +72,6 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
         {
             if (m_IPController != nullptr)
             {
-                if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered())
-                {
-                    ImGui::OpenPopup("##MoveOptions");
-                }
-
-                if (ImGui::BeginPopup("##MoveOptions"))
-                {
-                    showOptions();
-                    ImGui::EndPopup();
-                }
-
                 ImGui::Spacing();
 
                 static double x=0;
@@ -94,134 +83,141 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 
                 if(m_isDrivingSimulation)
                     m_IPController->getTCPTargetPosition(x, y, z, rx, ry, rz);
-
-                ImGui::Indent();
-                ImGui::Text("%s", m_TCPPositionDescription.c_str());
-                ImGui::Spacing();
-                ImGui::Unindent();
-
-                ImGui::Indent();
-                ImGui::Indent();
-
-                const auto &initPosition = m_IPController->getTCPTargetInitPosition();
-                showSliderDouble("X", "##XSlider", "##XInput", &x, m_TCPMinPosition + initPosition[0], m_TCPMaxPosition + initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-                ImGui::Spacing();
-                showSliderDouble("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition + initPosition[1], m_TCPMaxPosition + initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-                ImGui::Spacing();
-                showSliderDouble("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition + initPosition[2], m_TCPMaxPosition + initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-                ImGui::SameLine();
-                double cursorX = ImGui::GetCursorPosX();
-
-                ImGui::Spacing();
-
-                ImGui::Unindent();
-                ImGui::Unindent();
-
-                ImGui::Spacing();
-                ImGui::Separator();
-                ImGui::Spacing();
-
-                static bool freeInRotation = true;
-                if (freeInRotation)
-                    ImGui::BeginDisabled();
-
-                ImGui::Indent();
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("%s", m_TCPRotationDescription.c_str());
-
-                if (freeInRotation)
-                    ImGui::EndDisabled();
-
-                ImGui::SameLine();
-
-                ImGui::SetCursorPosX(cursorX - ImGui::GetFrameHeightWithSpacing() * 1); // Set position to right of the line
-                if (ImGui::Button(freeInRotation? ICON_FA_LOCK_OPEN: ICON_FA_LOCK, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                
+                if (ImGui::LocalBeginCollapsingHeader(m_TCPPositionDescription.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    freeInRotation = !freeInRotation;
+                    const auto &initPosition = m_IPController->getTCPTargetInitPosition();
+                    showSliderDouble("X", "##XSlider", "##XInput", &x, m_TCPMinPosition + initPosition[0], m_TCPMaxPosition + initPosition[0], ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    ImGui::Spacing();
+                    showSliderDouble("Y", "##YSlider", "##YInput", &y, m_TCPMinPosition + initPosition[1], m_TCPMaxPosition + initPosition[1], ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    ImGui::Spacing();
+                    showSliderDouble("Z", "##ZSlider", "##ZInput", &z, m_TCPMinPosition + initPosition[2], m_TCPMaxPosition + initPosition[2], ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+                    ImGui::LocalEndCollapsingHeader();
                 }
-                m_IPController->setFreeInRotation(freeInRotation);
-                ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
 
-                ImGui::Spacing();
-                ImGui::Unindent();
+                if (ImGui::LocalBeginCollapsingHeader(m_TCPRotationDescription.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowOverlap))
+                {
+                    ImGui::SameLine();
 
-                ImGui::Indent();
-                ImGui::Indent();
+                    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetFrameHeight() - ImGui::GetStyle().FramePadding.x); // Set position to right of the line
 
-                if (freeInRotation)
-                    ImGui::BeginDisabled();
+                    bool openOptions = false;
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImGuiCol_Header);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGuiCol_Header);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGuiCol_Header);
+                    if (ImGui::Button(ICON_FA_BARS, ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight())))
+                        openOptions = true;
+                    ImGui::PopStyleColor(3);
 
-                showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-                ImGui::Spacing();
-                showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-                ImGui::Spacing();
-                showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-                ImGui::Spacing();
+                    if (openOptions)
+                    {
+                        ImGui::OpenPopup("##RotationOptions");
+                    }
 
-                if (freeInRotation)
-                    ImGui::EndDisabled();
+                    if (ImGui::BeginPopup("##RotationOptions"))
+                    {
+                        showOptions();
+                        ImGui::EndPopup();
+                    }
 
-                ImGui::Unindent();
-                ImGui::Unindent();
+                    m_IPController->setFreeInRotation(m_freeRoll, m_freePitch, m_freeYaw);
+
+                    if (m_freeRoll)
+                        ImGui::BeginDisabled();
+                    showSliderDouble("R", "##RSlider", "##RInput", &rx, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    if (m_freeRoll)
+                        ImGui::EndDisabled();
+
+                    ImGui::Spacing();
+
+                    if (m_freePitch)
+                        ImGui::BeginDisabled();
+                    showSliderDouble("P", "##PSlider", "##PInput", &ry, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    if (m_freePitch)
+                        ImGui::EndDisabled();
+
+                    ImGui::Spacing();
+
+                    if (m_freeYaw)
+                        ImGui::BeginDisabled();
+                    showSliderDouble("Y", "##YawSlider", "##YawInput", &rz, m_TCPMinOrientation, m_TCPMaxOrientation, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+                    if (m_freeYaw)
+                        ImGui::EndDisabled();
+
+                    ImGui::LocalEndCollapsingHeader();
+                }
 
                 if (m_isDrivingSimulation)
                 {
-                    if (freeInRotation)
-                    {
-                        auto TCP = m_IPController->getTCPPosition();
-                        TCP[0] = x;
-                        TCP[1] = y;
-                        TCP[2] = z;
-                        m_IPController->setTCPTargetPosition(TCP);
-                    }
-                    else
-                    {
-                        m_IPController->setTCPTargetPosition(x, y, z, rx, ry, rz);
-                    }
+                    sofa::type::Quat<SReal> q = m_IPController->getTCPPosition().getOrientation();
+                    sofa::type::Vec3 rotation = q.toEulerVector();
+                    m_IPController->setTCPTargetPosition(x, y, z,
+                                                         m_freeRoll? rotation[0]: rx,
+                                                         m_freePitch? rotation[1]: ry,
+                                                         m_freeYaw? rotation[2]: rz);
                 }
             }
 
             if (!m_actuators.empty())
             {
-                ImGui::Spacing();
-                ImGui::Separator();
-                ImGui::Spacing();
-
-                ImGui::Indent();
-                ImGui::Text("%s", m_actuatorsDescription.c_str());
-                ImGui::Spacing();
-                ImGui::Unindent();
-
-                ImGui::Indent();
-                ImGui::Indent();
-
-                int nbActuators = m_actuators.size();
-                bool solveInverseProblem = true;
-                for (int i=0; i<nbActuators; i++)
+                if (ImGui::LocalBeginCollapsingHeader(m_actuatorsDescription.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    std::string name = "M" + std::to_string(i);
-
-                    auto* typeinfo = m_actuators[i].data->getValueTypeInfo();
-                    auto* value = m_actuators[i].data->getValueVoidPtr();
-                    double buffer = typeinfo->getScalarValue(value, 0);
-                    bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax);
-                    if (hasChanged)
+                    int nbActuators = m_actuators.size();
+                    bool solveInverseProblem = true;
+                    for (int i=0; i<nbActuators; i++)
                     {
-                        std::string value = std::to_string(buffer);
-                        std::replace(value.begin(), value.end(), ',', '.');
-                        m_actuators[i].data->read(value);
-                        solveInverseProblem = false;
-                    }
-                    m_actuators[i].value=buffer;
-                }
-                if (m_IPController && !solveInverseProblem)
-                {
-                    // TODO: don't solve the inverse problem since we'll overwrite the solution
-                    m_IPController->setActuators(m_actuators);
-                }
+                        std::string name = "M" + std::to_string(i);
 
-                ImGui::Unindent();
-                ImGui::Unindent();
+                        auto* typeinfo = m_actuators[i].data->getValueTypeInfo();
+                        auto* value = m_actuators[i].data->getValueVoidPtr();
+                        double buffer = typeinfo->getScalarValue(value, 0);
+                        bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax,
+                                                           ImVec4(0, 0, 0, 0));
+                        if (hasChanged)
+                        {
+                            std::string value = std::to_string(buffer);
+                            std::replace(value.begin(), value.end(), ',', '.');
+                            m_actuators[i].data->read(value);
+                            solveInverseProblem = false;
+                        }
+                        m_actuators[i].value=buffer;
+                    }
+                    if (m_IPController && !solveInverseProblem)
+                    {
+                        // TODO: don't solve the inverse problem since we'll overwrite the solution
+                        m_IPController->setActuators(m_actuators);
+                    }
+
+                    ImGui::LocalEndCollapsingHeader();
+                }
+            }
+
+            if (!m_accessories.empty())
+            {
+                if (ImGui::LocalBeginCollapsingHeader("Accessories", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    for (auto& accessory: m_accessories)
+                    {
+                        std::string name = accessory.description;
+
+                        auto* typeinfo = accessory.data->getValueTypeInfo();
+                        auto* value = accessory.data->getValueVoidPtr();
+                        double buffer = typeinfo->getScalarValue(value, 0);
+                        bool hasChanged = showSliderDouble(name.c_str(),
+                                                           ("##Slider" + name).c_str(),
+                                                           ("##Input" + name).c_str(),
+                                                           &buffer, accessory.min, accessory.max,
+                                                           ImVec4(0, 0, 0, 0));
+                        if (hasChanged)
+                        {
+                            std::string value = std::to_string(buffer);
+                            std::replace(value.begin(), value.end(), ',', '.');
+                            accessory.data->read(value);
+                        }
+                    }
+                    ImGui::LocalEndCollapsingHeader();
+                }
             }
 
             ImGui::End();
@@ -232,9 +228,13 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 bool MoveWindow::showSliderDouble(const char* name, const char* label1, const char *label2, double* v, const double& min, const double& max, const ImVec4& color)
 {
     ImGui::AlignTextToFramePadding();
-    ImGui::PushStyleColor(ImGuiCol_Text, color);
-    ImGui::Text("l");
-    ImGui::PopStyleColor();
+    ImVec2 pos = ImGui::GetCurrentWindow()->DC.CursorPos;
+    pos.y += ImGui::GetFrameHeight() / 4.;
+    ImVec2 size(ImGuiStyleVar_WindowBorderSize, ImGui::GetFrameHeight() / 2.);
+    ImGui::GetWindowDrawList()->AddRectFilled(pos,
+                                              ImVec2(pos.x + size.x, pos.y + size.y),
+                                              ImGui::GetColorU32(color), ImGuiStyleVar_FrameRounding);
+    ImGui::Spacing();
     ImGui::SameLine();
 
     return showSliderDouble(name, label1, label2, v, min, max);
@@ -247,17 +247,21 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
     ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", name);
     ImGui::SameLine();
+    float inputWidth = ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2;
+    float sliderWidth = ImGui::GetWindowWidth() - inputWidth - ImGui::CalcTextSize(name).x - ImGui::GetStyle().WindowPadding.x * 4 - ImGui::GetStyle().IndentSpacing;
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+    ImGui::PushItemWidth(sliderWidth);
     if (ImGui::SliderScalar(label1, ImGuiDataType_Double, v, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput))
         hasValueChanged=true;
+    ImGui::PopItemWidth();
     ImGui::PopStyleColor();
 
     ImGui::SameLine();
 
     double step = max - min;
 
-    ImGui::PushItemWidth(ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2);
+    ImGui::PushItemWidth(inputWidth);
     const char* format = (log10f(abs(*v))>3)? "%0.2e": "%0.2f";
     if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, format))
         hasValueChanged=true;
@@ -268,18 +272,57 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
 
 void MoveWindow::showOptions()
 {
-    if (ImGui::BeginTable("Columns", 2, ImGuiTableFlags_None))
+    if (ImGui::BeginTable("##option", 2, ImGuiTableFlags_None))
     {
         ImGui::TableNextColumn();
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Rotation weight");
+        ImGui::LocalCheckBox("Free roll", &m_freeRoll);
+        if (m_freeRoll)
+            ImGui::BeginDisabled();
         ImGui::TableNextColumn();
-        ImGui::SameLine();
-        ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
-        ImGui::InputDouble("##rotationweight", &m_IPController->getRotationWeight(), 0, 0, "%0.2f");
-        ImGui::PopItemWidth();
+        showWeightOption(0);
+        if (m_freeRoll)
+            ImGui::EndDisabled();
+
+        ImGui::TableNextColumn();
+        ImGui::LocalCheckBox("Free pitch", &m_freePitch);
+        if (m_freePitch)
+            ImGui::BeginDisabled();
+        ImGui::TableNextColumn();
+        showWeightOption(1);
+        if (m_freePitch)
+            ImGui::EndDisabled();
+
+        ImGui::TableNextColumn();
+        ImGui::LocalCheckBox("Free yaw", &m_freeYaw);
+        if (m_freeYaw)
+            ImGui::BeginDisabled();
+        ImGui::TableNextColumn();
+        showWeightOption(2);
+        if (m_freeYaw)
+            ImGui::EndDisabled();
+
         ImGui::EndTable();
     }
+}
+
+void MoveWindow::showWeightOption(const int &i)
+{
+    ImGui::SameLine();
+    ImGui::AlignTextToFramePadding();
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+    ImGui::SameLine();
+
+    auto* weight = m_IPController->getRotationWeight();
+    double w = weight[i];
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("weight");
+    ImGui::SameLine();
+    ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
+    ImGui::PushID(i);
+    ImGui::InputDouble("##Input ", &w, 0, 0, "%0.2f");
+    ImGui::PopID();
+    weight[i] = w;
+    ImGui::PopItemWidth();
 }
 
 }

@@ -26,7 +26,7 @@
 #include <imgui_internal.h>
 
 #include <string>
-
+#include <SofaImGui/widgets/Buttons.h>
 #include <SofaImGui/windows/MyRobotWindow.h>
 
 namespace sofaimgui::windows {
@@ -51,21 +51,12 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
-            ImGui::Indent();
+            ImGui::Spacing();
 
-            if (ImGui::BeginTable("StateColumns", 3, ImGuiTableFlags_None))
+            if (!m_information.empty())
             {
-                if (!m_information.empty())
+                if (ImGui::LocalBeginCollapsingHeader("Information", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    ImGui::Spacing();
-                    ImGui::TableNextColumn();
-                    ImGui::AlignTextToFramePadding();
-                    ImGui::Text("Information");
-                    ImGui::TableNextColumn();
-                    ImGui::AlignTextToFramePadding();
-                    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-                    ImGui::TableNextColumn();
-
                     for (auto &information: m_information)
                     {
                         ImGui::AlignTextToFramePadding();
@@ -86,20 +77,14 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         ImGui::EndDisabled();
                     }
 
-                    ImGui::NewLine();
+                    ImGui::LocalEndCollapsingHeader();
                 }
+            }
 
-                if (!m_settings.empty())
+            if (!m_settings.empty())
+            {
+                if (ImGui::LocalBeginCollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    ImGui::Spacing();
-                    ImGui::TableNextColumn();
-                    ImGui::AlignTextToFramePadding();
-                    ImGui::Text("Settings");
-                    ImGui::TableNextColumn();
-                    ImGui::AlignTextToFramePadding();
-                    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-                    ImGui::TableNextColumn();
-
                     for (auto &setting: m_settings)
                     {
                         ImGui::AlignTextToFramePadding();
@@ -121,12 +106,11 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         std::replace(uiValue.begin(), uiValue.end(), ',', '.');
                         setting.data->read(uiValue);
                     }
-                }
 
-                ImGui::EndTable();
+                    ImGui::LocalEndCollapsingHeader();
+                }
             }
 
-            ImGui::Unindent();
             ImGui::End();
         }
     }

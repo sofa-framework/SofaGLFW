@@ -48,8 +48,8 @@ class PlottingWindow : public BaseWindow
         {
             float xmod = fmodf(x, span);
             if (!data.empty() && xmod < data.back().x)
-                data.shrink(0);
-            data.push_back(ImVec2(xmod, y * ratio));
+                data.erase(data.begin());
+            data.push_back(ImVec2(x, y * ratio));
         }
     };
 
@@ -57,7 +57,7 @@ class PlottingWindow : public BaseWindow
     {
         sofa::core::objectmodel::BaseData* value;
         std::string description;
-        int idSubplot{0};
+        size_t idSubplot{0};
     };
 
     PlottingWindow(const std::string& name, const bool& isWindowOpen);
@@ -72,8 +72,12 @@ class PlottingWindow : public BaseWindow
     std::vector<RollingBuffer> m_buffers;
     float m_ratio[MAX_NB_PLOT] = {1, 1, 1, 1};
 
+    size_t m_nbRows{1};
+    size_t m_nbCols{1};
+
     void exportData();
-    void showMenu(ImPlotPlot &plot, const int &idSubplot);
+    void showMenu();
+    void showMenu(ImPlotPlot &plot, const size_t &idSubplot);
 };
 
 }

@@ -60,10 +60,10 @@ class IPController : public sofa::component::controller::Controller
     void setTCPTargetPosition(const double &x, const double &y, const double &z, const double &rx, const double &ry, const double &rz);
 
     RigidCoord getTCPPosition();
+    
+    double* getRotationWeight() {return m_rotationWeight;}
 
-    double& getRotationWeight() {return m_initRotationWeight;}
-
-    void setFreeInRotation(const bool &freeInRotation);
+    void setFreeInRotation(const bool &freeRoll, const bool &freePitch, const bool &freeYaw);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
     void setActuators(const std::vector<Actuator> &actuators);
@@ -78,8 +78,8 @@ class IPController : public sofa::component::controller::Controller
     sofa::core::behavior::BaseMechanicalState::SPtr m_TCPState;
     softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3Types>::SPtr m_rotationEffector;
     RigidCoord m_initTCPTargetPosition;
-
-    double m_initRotationWeight;
+    
+    double m_rotationWeight[3];
     std::vector<Actuator> m_actuators;
     
     bool m_updateSolutionOnSolveEndEvent{false};

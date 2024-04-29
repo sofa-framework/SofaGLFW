@@ -146,6 +146,7 @@ class IOWindow : public BaseWindow
     void showInput();
 
     std::map<std::string, std::vector<float> > m_simulationState;
+    float m_itemWidth;
 
 #if SOFAIMGUI_WITH_ROS == 1
     std::shared_ptr<ROSNode> m_rosnode;

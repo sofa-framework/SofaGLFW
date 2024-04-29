@@ -67,7 +67,7 @@ bool Move::apply(RigidCoord &position, const double &time)
         position = getInterpolatedPosition(time);
     }
 
-    m_IPController->setFreeInRotation(m_freeInRotation);
+    m_IPController->setFreeInRotation(m_freeInRotation, m_freeInRotation, m_freeInRotation);
 
     return hasChanged;
 }
