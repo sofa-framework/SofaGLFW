@@ -15,6 +15,10 @@ bool LocalCheckBox(const char* label, bool* v);
 
 bool LocalCheckBoxEx(const char* label, bool* v);
 
+bool LocalBeginCollapsingHeader(const char* label, ImGuiTreeNodeFlags flags);
+
+void LocalEndCollapsingHeader();
+
 void Block(const char* label, const ImRect &bb, const ImVec4 &color, const float &offset);
 
 void ActionBlock(const char* label, const ImRect &bb, const ImVec4 &color);

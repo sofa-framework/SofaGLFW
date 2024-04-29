@@ -60,10 +60,14 @@ void IOWindow::init()
 void IOWindow::showWindow(sofa::simulation::Node *groot,
                           const ImGuiWindowFlags &windowFlags)
 {
+    SOFA_UNUSED(groot);
+
     if (m_isWindowOpen)
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
         {
+            m_itemWidth = ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x * 4;
+
             static const char* items[]{
 #if SOFAIMGUI_WITH_ROS == 1
                                        "ROS",
@@ -71,9 +75,13 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
                                        "None"
             };
 
+            ImGui::Spacing();
             ImGui::Indent();
             ImGui::Text("Method:");
+            ImGui::PushItemWidth(m_itemWidth);
             ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
+            ImGui::PopItemWidth();
+            ImGui::Spacing();
             ImGui::Unindent();
 
 #if SOFAIMGUI_WITH_ROS == 1
@@ -129,10 +137,11 @@ void IOWindow::showROSWindow()
         pulseDuration = 0;
 
     ImGui::PushStyleColor(ImGuiCol_Text, (m_isPublishing)? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
-    if (ImGui::CollapsingHeader("Output (Publishers)", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::LocalBeginCollapsingHeader("Output", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
         showOutput();
+        ImGui::LocalEndCollapsingHeader();
     }
     else
     {
@@ -140,10 +149,11 @@ void IOWindow::showROSWindow()
     }
 
     ImGui::PushStyleColor(ImGuiCol_Text, (m_isListening)? ImVec4(0.46f, 0.73f, 0.16f, 0.75f + 0.25f * sin(pulse * 2 * 3.1415)): ImGui::GetStyle().Colors[ImGuiCol_Text]);
-    if (ImGui::CollapsingHeader("Input (Subscriptions)", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::LocalBeginCollapsingHeader("Input", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
         showInput();
+        ImGui::LocalEndCollapsingHeader();
     }
     else
     {
@@ -154,7 +164,6 @@ void IOWindow::showROSWindow()
 
 void IOWindow::showOutput()
 {
-    ImGui::Indent();
     if (m_isPublishing)
     {
         ImGui::BeginDisabled();
@@ -163,7 +172,10 @@ void IOWindow::showOutput()
     // Node name
     static bool validNodeName = true;
     static char nodeBuf[30];
+
+    ImGui::PushItemWidth(m_itemWidth);
     bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodePublishers", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+    ImGui::PopItemWidth();
     ImGui::SetItemTooltip("Default is %s", m_defaultNodeName.c_str());
 
     static int nameCheckResult;
@@ -199,7 +211,7 @@ void IOWindow::showOutput()
         static bool publishFirstTime = true;
         static std::map<std::string, bool> publishListboxItems;
         ImGui::Text("Select what to publish:");
-        if (ImGui::BeginListBox("##StatePublish"))
+        if (ImGui::BeginListBox("##StatePublish", ImVec2(m_itemWidth, 0)))
         {
             // State
             m_rosnode->m_selectedStateToPublish.clear();
@@ -249,7 +261,6 @@ void IOWindow::showOutput()
         publishFirstTime = false;
     }
 
-    ImGui::Unindent();
     if (m_isPublishing)
     {
         ImGui::EndDisabled();
@@ -263,7 +274,7 @@ void IOWindow::showOutput()
         m_rosnode->m_publishers.clear();
         ImGui::BeginDisabled();
     }
-    ImGui::Indent();
+
     ImGui::LocalToggleButton("PublishersListening", &m_isPublishing);
     if (ImGui::IsItemClicked())
     {
@@ -279,7 +290,7 @@ void IOWindow::showOutput()
     ImGui::SameLine();
     ImGui::AlignTextToFramePadding();
     ImGui::Text(m_isPublishing? "Publishing" : "Publish");
-    ImGui::Unindent();
+
     if (nothingSelected)
     {
         ImGui::EndDisabled();
@@ -294,8 +305,6 @@ void IOWindow::showInput()
     {
         ImGui::BeginDisabled();
     }
-
-    ImGui::Indent();
 
     // Nodes
     static int nodeID = -1;
@@ -314,7 +323,9 @@ void IOWindow::showInput()
     static std::map<std::string, bool> subcriptionListboxItems;
 
     ImGui::Text("Select a node:");
+    ImGui::PushItemWidth(m_itemWidth);
     ImGui::Combo("##NodeSubscription", &nodeID, nodes, IM_ARRAYSIZE(nodes));
+    ImGui::PopItemWidth();
 
     // List of found topics
     auto topiclist = m_rosnode->get_topic_names_and_types();
@@ -344,7 +355,7 @@ void IOWindow::showInput()
 
     { // List box subcriptions
         ImGui::Text("Select simulation states to overwrite or digital input to listen to:");
-        if (ImGui::BeginListBox("##StateSubscription"))
+        if (ImGui::BeginListBox("##StateSubscription", ImVec2(m_itemWidth, 0)))
         {
             // TCP target
             if (!m_isListening)
@@ -415,7 +426,6 @@ void IOWindow::showInput()
         }
         subscribeFirstTime = false;
     }
-    ImGui::Unindent();
 
     if (m_isListening)
     {
@@ -430,7 +440,7 @@ void IOWindow::showInput()
         m_rosnode->m_subscriptions.clear();
         ImGui::BeginDisabled();
     }
-    ImGui::Indent();
+
     ImGui::LocalToggleButton("SubcriptionListening", &m_isListening);
     if (ImGui::IsItemClicked())
     {
@@ -446,7 +456,7 @@ void IOWindow::showInput()
     ImGui::SameLine();
     ImGui::AlignTextToFramePadding();
     ImGui::Text(m_isListening? "Listening" : "Subscribe");
-    ImGui::Unindent();
+
     if (nothingSelected)
     {
         ImGui::EndDisabled();

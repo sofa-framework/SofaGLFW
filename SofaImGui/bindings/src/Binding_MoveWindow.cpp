@@ -110,6 +110,22 @@ void moduleAddMoveWindow(py::module &m)
             }
             );
 
+    m_a.def("addAccessory",
+        [engine](const std::string &description, sofa::core::BaseData* data,
+                 const float& min, const float& max)
+        {
+            if (engine)
+            {
+                windows::MoveWindow::Accessory accessory;
+                accessory.description = description;
+                accessory.data = data;
+                accessory.min = min;
+                accessory.max = max;
+                engine->m_moveWindow.addAccessory(accessory);
+            }
+        }, "Add an accessory to the window."
+        );
+
 }
 
 

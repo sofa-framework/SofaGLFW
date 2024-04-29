@@ -135,6 +135,26 @@ bool LocalCheckBoxEx(const char* label, bool* v)
     return pressed;
 }
 
+bool LocalBeginCollapsingHeader(const char* label, ImGuiTreeNodeFlags flags)
+{
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+    bool result = CollapsingHeader(label, flags);
+    ImGui::PopStyleColor();
+
+    if (result)
+    {
+        ImGui::Indent();
+    }
+
+    return result;
+}
+
+void LocalEndCollapsingHeader()
+{
+    ImGui::Spacing();
+    ImGui::Unindent();
+}
+
 void Block(const char* label, const ImRect &bb, const ImVec4 &color, const float &offset)
 {
     ImDrawList* drawList = ImGui::GetWindowDrawList();
