@@ -20,6 +20,8 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+
+#include <sofa/simulation/Node.h>
 #include <SofaImGui/config.h>
 
 #include <memory>
@@ -30,51 +32,16 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
-struct GLFWwindow;
-namespace sofa::glfw
-{
-    class SofaGLFWBaseGUI;
-}
-
 namespace sofaimgui
 {
 
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
+    class ImGuiGUIEngine;
 
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
+    class Log
+    {
+    public:
+       static void showLog(const char* const& windowNameLog, bool& isLogWindowOpen);
 
-    void showViewport(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen);
-
-    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph,
-                        bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
-                        std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
-    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags,
-                          bool& isDisplayFlagsWindowOpen);
-    void showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen);
-    void showComponents(const char* const& windowNameComponents, bool& isComponentsWindowOpen);
-    void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen);
-
-    static const std::string& getAppIniFile();
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
+    };
 
 } // namespace sofaimgui

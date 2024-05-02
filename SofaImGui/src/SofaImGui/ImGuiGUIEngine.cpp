@@ -71,6 +71,9 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/simulation/graph/DAGNode.h>
+#include "windows/Performances.h"
+#include "windows/Log.h"
+#include "windows/Profiler.h"
 
 using namespace sofa;
 
@@ -271,291 +274,6 @@ void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot
     }
 }
 
-void ImGuiGUIEngine::showPerformances(const char* const& windowNamePerformances, const ImGuiIO& io, bool& isPerformancesWindowOpen)
-{
-    if (isPerformancesWindowOpen)
-    {
-        static sofa::type::vector<float> msArray;
-        if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen))
-        {
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-            ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices, io.MetricsRenderIndices / 3);
-            ImGui::Text("%d visible windows, %d active allocations", io.MetricsRenderWindows, io.MetricsActiveAllocations);
-
-            msArray.push_back(1000.0f / io.Framerate);
-            if (msArray.size() >= 2000)
-            {
-                msArray.erase(msArray.begin());
-            }
-            ImGui::PlotLines("Frame Times", msArray.data(), msArray.size(), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(0, 100));
-        }
-        ImGui::End();
-    }
-}
-
-void ImGuiGUIEngine::showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler, bool& isProfilerOpen)
-{
-    if (isProfilerOpen)
-    {
-        static int selectedFrame = 0;
-
-        if (ImGui::Begin(windowNameProfiler, &isProfilerOpen))
-        {
-            const auto convertInMs = [](helper::system::thread::ctime_t t)
-            {
-                static auto timer_freqd = static_cast<SReal>(helper::system::thread::CTime::getTicksPerSec());
-                return 1000.0 * static_cast<SReal>(t) / static_cast<SReal>(timer_freqd);
-            };
-
-            static std::deque< type::vector<helper::Record> > allRecords;
-            static int bufferSize = 500;
-            ImGui::SliderInt("Buffer size", &bufferSize, 10, 5000);
-            selectedFrame = std::min(selectedFrame, bufferSize - 1);
-
-            static bool showChart = true;
-            ImGui::Checkbox("Show Chart", &showChart);
-
-            if (groot->animate_.getValue())
-            {
-                type::vector<helper::Record> _records = sofa::helper::AdvancedTimer::getRecords("Animate");
-                allRecords.emplace_back(std::move(_records));
-
-                while (allRecords.size() >= bufferSize)
-                {
-                    allRecords.pop_front();
-                }
-            }
-
-            static std::unordered_set<int> selectedTimers;
-
-            struct Chart
-            {
-                std::string label;
-                sofa::type::vector<float> values;
-            };
-
-            sofa::type::vector<float> frameChart;
-            frameChart.reserve(allRecords.size());
-
-            sofa::type::vector<Chart> charts;
-            charts.reserve(selectedTimers.size());
-
-            if (showChart)
-            {
-                for (const auto& records : allRecords)
-                {
-                    if (records.size() >= 2)
-                    {
-                        const auto tMin = records.front().time;
-                        const auto tMax = records.back().time;
-                        const auto frameDuration = convertInMs(tMax - tMin);
-                        frameChart.push_back(frameDuration);
-                    }
-                    else
-                    {
-                        frameChart.push_back(0.);
-                    }
-                }
-
-                for (const auto timerId : selectedTimers)
-                {
-                    Chart chart;
-                    for (const auto& records : allRecords)
-                    {
-                        float value = 0.f;
-                        helper::system::thread::ctime_t t0;
-                        for (const auto& rec : records)
-                        {
-                            if (timerId == rec.id)
-                            {
-                                chart.label = rec.label;
-                                if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
-                                {
-                                    t0 = rec.time;
-                                }
-                                if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
-                                {
-                                    value += convertInMs(rec.time - t0);
-                                }
-                            }
-                        }
-                        chart.values.push_back(value);
-                    }
-                    charts.push_back(chart);
-                }
-
-                static double selectedFrameInChart = selectedFrame;
-                selectedFrameInChart = selectedFrame;
-                if (ImPlot::BeginPlot("##ProfilerChart"))
-                {
-                    static ImPlotAxisFlags xflags = ImPlotAxisFlags_None;
-                    static ImPlotAxisFlags yflags = ImPlotAxisFlags_AutoFit;
-                    ImPlot::SetupAxes("Time Step","Duration (ms)", xflags, yflags);
-                    ImPlot::SetupAxesLimits(0, bufferSize, 0, 10);
-                    if (ImPlot::DragLineX(0, &selectedFrameInChart, IMPLOT_AUTO_COL))
-                    {
-                        selectedFrame = std::round(selectedFrameInChart);
-                    }
-                    ImPlot::PlotLine("Total", frameChart.data(), frameChart.size());
-                    for (const auto& chart : charts)
-                    {
-                        ImPlot::PlotLine(chart.label.c_str(), chart.values.data(), chart.values.size());
-                    }
-                    ImPlot::EndPlot();
-                }
-            }
-
-            ImGui::SliderInt("Frame", &selectedFrame, 0, allRecords.size());
-
-
-            if (selectedFrame >= 0 && selectedFrame < allRecords.size())
-            {
-                const auto records = allRecords[selectedFrame];
-                if (!records.empty())
-                {
-                    auto tStart = records.front().time;
-                    auto tEnd = tStart;
-                    std::unordered_map<unsigned int, SReal > duration;
-                    std::stack<sofa::helper::system::thread::ctime_t> durationStack;
-                    std::stack<unsigned int> timerIdStack;
-                    unsigned int timerIdCounter {};
-                    for (const auto& rec : allRecords[selectedFrame])
-                    {
-                        tStart = std::min(tStart, rec.time);
-                        tEnd = std::max(tEnd, rec.time);
-
-                        if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
-                        {
-                            durationStack.push(rec.time);
-                            timerIdStack.push(timerIdCounter++);
-                        }
-                        if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
-                        {
-                            const auto t = durationStack.top();
-                            durationStack.pop();
-                            duration[timerIdStack.top()] = convertInMs(rec.time - t);
-                            timerIdStack.pop();
-                        }
-                    }
-
-                    const auto frameDuration = convertInMs(tEnd - tStart);
-                    ImGui::Text("Frame duration (ms): %f", frameDuration);
-
-                    const bool expand = ImGui::Button(ICON_FA_EXPAND);
-                    ImGui::SameLine();
-                    const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
-
-                    static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-                    if (ImGui::BeginTable("profilerTable", 3, flags))
-                    {
-                        std::stack<bool> openStack;
-
-                        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_NoHide);
-                        ImGui::TableSetupColumn("Percent (%)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
-                        ImGui::TableSetupColumn("Duration (ms)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
-                        ImGui::TableHeadersRow();
-
-                        int node_clicked = -1;
-                        static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-                        timerIdCounter = 0;
-                        for (auto it = records.begin(); it != records.end(); ++it)
-                        {
-                            const auto& rec = *it;
-                            if (rec.type == helper::Record::RBEGIN || rec.type == helper::Record::RSTEP_BEGIN || rec.type == helper::Record::RSTEP)
-                            {
-                                if (openStack.empty() || openStack.top())
-                                {
-                                    ImGuiTreeNodeFlags node_flags = base_flags;
-                                    if (selectedTimers.find(rec.id) != selectedTimers.end())
-                                    {
-                                        node_flags |= ImGuiTreeNodeFlags_Selected;
-                                    }
-
-                                    if (it + 1 != records.end())
-                                    {
-                                        const auto& nextRec = *(it + 1);
-                                        if (it->label == nextRec.label && (nextRec.type == helper::Record::REND || nextRec.type == helper::Record::RSTEP_END))
-                                        {
-                                            node_flags |= ImGuiTreeNodeFlags_Leaf;
-                                        }
-                                    }
-
-                                    ImGui::TableNextRow();
-
-                                    ImGui::TableNextColumn();
-                                    if (expand) ImGui::SetNextItemOpen(true);
-                                    if (collapse) ImGui::SetNextItemOpen(false);
-                                    const bool isOpen = ImGui::TreeNodeEx(rec.label.c_str(), node_flags);
-                                    if (ImGui::IsItemHovered())
-                                    {
-                                        ImGui::BeginTooltip();
-                                        ImGui::TextDisabled(rec.label.c_str());
-                                        ImGui::TextDisabled("ID: %s", std::to_string(rec.id).c_str());
-                                        ImGui::EndTooltip();
-                                    }
-                                    openStack.push(isOpen);
-
-                                    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
-                                        node_clicked = rec.id;
-
-                                    const auto& d = (rec.label == "Animate") ? frameDuration : duration[timerIdCounter];
-
-                                    ImVec4 color;
-                                    color.w = 1.f;
-                                    const auto ratio = (rec.label == "Animate") ? 1. : d/frameDuration;
-                                    constexpr auto clamp = [](double d){ return std::max(0., std::min(1., d));};
-                                    ImGui::ColorConvertHSVtoRGB(120./360. * clamp(1.-ratio*10.), 0.72f, 1.f, color.x,color.y, color.z);
-                                    ImGui::TableNextColumn();
-                                    ImGui::TextColored(color, "%.2f", 100 * ratio);
-
-                                    ImGui::TableNextColumn();
-                                    ImGui::TextColored(color, "%f", d);
-                                }
-                                else
-                                {
-                                    openStack.push(false);
-                                }
-                                ++timerIdCounter;
-                            }
-                            if (rec.type == helper::Record::REND || rec.type == helper::Record::RSTEP_END)
-                            {
-                                if (openStack.top())
-                                {
-                                    ImGui::TreePop();
-                                }
-                                openStack.pop();
-                            }
-                        }
-                        while(!openStack.empty())
-                        {
-                            if (openStack.top())
-                            {
-                                ImGui::TreePop();
-                            }
-                            openStack.pop();
-                        }
-
-                        ImGui::EndTable();
-
-                        if (node_clicked != -1)
-                        {
-                            auto it = selectedTimers.find(node_clicked);
-                            if (it == selectedTimers.end())
-                            {
-                                selectedTimers.insert(node_clicked);
-                            }
-                            else
-                            {
-                                selectedTimers.erase(it);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        ImGui::End();
-    }
-}
 
 void ImGuiGUIEngine::showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph, bool& isSceneGraphWindowOpen, std::set<core::objectmodel::BaseObject*>& openedComponents, std::set<core::objectmodel::BaseObject*>& focusedComponents)
 {
@@ -1547,131 +1265,6 @@ void ImGuiGUIEngine::showComponents(const char* const& windowNameComponents, boo
     }
 }
 
-void ImGuiGUIEngine::showLog(const char* const& windowNameLog, bool& isLogWindowOpen)
-{
-    if (isLogWindowOpen)
-    {
-        if (ImGui::Begin(windowNameLog, &isLogWindowOpen))
-        {
-            unsigned int i {};
-            const auto& messages = sofa::helper::logging::MainLoggingMessageHandler::getInstance().getMessages();
-            const int digits = [&messages]()
-            {
-                int d = 0;
-                auto s = messages.size();
-                while (s != 0) { s /= 10; d++; }
-                return d;
-            }();
-
-            static bool showInfo { true };
-            ImGui::Checkbox("Show Info", &showInfo);
-            ImGui::SameLine();
-
-            if (ImGui::Button(ICON_FA_SAVE" "))
-            {
-                nfdchar_t *outPath;
-                const nfdresult_t result = NFD_SaveDialog(&outPath, nullptr, 0, nullptr, "log.txt");
-                if (result == NFD_OKAY)
-                {
-                    std::ofstream outputFile;
-                    outputFile.open(outPath, std::ios::out);
-
-                    if (outputFile.is_open())
-                    {
-                        for (const auto& message : messages)
-                        {
-                            static std::unordered_map<helper::logging::Message::Type, std::string> labelMap {
-                                {helper::logging::Message::Advice, "SUGGESTION"},
-                                {helper::logging::Message::Deprecated, "DEPRECATED"},
-                                {helper::logging::Message::Warning, "WARNING"},
-                                {helper::logging::Message::Info, "INFO"},
-                                {helper::logging::Message::Error, "ERROR"},
-                                {helper::logging::Message::Fatal, "FATAL"},
-                                {helper::logging::Message::TEmpty, "EMPTY"},
-                            };
-                            outputFile << "[" << labelMap[message.type()] << "]";
-                            if (const auto* nfo = dynamic_cast<helper::logging::SofaComponentInfo*>(message.componentInfo().get()))
-                            {
-                                outputFile << " " << nfo->name();
-                                if (nfo->m_component)
-                                {
-                                    outputFile << " (" << nfo->m_component->getPathName() << ")";
-                                }
-                            }
-                            outputFile << " " << message.messageAsString() << std::endl;
-                        }
-                        outputFile.close();
-                    } else
-                    {
-                        std::cout << "Failed to open the file " << outPath << std::endl;
-                    }
-                    NFD_FreePath(outPath);
-                }
-            }
-
-            if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_RowBg))
-            {
-                ImGui::TableSetupColumn("logId", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("message type", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("sender", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("message", ImGuiTableColumnFlags_WidthStretch);
-                for (const auto& message : messages)
-                {
-                    if (!showInfo && message.type() == helper::logging::Message::Info)
-                    {
-                        continue;
-                    }
-
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-
-                    std::stringstream ss;
-                    ss << std::setfill('0') << std::setw(digits) << i++;
-                    ImGui::Text(ss.str().c_str());
-
-                    ImGui::TableNextColumn();
-
-                    constexpr auto writeMessageType = [](const helper::logging::Message::Type t)
-                    {
-                        switch (t)
-                        {
-                        case helper::logging::Message::Advice     : return ImGui::TextColored(ImVec4(0.f, 0.5686f, 0.9176f, 1.f), "[SUGGESTION]");
-                        case helper::logging::Message::Deprecated : return ImGui::TextColored(ImVec4(0.5529f, 0.4314f, 0.3882f, 1.f), "[DEPRECATED]");
-                        case helper::logging::Message::Warning    : return ImGui::TextColored(ImVec4(1.f, 0.4275f, 0.f, 1.f), "[WARNING]");
-                        case helper::logging::Message::Info       : return ImGui::Text("[INFO]");
-                        case helper::logging::Message::Error      : return ImGui::TextColored(ImVec4(0.8667f, 0.1725f, 0.f, 1.f), "[ERROR]");
-                        case helper::logging::Message::Fatal      : return ImGui::TextColored(ImVec4(0.8353, 0.f, 0.f, 1.f), "[FATAL]");
-                        case helper::logging::Message::TEmpty     : return ImGui::Text("[EMPTY]");
-                        default: return;
-                        }
-                    };
-                    writeMessageType(message.type());
-
-                    auto sender = message.sender();
-                    auto* nfo = dynamic_cast<helper::logging::SofaComponentInfo*>(message.componentInfo().get());
-                    if (nfo)
-                    {
-                        sender.append("(" + nfo->name() + ")");
-                    }
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text(sender.c_str());
-
-                    if (nfo && ImGui::IsItemHovered() && nfo->m_component)
-                    {
-                        ImGui::SetTooltip("Path: %s", nfo->m_component->getPathName().c_str());
-                    }
-
-                    ImGui::TableNextColumn();
-                    ImGui::TextWrapped(message.message().str().c_str());
-                }
-                ImGui::EndTable();
-            }
-        }
-        ImGui::End();
-    }
-}
-
 void ImGuiGUIEngine::showSettings(const char* const& windowNameSettings, bool& isSettingsOpen)
 {
     if (isSettingsOpen)
@@ -2096,7 +1689,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Performances window
      **************************************/
-    showPerformances(windowNamePerformances, io, isPerformancesWindowOpen);
+    Performances::showPerformances(windowNamePerformances, io, isPerformancesWindowOpen);
 
 
     /***************************************
@@ -2106,7 +1699,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     sofa::helper::AdvancedTimer::setInterval("Animate", 1);
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
 
-    showProfiler(groot, windowNameProfiler, isProfilerOpen);
+    Profiler::showProfiler(groot, windowNameProfiler, isProfilerOpen);
 
     /***************************************
      * Scene graph window
@@ -2134,7 +1727,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Log window
      **************************************/
-    showLog(windowNameLog, isLogWindowOpen);
+    Log::showLog(windowNameLog, isLogWindowOpen);
 
     /***************************************
      * Settings window
