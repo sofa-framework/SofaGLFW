@@ -66,6 +66,8 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
     if (m_bGlfwIsInitialized)
         return true;
 
+    setErrorCallback();
+
     if (glfwInit() == GLFW_TRUE)
     {
         // defined samples for MSAA
@@ -75,7 +77,6 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
         
         m_glDrawTool = new sofa::gl::DrawToolGL();
         m_bGlfwIsInitialized = true;
-        setErrorCallback();
         return true;
     }
     else
