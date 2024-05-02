@@ -70,6 +70,7 @@
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/helper/io/STBImage.h>
+#include <sofa/simulation/graph/DAGNode.h>
 
 using namespace sofa;
 
@@ -1410,6 +1411,66 @@ void ImGuiGUIEngine::showComponents(const char* const& windowNameComponents, boo
                         for (const auto& t : targets)
                         {
                             ImGui::BulletText(t.c_str());
+                        }
+                    }
+
+                    ImGui::Separator();
+
+                    struct DataInfo
+                    {
+                        sofa::type::vector<std::string> templateType;
+                        std::string description;
+                        std::string defaultValue;
+                        std::string type;
+                    };
+
+                    std::map<std::string, std::map<std::string, DataInfo>> allData;
+                    {
+                        const auto tmpNode = core::objectmodel::New<simulation::graph::DAGNode>("tmp");
+                        for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
+                        {
+                            core::objectmodel::BaseObjectDescription desc;
+                            const auto object = creator->createInstance(tmpNode.get(), &desc);
+                            if (object)
+                            {
+                                for (const auto& data : object->getDataFields())
+                                {
+                                    allData[data->getGroup()][data->getName()].templateType.push_back(templateInstance);
+                                    allData[data->getGroup()][data->getName()].description = data->getHelp();
+                                    allData[data->getGroup()][data->getName()].defaultValue = data->getDefaultValueString();
+                                    allData[data->getGroup()][data->getName()].type = data->getValueTypeString();
+                                }
+                            }
+                        }
+                    }
+
+                    if (!allData.empty())
+                    {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Data:");
+
+                        for (const auto& [group, templateData] : allData)
+                        {
+                            const auto groupName = group.empty() ? "Property" : group;
+                            if (ImGui::CollapsingHeader(groupName.c_str()))
+                            {
+                                ImGui::Indent();
+                                for (auto& data : templateData)
+                                {
+                                    if (ImGui::CollapsingHeader(data.first.c_str()))
+                                    {
+                                        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+                                        ImGui::TextWrapped(data.second.description.c_str());
+                                        const std::string defaultValue = "default value: " + data.second.defaultValue;
+                                        ImGui::TextWrapped(defaultValue.c_str());
+                                        const std::string type = "type: " + data.second.type;
+                                        ImGui::TextWrapped(type.c_str());
+
+                                        ImGui::PopStyleColor();
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
                         }
                     }
                 }
