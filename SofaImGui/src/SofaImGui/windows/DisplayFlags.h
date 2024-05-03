@@ -20,56 +20,18 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaImGui/config.h>
 
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
-
-#include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
-
-struct GLFWwindow;
-namespace sofa::glfw
-{
-    class SofaGLFWBaseGUI;
-}
 
 namespace sofaimgui
 {
+    class ImGuiGUIEngine;
 
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void showViewport(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen);
-
-    void showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen);
-    void showComponents(const char* const& windowNameComponents, bool& isComponentsWindowOpen);
-    void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen);
-
-    static const std::string& getAppIniFile();
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
+    class DisplayFlags
+    {
+    public:
+        static void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags,
+                              bool& isDisplayFlagsWindowOpen);
+    };
 
 } // namespace sofaimgui
