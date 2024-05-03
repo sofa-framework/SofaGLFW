@@ -61,8 +61,6 @@ protected:
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
 
-    void showViewport(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen);
-
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
 };
 

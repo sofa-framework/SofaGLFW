@@ -80,7 +80,7 @@
 #include "windows/Components.h"
 #include "windows/Settings.h"
 #include "AppIniFile.h"
-
+#include "windows/ViewPort.h"
 
 using namespace sofa;
 
@@ -179,106 +179,6 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
         baseGUI->changeCamera(camera);
     }
     baseGUI->initVisual();
-}
-
-void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen)
-{
-    if (isViewportWindowOpen)
-    {
-        ImVec2 pos;
-        if (ImGui::Begin(windowNameViewport, &isViewportWindowOpen/*, ImGuiWindowFlags_MenuBar*/))
-        {
-            pos = ImGui::GetWindowPos();
-
-            ImGui::BeginChild("Render");
-            ImVec2 wsize = ImGui::GetWindowSize();
-            m_viewportWindowSize = { wsize.x, wsize.y};
-
-            ImGui::Image((ImTextureID)m_fbo->getColorTexture(), wsize, ImVec2(0, 1), ImVec2(1, 0));
-
-            isMouseOnViewport = ImGui::IsItemHovered();
-            ImGui::EndChild();
-
-        }
-        ImGui::End();
-
-        if (isViewportWindowOpen && ini.GetBoolValue("Visualization", "showViewportSettingsButton", true))
-        {
-            static constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-            pos.x += 10;
-            pos.y += 40;
-            ImGui::SetNextWindowPos(pos);
-
-            if (ImGui::Begin("viewportSettingsMenuWindow", &isViewportWindowOpen, window_flags))
-            {
-                if (ImGui::Button(ICON_FA_COG))
-                {
-                    ImGui::OpenPopup("viewportSettingsMenu");
-                }
-
-                if (ImGui::BeginPopup("viewportSettingsMenu"))
-                {
-                    if (ImGui::Selectable(ICON_FA_BORDER_ALL "  Show Grid"))
-                    {
-                        auto grid = groot->get<sofa::component::visual::VisualGrid>();
-                        if (!grid)
-                        {
-                            auto newGrid = sofa::core::objectmodel::New<sofa::component::visual::VisualGrid>();
-                            groot->addObject(newGrid);
-                            newGrid->setName("viewportGrid");
-                            newGrid->addTag(core::objectmodel::Tag("createdByGUI"));
-                            newGrid->d_enable.setValue(true);
-                            auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
-                            newGrid->d_size.setValue(*std::max_element(box.begin(), box.end()));
-                            newGrid->init();
-                        }
-                        else
-                        {
-                            grid->d_enable.setValue(!grid->d_enable.getValue());
-                        }
-                    }
-                    if (ImGui::Selectable(ICON_FA_ARROWS_ALT "  Show Axis"))
-                    {
-                        auto axis = groot->get<sofa::component::visual::LineAxis>();
-                        if (!axis)
-                        {
-                            auto newAxis = sofa::core::objectmodel::New<sofa::component::visual::LineAxis>();
-                            groot->addObject(newAxis);
-                            newAxis->setName("viewportAxis");
-                            newAxis->addTag(core::objectmodel::Tag("createdByGUI"));
-                            newAxis->d_enable.setValue(true);
-                            auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
-                            newAxis->d_size.setValue(*std::max_element(box.begin(), box.end()));
-                            newAxis->init();
-                        }
-                        else
-                        {
-                            axis->d_enable.setValue(!axis->d_enable.getValue());
-                        }
-                    }
-                    if (ImGui::Selectable(ICON_FA_SQUARE_FULL "  Show Frame"))
-                    {
-                        auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>();
-                        if (!sceneFrame)
-                        {
-                            auto newSceneFrame = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglSceneFrame>();
-                            groot->addObject(newSceneFrame);
-                            newSceneFrame->setName("viewportFrame");
-                            newSceneFrame->addTag(core::objectmodel::Tag("createdByGUI"));
-                            newSceneFrame->d_drawFrame.setValue(true);
-                            newSceneFrame->init();
-                        }
-                        else
-                        {
-                            sceneFrame->d_drawFrame.setValue(!sceneFrame->d_drawFrame.getValue());
-                        }
-                    }
-                    ImGui::EndPopup();
-                }
-            }
-            ImGui::End();
-        }
-    }
 }
 
 
@@ -641,7 +541,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    showViewport(groot, windowNameViewport, isViewportWindowOpen);
+    ViewPort::showViewPort(groot, windowNameViewport, isViewportWindowOpen,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport);
 
     /***************************************
      * Performances window
