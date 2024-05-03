@@ -87,6 +87,8 @@ set(HEADER_FILES
         ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
         ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
         ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
+        ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.h
+
 
 )
 
@@ -99,6 +101,7 @@ set(SOURCE_FILES
         ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
         ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
         ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.cpp
+        ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.cpp
 
 
 )
