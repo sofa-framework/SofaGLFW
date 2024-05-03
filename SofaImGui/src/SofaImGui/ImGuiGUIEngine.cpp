@@ -76,6 +76,7 @@
 #include "windows/Profiler.h"
 #include "windows/SceneGraph.h"
 #include "windows/DisplayFlags.h"
+#include "windows/Plugins.h"
 
 
 using namespace sofa;
@@ -274,75 +275,6 @@ void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot
             }
             ImGui::End();
         }
-    }
-}
-
-void ImGuiGUIEngine::showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen)
-{
-    if (isPluginsWindowOpen)
-    {
-        if (ImGui::Begin(windowNamePlugins, &isPluginsWindowOpen))
-        {
-            if (ImGui::Button("Load"))
-            {
-                std::vector<nfdfilteritem_t> nfd_filters {
-                    {"SOFA plugin", helper::system::DynamicLibrary::extension.c_str() } };
-
-                nfdchar_t *outPath;
-                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
-                if (result == NFD_OKAY)
-                {
-                    if (helper::system::FileSystem::exists(outPath))
-                    {
-                        helper::system::PluginManager::getInstance().loadPluginByPath(outPath);
-                        helper::system::PluginManager::getInstance().writeToIniFile(
-                            sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
-                    }
-                }
-            }
-
-            ImGui::BeginChild("Plugins", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
-
-            const auto& pluginMap = helper::system::PluginManager::getInstance().getPluginMap();
-
-            static std::map<std::string, bool> isSelected;
-            static std::string selectedPlugin;
-            for (const auto& [path, plugin] : pluginMap)
-            {
-                if (ImGui::Selectable(plugin.getModuleName(), selectedPlugin == path))
-                {
-                    selectedPlugin = path;
-                }
-            }
-
-            ImGui::EndChild();
-            ImGui::SameLine();
-
-            if (!selectedPlugin.empty())
-            {
-                ImGui::BeginChild("selectedPlugin", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
-
-                const auto pluginIt = pluginMap.find(selectedPlugin);
-                if (pluginIt != pluginMap.end())
-                {
-                    ImGui::Text("Plugin: %s", pluginIt->second.getModuleName());
-                    ImGui::Text("Version: %s", pluginIt->second.getModuleVersion());
-                    ImGui::Text("License: %s", pluginIt->second.getModuleLicense());
-                    ImGui::Spacing();
-                    ImGui::TextDisabled("Description:");
-                    ImGui::TextWrapped("%s", pluginIt->second.getModuleDescription());
-                    ImGui::Spacing();
-                    ImGui::TextDisabled("Components:");
-                    ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
-                    ImGui::Spacing();
-                    ImGui::TextDisabled("Path:");
-                    ImGui::TextWrapped(selectedPlugin.c_str());
-                }
-            }
-
-            ImGui::EndChild();
-        }
-        ImGui::End();
     }
 }
 
@@ -1138,7 +1070,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Plugins window
      **************************************/
-    showPlugins(windowNamePlugins, isPluginsWindowOpen);
+    Plugins::showPlugins(windowNamePlugins, isPluginsWindowOpen);
 
     /***************************************
      * Components window
