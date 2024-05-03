@@ -78,6 +78,9 @@
 #include "windows/DisplayFlags.h"
 #include "windows/Plugins.h"
 #include "windows/Components.h"
+#include "windows/Settings.h"
+#include "AppIniFile.h"
+
 
 using namespace sofa;
 
@@ -103,9 +106,9 @@ void ImGuiGUIEngine::init()
 
 
     ini.SetUnicode();
-    if (sofa::helper::system::FileSystem::exists(getAppIniFile()))
+    if (sofa::helper::system::FileSystem::exists(AppIniFile::getAppIniFile()))
     {
-        SI_Error rc = ini.LoadFile(getAppIniFile().c_str());
+        SI_Error rc = ini.LoadFile(AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
     }
 
@@ -114,7 +117,7 @@ void ImGuiGUIEngine::init()
     if (!pv)
     {
         ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
-        SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
+        SI_Error rc = ini.SaveFile(AppIniFile::getAppIniFile().c_str());
         pv = sofaimgui::defaultStyle.c_str();
     }
 
@@ -278,66 +281,6 @@ void ImGuiGUIEngine::showViewport(sofa::core::sptr<sofa::simulation::Node> groot
     }
 }
 
-
-void ImGuiGUIEngine::showSettings(const char* const& windowNameSettings, bool& isSettingsOpen)
-{
-    if (isSettingsOpen)
-    {
-        if (ImGui::Begin(windowNameSettings, &isSettingsOpen))
-        {
-            const char* theme = ini.GetValue("Style", "theme", sofaimgui::defaultStyle.c_str());
-            static std::size_t styleCurrent = std::distance(std::begin(sofaimgui::listStyles), std::find_if(std::begin(sofaimgui::listStyles), std::end(sofaimgui::listStyles),
-                [&theme](const char* el){return std::string(el) == std::string(theme); }));
-            if (ImGui::BeginCombo("Theme",  sofaimgui::listStyles[styleCurrent]))
-            {
-                for (std::size_t n = 0 ; n < sofaimgui::listStyles.size(); ++n)
-                {
-                    const bool isSelected = styleCurrent == n;
-                    if (ImGui::Selectable(sofaimgui::listStyles[n], isSelected))
-                    {
-                        styleCurrent = n;
-
-                        sofaimgui::setStyle(sofaimgui::listStyles[styleCurrent]);
-                        ini.SetValue("Style", "theme", sofaimgui::listStyles[styleCurrent], "Preset of colors and properties to change the theme of the application");
-                        SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
-                    }
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-
-            ImGuiIO& io = ImGui::GetIO();
-            const float MIN_SCALE = 0.3f;
-            const float MAX_SCALE = 2.0f;
-            ImGui::DragFloat("global scale", &io.FontGlobalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
-
-
-            bool alwaysShowFrame = ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
-            if (ImGui::Checkbox("Always show scene frame", &alwaysShowFrame))
-            {
-                ini.SetBoolValue("Visualization", "alwaysShowFrame", alwaysShowFrame);
-                SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
-            }
-
-            bool showViewportSettingsButton = ini.GetBoolValue("Visualization", "showViewportSettingsButton", true);
-            if (ImGui::Checkbox("Show viewport settings button", &showViewportSettingsButton))
-            {
-                ini.SetBoolValue("Visualization", "showViewportSettingsButton", showViewportSettingsButton);
-                SI_Error rc = ini.SaveFile(getAppIniFile().c_str());
-            }
-
-        }
-        ImGui::End();
-    }
-}
-
-const std::string& ImGuiGUIEngine::getAppIniFile()
-{
-    static const std::string appIniFile(sofa::helper::Utils::getExecutableDirectory() + "/settings.ini");
-    return appIniFile;
-}
 
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
@@ -746,7 +689,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Settings window
      **************************************/
-    showSettings(windowNameSettings, isSettingsOpen);
+    Settings::showSettings(windowNameSettings, isSettingsOpen,ini);
 
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1

@@ -91,6 +91,8 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
+    ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
 
 
 
@@ -109,6 +111,9 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Components.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
+
 
 
 
