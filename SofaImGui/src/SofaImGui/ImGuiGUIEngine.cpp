@@ -579,7 +579,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Components window
      **************************************/
-    Components::showComponents(windowNameComponents, isComponentsWindowOpen);
+    windows::showComponents(windowNameComponents, isComponentsWindowOpen);
 
     /***************************************
      * Log window
