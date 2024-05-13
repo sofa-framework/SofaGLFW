@@ -31,16 +31,21 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
-namespace sofaimgui
+
+/**
+ * @brief Shows the Performance window.
+ *
+ * This function displays performance metrics including the average frame time, frames per second (FPS), number of vertices, indices, triangles, visible windows, and active allocations. It also plots the frame times over a certain period.
+ *
+ * @param windowNamePerformances The name of the Performance window.
+ * @param io The ImGuiIO structure containing ImGui's I/O configuration settings.
+ * @param isPerformancesWindowOpen A reference to a boolean flag indicating if the Performance window is open.
+ */
+
+namespace windows
 {
 
-    class ImGuiGUIEngine;
+         void showPerformances(const char* const& windowNamePerformances, const ImGuiIO& io, bool& isPerformancesWindowOpen);
 
-    class Performances
-    {
-    public:
-        static void showPerformances(const char* const& windowNamePerformances, const ImGuiIO& io, bool& isPerformancesWindowOpen);
-
-    };
 
 } // namespace sofaimgui

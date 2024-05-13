@@ -32,13 +32,14 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
+
 #include "DisplayFlags.h"
 
 
-namespace sofaimgui
+namespace windows
 {
 
-    void DisplayFlags::showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags, bool& isDisplayFlagsWindowOpen)
+    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags, bool& isDisplayFlagsWindowOpen)
     {
         if (isDisplayFlagsWindowOpen)
         {

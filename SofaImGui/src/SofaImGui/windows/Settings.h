@@ -23,14 +23,9 @@
 
 #include <sofa/simulation/Node.h>
 
-namespace sofaimgui
+namespace windows
 {
-    class ImGuiGUIEngine;
 
-    class Settings
-    {
-    public:
-       static void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen, CSimpleIniA &ini);
-    };
+        void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen, CSimpleIniA &ini);
 
 } // namespace sofaimgui

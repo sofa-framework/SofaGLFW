@@ -106,9 +106,9 @@ void ImGuiGUIEngine::init()
 
 
     ini.SetUnicode();
-    if (sofa::helper::system::FileSystem::exists(AppIniFile::getAppIniFile()))
+    if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getAppIniFile()))
     {
-        SI_Error rc = ini.LoadFile(AppIniFile::getAppIniFile().c_str());
+        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
     }
 
@@ -117,7 +117,7 @@ void ImGuiGUIEngine::init()
     if (!pv)
     {
         ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
-        SI_Error rc = ini.SaveFile(AppIniFile::getAppIniFile().c_str());
+        SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         pv = sofaimgui::defaultStyle.c_str();
     }
 
@@ -541,12 +541,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    ViewPort::showViewPort(groot, windowNameViewport, isViewportWindowOpen,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport);
+    windows::showViewPort(groot, windowNameViewport, isViewportWindowOpen,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport);
 
     /***************************************
      * Performances window
      **************************************/
-    Performances::showPerformances(windowNamePerformances, io, isPerformancesWindowOpen);
+    windows::showPerformances(windowNamePerformances, io, isPerformancesWindowOpen);
 
 
     /***************************************
@@ -556,25 +556,25 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     sofa::helper::AdvancedTimer::setInterval("Animate", 1);
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
 
-    Profiler::showProfiler(groot, windowNameProfiler, isProfilerOpen);
+    windows::showProfiler(groot, windowNameProfiler, isProfilerOpen);
 
     /***************************************
      * Scene graph window
      **************************************/
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
-    SceneGraph::showSceneGraph(groot, windowNameSceneGraph, isSceneGraphWindowOpen, openedComponents, focusedComponents);
+    windows::showSceneGraph(groot, windowNameSceneGraph, isSceneGraphWindowOpen, openedComponents, focusedComponents);
 
 
     /***************************************
      * Display flags window
      **************************************/
-    DisplayFlags::showDisplayFlags(groot, windowNameDisplayFlags, isDisplayFlagsWindowOpen);
+    windows::showDisplayFlags(groot, windowNameDisplayFlags, isDisplayFlagsWindowOpen);
 
     /***************************************
      * Plugins window
      **************************************/
-    Plugins::showPlugins(windowNamePlugins, isPluginsWindowOpen);
+    windows::showPlugins(windowNamePlugins, isPluginsWindowOpen);
 
     /***************************************
      * Components window
@@ -584,12 +584,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Log window
      **************************************/
-    Log::showLog(windowNameLog, isLogWindowOpen);
+    windows::showLog(windowNameLog, isLogWindowOpen);
 
     /***************************************
      * Settings window
      **************************************/
-    Settings::showSettings(windowNameSettings, isSettingsOpen,ini);
+    windows::showSettings(windowNameSettings, isSettingsOpen,ini);
 
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1

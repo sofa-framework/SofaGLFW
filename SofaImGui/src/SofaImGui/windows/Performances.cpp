@@ -25,9 +25,9 @@
 #include <sofa/type/vector.h>
 
 
-namespace sofaimgui {
+namespace windows {
 
-    void Performances::showPerformances(const char *const &windowNamePerformances, const ImGuiIO &io,
+    void showPerformances(const char *const &windowNamePerformances, const ImGuiIO &io,
                                           bool &isPerformancesWindowOpen) {
         if (isPerformancesWindowOpen) {
             static sofa::type::vector<float> msArray;

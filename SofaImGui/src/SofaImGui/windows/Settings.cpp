@@ -30,10 +30,10 @@
 #include "Settings.h"
 #include "SofaImGui/AppIniFile.h"
 
-namespace sofaimgui
+namespace windows
 {
 
-    void Settings::showSettings(const char* const& windowNameSettings, bool& isSettingsOpen, CSimpleIniA &ini)
+    void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen, CSimpleIniA &ini)
     {
         if (isSettingsOpen)
         {
@@ -53,7 +53,7 @@ namespace sofaimgui
 
                             sofaimgui::setStyle(sofaimgui::listStyles[styleCurrent]);
                             ini.SetValue("Style", "theme", sofaimgui::listStyles[styleCurrent], "Preset of colors and properties to change the theme of the application");
-                            SI_Error rc = ini.SaveFile(AppIniFile::getAppIniFile().c_str());
+                            SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                         }
                         if (isSelected)
                             ImGui::SetItemDefaultFocus();
@@ -72,14 +72,14 @@ namespace sofaimgui
                 if (ImGui::Checkbox("Always show scene frame", &alwaysShowFrame))
                 {
                     ini.SetBoolValue("Visualization", "alwaysShowFrame", alwaysShowFrame);
-                    SI_Error rc = ini.SaveFile(AppIniFile::getAppIniFile().c_str());
+                    SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                 }
 
                 bool showViewportSettingsButton = ini.GetBoolValue("Visualization", "showViewportSettingsButton", true);
                 if (ImGui::Checkbox("Show viewport settings button", &showViewportSettingsButton))
                 {
                     ini.SetBoolValue("Visualization", "showViewportSettingsButton", showViewportSettingsButton);
-                    SI_Error rc = ini.SaveFile(AppIniFile::getAppIniFile().c_str());
+                    SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                 }
 
             }

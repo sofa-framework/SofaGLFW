@@ -39,9 +39,9 @@
 #include <sofa/simulation/graph/DAGNode.h>
 #include "Log.h"
 
-namespace sofaimgui {
+namespace windows {
 
-    void Log::showLog(const char* const& windowNameLog, bool& isLogWindowOpen)
+    void showLog(const char* const& windowNameLog, bool& isLogWindowOpen)
     {
         if (isLogWindowOpen)
         {

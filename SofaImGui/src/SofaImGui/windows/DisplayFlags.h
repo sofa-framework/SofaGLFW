@@ -23,15 +23,21 @@
 
 #include <sofa/simulation/Node.h>
 
-namespace sofaimgui
-{
-    class ImGuiGUIEngine;
+/**
+ * @brief Shows the Display Flags window.
+ *
+ * This function displays a window allowing users to toggle various display flags for visualizing different components in the scene. It provides checkboxes to control the visibility of visual models, behavior models, force fields, collision models, bounding collision models, mappings, mechanical mappings, wireframe, and normals.
+ *
+ * @param groot The root node of the simulation scene.
+ * @param windowNameDisplayFlags The name of the Display Flags window.
+ * @param isDisplayFlagsWindowOpen A reference to a boolean flag indicating if the Display Flags window is open.
+ */
 
-    class DisplayFlags
-    {
-    public:
-        static void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags,
+
+namespace windows
+{
+
+         void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags,
                               bool& isDisplayFlagsWindowOpen);
-    };
 
 } // namespace sofaimgui

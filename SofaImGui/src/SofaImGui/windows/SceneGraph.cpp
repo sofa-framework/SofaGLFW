@@ -41,9 +41,9 @@
 #include "SceneGraph.h"
 
 
-namespace sofaimgui
+namespace windows
 {
-    void SceneGraph::showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph, bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents, std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents)
+    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph, bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents, std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents)
     {
         if (isSceneGraphWindowOpen)
         {
@@ -138,12 +138,12 @@ namespace sofaimgui
                             }
                             else if (object->countLoggedMessages({sofa::helper::logging::Message::Info, sofa::helper::logging::Message::Deprecated, sofa::helper::logging::Message::Advice})!=0)
                             {
-                                objectColor = getObjectColor(object);
+                                objectColor = sofaimgui::getObjectColor(object);
                                 icon = ICON_FA_COMMENT;
                             }
                             else
                             {
-                                objectColor = getObjectColor(object);
+                                objectColor = sofaimgui::getObjectColor(object);
                             }
 
                             ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
@@ -299,7 +299,7 @@ namespace sofaimgui
                                         }
 
                                         ImGui::PopStyleColor();
-                                        showWidget(*data);
+                                        sofaimgui::showWidget(*data);
                                     }
                                 }
                                 ImGui::Unindent();
@@ -347,7 +347,7 @@ namespace sofaimgui
         for (auto* component : openedComponents)
         {
             bool isOpen = true;
-            ImGui::PushStyleColor(ImGuiCol_Text, getObjectColor(component));
+            ImGui::PushStyleColor(ImGuiCol_Text, sofaimgui::getObjectColor(component));
             if (ImGui::Begin((ICON_FA_CUBE "  " + component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
             {
                 ImGui::PopStyleColor();
@@ -399,7 +399,7 @@ namespace sofaimgui
                                     }
 
                                     ImGui::PopStyleColor();
-                                    showWidget(*data);
+                                    sofaimgui::showWidget(*data);
                                 }
                             }
                             ImGui::EndTabItem();

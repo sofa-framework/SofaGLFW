@@ -36,9 +36,9 @@
 
 
 
-namespace sofaimgui
+namespace windows
 {
-    void ViewPort::showViewPort(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport
+    void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport
                                 , bool& isViewportWindowOpen, CSimpleIniA &ini
                                 , std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo
                                 , std::pair<float, float>& m_viewportWindowSize

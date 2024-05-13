@@ -35,11 +35,12 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
+
 #include "Plugins.h"
 
-namespace sofaimgui
+namespace windows
 {
-    void Plugins::showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen)
+    void showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen)
     {
         if (isPluginsWindowOpen)
         {

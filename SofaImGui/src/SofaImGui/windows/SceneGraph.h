@@ -23,17 +23,12 @@
 
 #include <sofa/simulation/Node.h>
 
-namespace sofaimgui
+namespace windows
 {
-    class ImGuiGUIEngine;
 
-    class SceneGraph
-    {
-    public:
-       static void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph,
+        void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameSceneGraph,
                             bool& isSceneGraphWindowOpen, std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                             std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
 
-    };
 
 } // namespace sofaimgui

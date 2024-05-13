@@ -50,9 +50,9 @@
 #include "Profiler.h"
 
 
-namespace sofaimgui {
+namespace windows {
 
-    void Profiler::showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler, bool& isProfilerOpen)
+    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler, bool& isProfilerOpen)
     {
         if (isProfilerOpen)
         {

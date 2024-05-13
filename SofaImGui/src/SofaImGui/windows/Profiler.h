@@ -31,15 +31,10 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
-namespace sofaimgui
+
+namespace windows
 {
 
-    class ImGuiGUIEngine;
-
-    class Profiler
-    {
-    public:
-       static void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler, bool& isProfilerOpen);
-    };
+        void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameProfiler, bool& isProfilerOpen);
 
 } // namespace sofaimgui
