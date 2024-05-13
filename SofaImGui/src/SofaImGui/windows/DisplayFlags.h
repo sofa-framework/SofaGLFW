@@ -37,7 +37,8 @@
 namespace windows
 {
 
-         void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameDisplayFlags,
-                              bool& isDisplayFlagsWindowOpen);
+         void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot
+                               , const char* const& windowNameDisplayFlags
+                               , bool& isDisplayFlagsWindowOpen);
 
 } // namespace sofaimgui

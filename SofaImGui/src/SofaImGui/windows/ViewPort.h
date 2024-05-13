@@ -23,10 +23,26 @@
 
 #include <sofa/simulation/Node.h>
 
+/**
+ * @brief Displays the viewport window.
+ *
+ * This function renders the viewport window, showing the scene rendered into a frame buffer object (FBO).
+ * It also provides options to show/hide grid, axis, and frame within the viewport.
+ *
+ * @param groot The root node of the scene to be rendered.
+ * @param windowNameViewport The name of the viewport window.
+ * @param isViewportWindowOpen A reference to a boolean flag indicating if the viewport window is open.
+ * @param ini The INI file object containing application settings.
+ * @param m_fbo The frame buffer object (FBO) used for rendering the scene.
+ * @param m_viewportWindowSize A reference to a pair representing the width and height of the viewport window.
+ * @param isMouseOnViewport A reference to a boolean flag indicating if the mouse cursor is over the viewport.
+ */
+
 namespace windows
 {
 
-         void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot, const char* const& windowNameViewport, bool& isViewportWindowOpen
+         void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot
+                                 , const char* const& windowNameViewport, bool& isViewportWindowOpen
                                  , CSimpleIniA &ini
                                  , std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo
                                  , std::pair<float, float>& m_viewportWindowSize

@@ -40,7 +40,8 @@
 
 namespace windows
 {
-    void showPlugins(const char* const& windowNamePlugins, bool& isPluginsWindowOpen)
+    void showPlugins(const char* const& windowNamePlugins
+                     , bool& isPluginsWindowOpen)
     {
         if (isPluginsWindowOpen)
         {

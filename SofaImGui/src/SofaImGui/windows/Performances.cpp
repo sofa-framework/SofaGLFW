@@ -27,8 +27,10 @@
 
 namespace windows {
 
-    void showPerformances(const char *const &windowNamePerformances, const ImGuiIO &io,
-                                          bool &isPerformancesWindowOpen) {
+    void showPerformances(const char *const &windowNamePerformances
+                          , const ImGuiIO &io
+                          , bool &isPerformancesWindowOpen)
+    {
         if (isPerformancesWindowOpen) {
             static sofa::type::vector<float> msArray;
             if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen)) {

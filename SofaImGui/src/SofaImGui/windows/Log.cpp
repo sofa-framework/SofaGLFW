@@ -41,7 +41,8 @@
 
 namespace windows {
 
-    void showLog(const char* const& windowNameLog, bool& isLogWindowOpen)
+    void showLog(const char* const& windowNameLog
+                 , bool& isLogWindowOpen)
     {
         if (isLogWindowOpen)
         {

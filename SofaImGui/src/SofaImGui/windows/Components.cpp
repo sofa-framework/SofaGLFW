@@ -45,7 +45,8 @@
 namespace windows
 {
 
-    void showComponents(const char* const& windowNameComponents, bool& isComponentsWindowOpen)
+    void showComponents(const char* const& windowNameComponents
+                        , bool& isComponentsWindowOpen)
     {
         if (isComponentsWindowOpen)
         {

@@ -33,7 +33,9 @@
 namespace windows
 {
 
-    void showSettings(const char* const& windowNameSettings, bool& isSettingsOpen, CSimpleIniA &ini)
+    void showSettings(const char* const& windowNameSettings
+                      , bool& isSettingsOpen
+                      , CSimpleIniA &ini)
     {
         if (isSettingsOpen)
         {
