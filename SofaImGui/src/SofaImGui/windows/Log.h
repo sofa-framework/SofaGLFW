@@ -32,17 +32,17 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
-/**
- * @brief Shows the Log window.
- *
- * This function displays a window containing log messages. It provides options to filter messages by type and save the log to a file. The displayed log messages include their IDs, types, senders, and the messages themselves.
- *
- * @param windowNameLog The name of the Log window.
- * @param isLogWindowOpen A reference to a boolean flag indicating if the Log window is open.
- */
 
 namespace windows
 {
+        /**
+         * @brief Shows the Log window.
+         *
+         * This function displays a window containing log messages. It provides options to filter messages by type and save the log to a file. The displayed log messages include their IDs, types, senders, and the messages themselves.
+         *
+         * @param windowNameLog The name of the Log window.
+         * @param isLogWindowOpen A reference to a boolean flag indicating if the Log window is open.
+         */
 
         void showLog(const char* const& windowNameLog
                      , bool& isLogWindowOpen);

@@ -23,6 +23,10 @@
 
 #include <sofa/simulation/Node.h>
 
+
+namespace windows
+{
+
 /**
  * @brief Shows the Settings window.
  *
@@ -32,9 +36,6 @@
  * @param isSettingsOpen A reference to a boolean flag indicating if the Settings window is open.
  * @param ini The INI file object containing application settings.
  */
-
-namespace windows
-{
 
         void showSettings(const char* const& windowNameSettings
                           , bool& isSettingsOpen

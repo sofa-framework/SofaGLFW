@@ -32,6 +32,10 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
+
+namespace windows
+{
+
 /**
  * @brief Shows the Profiler window.
  *
@@ -41,9 +45,6 @@
  * @param windowNameProfiler The name of the Profiler window.
  * @param isProfilerOpen A reference to a boolean flag indicating if the Profiler window is open.
  */
-
-namespace windows
-{
 
         void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot
                           , const char* const& windowNameProfiler

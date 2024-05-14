@@ -23,20 +23,20 @@
 
 #include <sofa/simulation/Node.h>
 
-/**
- * @brief Shows the Scene Graph window.
- *
- * This function displays the hierarchy of nodes and objects in the scene graph, allowing users to interact with and inspect different components and their properties.
- *
- * @param groot The root node of the scene graph.
- * @param windowNameSceneGraph The name of the Scene Graph window.
- * @param isSceneGraphWindowOpen A reference to a boolean flag indicating if the Scene Graph window is open.
- * @param openedComponents A set containing pointers to the components that are currently opened and being inspected.
- * @param focusedComponents A set containing pointers to the components that are currently focused for inspection.
- */
 
 namespace windows
 {
+        /**
+         * @brief Shows the Scene Graph window.
+         *
+         * This function displays the hierarchy of nodes and objects in the scene graph, allowing users to interact with and inspect different components and their properties.
+         *
+         * @param groot The root node of the scene graph.
+         * @param windowNameSceneGraph The name of the Scene Graph window.
+         * @param isSceneGraphWindowOpen A reference to a boolean flag indicating if the Scene Graph window is open.
+         * @param openedComponents A set containing pointers to the components that are currently opened and being inspected.
+         * @param focusedComponents A set containing pointers to the components that are currently focused for inspection.
+         */
 
         void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot
                             , const char* const& windowNameSceneGraph

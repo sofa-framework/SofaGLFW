@@ -23,17 +23,19 @@
 
 #include <sofa/simulation/Node.h>
 
-/**
- * @brief Shows the Components window.
- *
- * This function displays a window listing all available components along with their categories. It allows users to select a component to view its details, including name, description, templates, aliases, namespaces, parents, targets, and data properties.
- *
- * @param windowNameComponents The name of the Components window.
- * @param isComponentsWindowOpen A reference to a boolean flag indicating if the Components window is open.
- */
+
 
 namespace windows
 {
+        /**
+        * @brief Shows the Components window.
+        *
+        * This function displays a window listing all available components along with their categories. It allows users to select a component to view its details, including name, description, templates, aliases, namespaces, parents, targets, and data properties.
+        *
+        * @param windowNameComponents The name of the Components window.
+        * @param isComponentsWindowOpen A reference to a boolean flag indicating if the Components window is open.
+        */
+
          void showComponents(const char* const& windowNameComponents
                              , bool& isComponentsWindowOpen);
 
