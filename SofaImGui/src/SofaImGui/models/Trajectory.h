@@ -24,6 +24,7 @@
 #include <sofa/type/Vec.h>
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/core/objectmodel/BaseObject.h>
+#include <SofaImGui/config.h>
 
 namespace sofaimgui::models {
 

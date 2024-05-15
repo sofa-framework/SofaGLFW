@@ -21,6 +21,7 @@
  ******************************************************************************/
 #pragma once
 
+#include <SofaImGui/config.h>
 #include <sofa/type/Vec.h>
 #include <sofa/defaulttype/RigidTypes.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>

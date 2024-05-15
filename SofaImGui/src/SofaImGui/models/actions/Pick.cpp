@@ -19,37 +19,25 @@
  *                                                                             *
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
-#pragma once
 
-#include <sofa/type/Vec.h>
-#include <sofa/defaulttype/RigidTypes.h>
-#include <SofaGLFW/SofaGLFWBaseGUI.h>
-#include <sofa/core/behavior/BaseMechanicalState.h>
-#include <SofaImGui/config.h>
+#include <SofaImGui/models/actions/Pick.h>
 
-namespace sofaimgui::models {
+namespace sofaimgui::models::actions {
 
-class SimulationState
+Pick::Pick(const double &duration, const bool& release)
+    : Action(duration)
+    , m_release(release)
+    , view(*this)
 {
-   public:
+    setComment("Pick");
+}
 
-    struct StateData {
-        std::string group;
-        std::string description;
-        sofa::core::BaseData* data;
-    };
-
-    SimulationState() = default;
-    ~SimulationState() = default;
-
-    void clearStateData();
-    void addStateData(StateData &data);
-    const std::vector<StateData>& getStateData() const;
-
-   protected:
-    std::vector<StateData> m_stateData;
-
-};
+void Pick::setDuration(const double& duration)
+{
+    m_duration = duration;
+    if (m_duration < m_minDuration)
+        m_duration = m_minDuration;
+}
 
 } // namespace
 

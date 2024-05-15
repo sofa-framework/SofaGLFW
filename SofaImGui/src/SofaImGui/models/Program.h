@@ -30,6 +30,7 @@
 #include <sofa/core/objectmodel/DataFileName.h>
 #include <SofaImGui/models/Track.h>
 #include <SofaImGui/models/IPController.h>
+#include <SofaImGui/config.h>
 
 namespace sofaimgui::models {
 

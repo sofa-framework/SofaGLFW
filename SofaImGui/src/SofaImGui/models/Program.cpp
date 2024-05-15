@@ -22,6 +22,7 @@
 
 #include <SofaImGui/models/Program.h>
 #include <SofaImGui/models/modifiers/Repeat.h>
+#include <SofaImGui/models/actions/Pick.h>
 #include <SofaImGui/models/actions/Wait.h>
 
 
@@ -85,6 +86,21 @@ bool Program::importProgram(const std::string &filename)
                     if (e->FindAttribute("comment"))
                         move->setComment(e->Attribute("comment"));
                     track->pushMove(move);
+                }
+                else if (strcmp(e->FirstAttribute()->Value(), "pick") == 0)
+                {
+                    if (!e->FindAttribute("duration"))
+                        return false;
+                    double duration = e->FindAttribute("duration")->DoubleValue();
+
+                    if (!e->FindAttribute("release"))
+                        return false;
+                    double release = e->FindAttribute("release")->BoolValue();
+
+                    std::shared_ptr<actions::Pick> pick = std::make_shared<actions::Pick>(duration, release);
+                    if (e->FindAttribute("comment"))
+                        pick->setComment(e->Attribute("comment"));
+                    track->pushAction(pick);
                 }
                 else if (strcmp(e->FirstAttribute()->Value(), "wait") == 0)
                 {
@@ -180,6 +196,22 @@ void Program::exportProgram(const std::string &filename)
                         xmlMove->SetAttribute("type", move->getType());
                         xmlMove->SetAttribute("comment", move->getComment());
                         xmlTrack->InsertEndChild(xmlMove);
+                    }
+                    continue;
+                }
+
+                std::shared_ptr<actions::Pick> pick = std::dynamic_pointer_cast<actions::Pick>(action);
+                if (pick) // PICK
+                {
+                    tinyxml2::XMLElement * xmlPick = document.NewElement("action");
+                    if (xmlPick != nullptr)
+                    {
+                        xmlPick->SetAttribute("name", "pick");
+                        xmlPick->SetAttribute("duration", pick->getDuration());
+                        xmlPick->SetAttribute("release", pick->getState());
+                        xmlPick->SetAttribute("comment", pick->getComment());
+                        xmlPick->InsertEndChild(xmlPick);
+                        xmlTrack->InsertEndChild(xmlPick);
                     }
                     continue;
                 }

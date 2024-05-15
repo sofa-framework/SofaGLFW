@@ -23,32 +23,42 @@
 
 #include <sofa/type/Vec.h>
 #include <sofa/defaulttype/RigidTypes.h>
-#include <SofaGLFW/SofaGLFWBaseGUI.h>
-#include <sofa/core/behavior/BaseMechanicalState.h>
-#include <SofaImGui/config.h>
 
-namespace sofaimgui::models {
+#include <sofa/simulation/Node.h>
+#include <SofaImGui/models/Trajectory.h>
+#include <SofaImGui/models/actions/Action.h>
 
-class SimulationState
+namespace sofaimgui::models::actions {
+
+class Pick : public Action
 {
    public:
 
-    struct StateData {
-        std::string group;
-        std::string description;
-        sofa::core::BaseData* data;
-    };
+    Pick(const double& duration = Action::DEFAULTDURATION, const bool& release = false);
+    ~Pick() = default;
 
-    SimulationState() = default;
-    ~SimulationState() = default;
-
-    void clearStateData();
-    void addStateData(StateData &data);
-    const std::vector<StateData>& getStateData() const;
+    void setDuration(const double &duration) override;
+    bool getState() {return m_release;}
 
    protected:
-    std::vector<StateData> m_stateData;
+    double m_minDuration{0.5};
+    bool m_release{false};
 
+    class PickView : public ActionView
+    {
+       public:
+        PickView(Pick &_pick) : pick(_pick) {}
+        bool showBlock(const std::string &label,
+                       const ImVec2 &size) override;
+
+       protected:
+        Pick &pick;
+    };
+    PickView view;
+
+   public :
+
+    ActionView* getView() override {return &view;}
 };
 
 } // namespace

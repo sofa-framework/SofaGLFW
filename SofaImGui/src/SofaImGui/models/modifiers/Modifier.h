@@ -23,6 +23,7 @@
 
 #include <imgui.h>
 #include <string>
+#include <SofaImGui/config.h>
 
 namespace sofaimgui::models::modifiers {
 

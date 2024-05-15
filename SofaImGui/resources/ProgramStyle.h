@@ -6,11 +6,9 @@ struct ProgramColors
 {
     ImVec4 FrameBg;
     ImVec4 MoveBlockBg;
-    ImVec4 MoveBlockTitleBg;
+    ImVec4 PickBlockBg;
     ImVec4 WaitBlockBg;
-    ImVec4 WaitBlockTitleBg;
     ImVec4 RepeatBlockBg;
-    ImVec4 RepeatBlockTitleBg;
     ImVec4 Text;
     ImVec4 FrameText;
 

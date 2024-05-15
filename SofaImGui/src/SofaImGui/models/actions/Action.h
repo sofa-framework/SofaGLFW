@@ -22,6 +22,7 @@
 #pragma once
 
 #include <sofa/defaulttype/RigidTypes.h>
+#include <SofaImGui/config.h>
 #include <imgui.h>
 #include <string>
 

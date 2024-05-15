@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <SofaImGui/config.h>
 #include <pybind11/pybind11.h>
 
 namespace sofaimgui::python3 {

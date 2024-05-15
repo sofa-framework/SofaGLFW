@@ -30,6 +30,7 @@
 
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/objectmodel/DataFileName.h>
+#include <SofaImGui/config.h>
 
 
 namespace sofaimgui::models {

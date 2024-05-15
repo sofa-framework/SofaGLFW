@@ -25,7 +25,6 @@
 #include <map>
 #include <SofaImGui/models/IPController.h>
 
-#include <SofaImGui/config.h>
 #include <SofaImGui/windows/BaseWindow.h>
 #include <SofaImGui/models/SimulationState.h>
 #include <imgui.h>

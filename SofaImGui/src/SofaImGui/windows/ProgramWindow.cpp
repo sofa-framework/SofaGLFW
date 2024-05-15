@@ -324,6 +324,10 @@ int ProgramWindow::showTracks()
                 {
                     track->pushMove();
                 }
+                if (ImGui::MenuItem(("Pick##" + std::to_string(trackIndex)).c_str()))
+                {
+                    track->pushAction(std::make_shared<models::actions::Pick>());
+                }
                 if (ImGui::MenuItem(("Wait##" + std::to_string(trackIndex)).c_str()))
                 {
                     track->pushAction(std::make_shared<models::actions::Wait>());
@@ -514,6 +518,8 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
             {
                 if (ImGui::MenuItem("Move"))
                     track->insertMove(actionIndex);
+                if (ImGui::MenuItem("Pick"))
+                    track->insertAction(actionIndex, std::make_shared<models::actions::Pick>());
                 if (ImGui::MenuItem("Wait"))
                     track->insertAction(actionIndex, std::make_shared<models::actions::Wait>());
                 ImGui::EndMenu();
@@ -522,6 +528,8 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
             {
                 if (ImGui::MenuItem("Move"))
                     track->insertMove(actionIndex + 1);
+                if (ImGui::MenuItem("Pick"))
+                    track->insertAction(actionIndex + 1, std::make_shared<models::actions::Pick>());
                 if (ImGui::MenuItem("Wait"))
                     track->insertAction(actionIndex + 1, std::make_shared<models::actions::Wait>());
                 ImGui::EndMenu();
