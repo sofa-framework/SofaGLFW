@@ -45,11 +45,11 @@ void setIPController(sofa::simulation::Node &TCPTargetNode,
                      sofa::simulation::Node &TCPNode,
                      sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl &solver)
 {
-    ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
+    ImGuiGUI* gui = ImGuiGUI::getGUI();
 
     if (gui)
     {
-        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+        std::shared_ptr<ImGuiGUIEngine> engine = gui? gui->getGUIEngine() : nullptr;
         softrobotsinverse::solver::QPInverseProblemSolver::SPtr qpsolver = dynamic_cast<softrobotsinverse::solver::QPInverseProblemSolver*>(&solver);
 
         if (engine && qpsolver)
@@ -77,11 +77,11 @@ void setIPController(sofa::simulation::Node &TCPTargetNode,
 bool getRobotConnection()
 {
 
-    ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
+    ImGuiGUI* gui = ImGuiGUI::getGUI();
 
     if (gui)
     {
-        std::shared_ptr<ImGuiGUIEngine> engine = std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine());
+        std::shared_ptr<ImGuiGUIEngine> engine = gui? gui->getGUIEngine() : nullptr;
 
         if (engine)
             return engine->getRobotConnection();
