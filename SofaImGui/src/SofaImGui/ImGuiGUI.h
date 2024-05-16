@@ -23,6 +23,7 @@
 
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <SofaGLFW/SofaGLFWGUI.h>
+#include <SofaImGui/ImGuiGUIEngine.h>
 
 namespace sofaimgui
 {
@@ -35,7 +36,13 @@ public:
     ~ImGuiGUI() override = default;
 
     static sofa::gui::common::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
-    std::shared_ptr<sofaglfw::BaseGUIEngine> getGUIEngine() {return this->m_baseGUI.getGUIEngine();}
+    std::shared_ptr<sofaimgui::ImGuiGUIEngine> getGUIEngine();
+    static ImGuiGUI* getGUI();
+
+protected:
+
+    static ImGuiGUI* currentGUI;
+    std::shared_ptr<sofaimgui::ImGuiGUIEngine> m_guiEngine;
 
 };
 

@@ -32,30 +32,42 @@
 namespace sofaimgui
 {
 
+/*STATIC FIELD DEFINITIONS */
+ImGuiGUI* ImGuiGUI::currentGUI = nullptr;
+
 ImGuiGUI::ImGuiGUI()
 : sofaglfw::SofaGLFWGUI()
 {
-    auto guiEngine = std::make_shared<ImGuiGUIEngine>();
-    this->m_baseGUI.setGUIEngine(guiEngine);
+    m_guiEngine = std::make_shared<ImGuiGUIEngine>();
+    this->m_baseGUI.setGUIEngine(m_guiEngine);
 }
-
 
 sofa::gui::common::BaseGUI* ImGuiGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
 {
     ImGuiGUI::mGuiName = name;
-    auto* gui = new ImGuiGUI();
+    currentGUI = new ImGuiGUI();
 
-    if (!gui->init())
+    if (!currentGUI->init())
     {
         return nullptr;
     }
     
     if(groot)
     {
-        gui->setScene(groot, filename);
+        currentGUI->setScene(groot, filename);
     }
 
-    return gui;
+    return currentGUI;
+}
+
+ImGuiGUI* ImGuiGUI::getGUI()
+{
+    return currentGUI;
+}
+
+std::shared_ptr<sofaimgui::ImGuiGUIEngine> ImGuiGUI::getGUIEngine()
+{
+    return m_guiEngine;
 }
 
 } // namespace sofaimgui

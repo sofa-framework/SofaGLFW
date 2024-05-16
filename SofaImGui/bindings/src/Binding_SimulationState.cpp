@@ -42,8 +42,8 @@ namespace sofaimgui::python3
 
 void moduleAddSimulationState(py::module &m)
 {
-    ImGuiGUI* gui = dynamic_cast<ImGuiGUI*>(sofa::gui::common::GUIManager::getGUI());
-    std::shared_ptr<ImGuiGUIEngine> engine = gui? std::dynamic_pointer_cast<ImGuiGUIEngine>(gui->getGUIEngine()) : nullptr;
+    ImGuiGUI* gui = ImGuiGUI::getGUI();
+    std::shared_ptr<ImGuiGUIEngine> engine = gui? gui->getGUIEngine() : nullptr;
 
     auto m_a = m.def_submodule("SimulationState", "");
 
