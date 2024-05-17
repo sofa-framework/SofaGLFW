@@ -20,48 +20,22 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaImGui/config.h>
 
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
-
-#include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
 
-struct GLFWwindow;
-namespace sofa::glfw
+
+namespace windows
 {
-    class SofaGLFWBaseGUI;
-}
+        /**
+         * @brief Shows the Plugins window.
+         *
+         * This function allows users to load plugins, view a list of loaded plugins, and display detailed information about a selected plugin.
+         *
+         * @param windowNamePlugins The name of the Plugins window.
+         * @param isPluginsWindowOpen A reference to a boolean flag indicating if the Plugins window is open.
+         */
+        void showPlugins(const char* const& windowNamePlugins,
+                         bool& isPluginsWindowOpen);
 
-namespace sofaimgui
-{
-
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
 
 } // namespace sofaimgui

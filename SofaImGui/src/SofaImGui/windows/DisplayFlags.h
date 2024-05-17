@@ -20,48 +20,24 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaImGui/config.h>
 
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
-
-#include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
 
-struct GLFWwindow;
-namespace sofa::glfw
+
+
+namespace windows
 {
-    class SofaGLFWBaseGUI;
-}
-
-namespace sofaimgui
-{
-
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
+        /**
+         * @brief Shows the Display Flags window.
+         *
+         * This function displays a window allowing users to toggle various display flags for visualizing different components in the scene. It provides checkboxes to control the visibility of visual models, behavior models, force fields, collision models, bounding collision models, mappings, mechanical mappings, wireframe, and normals.
+         *
+         * @param groot The root node of the simulation scene.
+         * @param windowNameDisplayFlags The name of the Display Flags window.
+         * @param isDisplayFlagsWindowOpen A reference to a boolean flag indicating if the Display Flags window is open.
+         */
+         void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
+                               const char* const& windowNameDisplayFlags,
+                               bool& isDisplayFlagsWindowOpen);
 
 } // namespace sofaimgui

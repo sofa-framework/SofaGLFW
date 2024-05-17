@@ -20,6 +20,8 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+
+#include <sofa/simulation/Node.h>
 #include <SofaImGui/config.h>
 
 #include <memory>
@@ -30,38 +32,22 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 
-struct GLFWwindow;
-namespace sofa::glfw
+
+
+namespace windows
 {
-    class SofaGLFWBaseGUI;
-}
+        /**
+         * @brief Shows the Performance window.
+         *
+         * This function displays performance metrics including the average frame time, frames per second (FPS), number of vertices, indices, triangles, visible windows, and active allocations. It also plots the frame times over a certain period.
+         *
+         * @param windowNamePerformances The name of the Performance window.
+         * @param io The ImGuiIO structure containing ImGui's I/O configuration settings.
+         * @param isPerformancesWindowOpen A reference to a boolean flag indicating if the Performance window is open.
+         */
+         void showPerformances(const char* const& windowNamePerformances,
+                               const ImGuiIO& io,
+                               bool& isPerformancesWindowOpen);
 
-namespace sofaimgui
-{
-
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
 
 } // namespace sofaimgui

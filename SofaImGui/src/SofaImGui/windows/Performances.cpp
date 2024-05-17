@@ -19,49 +19,35 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#pragma once
-#include <SofaImGui/config.h>
-
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
-
+#include "Performances.h"
 #include <imgui.h>
-#include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
+#include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
+#include <sofa/type/vector.h>
 
-struct GLFWwindow;
-namespace sofa::glfw
-{
-    class SofaGLFWBaseGUI;
+
+namespace windows {
+
+    void showPerformances(const char *const &windowNamePerformances
+                          , const ImGuiIO &io
+                          , bool &isPerformancesWindowOpen)
+    {
+        if (isPerformancesWindowOpen) {
+            static sofa::type::vector<float> msArray;
+            if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen)) {
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+                ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices,
+                            io.MetricsRenderIndices / 3);
+                ImGui::Text("%d visible windows, %d active allocations", io.MetricsRenderWindows,
+                            io.MetricsActiveAllocations);
+
+                msArray.push_back(1000.0f / io.Framerate);
+                if (msArray.size() >= 2000) {
+                    msArray.erase(msArray.begin());
+                }
+                ImGui::PlotLines("Frame Times", msArray.data(), msArray.size(), 0, nullptr, FLT_MAX, FLT_MAX,
+                                 ImVec2(0, 100));
+            }
+            ImGui::End();
+        }
+    }
 }
-
-namespace sofaimgui
-{
-
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
-
-} // namespace sofaimgui

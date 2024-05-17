@@ -20,48 +20,28 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaImGui/config.h>
 
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
-
-#include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
 
-struct GLFWwindow;
-namespace sofa::glfw
+
+namespace windows
 {
-    class SofaGLFWBaseGUI;
-}
+        /**
+         * @brief Shows the Scene Graph window.
+         *
+         * This function displays the hierarchy of nodes and objects in the scene graph, allowing users to interact with and inspect different components and their properties.
+         *
+         * @param groot The root node of the scene graph.
+         * @param windowNameSceneGraph The name of the Scene Graph window.
+         * @param isSceneGraphWindowOpen A reference to a boolean flag indicating if the Scene Graph window is open.
+         * @param openedComponents A set containing pointers to the components that are currently opened and being inspected.
+         * @param focusedComponents A set containing pointers to the components that are currently focused for inspection.
+         */
+        void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
+                            const char* const& windowNameSceneGraph,
+                            bool& isSceneGraphWindowOpen,
+                            std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                            std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
 
-namespace sofaimgui
-{
-
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
 
 } // namespace sofaimgui
