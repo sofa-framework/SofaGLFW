@@ -48,7 +48,8 @@
 
 #include <sofa/simulation/graph/DAGNode.h>
 #include "Profiler.h"
-
+#include <fstream>
+#include <iostream>
 
 namespace windows {
 
@@ -56,41 +57,39 @@ namespace windows {
                       , const char* const& windowNameProfiler
                       , bool& isProfilerOpen)
     {
-        if (isProfilerOpen)
-        {
+        if (isProfilerOpen) {
+            std::ofstream outfile("profiler.txt");
+            outfile << "This file marks that the profiler window will open in the next run";
+            outfile.close();
             static int selectedFrame = 0;
 
-            if (ImGui::Begin(windowNameProfiler, &isProfilerOpen))
-            {
-                const auto convertInMs = [](sofa::helper::system::thread::ctime_t t)
-                {
+            if (ImGui::Begin(windowNameProfiler, &isProfilerOpen)) {
+                const auto convertInMs = [](sofa::helper::system::thread::ctime_t t) {
                     static auto timer_freqd = static_cast<SReal>(sofa::helper::system::thread::CTime::getTicksPerSec());
                     return 1000.0 * static_cast<SReal>(t) / static_cast<SReal>(timer_freqd);
                 };
 
-                static std::deque< sofa::type::vector<sofa::helper::Record> > allRecords;
-                static int bufferSize = 500;
-                ImGui::SliderInt("Buffer size", &bufferSize, 10, 5000);
+                static std::deque <sofa::type::vector<sofa::helper::Record>> allRecords;
+                static int bufferSize = 5000;
+                ImGui::SliderInt("Buffer size", &bufferSize, 10, 500);
                 selectedFrame = std::min(selectedFrame, bufferSize - 1);
 
                 static bool showChart = true;
                 ImGui::Checkbox("Show Chart", &showChart);
 
-                if (groot->animate_.getValue())
-                {
-                    sofa::type::vector<sofa::helper::Record> _records = sofa::helper::AdvancedTimer::getRecords("Animate");
+                if (groot->animate_.getValue()) {
+                    sofa::type::vector <sofa::helper::Record> _records = sofa::helper::AdvancedTimer::getRecords(
+                            "Animate");
                     allRecords.emplace_back(std::move(_records));
 
-                    while (allRecords.size() >= bufferSize)
-                    {
+                    while (allRecords.size() >= bufferSize) {
                         allRecords.pop_front();
                     }
                 }
 
                 static std::unordered_set<int> selectedTimers;
 
-                struct Chart
-                {
+                struct Chart {
                     std::string label;
                     sofa::type::vector<float> values;
                 };
@@ -98,44 +97,36 @@ namespace windows {
                 sofa::type::vector<float> frameChart;
                 frameChart.reserve(allRecords.size());
 
-                sofa::type::vector<Chart> charts;
+                sofa::type::vector <Chart> charts;
                 charts.reserve(selectedTimers.size());
 
-                if (showChart)
-                {
-                    for (const auto& records : allRecords)
-                    {
-                        if (records.size() >= 2)
-                        {
+                if (showChart) {
+                    for (const auto &records: allRecords) {
+                        if (records.size() >= 2) {
                             const auto tMin = records.front().time;
                             const auto tMax = records.back().time;
                             const auto frameDuration = convertInMs(tMax - tMin);
                             frameChart.push_back(frameDuration);
-                        }
-                        else
-                        {
+                        } else {
                             frameChart.push_back(0.);
                         }
                     }
 
-                    for (const auto timerId : selectedTimers)
-                    {
+                    for (const auto timerId: selectedTimers) {
                         Chart chart;
-                        for (const auto& records : allRecords)
-                        {
+                        for (const auto &records: allRecords) {
                             float value = 0.f;
                             sofa::helper::system::thread::ctime_t t0;
-                            for (const auto& rec : records)
-                            {
-                                if (timerId == rec.id)
-                                {
+                            for (const auto &rec: records) {
+                                if (timerId == rec.id) {
                                     chart.label = rec.label;
-                                    if (rec.type == sofa::helper::Record::RBEGIN || rec.type == sofa::helper::Record::RSTEP_BEGIN || rec.type == sofa::helper::Record::RSTEP)
-                                    {
+                                    if (rec.type == sofa::helper::Record::RBEGIN ||
+                                        rec.type == sofa::helper::Record::RSTEP_BEGIN ||
+                                        rec.type == sofa::helper::Record::RSTEP) {
                                         t0 = rec.time;
                                     }
-                                    if (rec.type == sofa::helper::Record::REND || rec.type == sofa::helper::Record::RSTEP_END)
-                                    {
+                                    if (rec.type == sofa::helper::Record::REND ||
+                                        rec.type == sofa::helper::Record::RSTEP_END) {
                                         value += convertInMs(rec.time - t0);
                                     }
                                 }
@@ -147,19 +138,16 @@ namespace windows {
 
                     static double selectedFrameInChart = selectedFrame;
                     selectedFrameInChart = selectedFrame;
-                    if (ImPlot::BeginPlot("##ProfilerChart"))
-                    {
+                    if (ImPlot::BeginPlot("##ProfilerChart")) {
                         static ImPlotAxisFlags xflags = ImPlotAxisFlags_None;
                         static ImPlotAxisFlags yflags = ImPlotAxisFlags_AutoFit;
-                        ImPlot::SetupAxes("Time Step","Duration (ms)", xflags, yflags);
+                        ImPlot::SetupAxes("Time Step", "Duration (ms)", xflags, yflags);
                         ImPlot::SetupAxesLimits(0, bufferSize, 0, 10);
-                        if (ImPlot::DragLineX(0, &selectedFrameInChart, IMPLOT_AUTO_COL))
-                        {
+                        if (ImPlot::DragLineX(0, &selectedFrameInChart, IMPLOT_AUTO_COL)) {
                             selectedFrame = std::round(selectedFrameInChart);
                         }
                         ImPlot::PlotLine("Total", frameChart.data(), frameChart.size());
-                        for (const auto& chart : charts)
-                        {
+                        for (const auto &chart: charts) {
                             ImPlot::PlotLine(chart.label.c_str(), chart.values.data(), chart.values.size());
                         }
                         ImPlot::EndPlot();
@@ -169,29 +157,26 @@ namespace windows {
                 ImGui::SliderInt("Frame", &selectedFrame, 0, allRecords.size());
 
 
-                if (selectedFrame >= 0 && selectedFrame < allRecords.size())
-                {
+                if (selectedFrame >= 0 && selectedFrame < allRecords.size()) {
                     const auto records = allRecords[selectedFrame];
-                    if (!records.empty())
-                    {
+                    if (!records.empty()) {
                         auto tStart = records.front().time;
                         auto tEnd = tStart;
-                        std::unordered_map<unsigned int, SReal > duration;
-                        std::stack<sofa::helper::system::thread::ctime_t> durationStack;
+                        std::unordered_map<unsigned int, SReal> duration;
+                        std::stack <sofa::helper::system::thread::ctime_t> durationStack;
                         std::stack<unsigned int> timerIdStack;
-                        unsigned int timerIdCounter {};
-                        for (const auto& rec : allRecords[selectedFrame])
-                        {
+                        unsigned int timerIdCounter{};
+                        for (const auto &rec: allRecords[selectedFrame]) {
                             tStart = std::min(tStart, rec.time);
                             tEnd = std::max(tEnd, rec.time);
 
-                            if (rec.type == sofa::helper::Record::RBEGIN || rec.type == sofa::helper::Record::RSTEP_BEGIN || rec.type == sofa::helper::Record::RSTEP)
-                            {
+                            if (rec.type == sofa::helper::Record::RBEGIN ||
+                                rec.type == sofa::helper::Record::RSTEP_BEGIN ||
+                                rec.type == sofa::helper::Record::RSTEP) {
                                 durationStack.push(rec.time);
                                 timerIdStack.push(timerIdCounter++);
                             }
-                            if (rec.type == sofa::helper::Record::REND || rec.type == sofa::helper::Record::RSTEP_END)
-                            {
+                            if (rec.type == sofa::helper::Record::REND || rec.type == sofa::helper::Record::RSTEP_END) {
                                 const auto t = durationStack.top();
                                 durationStack.pop();
                                 duration[timerIdStack.top()] = convertInMs(rec.time - t);
@@ -206,37 +191,40 @@ namespace windows {
                         ImGui::SameLine();
                         const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
 
-                        static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-                        if (ImGui::BeginTable("profilerTable", 3, flags))
-                        {
+                        static ImGuiTableFlags flags =
+                                ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable |
+                                ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+                        if (ImGui::BeginTable("profilerTable", 3, flags)) {
                             std::stack<bool> openStack;
 
                             ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_NoHide);
-                            ImGui::TableSetupColumn("Percent (%)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
-                            ImGui::TableSetupColumn("Duration (ms)", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("A").x * 12.0f);
+                            ImGui::TableSetupColumn("Percent (%)", ImGuiTableColumnFlags_WidthFixed,
+                                                    ImGui::CalcTextSize("A").x * 12.0f);
+                            ImGui::TableSetupColumn("Duration (ms)", ImGuiTableColumnFlags_WidthFixed,
+                                                    ImGui::CalcTextSize("A").x * 12.0f);
                             ImGui::TableHeadersRow();
 
                             int node_clicked = -1;
-                            static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+                            static ImGuiTreeNodeFlags base_flags =
+                                    ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
+                                    ImGuiTreeNodeFlags_SpanAvailWidth;
                             timerIdCounter = 0;
-                            for (auto it = records.begin(); it != records.end(); ++it)
-                            {
-                                const auto& rec = *it;
-                                if (rec.type == sofa::helper::Record::RBEGIN || rec.type == sofa::helper::Record::RSTEP_BEGIN || rec.type == sofa::helper::Record::RSTEP)
-                                {
-                                    if (openStack.empty() || openStack.top())
-                                    {
+                            for (auto it = records.begin(); it != records.end(); ++it) {
+                                const auto &rec = *it;
+                                if (rec.type == sofa::helper::Record::RBEGIN ||
+                                    rec.type == sofa::helper::Record::RSTEP_BEGIN ||
+                                    rec.type == sofa::helper::Record::RSTEP) {
+                                    if (openStack.empty() || openStack.top()) {
                                         ImGuiTreeNodeFlags node_flags = base_flags;
-                                        if (selectedTimers.find(rec.id) != selectedTimers.end())
-                                        {
+                                        if (selectedTimers.find(rec.id) != selectedTimers.end()) {
                                             node_flags |= ImGuiTreeNodeFlags_Selected;
                                         }
 
-                                        if (it + 1 != records.end())
-                                        {
-                                            const auto& nextRec = *(it + 1);
-                                            if (it->label == nextRec.label && (nextRec.type == sofa::helper::Record::REND || nextRec.type == sofa::helper::Record::RSTEP_END))
-                                            {
+                                        if (it + 1 != records.end()) {
+                                            const auto &nextRec = *(it + 1);
+                                            if (it->label == nextRec.label &&
+                                                (nextRec.type == sofa::helper::Record::REND ||
+                                                 nextRec.type == sofa::helper::Record::RSTEP_END)) {
                                                 node_flags |= ImGuiTreeNodeFlags_Leaf;
                                             }
                                         }
@@ -247,8 +235,7 @@ namespace windows {
                                         if (expand) ImGui::SetNextItemOpen(true);
                                         if (collapse) ImGui::SetNextItemOpen(false);
                                         const bool isOpen = ImGui::TreeNodeEx(rec.label.c_str(), node_flags);
-                                        if (ImGui::IsItemHovered())
-                                        {
+                                        if (ImGui::IsItemHovered()) {
                                             ImGui::BeginTooltip();
                                             ImGui::TextDisabled(rec.label.c_str());
                                             ImGui::TextDisabled("ID: %s", std::to_string(rec.id).c_str());
@@ -259,38 +246,35 @@ namespace windows {
                                         if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
                                             node_clicked = rec.id;
 
-                                        const auto& d = (rec.label == "Animate") ? frameDuration : duration[timerIdCounter];
+                                        const auto &d = (rec.label == "Animate") ? frameDuration
+                                                                                 : duration[timerIdCounter];
 
                                         ImVec4 color;
                                         color.w = 1.f;
-                                        const auto ratio = (rec.label == "Animate") ? 1. : d/frameDuration;
-                                        constexpr auto clamp = [](double d){ return std::max(0., std::min(1., d));};
-                                        ImGui::ColorConvertHSVtoRGB(120./360. * clamp(1.-ratio*10.), 0.72f, 1.f, color.x,color.y, color.z);
+                                        const auto ratio = (rec.label == "Animate") ? 1. : d / frameDuration;
+                                        constexpr auto clamp = [](double d) { return std::max(0., std::min(1., d)); };
+                                        ImGui::ColorConvertHSVtoRGB(120. / 360. * clamp(1. - ratio * 10.), 0.72f, 1.f,
+                                                                    color.x, color.y, color.z);
                                         ImGui::TableNextColumn();
                                         ImGui::TextColored(color, "%.2f", 100 * ratio);
 
                                         ImGui::TableNextColumn();
                                         ImGui::TextColored(color, "%f", d);
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         openStack.push(false);
                                     }
                                     ++timerIdCounter;
                                 }
-                                if (rec.type == sofa::helper::Record::REND || rec.type == sofa::helper::Record::RSTEP_END)
-                                {
-                                    if (openStack.top())
-                                    {
+                                if (rec.type == sofa::helper::Record::REND ||
+                                    rec.type == sofa::helper::Record::RSTEP_END) {
+                                    if (openStack.top()) {
                                         ImGui::TreePop();
                                     }
                                     openStack.pop();
                                 }
                             }
-                            while(!openStack.empty())
-                            {
-                                if (openStack.top())
-                                {
+                            while (!openStack.empty()) {
+                                if (openStack.top()) {
                                     ImGui::TreePop();
                                 }
                                 openStack.pop();
@@ -298,15 +282,11 @@ namespace windows {
 
                             ImGui::EndTable();
 
-                            if (node_clicked != -1)
-                            {
+                            if (node_clicked != -1) {
                                 auto it = selectedTimers.find(node_clicked);
-                                if (it == selectedTimers.end())
-                                {
+                                if (it == selectedTimers.end()) {
                                     selectedTimers.insert(node_clicked);
-                                }
-                                else
-                                {
+                                } else {
                                     selectedTimers.erase(it);
                                 }
                             }
@@ -315,6 +295,14 @@ namespace windows {
                 }
             }
             ImGui::End();
+            if (!isProfilerOpen){
+                    if (remove("profiler.txt") != 0) {
+                        std::cerr << "Error deleting profiler.txt" << std::endl;
+                    } else {
+                        std::cout << "profiler.txt successfully deleted" << std::endl;
+                    }
+
+                }
         }
     }
 

@@ -81,13 +81,23 @@
 #include "windows/Settings.h"
 #include "AppIniFile.h"
 #include "windows/ViewPort.h"
-
+#include <fstream>
+#include <iostream>
 using namespace sofa;
 
 namespace sofaimgui
 {
 
 constexpr const char* VIEW_FILE_EXTENSION = ".view";
+    static bool isViewportWindowOpen = true;
+    static bool isPerformancesWindowOpen = false;
+    static bool isSceneGraphWindowOpen = true;
+    static bool isDisplayFlagsWindowOpen = false;
+    static bool isPluginsWindowOpen = false;
+    static bool isComponentsWindowOpen = false;
+    static bool isLogWindowOpen = true;
+    static bool isProfilerOpen ;
+    static bool isSettingsOpen = false;
 
 void ImGuiGUIEngine::init()
 {
@@ -118,6 +128,7 @@ void ImGuiGUIEngine::init()
     {
         ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
         SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        assert(rc == SI_OK);
         pv = sofaimgui::defaultStyle.c_str();
     }
 
@@ -181,7 +192,36 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     baseGUI->initVisual();
 }
 
+    bool checkFirstRun() {
+        std::ifstream infile("first_run.txt");
+        return !infile.good();
+    }
 
+    void setFirstRunComplete() {
+        std::ofstream outfile("first_run.txt");
+        outfile << "This file marks the first run complete.";
+        outfile.close();
+    }
+    bool checkIfProfilerFileExist() {
+        std::ifstream infile("profiler.txt");
+        return infile.good();
+    }
+
+    void setProf() {
+        std::ofstream outfile("profiler.txt");
+        outfile << "This file marks that the profiler window will open in the next run";
+        outfile.close();
+    }
+
+    void deleteProf() {
+        if (checkIfProfilerFileExist()) {
+            if (remove("profiler.txt") != 0) {
+                std::cerr << "Error deleting profiler.txt" << std::endl;
+            } else {
+                std::cout << "profiler.txt successfully deleted" << std::endl;
+            }
+        }
+    }
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
@@ -241,11 +281,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
 
-    static auto first_time = true;
-    if (first_time)
+    if (checkFirstRun())
     {
-        first_time = false;
-
         ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
@@ -256,21 +293,16 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
         ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
         ImGui::DockBuilderFinish(dockspace_id);
+
+        setFirstRunComplete(); // Mark first run as complete
     }
     ImGui::End();
 
 
     const ImGuiIO& io = ImGui::GetIO();
 
-    static bool isViewportWindowOpen = true;
-    static bool isPerformancesWindowOpen = false;
-    static bool isSceneGraphWindowOpen = true;
-    static bool isDisplayFlagsWindowOpen = false;
-    static bool isPluginsWindowOpen = false;
-    static bool isComponentsWindowOpen = false;
-    static bool isLogWindowOpen = true;
-    static bool isProfilerOpen = false;
-    static bool isSettingsOpen = false;
+    isProfilerOpen = checkIfProfilerFileExist();
+
 
     static bool showFPSInMenuBar = true;
     static bool showTime = true;
@@ -471,6 +503,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(windowNameViewport, &isViewportWindowOpen);
             ImGui::Checkbox(windowNamePerformances, &isPerformancesWindowOpen);
             ImGui::Checkbox(windowNameProfiler, &isProfilerOpen);
+            if (!isProfilerOpen){
+                deleteProf();
+            }
             ImGui::Checkbox(windowNameSceneGraph, &isSceneGraphWindowOpen);
             ImGui::Checkbox(windowNameDisplayFlags, &isDisplayFlagsWindowOpen);
             ImGui::Checkbox(windowNamePlugins, &isPluginsWindowOpen);
@@ -557,7 +592,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
 
     windows::showProfiler(groot, windowNameProfiler, isProfilerOpen);
-
     /***************************************
      * Scene graph window
      **************************************/
@@ -614,7 +648,7 @@ void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
     if (!m_fbo)
     {
         m_fbo = std::make_unique<sofa::gl::FrameBufferObject>();
-        m_currentFBOSize = {500, 500};
+        m_currentFBOSize = {50, 50};
         m_fbo->init(m_currentFBOSize.first, m_currentFBOSize.second);
     }
     else
