@@ -39,10 +39,13 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
 #include "SceneGraph.h"
+#include "WindowsManager.h"
 
 
 namespace windows
 {
+    extern WindowsManager winManager;
+
     void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot
                         , const char* const& windowNameSceneGraph
                         , bool& isSceneGraphWindowOpen
@@ -51,6 +54,7 @@ namespace windows
     {
         if (isSceneGraphWindowOpen)
         {
+            winManager.createWindowStateFile(winManager.fileNameSceneGraph);
             if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
             {
                 const bool expand = ImGui::Button(ICON_FA_EXPAND);
@@ -342,6 +346,9 @@ namespace windows
                 }
             }
             ImGui::End();
+            if (!isSceneGraphWindowOpen){
+                winManager.removeWindowStateFile(winManager.fileNameSceneGraph);
+            }
         }
 
         openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
@@ -509,6 +516,7 @@ namespace windows
             {
                 toRemove.push_back(component);
             }
+
         }
         while(!toRemove.empty())
         {

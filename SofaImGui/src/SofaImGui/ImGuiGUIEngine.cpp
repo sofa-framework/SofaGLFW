@@ -81,23 +81,15 @@
 #include "windows/Settings.h"
 #include "AppIniFile.h"
 #include "windows/ViewPort.h"
-#include <fstream>
-#include <iostream>
+#include "windows/WindowsManager.h"
+
 using namespace sofa;
 
 namespace sofaimgui
 {
+    WindowsManager winManager;
+    constexpr const char* VIEW_FILE_EXTENSION = ".view";
 
-constexpr const char* VIEW_FILE_EXTENSION = ".view";
-    static bool isViewportWindowOpen = true;
-    static bool isPerformancesWindowOpen = false;
-    static bool isSceneGraphWindowOpen = true;
-    static bool isDisplayFlagsWindowOpen = false;
-    static bool isPluginsWindowOpen = false;
-    static bool isComponentsWindowOpen = false;
-    static bool isLogWindowOpen = true;
-    static bool isProfilerOpen ;
-    static bool isSettingsOpen = false;
 
 void ImGuiGUIEngine::init()
 {
@@ -192,36 +184,6 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     baseGUI->initVisual();
 }
 
-    bool checkFirstRun() {
-        std::ifstream infile("first_run.txt");
-        return !infile.good();
-    }
-
-    void setFirstRunComplete() {
-        std::ofstream outfile("first_run.txt");
-        outfile << "This file marks the first run complete.";
-        outfile.close();
-    }
-    bool checkIfProfilerFileExist() {
-        std::ifstream infile("profiler.txt");
-        return infile.good();
-    }
-
-    void setProf() {
-        std::ofstream outfile("profiler.txt");
-        outfile << "This file marks that the profiler window will open in the next run";
-        outfile.close();
-    }
-
-    void deleteProf() {
-        if (checkIfProfilerFileExist()) {
-            if (remove("profiler.txt") != 0) {
-                std::cerr << "Error deleting profiler.txt" << std::endl;
-            } else {
-                std::cout << "profiler.txt successfully deleted" << std::endl;
-            }
-        }
-    }
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
@@ -281,7 +243,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
 
-    if (checkFirstRun())
+
+    if (winManager.checkFirstRun())
     {
         ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
@@ -294,14 +257,30 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
         ImGui::DockBuilderFinish(dockspace_id);
 
-        setFirstRunComplete(); // Mark first run as complete
+        static bool isViewportWindowOpen = true;
+        winManager.createWindowStateFile(winManager.fileNameViewPort);
+
+        static bool isSceneGraphWindowOpen = true;
+        winManager.createWindowStateFile(winManager.fileNameSceneGraph);
+
+        static bool isLogWindowOpen = true;
+        winManager.createWindowStateFile(winManager.fileNameLog);
+
+        winManager.setFirstRunComplete(); // Mark first run as complete
     }
     ImGui::End();
 
 
     const ImGuiIO& io = ImGui::GetIO();
-
-    isProfilerOpen = checkIfProfilerFileExist();
+    static bool isViewportWindowOpen = winManager.checkIfWindowFileExist(winManager.fileNameViewPort);
+    static bool isPerformancesWindowOpen = winManager.checkIfWindowFileExist(winManager.fileNamePerformances);
+    static bool isSceneGraphWindowOpen = winManager.checkIfWindowFileExist(winManager.fileNameSceneGraph);
+    static bool isDisplayFlagsWindowOpen = winManager.checkIfWindowFileExist(winManager.fileNameDisplayFlags);
+    static bool isPluginsWindowOpen = winManager.checkIfWindowFileExist(winManager.fileNamePlugins);
+    static bool isComponentsWindowOpen = winManager.checkIfWindowFileExist(winManager.fileNameComponents);
+    static bool isLogWindowOpen = winManager.checkIfWindowFileExist(winManager.fileNameLog);
+    static bool isSettingsOpen = winManager.checkIfWindowFileExist(winManager.fileNameSettings);
+    static bool isProfilerOpen = winManager.checkIfWindowFileExist(winManager.fileNameProfiler);
 
 
     static bool showFPSInMenuBar = true;
@@ -501,18 +480,43 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::Checkbox(windowNameViewport, &isViewportWindowOpen);
+            if (!isViewportWindowOpen)
+                winManager.removeWindowStateFile(winManager.fileNameViewPort);
+
             ImGui::Checkbox(windowNamePerformances, &isPerformancesWindowOpen);
+            if (!isPerformancesWindowOpen)
+                winManager.removeWindowStateFile(winManager.fileNamePerformances);
+
             ImGui::Checkbox(windowNameProfiler, &isProfilerOpen);
-            if (!isProfilerOpen){
-                deleteProf();
-            }
+            if (!isProfilerOpen)
+                winManager.removeWindowStateFile(winManager.fileNameProfiler);
+
             ImGui::Checkbox(windowNameSceneGraph, &isSceneGraphWindowOpen);
+            if (!isSceneGraphWindowOpen)
+                winManager.removeWindowStateFile(winManager.fileNameSceneGraph);
+
             ImGui::Checkbox(windowNameDisplayFlags, &isDisplayFlagsWindowOpen);
+            if (!isDisplayFlagsWindowOpen)
+                winManager.removeWindowStateFile(winManager.fileNameDisplayFlags);
+
             ImGui::Checkbox(windowNamePlugins, &isPluginsWindowOpen);
+            if (!isPluginsWindowOpen)
+                winManager.removeWindowStateFile(winManager.fileNamePlugins);
+
             ImGui::Checkbox(windowNameComponents, &isComponentsWindowOpen);
+            if (!isComponentsWindowOpen)
+                winManager.removeWindowStateFile(winManager.fileNameComponents);
+
             ImGui::Checkbox(windowNameLog, &isLogWindowOpen);
+            if (!isLogWindowOpen)
+                winManager.removeWindowStateFile(winManager.fileNameLog);
+
             ImGui::Separator();
+
             ImGui::Checkbox(windowNameSettings, &isSettingsOpen);
+            if (!isSettingsOpen)
+                winManager.removeWindowStateFile(winManager.fileNameSettings);
+
             ImGui::EndMenu();
         }
 

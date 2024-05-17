@@ -25,7 +25,6 @@
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
-#include <fstream>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualStyle.h>
@@ -34,10 +33,12 @@
 #include <sofa/simulation/graph/DAGNode.h>
 
 #include "DisplayFlags.h"
+#include "WindowsManager.h"
 
 
 namespace windows
 {
+    extern WindowsManager winManager;
 
     void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot
                           , const char* const& windowNameDisplayFlags
@@ -45,6 +46,7 @@ namespace windows
     {
         if (isDisplayFlagsWindowOpen)
         {
+            winManager.createWindowStateFile(winManager.fileNameDisplayFlags);
             if (ImGui::Begin(windowNameDisplayFlags, &isDisplayFlagsWindowOpen))
             {
                 sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
@@ -146,6 +148,9 @@ namespace windows
                 }
             }
             ImGui::End();
+            if(!isDisplayFlagsWindowOpen){
+                winManager.removeWindowStateFile(winManager.fileNameDisplayFlags);
+            }
         }
     }
 

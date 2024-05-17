@@ -31,21 +31,25 @@
 #include <imgui.h>
 #include <nfd.h>
 #include <IconsFontAwesome5.h>
-#include <fstream>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
 #include "Log.h"
+#include "WindowsManager.h"
 
-namespace windows {
+namespace windows
+{
+    extern WindowsManager winManager;
 
     void showLog(const char* const& windowNameLog
                  , bool& isLogWindowOpen)
     {
+
         if (isLogWindowOpen)
         {
+            winManager.createWindowStateFile(winManager.fileNameLog);
             if (ImGui::Begin(windowNameLog, &isLogWindowOpen))
             {
                 unsigned int i {};
@@ -164,6 +168,9 @@ namespace windows {
                 }
             }
             ImGui::End();
+            if(!isLogWindowOpen) {
+                winManager.removeWindowStateFile(winManager.fileNameLog);
+            }
         }
     }
 

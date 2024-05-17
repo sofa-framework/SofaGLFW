@@ -48,19 +48,18 @@
 
 #include <sofa/simulation/graph/DAGNode.h>
 #include "Profiler.h"
-#include <fstream>
-#include <iostream>
+#include "WindowsManager.h"
 
-namespace windows {
+namespace windows
+{
+    extern WindowsManager winManager;
 
     void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot
                       , const char* const& windowNameProfiler
                       , bool& isProfilerOpen)
     {
         if (isProfilerOpen) {
-            std::ofstream outfile("profiler.txt");
-            outfile << "This file marks that the profiler window will open in the next run";
-            outfile.close();
+            winManager.createWindowStateFile(winManager.fileNameProfiler);
             static int selectedFrame = 0;
 
             if (ImGui::Begin(windowNameProfiler, &isProfilerOpen)) {
@@ -296,12 +295,7 @@ namespace windows {
             }
             ImGui::End();
             if (!isProfilerOpen){
-                    if (remove("profiler.txt") != 0) {
-                        std::cerr << "Error deleting profiler.txt" << std::endl;
-                    } else {
-                        std::cout << "profiler.txt successfully deleted" << std::endl;
-                    }
-
+                  winManager.removeWindowStateFile(winManager.fileNameProfiler);
                 }
         }
     }

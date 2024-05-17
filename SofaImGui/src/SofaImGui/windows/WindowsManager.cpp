@@ -19,51 +19,46 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#pragma once
-#include <SofaImGui/config.h>
 
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
+#include <fstream>
+#include <iostream>
+#include "WindowsManager.h"
 
-#include <imgui.h>
-#include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
-#include "windows/WindowsManager.h"
+namespace windows {
 
-struct GLFWwindow;
-namespace sofa::glfw
-{
-    class SofaGLFWBaseGUI;
+    WindowsManager winManager;
+
+    bool WindowsManager::checkFirstRun() {
+        std::ifstream infile("first_run.txt");
+        return !infile.good();
+    }
+
+    void WindowsManager::setFirstRunComplete() {
+        std::ofstream outfile("first_run.txt");
+        outfile << "This file marks the first run complete.";
+        outfile.close();
+    }
+
+    bool WindowsManager::checkIfWindowFileExist(const std::string &windowType) {
+        std::ifstream infile(windowType + ".txt");
+        return infile.good();
+    }
+
+    void WindowsManager::createWindowStateFile(const std::string &windowType) {
+        if (!checkIfWindowFileExist(windowType)) {
+            std::ofstream outfile(windowType + ".txt");
+            outfile << "This file marks that the " << windowType << " window will open in the next run";
+            outfile.close();
+        }
+    }
+
+
+    void WindowsManager::removeWindowStateFile(const std::string &windowType) {
+        if (checkIfWindowFileExist(windowType)) {
+            if (remove((windowType + ".txt").c_str()) != 0) {
+                std::cerr << "Error deleting " << windowType << ".txt" << std::endl;
+            }
+        }
+
+    }
 }
-using windows::WindowsManager;
-
-namespace sofaimgui
-{
-
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
-
-} // namespace sofaimgui

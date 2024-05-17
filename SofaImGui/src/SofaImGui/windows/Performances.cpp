@@ -23,15 +23,19 @@
 #include <imgui.h>
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <sofa/type/vector.h>
+#include "WindowsManager.h"
 
 
-namespace windows {
+namespace windows
+{
+    extern WindowsManager winManager;
 
     void showPerformances(const char *const &windowNamePerformances
                           , const ImGuiIO &io
                           , bool &isPerformancesWindowOpen)
     {
         if (isPerformancesWindowOpen) {
+            winManager.createWindowStateFile(winManager.fileNamePerformances);
             static sofa::type::vector<float> msArray;
             if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen)) {
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
@@ -48,6 +52,10 @@ namespace windows {
                                  ImVec2(0, 100));
             }
             ImGui::End();
+            if(!isPerformancesWindowOpen){
+                winManager.removeWindowStateFile(winManager.fileNamePerformances);
+
+            }
         }
     }
 }

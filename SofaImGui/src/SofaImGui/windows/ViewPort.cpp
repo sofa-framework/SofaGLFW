@@ -33,11 +33,14 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
 #include "ViewPort.h"
+#include "WindowsManager.h"
 
 
 
 namespace windows
 {
+    extern WindowsManager winManager;
+
     void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot
                                 , const char* const& windowNameViewport
                                 , bool& isViewportWindowOpen, CSimpleIniA &ini
@@ -47,6 +50,7 @@ namespace windows
     {
         if (isViewportWindowOpen)
         {
+            winManager.createWindowStateFile(winManager.fileNameViewPort);
             ImVec2 pos;
             if (ImGui::Begin(windowNameViewport, &isViewportWindowOpen/*, ImGuiWindowFlags_MenuBar*/))
             {
@@ -139,6 +143,9 @@ namespace windows
                     }
                 }
                 ImGui::End();
+                if(!isViewportWindowOpen){
+                    winManager.removeWindowStateFile(winManager.fileNameViewPort);
+                }
             }
         }
     }

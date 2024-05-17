@@ -29,9 +29,11 @@
 #include <sofa/helper/Utils.h>
 #include "Settings.h"
 #include "SofaImGui/AppIniFile.h"
+#include "WindowsManager.h"
 
 namespace windows
 {
+    extern WindowsManager winManager;
 
     void showSettings(const char* const& windowNameSettings
                       , bool& isSettingsOpen
@@ -39,6 +41,7 @@ namespace windows
     {
         if (isSettingsOpen)
         {
+            winManager.createWindowStateFile(winManager.fileNameSettings);
             if (ImGui::Begin(windowNameSettings, &isSettingsOpen))
             {
                 const char* theme = ini.GetValue("Style", "theme", sofaimgui::defaultStyle.c_str());
@@ -86,6 +89,9 @@ namespace windows
 
             }
             ImGui::End();
+            if(!isSettingsOpen){
+                winManager.removeWindowStateFile(winManager.fileNameSettings);
+            }
         }
     }
 }

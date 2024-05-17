@@ -20,50 +20,28 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaImGui/config.h>
+#include <fstream>
+#include <iostream>
 
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
+namespace windows {
+    class WindowsManager {
+    public:
+        bool checkFirstRun();
+        void setFirstRunComplete();
+        bool checkIfWindowFileExist(const std::string& windowType) ;
+        void createWindowStateFile(const std::string& windowType) ;
+        void removeWindowStateFile(const std::string& windowType) ;
 
-#include <imgui.h>
-#include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
-#include "windows/WindowsManager.h"
+        // File names for tracking the open/close state of corresponding windows
+        const std::string fileNamePerformances = "performances";
+        const std::string fileNameProfiler = "profiler";
+        const std::string fileNameSceneGraph = "scenegraph";
+        const std::string fileNameDisplayFlags = "displayflags";
+        const std::string fileNamePlugins = "plugins";
+        const std::string fileNameComponents = "components";
+        const std::string fileNameLog = "log";
+        const std::string fileNameSettings = "settings";
+        const std::string fileNameViewPort = "viewport";
 
-struct GLFWwindow;
-namespace sofa::glfw
-{
-    class SofaGLFWBaseGUI;
+    };
 }
-using windows::WindowsManager;
-
-namespace sofaimgui
-{
-
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-    ImGuiGUIEngine() = default;
-    ~ImGuiGUIEngine() = default;
-    
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-};
-
-} // namespace sofaimgui

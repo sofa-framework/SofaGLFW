@@ -21,7 +21,6 @@
 ******************************************************************************/
 #include <SofaImGui/ImGuiGUIEngine.h>
 
-#include <iomanip>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/CategoryLibrary.h>
 #include <sofa/core/loader/SceneLoader.h>
@@ -30,7 +29,6 @@
 #include <imgui.h>
 #include <nfd.h>
 #include <IconsFontAwesome5.h>
-#include <fstream>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/type/vector.h>
 #include <sofa/core/ObjectFactory.h>
@@ -39,17 +37,19 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
 
-
+#include "WindowsManager.h"
 #include "Components.h"
 
 namespace windows
 {
+    extern WindowsManager winManager;
 
     void showComponents(const char* const& windowNameComponents
                         , bool& isComponentsWindowOpen)
     {
         if (isComponentsWindowOpen)
         {
+            winManager.createWindowStateFile(winManager.fileNameComponents);
             if (ImGui::Begin(windowNameComponents, &isComponentsWindowOpen))
             {
                 unsigned int nbLoadedComponents = 0;
@@ -383,6 +383,9 @@ namespace windows
                 }
             }
             ImGui::End();
+            if (!isComponentsWindowOpen){
+                winManager.removeWindowStateFile(winManager.fileNameComponents);
+            }
         }
     }
 
