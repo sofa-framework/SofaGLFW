@@ -40,12 +40,13 @@ namespace windows
          * @param m_viewportWindowSize A reference to a pair representing the width and height of the viewport window.
          * @param isMouseOnViewport A reference to a boolean flag indicating if the mouse cursor is over the viewport.
          */
-
-         void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot
-                                 , const char* const& windowNameViewport, bool& isViewportWindowOpen
-                                 , CSimpleIniA &ini
-                                 , std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo
-                                 , std::pair<float, float>& m_viewportWindowSize
-                                 , bool & isMouseOnViewport );
+         void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot,
+                           const char* const& windowNameViewport,
+                           bool& isViewportWindowOpen,
+                           CSimpleIniA &ini,
+                           std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
+                           std::pair<float,
+                           float>& m_viewportWindowSize,
+                           bool & isMouseOnViewport );
 
 } // namespace sofaimgui

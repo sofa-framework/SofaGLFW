@@ -27,18 +27,17 @@
 namespace windows
 {
 
-/**
- * @brief Shows the Settings window.
- *
- * This function displays settings for configuring the application, such as theme selection, global scale, and viewport settings.
- *
- * @param windowNameSettings The name of the Settings window.
- * @param isSettingsOpen A reference to a boolean flag indicating if the Settings window is open.
- * @param ini The INI file object containing application settings.
- */
-
-        void showSettings(const char* const& windowNameSettings
-                          , bool& isSettingsOpen
-                          , CSimpleIniA &ini);
+        /**
+         * @brief Shows the Settings window.
+         *
+         * This function displays settings for configuring the application, such as theme selection, global scale, and viewport settings.
+         *
+         * @param windowNameSettings The name of the Settings window.
+         * @param isSettingsOpen A reference to a boolean flag indicating if the Settings window is open.
+         * @param ini The INI file object containing application settings.
+         */
+        void showSettings(const char* const& windowNameSettings,
+                          bool& isSettingsOpen,
+                          CSimpleIniA &ini);
 
 } // namespace sofaimgui

@@ -36,9 +36,8 @@ namespace windows
          * @param windowNameDisplayFlags The name of the Display Flags window.
          * @param isDisplayFlagsWindowOpen A reference to a boolean flag indicating if the Display Flags window is open.
          */
-
-         void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot
-                               , const char* const& windowNameDisplayFlags
-                               , bool& isDisplayFlagsWindowOpen);
+         void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
+                               const char* const& windowNameDisplayFlags,
+                               bool& isDisplayFlagsWindowOpen);
 
 } // namespace sofaimgui
