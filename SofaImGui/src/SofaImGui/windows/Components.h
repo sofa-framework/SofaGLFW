@@ -35,8 +35,7 @@ namespace windows
         * @param windowNameComponents The name of the Components window.
         * @param isComponentsWindowOpen A reference to a boolean flag indicating if the Components window is open.
         */
-
-         void showComponents(const char* const& windowNameComponents
-                             , bool& isComponentsWindowOpen);
+         void showComponents(const char* const& windowNameComponents,
+                             bool& isComponentsWindowOpen);
 
 } // namespace sofaimgui

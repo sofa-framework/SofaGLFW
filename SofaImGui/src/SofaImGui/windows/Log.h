@@ -43,9 +43,8 @@ namespace windows
          * @param windowNameLog The name of the Log window.
          * @param isLogWindowOpen A reference to a boolean flag indicating if the Log window is open.
          */
-
-        void showLog(const char* const& windowNameLog
-                     , bool& isLogWindowOpen);
+        void showLog(const char* const& windowNameLog,
+                     bool& isLogWindowOpen);
 
 
 } // namespace sofaimgui

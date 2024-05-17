@@ -36,18 +36,17 @@
 namespace windows
 {
 
-/**
- * @brief Shows the Profiler window.
- *
- * This function displays profiling information, including frame durations, timer percentages, and timer durations.
- *
- * @param groot The root node of the simulation.
- * @param windowNameProfiler The name of the Profiler window.
- * @param isProfilerOpen A reference to a boolean flag indicating if the Profiler window is open.
- */
-
-        void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot
-                          , const char* const& windowNameProfiler
-                          , bool& isProfilerOpen);
+        /**
+         * @brief Shows the Profiler window.
+         *
+         * This function displays profiling information, including frame durations, timer percentages, and timer durations.
+         *
+         * @param groot The root node of the simulation.
+         * @param windowNameProfiler The name of the Profiler window.
+         * @param isProfilerOpen A reference to a boolean flag indicating if the Profiler window is open.
+         */
+        void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
+                          const char* const& windowNameProfiler,
+                          bool& isProfilerOpen);
 
 } // namespace sofaimgui

@@ -37,12 +37,11 @@ namespace windows
          * @param openedComponents A set containing pointers to the components that are currently opened and being inspected.
          * @param focusedComponents A set containing pointers to the components that are currently focused for inspection.
          */
-
-        void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot
-                            , const char* const& windowNameSceneGraph
-                            , bool& isSceneGraphWindowOpen
-                            , std::set<sofa::core::objectmodel::BaseObject*>& openedComponents
-                            , std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
+        void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
+                            const char* const& windowNameSceneGraph,
+                            bool& isSceneGraphWindowOpen,
+                            std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                            std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
 
 
 } // namespace sofaimgui

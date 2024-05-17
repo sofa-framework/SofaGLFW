@@ -45,9 +45,9 @@ namespace windows
          * @param io The ImGuiIO structure containing ImGui's I/O configuration settings.
          * @param isPerformancesWindowOpen A reference to a boolean flag indicating if the Performance window is open.
          */
-         void showPerformances(const char* const& windowNamePerformances
-                               , const ImGuiIO& io
-                               , bool& isPerformancesWindowOpen);
+         void showPerformances(const char* const& windowNamePerformances,
+                               const ImGuiIO& io,
+                               bool& isPerformancesWindowOpen);
 
 
 } // namespace sofaimgui

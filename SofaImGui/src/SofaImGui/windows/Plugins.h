@@ -34,9 +34,8 @@ namespace windows
          * @param windowNamePlugins The name of the Plugins window.
          * @param isPluginsWindowOpen A reference to a boolean flag indicating if the Plugins window is open.
          */
-
-        void showPlugins(const char* const& windowNamePlugins
-                         , bool& isPluginsWindowOpen);
+        void showPlugins(const char* const& windowNamePlugins,
+                         bool& isPluginsWindowOpen);
 
 
 } // namespace sofaimgui
