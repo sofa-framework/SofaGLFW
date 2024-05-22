@@ -22,6 +22,7 @@
 #pragma once
 
 #include <sofa/simulation/Node.h>
+#include "WindowsManager.h"
 
 
 namespace windows
@@ -41,7 +42,8 @@ namespace windows
                             const char* const& windowNameSceneGraph,
                             bool& isSceneGraphWindowOpen,
                             std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
-                            std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
+                            std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                            WindowState& winManagerSceneGraph);
 
 
 } // namespace sofaimgui

@@ -23,43 +23,30 @@
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <sofa/type/vector.h>
 #include <SofaImGui/ImGuiGUIEngine.h>
-
 #include <unordered_set>
-
 #include <sofa/core/loader/SceneLoader.h>
 #include <sofa/simulation/SceneLoaderFactory.h>
-
-
 #include <sofa/simulation/Simulation.h>
-
 #include <sofa/helper/AdvancedTimer.h>
-
 #include <implot.h>
-
 #include <IconsFontAwesome5.h>
-
 #include <sofa/helper/Utils.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/core/visual/VisualParams.h>
-
 #include <sofa/component/visual/LineAxis.h>
-
 #include <sofa/gui/common/BaseGUI.h>
-
 #include <sofa/simulation/graph/DAGNode.h>
 #include "Profiler.h"
-#include "WindowsManager.h"
 
 namespace windows
 {
-    extern WindowsManager winManager;
 
-    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot
-                      , const char* const& windowNameProfiler
-                      , bool& isProfilerOpen)
+    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
+                      const char* const& windowNameProfiler,
+                      bool& isProfilerOpen,
+                      WindowState& winManagerProfiler)
     {
         if (isProfilerOpen) {
-            winManager.createWindowStateFile(winManager.fileNameProfiler);
             static int selectedFrame = 0;
 
             if (ImGui::Begin(windowNameProfiler, &isProfilerOpen)) {
@@ -294,9 +281,10 @@ namespace windows
                 }
             }
             ImGui::End();
-            if (!isProfilerOpen){
-                  winManager.removeWindowStateFile(winManager.fileNameProfiler);
-                }
+            if (!isProfilerOpen)
+            {
+                winManagerProfiler.setState(false);
+            }
         }
     }
 

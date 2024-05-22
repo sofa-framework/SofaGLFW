@@ -10,7 +10,7 @@ sofa_find_package(Sofa.GL.Component.Rendering3D REQUIRED)
 
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(SOFAGLFWIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
+    set(SOFAIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
 endif()
 
 include(FetchContent)

@@ -31,6 +31,7 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
+#include "WindowsManager.h"
 
 
 namespace windows
@@ -47,6 +48,7 @@ namespace windows
          */
         void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
                           const char* const& windowNameProfiler,
-                          bool& isProfilerOpen);
+                          bool& isProfilerOpen,
+                          WindowState& winManagerProfiler);
 
 } // namespace sofaimgui

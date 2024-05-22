@@ -39,18 +39,18 @@
 
 namespace windows
 {
-    extern WindowsManager winManager;
+    extern WindowState winManager;
 
-    void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot
-                                , const char* const& windowNameViewport
-                                , bool& isViewportWindowOpen, CSimpleIniA &ini
-                                , std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo
-                                , std::pair<float, float>& m_viewportWindowSize
-                                , bool &isMouseOnViewport)
+    void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot,
+                      const char* const& windowNameViewport,
+                      bool& isViewportWindowOpen, CSimpleIniA &ini,
+                      std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
+                      std::pair<float, float>& m_viewportWindowSize,
+                      bool &isMouseOnViewport,
+                      WindowState& winManagerViewPort)
     {
         if (isViewportWindowOpen)
         {
-            winManager.createWindowStateFile(winManager.fileNameViewPort);
             ImVec2 pos;
             if (ImGui::Begin(windowNameViewport, &isViewportWindowOpen/*, ImGuiWindowFlags_MenuBar*/))
             {
@@ -143,8 +143,9 @@ namespace windows
                     }
                 }
                 ImGui::End();
-                if(!isViewportWindowOpen){
-                    winManager.removeWindowStateFile(winManager.fileNameViewPort);
+                if(!isViewportWindowOpen)
+                {
+                    winManagerViewPort.setState(false);
                 }
             }
         }

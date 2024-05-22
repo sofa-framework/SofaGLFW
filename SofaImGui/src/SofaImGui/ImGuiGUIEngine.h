@@ -29,14 +29,12 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
-#include "windows/WindowsManager.h"
 
 struct GLFWwindow;
 namespace sofa::glfw
 {
     class SofaGLFWBaseGUI;
 }
-using windows::WindowsManager;
 
 namespace sofaimgui
 {

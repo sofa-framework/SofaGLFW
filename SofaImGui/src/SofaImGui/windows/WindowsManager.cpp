@@ -20,45 +20,73 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
+#include <string>
 #include <fstream>
-#include <iostream>
 #include "WindowsManager.h"
+
 
 namespace windows {
 
-    WindowsManager winManager;
+    WindowState::WindowState(const std::string& filename) : m_filename(filename)
+    {
+        m_isOpen = readState();
+    }
 
-    bool WindowsManager::checkFirstRun() {
-        std::ifstream infile("first_run.txt");
+    WindowState::~WindowState()
+    {
+        writeState();
+    }
+
+    bool WindowState::getState() const
+    {
+        return m_isOpen;
+    }
+
+    void WindowState::setState(bool isOpen)
+    {
+        if (m_isOpen != isOpen)
+        {
+            m_isOpen = isOpen;
+            writeState();  // Write state only if it's value changes
+        }
+    }
+
+    bool WindowState::readState()
+    {
+        std::ifstream file(m_filename);
+        if (!file.is_open())
+        {
+            return false; // Default to "CLOSED" if file not found
+        }
+
+        std::string stateStr;
+        std::getline(file, stateStr);
+        return stateStr == "OPEN";
+    }
+
+    void WindowState::writeState()
+    {
+        std::ofstream file(m_filename);
+        if (!file.is_open())
+        {
+            return;
+        }
+
+        file << (m_isOpen ? "OPEN" : "CLOSED");
+    }
+
+    bool checkFirstRun()
+    {
+        std::ifstream infile("firstrun.txt");
         return !infile.good();
     }
 
-    void WindowsManager::setFirstRunComplete() {
-        std::ofstream outfile("first_run.txt");
-        outfile << "This file marks the first run complete.";
+    void setFirstRunComplete()
+    {
+        std::ofstream outfile("firstrun.txt");
+        outfile << "This file marks that the first run complete.";
         outfile.close();
     }
 
-    bool WindowsManager::checkIfWindowFileExist(const std::string &windowType) {
-        std::ifstream infile(windowType + ".txt");
-        return infile.good();
-    }
+} // namespace windows
 
-    void WindowsManager::createWindowStateFile(const std::string &windowType) {
-        if (!checkIfWindowFileExist(windowType)) {
-            std::ofstream outfile(windowType + ".txt");
-            outfile << "This file marks that the " << windowType << " window will open in the next run";
-            outfile.close();
-        }
-    }
-
-
-    void WindowsManager::removeWindowStateFile(const std::string &windowType) {
-        if (checkIfWindowFileExist(windowType)) {
-            if (remove((windowType + ".txt").c_str()) != 0) {
-                std::cerr << "Error deleting " << windowType << ".txt" << std::endl;
-            }
-        }
-
-    }
-}

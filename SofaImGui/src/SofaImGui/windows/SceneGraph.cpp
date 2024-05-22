@@ -39,22 +39,19 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
 #include "SceneGraph.h"
-#include "WindowsManager.h"
-
 
 namespace windows
 {
-    extern WindowsManager winManager;
 
-    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot
-                        , const char* const& windowNameSceneGraph
-                        , bool& isSceneGraphWindowOpen
-                        , std::set<sofa::core::objectmodel::BaseObject*>& openedComponents
-                        , std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents)
+    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
+                        const char* const& windowNameSceneGraph,
+                        bool& isSceneGraphWindowOpen,
+                        std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                        std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                        WindowState& winManagerSceneGraph)
     {
         if (isSceneGraphWindowOpen)
         {
-            winManager.createWindowStateFile(winManager.fileNameSceneGraph);
             if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
             {
                 const bool expand = ImGui::Button(ICON_FA_EXPAND);
@@ -346,8 +343,9 @@ namespace windows
                 }
             }
             ImGui::End();
-            if (!isSceneGraphWindowOpen){
-                winManager.removeWindowStateFile(winManager.fileNameSceneGraph);
+            if (!isSceneGraphWindowOpen)
+            {
+                winManagerSceneGraph.setState(false);
             }
         }
 

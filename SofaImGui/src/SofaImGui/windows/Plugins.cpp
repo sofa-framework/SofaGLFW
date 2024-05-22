@@ -41,14 +41,14 @@
 
 namespace windows
 {
-    extern WindowsManager winManager;
+    extern WindowState winManager;
 
-    void showPlugins(const char* const& windowNamePlugins
-                     , bool& isPluginsWindowOpen)
+    void showPlugins(const char* const& windowNamePlugins,
+                     bool& isPluginsWindowOpen,
+                     WindowState& winManagerPlugins)
     {
         if (isPluginsWindowOpen)
         {
-            winManager.createWindowStateFile(winManager.fileNamePlugins);
             if (ImGui::Begin(windowNamePlugins, &isPluginsWindowOpen))
             {
                 if (ImGui::Button("Load"))
@@ -104,15 +104,16 @@ namespace windows
                         ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
                         ImGui::Spacing();
                         ImGui::TextDisabled("Path:");
-                        ImGui::TextWrapped(selectedPlugin.c_str());
+                        ImGui::TextWrapped("%s", selectedPlugin.c_str());
                     }
                 }
 
                 ImGui::EndChild();
             }
             ImGui::End();
-            if(!isPluginsWindowOpen){
-            winManager.removeWindowStateFile(winManager.fileNamePlugins);
+            if(!isPluginsWindowOpen)
+            {
+                winManagerPlugins.setState(false);
             }
         }
     }

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <sofa/simulation/Node.h>
+#include "WindowsManager.h"
 
 namespace windows
 {
@@ -47,6 +48,7 @@ namespace windows
                            std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
                            std::pair<float,
                            float>& m_viewportWindowSize,
-                           bool & isMouseOnViewport );
+                           bool & isMouseOnViewport,
+                           WindowState& winManagerViewPort);
 
 } // namespace sofaimgui

@@ -20,28 +20,26 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <fstream>
-#include <iostream>
+
+#include <string>
 
 namespace windows {
-    class WindowsManager {
+
+    bool checkFirstRun();
+    void setFirstRunComplete();
+
+    class WindowState {
     public:
-        bool checkFirstRun();
-        void setFirstRunComplete();
-        bool checkIfWindowFileExist(const std::string& windowType) ;
-        void createWindowStateFile(const std::string& windowType) ;
-        void removeWindowStateFile(const std::string& windowType) ;
+        WindowState(const std::string& filename);
+        ~WindowState();
+        bool getState() const;
+        void setState(bool isOpen);
 
-        // File names for tracking the open/close state of corresponding windows
-        const std::string fileNamePerformances = "performances";
-        const std::string fileNameProfiler = "profiler";
-        const std::string fileNameSceneGraph = "scenegraph";
-        const std::string fileNameDisplayFlags = "displayflags";
-        const std::string fileNamePlugins = "plugins";
-        const std::string fileNameComponents = "components";
-        const std::string fileNameLog = "log";
-        const std::string fileNameSettings = "settings";
-        const std::string fileNameViewPort = "viewport";
-
+    private:
+        bool readState();
+        void writeState();
+        bool m_isOpen;
+        std::string m_filename;
     };
-}
+
+} // namespace windows

@@ -20,7 +20,6 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <SofaImGui/ImGuiGUIEngine.h>
-
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/CategoryLibrary.h>
 #include <sofa/core/loader/SceneLoader.h>
@@ -36,20 +35,19 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
+#include <fstream>
 
-#include "WindowsManager.h"
 #include "Components.h"
 
 namespace windows
 {
-    extern WindowsManager winManager;
 
-    void showComponents(const char* const& windowNameComponents
-                        , bool& isComponentsWindowOpen)
+    void showComponents(const char* const& windowNameComponents,
+                        bool& isComponentsWindowOpen,
+                        WindowState& winManagerComponents)
     {
         if (isComponentsWindowOpen)
         {
-            winManager.createWindowStateFile(winManager.fileNameComponents);
             if (ImGui::Begin(windowNameComponents, &isComponentsWindowOpen))
             {
                 unsigned int nbLoadedComponents = 0;
@@ -383,8 +381,9 @@ namespace windows
                 }
             }
             ImGui::End();
-            if (!isComponentsWindowOpen){
-                winManager.removeWindowStateFile(winManager.fileNameComponents);
+            if (!isComponentsWindowOpen)
+            {
+                winManagerComponents.setState(false);
             }
         }
     }

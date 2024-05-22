@@ -38,15 +38,14 @@
 
 namespace windows
 {
-    extern WindowsManager winManager;
 
-    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot
-                          , const char* const& windowNameDisplayFlags
-                          , bool& isDisplayFlagsWindowOpen)
+    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
+                          const char* const& windowNameDisplayFlags,
+                          bool& isDisplayFlagsWindowOpen,
+                          WindowState& winManagerDisplayFlags)
     {
         if (isDisplayFlagsWindowOpen)
         {
-            winManager.createWindowStateFile(winManager.fileNameDisplayFlags);
             if (ImGui::Begin(windowNameDisplayFlags, &isDisplayFlagsWindowOpen))
             {
                 sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
@@ -148,8 +147,9 @@ namespace windows
                 }
             }
             ImGui::End();
-            if(!isDisplayFlagsWindowOpen){
-                winManager.removeWindowStateFile(winManager.fileNameDisplayFlags);
+            if(!isDisplayFlagsWindowOpen)
+            {
+                 winManagerDisplayFlags.setState(false);
             }
         }
     }

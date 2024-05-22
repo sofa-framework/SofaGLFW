@@ -36,20 +36,21 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
+#include <fstream>
+
 #include "Log.h"
 #include "WindowsManager.h"
 
 namespace windows
 {
-    extern WindowsManager winManager;
 
-    void showLog(const char* const& windowNameLog
-                 , bool& isLogWindowOpen)
+    void showLog(const char* const& windowNameLog,
+                 bool& isLogWindowOpen,
+                 WindowState& winManagerLog)
     {
 
         if (isLogWindowOpen)
         {
-            winManager.createWindowStateFile(winManager.fileNameLog);
             if (ImGui::Begin(windowNameLog, &isLogWindowOpen))
             {
                 unsigned int i {};
@@ -168,8 +169,9 @@ namespace windows
                 }
             }
             ImGui::End();
-            if(!isLogWindowOpen) {
-                winManager.removeWindowStateFile(winManager.fileNameLog);
+            if(!isLogWindowOpen)
+            {
+                winManagerLog.setState(false);
             }
         }
     }
