@@ -22,7 +22,7 @@
 #pragma once
 
 #include <sofa/simulation/Node.h>
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 
 namespace windows
@@ -36,7 +36,6 @@ namespace windows
          * @param isPluginsWindowOpen A reference to a boolean flag indicating if the Plugins window is open.
          */
         void showPlugins(const char* const& windowNamePlugins,
-                         bool& isPluginsWindowOpen,
                          WindowState& winManagerPlugins);
 
 

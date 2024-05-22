@@ -22,7 +22,7 @@
 
 #include <string>
 #include <fstream>
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 
 namespace windows {
@@ -37,9 +37,9 @@ namespace windows {
         writeState();
     }
 
-    bool WindowState::getState() const
+    bool *WindowState::getState()
     {
-        return m_isOpen;
+        return &m_isOpen;
     }
 
     void WindowState::setState(bool isOpen)
@@ -73,19 +73,6 @@ namespace windows {
         }
 
         file << (m_isOpen ? "OPEN" : "CLOSED");
-    }
-
-    bool checkFirstRun()
-    {
-        std::ifstream infile("firstrun.txt");
-        return !infile.good();
-    }
-
-    void setFirstRunComplete()
-    {
-        std::ofstream outfile("firstrun.txt");
-        outfile << "This file marks that the first run complete.";
-        outfile.close();
     }
 
 } // namespace windows

@@ -45,14 +45,13 @@ namespace windows
 
     void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
                         const char* const& windowNameSceneGraph,
-                        bool& isSceneGraphWindowOpen,
                         std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                         WindowState& winManagerSceneGraph)
     {
-        if (isSceneGraphWindowOpen)
+        if (*winManagerSceneGraph.getState())
         {
-            if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
+            if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getState()))
             {
                 const bool expand = ImGui::Button(ICON_FA_EXPAND);
                 ImGui::SameLine();
@@ -343,10 +342,6 @@ namespace windows
                 }
             }
             ImGui::End();
-            if (!isSceneGraphWindowOpen)
-            {
-                winManagerSceneGraph.setState(false);
-            }
         }
 
         openedComponents.insert(focusedComponents.begin(), focusedComponents.end());

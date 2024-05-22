@@ -33,26 +33,24 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
 #include "ViewPort.h"
-#include "WindowsManager.h"
 
 
 
 namespace windows
 {
-    extern WindowState winManager;
 
     void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot,
                       const char* const& windowNameViewport,
-                      bool& isViewportWindowOpen, CSimpleIniA &ini,
+                      CSimpleIniA &ini,
                       std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
                       std::pair<float, float>& m_viewportWindowSize,
                       bool &isMouseOnViewport,
                       WindowState& winManagerViewPort)
     {
-        if (isViewportWindowOpen)
+        if (*winManagerViewPort.getState())
         {
             ImVec2 pos;
-            if (ImGui::Begin(windowNameViewport, &isViewportWindowOpen/*, ImGuiWindowFlags_MenuBar*/))
+            if (ImGui::Begin(windowNameViewport, winManagerViewPort.getState()/*, ImGuiWindowFlags_MenuBar*/))
             {
                 pos = ImGui::GetWindowPos();
 
@@ -68,14 +66,14 @@ namespace windows
             }
             ImGui::End();
 
-            if (isViewportWindowOpen && ini.GetBoolValue("Visualization", "showViewportSettingsButton", true))
+            if (*winManagerViewPort.getState() && ini.GetBoolValue("Visualization", "showViewportSettingsButton", true))
             {
                 static constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
                 pos.x += 10;
                 pos.y += 40;
                 ImGui::SetNextWindowPos(pos);
 
-                if (ImGui::Begin("viewportSettingsMenuWindow", &isViewportWindowOpen, window_flags))
+                if (ImGui::Begin("viewportSettingsMenuWindow", winManagerViewPort.getState(), window_flags))
                 {
                     if (ImGui::Button(ICON_FA_COG))
                     {
@@ -142,11 +140,8 @@ namespace windows
                         ImGui::EndPopup();
                     }
                 }
+
                 ImGui::End();
-                if(!isViewportWindowOpen)
-                {
-                    winManagerViewPort.setState(false);
-                }
             }
         }
     }

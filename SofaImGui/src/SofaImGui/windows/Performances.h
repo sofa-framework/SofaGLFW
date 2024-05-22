@@ -31,7 +31,7 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 
 
@@ -48,7 +48,6 @@ namespace windows
          */
          void showPerformances(const char* const& windowNamePerformances,
                                const ImGuiIO& io,
-                               bool& isPerformancesWindowOpen,
                                WindowState& winManagerPerformances);
 
 } // namespace sofaimgui

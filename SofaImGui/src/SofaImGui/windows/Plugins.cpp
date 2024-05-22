@@ -37,19 +37,16 @@
 #include <sofa/simulation/graph/DAGNode.h>
 
 #include "Plugins.h"
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 namespace windows
 {
-    extern WindowState winManager;
-
     void showPlugins(const char* const& windowNamePlugins,
-                     bool& isPluginsWindowOpen,
                      WindowState& winManagerPlugins)
     {
-        if (isPluginsWindowOpen)
+        if (*winManagerPlugins.getState())
         {
-            if (ImGui::Begin(windowNamePlugins, &isPluginsWindowOpen))
+            if (ImGui::Begin(windowNamePlugins, winManagerPlugins.getState()))
             {
                 if (ImGui::Button("Load"))
                 {
@@ -111,10 +108,6 @@ namespace windows
                 ImGui::EndChild();
             }
             ImGui::End();
-            if(!isPluginsWindowOpen)
-            {
-                winManagerPlugins.setState(false);
-            }
         }
     }
 

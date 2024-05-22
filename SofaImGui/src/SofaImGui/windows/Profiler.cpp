@@ -43,13 +43,12 @@ namespace windows
 
     void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
                       const char* const& windowNameProfiler,
-                      bool& isProfilerOpen,
                       WindowState& winManagerProfiler)
     {
-        if (isProfilerOpen) {
+        if (*winManagerProfiler.getState()) {
             static int selectedFrame = 0;
 
-            if (ImGui::Begin(windowNameProfiler, &isProfilerOpen)) {
+            if (ImGui::Begin(windowNameProfiler, winManagerProfiler.getState())) {
                 const auto convertInMs = [](sofa::helper::system::thread::ctime_t t) {
                     static auto timer_freqd = static_cast<SReal>(sofa::helper::system::thread::CTime::getTicksPerSec());
                     return 1000.0 * static_cast<SReal>(t) / static_cast<SReal>(timer_freqd);
@@ -281,10 +280,6 @@ namespace windows
                 }
             }
             ImGui::End();
-            if (!isProfilerOpen)
-            {
-                winManagerProfiler.setState(false);
-            }
         }
     }
 

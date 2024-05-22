@@ -31,7 +31,7 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 
 namespace windows
@@ -45,7 +45,6 @@ namespace windows
          * @param isLogWindowOpen A reference to a boolean flag indicating if the Log window is open.
          */
         void showLog(const char* const& windowNameLog,
-                     bool& isLogWindowOpen,
                      WindowState& winManagerLog);
 
 

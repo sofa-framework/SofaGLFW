@@ -33,7 +33,7 @@
 #include <sofa/simulation/graph/DAGNode.h>
 
 #include "DisplayFlags.h"
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 
 namespace windows
@@ -41,12 +41,11 @@ namespace windows
 
     void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
                           const char* const& windowNameDisplayFlags,
-                          bool& isDisplayFlagsWindowOpen,
                           WindowState& winManagerDisplayFlags)
     {
-        if (isDisplayFlagsWindowOpen)
+        if (*winManagerDisplayFlags.getState())
         {
-            if (ImGui::Begin(windowNameDisplayFlags, &isDisplayFlagsWindowOpen))
+            if (ImGui::Begin(windowNameDisplayFlags, winManagerDisplayFlags.getState()))
             {
                 sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
                 groot->get(visualStyle);
@@ -147,10 +146,6 @@ namespace windows
                 }
             }
             ImGui::End();
-            if(!isDisplayFlagsWindowOpen)
-            {
-                 winManagerDisplayFlags.setState(false);
-            }
         }
     }
 

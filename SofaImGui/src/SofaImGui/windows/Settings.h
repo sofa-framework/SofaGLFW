@@ -22,7 +22,7 @@
 #pragma once
 
 #include <sofa/simulation/Node.h>
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 
 namespace windows
@@ -38,7 +38,6 @@ namespace windows
          * @param ini The INI file object containing application settings.
          */
         void showSettings(const char* const& windowNameSettings,
-                          bool& isSettingsOpen,
                           CSimpleIniA &ini,
                           WindowState& winManagerSettings);
 

@@ -34,13 +34,12 @@ namespace windows
 {
 
     void showSettings(const char* const& windowNameSettings,
-                      bool& isSettingsOpen,
                       CSimpleIniA &ini,
                       WindowState& winManagerSettings)
     {
-        if (isSettingsOpen)
+        if (*winManagerSettings.getState())
         {
-            if (ImGui::Begin(windowNameSettings, &isSettingsOpen))
+            if (ImGui::Begin(windowNameSettings,winManagerSettings.getState()))
             {
                 const char* theme = ini.GetValue("Style", "theme", sofaimgui::defaultStyle.c_str());
                 static std::size_t styleCurrent = std::distance(std::begin(sofaimgui::listStyles), std::find_if(std::begin(sofaimgui::listStyles), std::end(sofaimgui::listStyles),
@@ -87,10 +86,6 @@ namespace windows
 
             }
             ImGui::End();
-            if(!isSettingsOpen)
-            {
-                winManagerSettings.setState(false);
-            }
         }
     }
 }

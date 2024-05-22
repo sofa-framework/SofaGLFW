@@ -25,14 +25,11 @@
 
 namespace windows {
 
-    bool checkFirstRun();
-    void setFirstRunComplete();
-
     class WindowState {
     public:
         WindowState(const std::string& filename);
         ~WindowState();
-        bool getState() const;
+        bool * getState() ;
         void setState(bool isOpen);
 
     private:

@@ -39,19 +39,18 @@
 #include <fstream>
 
 #include "Log.h"
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 namespace windows
 {
 
     void showLog(const char* const& windowNameLog,
-                 bool& isLogWindowOpen,
                  WindowState& winManagerLog)
     {
 
-        if (isLogWindowOpen)
+        if (*winManagerLog.getState())
         {
-            if (ImGui::Begin(windowNameLog, &isLogWindowOpen))
+            if (ImGui::Begin(windowNameLog, winManagerLog.getState()))
             {
                 unsigned int i {};
                 const auto& messages = sofa::helper::logging::MainLoggingMessageHandler::getInstance().getMessages();
@@ -169,10 +168,6 @@ namespace windows
                 }
             }
             ImGui::End();
-            if(!isLogWindowOpen)
-            {
-                winManagerLog.setState(false);
-            }
         }
     }
 

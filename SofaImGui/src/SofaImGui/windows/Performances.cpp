@@ -31,12 +31,11 @@ namespace windows
 
     void showPerformances(const char *const &windowNamePerformances,
                           const ImGuiIO &io,
-                          bool &isPerformancesWindowOpen,
                           WindowState& winManagerPerformances)
     {
-        if (isPerformancesWindowOpen) {
+        if (*winManagerPerformances.getState()) {
             static sofa::type::vector<float> msArray;
-            if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen)) {
+            if (ImGui::Begin(windowNamePerformances, winManagerPerformances.getState())) {
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
                 ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices,
                             io.MetricsRenderIndices / 3);
@@ -51,12 +50,6 @@ namespace windows
                                  ImVec2(0, 100));
             }
             ImGui::End();
-            if(!isPerformancesWindowOpen)
-            {
-                winManagerPerformances.setState(false);
-            }
-
-
         }
     }
 }

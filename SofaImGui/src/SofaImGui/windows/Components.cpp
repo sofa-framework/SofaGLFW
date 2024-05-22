@@ -43,12 +43,11 @@ namespace windows
 {
 
     void showComponents(const char* const& windowNameComponents,
-                        bool& isComponentsWindowOpen,
                         WindowState& winManagerComponents)
     {
-        if (isComponentsWindowOpen)
+        if (*winManagerComponents.getState())
         {
-            if (ImGui::Begin(windowNameComponents, &isComponentsWindowOpen))
+            if (ImGui::Begin(windowNameComponents, winManagerComponents.getState()))
             {
                 unsigned int nbLoadedComponents = 0;
                 if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
@@ -381,10 +380,6 @@ namespace windows
                 }
             }
             ImGui::End();
-            if (!isComponentsWindowOpen)
-            {
-                winManagerComponents.setState(false);
-            }
         }
     }
 

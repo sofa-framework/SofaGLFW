@@ -22,7 +22,7 @@
 #pragma once
 
 #include <sofa/simulation/Node.h>
-#include "WindowsManager.h"
+#include "WindowState.h"
 
 
 
@@ -39,7 +39,6 @@ namespace windows
          */
          void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
                                const char* const& windowNameDisplayFlags,
-                               bool& isDisplayFlagsWindowOpen,
                                WindowState& winManagerDisplayFlags);
 
 } // namespace sofaimgui
