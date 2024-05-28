@@ -480,6 +480,7 @@ void SofaGLFWBaseGUI::terminate()
         return;
 
     m_guiEngine->terminate();
+    m_guiEngine.reset();
 
     glfwTerminate();
 }
