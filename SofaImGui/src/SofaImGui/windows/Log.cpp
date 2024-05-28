@@ -48,9 +48,9 @@ namespace windows
                  WindowState& winManagerLog)
     {
 
-        if (*winManagerLog.getState())
+        if (*winManagerLog.getStatePtr())
         {
-            if (ImGui::Begin(windowNameLog, winManagerLog.getState()))
+            if (ImGui::Begin(windowNameLog, winManagerLog.getStatePtr()))
             {
                 unsigned int i {};
                 const auto& messages = sofa::helper::logging::MainLoggingMessageHandler::getInstance().getMessages();

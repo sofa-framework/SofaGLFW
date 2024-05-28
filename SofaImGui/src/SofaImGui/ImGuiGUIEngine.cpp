@@ -255,7 +255,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
 
 
-    if (!*firstRunState.getState())
+    if (!*firstRunState.getStatePtr())
     {
         ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
@@ -475,24 +475,24 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::Checkbox(windowNameViewport, winManagerViewPort.getState());
-            ImGui::Checkbox(windowNamePerformances, winManagerPerformances.getState());
+            ImGui::Checkbox(windowNameViewport, winManagerViewPort.getStatePtr());
+            ImGui::Checkbox(windowNamePerformances, winManagerPerformances.getStatePtr());
 
-            ImGui::Checkbox(windowNameProfiler, winManagerProfiler.getState());
+            ImGui::Checkbox(windowNameProfiler, winManagerProfiler.getStatePtr());
 
-            ImGui::Checkbox(windowNameSceneGraph, winManagerSceneGraph.getState());
+            ImGui::Checkbox(windowNameSceneGraph, winManagerSceneGraph.getStatePtr());
 
-            ImGui::Checkbox(windowNameDisplayFlags, winManagerDisplayFlags.getState());
+            ImGui::Checkbox(windowNameDisplayFlags, winManagerDisplayFlags.getStatePtr());
 
-            ImGui::Checkbox(windowNamePlugins, winManagerPlugins.getState());
+            ImGui::Checkbox(windowNamePlugins, winManagerPlugins.getStatePtr());
 
-            ImGui::Checkbox(windowNameComponents, winManagerComponents.getState());
+            ImGui::Checkbox(windowNameComponents, winManagerComponents.getStatePtr());
 
-            ImGui::Checkbox(windowNameLog, winManagerLog.getState());
+            ImGui::Checkbox(windowNameLog, winManagerLog.getStatePtr());
 
             ImGui::Separator();
 
-            ImGui::Checkbox(windowNameSettings, winManagerSettings.getState());
+            ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
 
             ImGui::EndMenu();
         }
@@ -568,7 +568,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Profiler window
      **************************************/
-    sofa::helper::AdvancedTimer::setEnabled("Animate", winManagerProfiler.getState());
+    sofa::helper::AdvancedTimer::setEnabled("Animate", winManagerProfiler.getStatePtr());
     sofa::helper::AdvancedTimer::setInterval("Animate", 1);
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
 

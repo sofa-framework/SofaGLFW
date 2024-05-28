@@ -33,9 +33,9 @@ namespace windows
                           const ImGuiIO &io,
                           WindowState& winManagerPerformances)
     {
-        if (*winManagerPerformances.getState()) {
+        if (*winManagerPerformances.getStatePtr()) {
             static sofa::type::vector<float> msArray;
-            if (ImGui::Begin(windowNamePerformances, winManagerPerformances.getState())) {
+            if (ImGui::Begin(windowNamePerformances, winManagerPerformances.getStatePtr())) {
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
                 ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices,
                             io.MetricsRenderIndices / 3);

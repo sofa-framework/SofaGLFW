@@ -56,11 +56,11 @@ namespace windows {
             , const char* const& windowNameProfiler
             , WindowState& winManagerProfiler)
     {
-        if (*winManagerProfiler.getState())
+        if (*winManagerProfiler.getStatePtr())
         {
             static int selectedFrame = 0;
 
-            if (ImGui::Begin(windowNameProfiler, winManagerProfiler.getState()))
+            if (ImGui::Begin(windowNameProfiler, winManagerProfiler.getStatePtr()))
             {
                 const auto convertInMs = [](sofa::helper::system::thread::ctime_t t)
                 {

@@ -47,10 +47,10 @@ namespace windows
                       bool &isMouseOnViewport,
                       WindowState& winManagerViewPort)
     {
-        if (*winManagerViewPort.getState())
+        if (*winManagerViewPort.getStatePtr())
         {
             ImVec2 pos;
-            if (ImGui::Begin(windowNameViewport, winManagerViewPort.getState()/*, ImGuiWindowFlags_MenuBar*/))
+            if (ImGui::Begin(windowNameViewport, winManagerViewPort.getStatePtr()/*, ImGuiWindowFlags_MenuBar*/))
             {
                 pos = ImGui::GetWindowPos();
 
@@ -66,14 +66,14 @@ namespace windows
             }
             ImGui::End();
 
-            if (*winManagerViewPort.getState() && ini.GetBoolValue("Visualization", "showViewportSettingsButton", true))
+            if (*winManagerViewPort.getStatePtr() && ini.GetBoolValue("Visualization", "showViewportSettingsButton", true))
             {
                 static constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
                 pos.x += 10;
                 pos.y += 40;
                 ImGui::SetNextWindowPos(pos);
 
-                if (ImGui::Begin("viewportSettingsMenuWindow", winManagerViewPort.getState(), window_flags))
+                if (ImGui::Begin("viewportSettingsMenuWindow", winManagerViewPort.getStatePtr(), window_flags))
                 {
                     if (ImGui::Button(ICON_FA_COG))
                     {

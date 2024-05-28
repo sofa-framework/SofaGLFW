@@ -37,9 +37,9 @@ namespace windows
                       CSimpleIniA &ini,
                       WindowState& winManagerSettings)
     {
-        if (*winManagerSettings.getState())
+        if (*winManagerSettings.getStatePtr())
         {
-            if (ImGui::Begin(windowNameSettings,winManagerSettings.getState()))
+            if (ImGui::Begin(windowNameSettings, winManagerSettings.getStatePtr()))
             {
                 const char* theme = ini.GetValue("Style", "theme", sofaimgui::defaultStyle.c_str());
                 static std::size_t styleCurrent = std::distance(std::begin(sofaimgui::listStyles), std::find_if(std::begin(sofaimgui::listStyles), std::end(sofaimgui::listStyles),

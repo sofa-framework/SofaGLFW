@@ -44,9 +44,9 @@ namespace windows
     void showPlugins(const char* const& windowNamePlugins,
                      WindowState& winManagerPlugins)
     {
-        if (*winManagerPlugins.getState())
+        if (*winManagerPlugins.getStatePtr())
         {
-            if (ImGui::Begin(windowNamePlugins, winManagerPlugins.getState()))
+            if (ImGui::Begin(windowNamePlugins, winManagerPlugins.getStatePtr()))
             {
                 if (ImGui::Button("Load"))
                 {

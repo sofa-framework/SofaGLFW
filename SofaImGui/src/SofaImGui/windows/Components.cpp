@@ -45,9 +45,9 @@ namespace windows
     void showComponents(const char* const& windowNameComponents,
                         WindowState& winManagerComponents)
     {
-        if (*winManagerComponents.getState())
+        if (*winManagerComponents.getStatePtr())
         {
-            if (ImGui::Begin(windowNameComponents, winManagerComponents.getState()))
+            if (ImGui::Begin(windowNameComponents, winManagerComponents.getStatePtr()))
             {
                 unsigned int nbLoadedComponents = 0;
                 if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))

@@ -49,9 +49,9 @@ namespace windows
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                         WindowState& winManagerSceneGraph)
     {
-        if (*winManagerSceneGraph.getState())
+        if (*winManagerSceneGraph.getStatePtr())
         {
-            if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getState()))
+            if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getStatePtr()))
             {
                 const bool expand = ImGui::Button(ICON_FA_EXPAND);
                 ImGui::SameLine();

@@ -37,7 +37,7 @@ namespace windows {
         writeState();
     }
 
-    bool *WindowState::getState()
+    bool *WindowState::getStatePtr()
     {
         return &m_isOpen;
     }

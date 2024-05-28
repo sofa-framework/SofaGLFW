@@ -43,9 +43,9 @@ namespace windows
                           const char* const& windowNameDisplayFlags,
                           WindowState& winManagerDisplayFlags)
     {
-        if (*winManagerDisplayFlags.getState())
+        if (*winManagerDisplayFlags.getStatePtr())
         {
-            if (ImGui::Begin(windowNameDisplayFlags, winManagerDisplayFlags.getState()))
+            if (ImGui::Begin(windowNameDisplayFlags, winManagerDisplayFlags.getStatePtr()))
             {
                 sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
                 groot->get(visualStyle);

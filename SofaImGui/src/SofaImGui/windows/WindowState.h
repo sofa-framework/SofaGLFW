@@ -29,7 +29,7 @@ namespace windows {
     public:
         WindowState(const std::string& filename);
         ~WindowState();
-        bool * getState() ;
+        bool * getStatePtr() ;
         void setState(bool isOpen);
 
     private:
