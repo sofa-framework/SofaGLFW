@@ -83,23 +83,24 @@
 #include "windows/WindowState.h"
 
 using namespace sofa;
-using windows::WindowState;
 
 namespace sofaimgui
 {
-    WindowState winManagerProfiler("profiler.txt");
-    WindowState winManagerSceneGraph("scenegraph.txt");
-    WindowState winManagerPerformances("performances.txt");
-    WindowState winManagerDisplayFlags("displayflags.txt");
-    WindowState winManagerPlugins("plugins.txt");
-    WindowState winManagerComponents("components.txt");
-    WindowState winManagerLog("log.txt");
-    WindowState winManagerSettings("settings.txt");
-    WindowState winManagerViewPort("viewport.txt");
-    WindowState firstRunState("firstrun.txt");
-
     constexpr const char* VIEW_FILE_EXTENSION = ".view";
 
+ImGuiGUIEngine::ImGuiGUIEngine()
+            : winManagerProfiler("profiler.txt"),
+              winManagerSceneGraph("scenegraph.txt"),
+              winManagerPerformances("performances.txt"),
+              winManagerDisplayFlags("displayflags.txt"),
+              winManagerPlugins("plugins.txt"),
+              winManagerComponents("components.txt"),
+              winManagerLog("log.txt"),
+              winManagerSettings("settings.txt"),
+              winManagerViewPort("viewport.txt"),
+              firstRunState("firstrun.txt")
+{
+}
 
 void ImGuiGUIEngine::init()
 {

@@ -29,6 +29,11 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
+#include "windows/WindowState.h"
+
+
+
+using windows::WindowState;
 
 struct GLFWwindow;
 namespace sofa::glfw
@@ -42,7 +47,8 @@ namespace sofaimgui
 class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
 {
 public:
-    ImGuiGUIEngine() = default;
+
+    ImGuiGUIEngine() ;
     ~ImGuiGUIEngine() = default;
     
     void init() override;
@@ -62,6 +68,18 @@ protected:
     CSimpleIniA ini;
 
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
+
+    // WindowState members
+    windows::WindowState winManagerProfiler;
+    windows::WindowState winManagerSceneGraph;
+    windows::WindowState winManagerPerformances;
+    windows::WindowState winManagerDisplayFlags;
+    windows::WindowState winManagerPlugins;
+    windows::WindowState winManagerComponents;
+    windows::WindowState winManagerLog;
+    windows::WindowState winManagerSettings;
+    windows::WindowState winManagerViewPort;
+    windows::WindowState firstRunState;
 };
 
 } // namespace sofaimgui
