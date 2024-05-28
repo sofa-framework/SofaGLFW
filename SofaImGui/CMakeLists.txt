@@ -122,6 +122,7 @@ set(SOURCE_FILES
 )
 
 
+
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
@@ -134,6 +135,18 @@ find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
     add_subdirectory(bindings)
 endif()
+
+
+#Findout if it is Fedora
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  file(STRINGS /etc/os-release distro REGEX "^NAME=")
+  string(REGEX REPLACE "NAME=\"(.*)\"" "\\1" distro "${distro}")
+  if(distro STREQUAL "Fedora")
+    set_property(TARGET ${PROJECT_NAME}  PROPERTY POSITION_INDEPENDENT_CODE ON)
+  endif()
+endif()
+
+
 
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
