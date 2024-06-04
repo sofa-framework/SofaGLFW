@@ -42,7 +42,6 @@
 #include <sofa/simulation/SimulationLoop.h>
 
 #include <sofa/core/objectmodel/KeypressedEvent.h>
-#include <sofa/core/objectmodel/KeyreleasedEvent.h>
 using namespace sofa;
 
 namespace sofaglfw
@@ -315,7 +314,6 @@ void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* s
             glfwSetWindowAttrib(glfwWindow, GLFW_DECORATED, GLFW_TRUE);
             glfwSetWindowMonitor(glfwWindow, nullptr, m_lastWindowPositionX, m_lastWindowPositionY, m_lastWindowWidth, m_lastWindowHeight, GLFW_DONT_CARE);
         }
-        std::cout<< "fkkkkkkk";
     }
     else
     {
