@@ -64,6 +64,7 @@ public:
     void setWindowWidth(int width) { m_windowWidth = width; }
     int getWindowHeight() const { return m_windowHeight; }
     void setWindowHeight(int height) { m_windowHeight = height; }
+    bool isControlPressed() const{return m_isControlPressed;}
 
     void resizeWindow(int width, int height);
 
@@ -104,24 +105,29 @@ private:
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     static void close_callback(GLFWwindow* window);
-    // empty (as in non-implemented) GLFW callbacks
+// empty (as in non-implemented) GLFW callbacks
     static void window_focus_callback(GLFWwindow* window, int focused);
     static void cursor_enter_callback(GLFWwindow* window, int entered);
     static void monitor_callback(GLFWmonitor* monitor, int event);
     static void character_callback(GLFWwindow* window, unsigned int codepoint);
 
+
+    static  int handleArrowKeys(int key);
+
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
 
-    // static members
+        // static members
     inline static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
     inline static std::map< GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
 
     //members
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
+    bool m_isControlPressed{ false };
 
-    sofa::simulation::NodeSPtr m_groot;
+
+        sofa::simulation::NodeSPtr m_groot;
     std::string m_filename;
     sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
     sofa::core::visual::VisualParams* m_vparams{ nullptr };
