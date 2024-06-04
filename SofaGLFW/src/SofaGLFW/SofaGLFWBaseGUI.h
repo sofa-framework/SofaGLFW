@@ -64,8 +64,6 @@ public:
     void setWindowWidth(int width) { m_windowWidth = width; }
     int getWindowHeight() const { return m_windowHeight; }
     void setWindowHeight(int height) { m_windowHeight = height; }
-    bool isControlPressed() const{return m_isControlPressed;}
-
     void resizeWindow(int width, int height);
 
     GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
@@ -124,10 +122,8 @@ private:
     //members
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
-    bool m_isControlPressed{ false };
 
-
-        sofa::simulation::NodeSPtr m_groot;
+    sofa::simulation::NodeSPtr m_groot;
     std::string m_filename;
     sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
     sofa::core::visual::VisualParams* m_vparams{ nullptr };
