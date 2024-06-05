@@ -556,7 +556,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
         case GLFW_KEY_SPACE:
             if (action == GLFW_PRESS)
             {
-                bool isRunning = currentGUI->second->simulationIsRunning();
+                const bool isRunning = currentGUI->second->simulationIsRunning();
                 currentGUI->second->setSimulationIsRunning(!isRunning);
             }
             break;
