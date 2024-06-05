@@ -110,7 +110,7 @@ private:
     static void character_callback(GLFWwindow* window, unsigned int codepoint);
 
 
-    static  int handleArrowKeys(int key);
+    static int handleArrowKeys(int key);
 
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
