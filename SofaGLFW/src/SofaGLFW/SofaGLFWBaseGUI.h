@@ -103,7 +103,7 @@ private:
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     static void close_callback(GLFWwindow* window);
-// empty (as in non-implemented) GLFW callbacks
+    // empty (as in non-implemented) GLFW callbacks
     static void window_focus_callback(GLFWwindow* window, int focused);
     static void cursor_enter_callback(GLFWwindow* window, int entered);
     static void monitor_callback(GLFWmonitor* monitor, int event);
@@ -115,7 +115,7 @@ private:
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
 
-        // static members
+    // static members
     inline static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
     inline static std::map< GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
 
