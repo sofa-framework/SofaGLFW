@@ -534,10 +534,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyPressedEvent);
         } else if (action == GLFW_RELEASE)
         {
-            sofa::core::objectmodel::KeyreleasedEvent *keyReleasedEvent =
-                    new sofa::core::objectmodel::KeyreleasedEvent(keyName);
-            rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), keyReleasedEvent);
-            delete keyReleasedEvent;
+            sofa::core::objectmodel::KeyreleasedEvent keyReleasedEvent(keyName);
+            rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyReleasedEvent);
         }
     }
     // Handle specific keys for additional functionality
