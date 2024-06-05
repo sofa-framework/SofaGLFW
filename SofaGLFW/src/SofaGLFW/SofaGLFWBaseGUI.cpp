@@ -530,10 +530,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             {
                 dmsg_info("SofaGLFWBaseGUI")<<"KeypressedEvent::keyPressEvent, CONTROL pressed";
             }
-            sofa::core::objectmodel::KeypressedEvent *keyPressedEvent =
-                    new sofa::core::objectmodel::KeypressedEvent(keyName);
-            rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), keyPressedEvent);
-            delete keyPressedEvent;
+            sofa::core::objectmodel::KeypressedEvent keyPressedEvent(keyName);
+            rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyPressedEvent);
         } else if (action == GLFW_RELEASE)
         {
             sofa::core::objectmodel::KeyreleasedEvent *keyReleasedEvent =
