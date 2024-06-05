@@ -509,7 +509,7 @@ int SofaGLFWBaseGUI::handleArrowKeys(int key)
 void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     const char keyName = SofaGLFWBaseGUI::handleArrowKeys(key);
-    int state = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
+    const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
     auto currentGUI = s_mapGUIs.find(window);
     if (currentGUI == s_mapGUIs.end() || currentGUI->second == nullptr)
@@ -522,22 +522,23 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     {
         return;
     }
-    if (state == GLFW_PRESS)
+
+    if (isCtrlKeyPressed)
     {
         if (action == GLFW_PRESS)
         {
-            if (key==GLFW_KEY_LEFT_CONTROL)
-            {
-                dmsg_info("SofaGLFWBaseGUI")<<"KeypressedEvent::keyPressEvent, CONTROL pressed";
-            }
+            dmsg_info_when(key == GLFW_KEY_LEFT_CONTROL, "SofaGLFWBaseGUI") << "KeyPressEvent, CONTROL pressed";
+
             sofa::core::objectmodel::KeypressedEvent keyPressedEvent(keyName);
             rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyPressedEvent);
-        } else if (action == GLFW_RELEASE)
+        }
+        else if (action == GLFW_RELEASE)
         {
             sofa::core::objectmodel::KeyreleasedEvent keyReleasedEvent(keyName);
             rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyReleasedEvent);
         }
     }
+
     // Handle specific keys for additional functionality
     switch (key)
     {
