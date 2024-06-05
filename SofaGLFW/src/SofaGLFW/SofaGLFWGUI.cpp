@@ -48,8 +48,7 @@ void SofaGLFWGUI::redraw()
 }
 
 int SofaGLFWGUI::closeGUI()
-{ 
-    m_baseGUI.terminate();
+{
     delete this;
     return 0; 
 }
