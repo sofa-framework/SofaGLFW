@@ -5,6 +5,8 @@
 namespace ImGui
 {
 
+bool LocalInputDouble(const char* label, double* v, double step = 0.0, double step_fast = 0.0, const char* format = "%.6f", ImGuiInputTextFlags flags = 0);
+
 bool LocalSliderFloatWithSteps(const char* label, float* v, float v_min, float v_max, const char* display_format, ImGuiSliderFlags flags=ImGuiSliderFlags_None);
 
 void LocalToggleButton(const char* str_id, bool* v);

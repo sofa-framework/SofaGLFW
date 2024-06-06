@@ -247,7 +247,7 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
     ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", name);
     ImGui::SameLine();
-    float inputWidth = ImGui::CalcTextSize("-1,000").x + ImGui::GetFrameHeightWithSpacing() * 2;
+    float inputWidth = ImGui::CalcTextSize("-100000,00").x + ImGui::GetFrameHeight() / 2 + ImGui::GetStyle().ItemSpacing.x * 2;
     float sliderWidth = ImGui::GetWindowWidth() - inputWidth - ImGui::CalcTextSize(name).x - ImGui::GetStyle().WindowPadding.x * 4 - ImGui::GetStyle().IndentSpacing;
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
@@ -261,11 +261,8 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
 
     double step = max - min;
 
-    ImGui::PushItemWidth(inputWidth);
-    const char* format = (log10f(abs(*v))>3)? "%0.2e": "%0.2f";
-    if (ImGui::InputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1, format))
+    if (ImGui::LocalInputDouble(label2, v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1))
         hasValueChanged=true;
-    ImGui::PopItemWidth();
 
     return hasValueChanged;
 }
@@ -317,12 +314,10 @@ void MoveWindow::showWeightOption(const int &i)
     ImGui::AlignTextToFramePadding();
     ImGui::Text("weight");
     ImGui::SameLine();
-    ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
     ImGui::PushID(i);
-    ImGui::InputDouble("##Input ", &w, 0, 0, "%0.2f");
+    ImGui::LocalInputDouble("##Input ", &w, 0, 0);
     ImGui::PopID();
     weight[i] = w;
-    ImGui::PopItemWidth();
 }
 
 }

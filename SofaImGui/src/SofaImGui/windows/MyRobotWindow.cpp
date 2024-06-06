@@ -70,9 +70,7 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         for (size_t i=0; i<typeinfo->size(); i++)
                         {
                             double buffer = typeinfo->getScalarValue(values, i);
-                            ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                            ImGui::InputDouble(("##information" + information.description).c_str(), &buffer, 0, 0, "%.2f");
-                            ImGui::PopItemWidth();
+                            ImGui::LocalInputDouble(("##information" + information.description).c_str(), &buffer, 0, 0);
                         }
                         ImGui::EndDisabled();
                     }
@@ -98,10 +96,8 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         for (size_t i=0; i<typeinfo->size(); i++)
                         {
                             setting.buffer = typeinfo->getScalarValue(values, i);
-                            ImGui::PushItemWidth(ImGui::CalcTextSize("-10000,00").x);
-                            ImGui::InputDouble(("##setting" + setting.description).c_str(), &setting.buffer, 0, 0, "%.2f");
+                            ImGui::LocalInputDouble(("##setting" + setting.description).c_str(), &setting.buffer, 0, 0);
                             uiValue += std::to_string(setting.buffer) + " ";
-                            ImGui::PopItemWidth();
                         }
                         std::replace(uiValue.begin(), uiValue.end(), ',', '.');
                         setting.data->read(uiValue);

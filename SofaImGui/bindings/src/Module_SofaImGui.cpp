@@ -76,7 +76,6 @@ void setIPController(sofa::simulation::Node &TCPTargetNode,
 
 bool getRobotConnection()
 {
-
     ImGuiGUI* gui = ImGuiGUI::getGUI();
 
     if (gui)

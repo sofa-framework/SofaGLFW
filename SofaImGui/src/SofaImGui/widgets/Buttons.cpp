@@ -5,6 +5,20 @@
 namespace ImGui
 {
 
+bool LocalInputDouble(const char* label, double* v, double step, double step_fast, const char*, ImGuiInputTextFlags flags)
+{
+    float inputWidth = ImGui::CalcTextSize("-100000,00").x;
+    if (step>0) // add step buttons width
+        inputWidth += ImGui::GetFrameHeight() / 2 + ImGui::GetStyle().ItemSpacing.x * 2;
+
+    ImGui::PushItemWidth(inputWidth);
+    const char* format = (log10f(abs(*v))>3)? "%0.2e": "%0.2f";
+    bool result =  ImGui::InputDouble(label, v, step, step_fast, format, flags);
+    ImGui::PopItemWidth();
+
+    return result;
+}
+
 bool LocalSliderFloatWithSteps(const char* label, float* v, float v_min, float v_max, const char* display_format, ImGuiSliderFlags flags)
 {
     bool value_changed = SliderFloat(label, v, v_min, v_max, display_format, flags);

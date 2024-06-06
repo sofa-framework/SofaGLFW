@@ -43,7 +43,7 @@ class MoveWindow : public BaseWindow
     void setActuatorsLimits(double min, double max);
     void setActuators(std::vector<models::IPController::Actuator> actuators) {m_actuators = actuators;}
 
-    struct Accessory{
+    struct Accessory {
         double buffer;
         std::string description;
         sofa::core::BaseData* data;

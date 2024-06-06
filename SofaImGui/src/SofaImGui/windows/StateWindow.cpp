@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <SofaImGui/windows/StateWindow.h>
+#include <SofaImGui/widgets/Buttons.h>
 #include <imgui_internal.h>
 
 
@@ -82,11 +83,8 @@ void StateWindow::showWindow()
                             for (size_t i=0; i<typeinfo->size(); i++) // Values
                             {
                                 double buffer = typeinfo->getScalarValue(values, i);
-                                ImGui::PushItemWidth(ImGui::CalcTextSize("-100000,00").x);
-                                const char* format = (log10f(abs(buffer))>3)? "%0.2e": "%0.2f";
-                                ImGui::InputDouble("##0", &buffer, 0, 0, format);
+                                ImGui::LocalInputDouble("##0", &buffer, 0, 0);
                                 ImGui::SameLine();
-                                ImGui::PopItemWidth();
                             }
                             ImGui::EndDisabled();
                         }

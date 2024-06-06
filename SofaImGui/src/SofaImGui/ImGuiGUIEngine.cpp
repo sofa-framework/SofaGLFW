@@ -181,7 +181,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (!m_IPController)
         {
             m_programWindow.setWindowOpen(false);
-            m_myRobotWindow.setWindowOpen(false);
         }
 
         m_IOWindow.setSimulationState(m_simulationState);
