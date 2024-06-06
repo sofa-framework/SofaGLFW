@@ -69,8 +69,8 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
         m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
     }
     m_currentCamera->computeZ();
-    m_currentCamera->p_widthViewport.setValue(vparams->viewport()[2]);
-    m_currentCamera->p_heightViewport.setValue(vparams->viewport()[3]);
+    m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
+    m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
 
     // matrices
     double projectionMatrix[16];
