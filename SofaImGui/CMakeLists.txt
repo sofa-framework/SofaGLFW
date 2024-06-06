@@ -26,6 +26,7 @@ FetchContent_Declare(nfd
         GIT_TAG        d4df2b6ad5420f5300c00f418bf28d86291fa675                # v1.0.0
 )
 FetchContent_MakeAvailable(nfd)
+set_property(TARGET nfd  PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 FetchContent_Declare(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
@@ -135,18 +136,6 @@ find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
     add_subdirectory(bindings)
 endif()
-
-
-#Findout if it is Fedora
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  file(STRINGS /etc/os-release distro REGEX "^NAME=")
-  string(REGEX REPLACE "NAME=\"(.*)\"" "\\1" distro "${distro}")
-  if(distro STREQUAL "Fedora")
-    set_property(TARGET ${PROJECT_NAME}  PROPERTY POSITION_INDEPENDENT_CODE ON)
-  endif()
-endif()
-
-
 
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
