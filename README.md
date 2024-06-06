@@ -61,15 +61,16 @@ It is possible to run the Dear ImGui-based GUI by default when running the comma
 ## Windows
 
 The GUI is based on dockable windows.
-Each window gathers related features.
+Each window gathers related features. 
 Here are all the available windows:
 
-| Window             | Description                      |
-|--------------------|----------------------------------|
-| __Move__           | Direct control of the TCP target |
-| __Input / Output__ | ROS                              |
-| __Program__        | A tool to program the robot      |
-| __My Robot__       | Robot's information and settings |
+| Window             | Description                             |
+|--------------------|-----------------------------------------|
+| __Move__           | Direct control of the TCP target        |
+| __Input / Output__ | ROS                                     |
+| __Program__        | A tool to program the robot             |
+| __My Robot__       | Robot's information and settings        |
+| __Plotting__       | A tool to plot data from the simulation |
 
 
 ## Screenshots
