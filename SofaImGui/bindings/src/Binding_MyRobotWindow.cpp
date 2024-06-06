@@ -60,13 +60,15 @@ void moduleAddMyRobotWindow(py::module &m)
         );
 
     m_a.def("addSetting",
-        [engine](const std::string &description, sofa::core::BaseData* data)
+        [engine](const std::string &description, sofa::core::BaseData* data, double min, double max)
         {
             if (engine)
             {
                 windows::MyRobotWindow::Setting setting;
                 setting.description = description;
                 setting.data = data;
+                setting.min = min;
+                setting.max = max;
                 engine->m_myRobotWindow.addSetting(setting);
             }
         }, "Add a setting to the window."

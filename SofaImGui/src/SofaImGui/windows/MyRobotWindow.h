@@ -43,6 +43,8 @@ class MyRobotWindow : public BaseWindow
         double buffer;
         std::string description;
         sofa::core::BaseData* data;
+        double min;
+        double max;
     };
 
     void clearData();

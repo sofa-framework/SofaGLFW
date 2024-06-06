@@ -97,6 +97,7 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         {
                             setting.buffer = typeinfo->getScalarValue(values, i);
                             ImGui::LocalInputDouble(("##setting" + setting.description).c_str(), &setting.buffer, 0, 0);
+                            setting.buffer = std::clamp(setting.buffer, setting.min, setting.max);
                             uiValue += std::to_string(setting.buffer) + " ";
                         }
                         std::replace(uiValue.begin(), uiValue.end(), ',', '.');
