@@ -109,6 +109,7 @@ protected:
     int m_mode{0};
     bool m_nightStyle{false};
     bool m_robotConnection{false};
+
 };
 
 } // namespace sofaimgui

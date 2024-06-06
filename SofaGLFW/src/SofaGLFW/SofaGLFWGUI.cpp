@@ -48,13 +48,15 @@ void SofaGLFWGUI::redraw()
 }
 
 int SofaGLFWGUI::closeGUI()
-{ 
-    m_baseGUI.terminate();
+{
+    delete this;
     return 0; 
 }
 
 void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filename, bool temporaryFile)
 {
+    SOFA_UNUSED(temporaryFile);
+
     std::string strFilename;
     if (filename)
         strFilename = filename;
@@ -109,7 +111,7 @@ void SofaGLFWGUI::setBackgroundColor(const sofa::type::RGBAColor& color)
 
 void SofaGLFWGUI::setBackgroundImage(const std::string& image)
 {
-
+    SOFA_UNUSED(image);
 }
 
 sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)

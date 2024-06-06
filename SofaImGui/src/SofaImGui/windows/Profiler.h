@@ -19,17 +19,34 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <sofa/simulation/Node.h>
+#include <SofaImGui/config.h>
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+#include <memory>
+#include <SofaGLFW/BaseGUIEngine.h>
+#include <sofa/gl/FrameBufferObject.h>
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+#include <imgui.h>
+#include <sofa/simulation/Node.h>
+#include <SimpleIni.h>
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+
+namespace windows
+{
+
+        /**
+         * @brief Shows the Profiler window.
+         *
+         * This function displays profiling information, including frame durations, timer percentages, and timer durations.
+         *
+         * @param groot The root node of the simulation.
+         * @param windowNameProfiler The name of the Profiler window.
+         * @param isProfilerOpen A reference to a boolean flag indicating if the Profiler window is open.
+         */
+        void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
+                          const char* const& windowNameProfiler,
+                          bool& isProfilerOpen);
+
+} // namespace sofaimgui

@@ -19,17 +19,25 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <sofa/simulation/Node.h>
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+namespace windows
+{
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+        /**
+         * @brief Shows the Settings window.
+         *
+         * This function displays settings for configuring the application, such as theme selection, global scale, and viewport settings.
+         *
+         * @param windowNameSettings The name of the Settings window.
+         * @param isSettingsOpen A reference to a boolean flag indicating if the Settings window is open.
+         * @param ini The INI file object containing application settings.
+         */
+        void showSettings(const char* const& windowNameSettings,
+                          bool& isSettingsOpen,
+                          CSimpleIniA &ini);
+
+} // namespace sofaimgui

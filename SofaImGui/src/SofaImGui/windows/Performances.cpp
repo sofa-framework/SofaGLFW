@@ -19,17 +19,36 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#include "Performances.h"
+#include <imgui.h>
+#include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
+#include <sofa/type/vector.h>
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+namespace windows {
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+    void showPerformances(const char *const &windowNamePerformances
+                          , const ImGuiIO &io
+                          , bool &isPerformancesWindowOpen)
+    {
+        if (isPerformancesWindowOpen) {
+            static sofa::type::vector<float> msArray;
+            if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen)) {
+                ImGuiContext& g = *GImGui;
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+                ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices,
+                            io.MetricsRenderIndices / 3);
+                ImGui::Text("%d visible windows, %d active allocations", io.MetricsRenderWindows,
+                            g.DebugAllocInfo.TotalAllocCount - g.DebugAllocInfo.TotalFreeCount);
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+                msArray.push_back(1000.0f / io.Framerate);
+                if (msArray.size() >= 2000) {
+                    msArray.erase(msArray.begin());
+                }
+                ImGui::PlotLines("Frame Times", msArray.data(), msArray.size(), 0, nullptr, FLT_MAX, FLT_MAX,
+                                 ImVec2(0, 100));
+            }
+            ImGui::End();
+        }
+    }
+}

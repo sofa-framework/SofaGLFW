@@ -19,17 +19,32 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <sofa/simulation/Node.h>
+#include <SofaImGui/config.h>
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+#include <memory>
+#include <SofaGLFW/BaseGUIEngine.h>
+#include <sofa/gl/FrameBufferObject.h>
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+#include <imgui.h>
+#include <sofa/simulation/Node.h>
+#include <SimpleIni.h>
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+
+namespace windows
+{
+        /**
+         * @brief Shows the Log window.
+         *
+         * This function displays a window containing log messages. It provides options to filter messages by type and save the log to a file. The displayed log messages include their IDs, types, senders, and the messages themselves.
+         *
+         * @param windowNameLog The name of the Log window.
+         * @param isLogWindowOpen A reference to a boolean flag indicating if the Log window is open.
+         */
+        void showLog(const char* const& windowNameLog,
+                     bool& isLogWindowOpen);
+
+
+} // namespace sofaimgui

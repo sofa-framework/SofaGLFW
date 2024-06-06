@@ -19,17 +19,19 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <sofa/simulation/Node.h>
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+namespace sofaimgui
+{
+    class ImGuiGUIEngine;
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+    class AppIniFile
+    {
+    public:
+        static const std::string& getAppIniFile();
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+    };
+
+} // namespace sofaimgui

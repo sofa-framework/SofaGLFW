@@ -12,7 +12,7 @@ sofa_find_package(Sofa.Component.Playback REQUIRED)
 
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(SOFAGLFWIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
+    set(SOFAIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
 endif()
 
 include(FetchContent)
@@ -115,9 +115,21 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.h
+
     ${SOFAIMGUI_SOURCE_DIR}/Utils.h
     ${SOFAIMGUI_SOURCE_DIR}/config.h.in
     ${SOFAIMGUI_SOURCE_DIR}/init.h
+
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
+    ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
 )
 
 set(SOURCE_FILES
@@ -158,6 +170,20 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.cpp
     ${SOFAIMGUI_SOURCE_DIR}/Utils.cpp
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Components.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
+
+
+
+
 )
 
 sofa_find_package(TinyXML2 REQUIRED)

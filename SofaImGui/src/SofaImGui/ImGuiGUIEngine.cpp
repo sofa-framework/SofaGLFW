@@ -23,6 +23,16 @@
 #include <SofaImGui/ObjectColor.h>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <SofaImGui/ImGuiGUIEngine.h>
+#include <SofaImGui/windows/Performances.h>
+#include <SofaImGui/windows/Log.h>
+#include <SofaImGui/windows/Profiler.h>
+#include <SofaImGui/windows/SceneGraph.h>
+#include <SofaImGui/windows/DisplayFlags.h>
+#include <SofaImGui/windows/Plugins.h>
+#include <SofaImGui/windows/Components.h>
+#include <SofaImGui/windows/Settings.h>
+#include <SofaImGui/AppIniFile.h>
+#include <SofaImGui/windows/ViewPort.h>
 
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
@@ -71,6 +81,22 @@
 #include <SofaImGui/Utils.h>
 #include <SofaImGui/widgets/Buttons.h>
 
+#include <sofa/helper/Utils.h>
+#include <sofa/type/vector.h>
+#include <sofa/simulation/Node.h>
+#include <sofa/component/visual/VisualStyle.h>
+#include <sofa/core/ComponentLibrary.h>
+#include <sofa/core/ObjectFactory.h>
+#include <sofa/helper/system/PluginManager.h>
+#include <SofaImGui/ObjectColor.h>
+#include <sofa/core/visual/VisualParams.h>
+#include <sofa/helper/io/File.h>
+#include <sofa/component/visual/VisualGrid.h>
+#include <sofa/component/visual/LineAxis.h>
+#include <sofa/gl/component/rendering3d/OglSceneFrame.h>
+#include <sofa/gui/common/BaseGUI.h>
+#include <sofa/helper/io/STBImage.h>
+#include <sofa/simulation/graph/DAGNode.h>
 
 using namespace sofa;
 
@@ -112,9 +138,9 @@ void ImGuiGUIEngine::init()
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     ini.SetUnicode();
-    if (sofa::helper::system::FileSystem::exists(getAppIniFile()))
+    if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getAppIniFile()))
     {
-        SI_Error rc = ini.LoadFile(getAppIniFile().c_str());
+        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
     }
 
