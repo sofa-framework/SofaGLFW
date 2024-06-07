@@ -46,7 +46,7 @@ class Move : public Action
          const RigidCoord& waypoint,
          const double& duration,
          IPController::SPtr IPController,
-         const bool& freeInRotation,
+         const bool& freeInRotation = true,
          Type type = LINE);
 
     ~Move();

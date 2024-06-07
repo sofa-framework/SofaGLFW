@@ -79,6 +79,7 @@ void Track::pushMove()
                                                 m_IPController->getTCPTargetPosition(),
                                                 actions::Action::DEFAULTDURATION,
                                                 m_IPController,
+                                                true,
                                                 actions::Move::Type::LINE);
     pushMove(move);
 }
@@ -103,7 +104,7 @@ void Track::insertMove(const sofa::Index &actionIndex)
                                                 m_IPController->getTCPTargetPosition(),
                                                 actions::Action::DEFAULTDURATION,
                                                 m_IPController,
-                                                false,
+                                                true,
                                                 actions::Move::Type::LINE);
 
     // insert the new move

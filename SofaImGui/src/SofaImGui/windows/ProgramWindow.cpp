@@ -248,6 +248,13 @@ void ProgramWindow::showTimeline()
     float indentSize = ImGui::GetFrameHeight();
     ImGui::Indent(indentSize);
 
+    const ImRect frame_bb(ImVec2(m_trackBeginPos.x, m_trackBeginPos.y - ImGui::GetFrameHeight() * 1.5),
+                          ImVec2(m_trackBeginPos.x + width, m_trackBeginPos.y));
+    const ImGuiID id = ImGui::GetID("##timeline");
+    if (!ImGui::ItemAdd(frame_bb, id))
+        return;
+    ImGui::SetItemTooltip("Simulation time");
+
     ImGui::BeginGroup(); // Timeline's number (seconds)
     for (int i=0 ; i<nbSteps; i++)
     {
