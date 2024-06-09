@@ -32,6 +32,8 @@ namespace sofaimgui::models::actions {
 
 class Pick : public Action
 {
+    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
+
    public:
 
     Pick(const double& duration = Action::DEFAULTDURATION, const bool& release = false);
@@ -39,6 +41,12 @@ class Pick : public Action
 
     void setDuration(const double &duration) override;
     bool getState() {return m_release;}
+    bool apply(RigidCoord &position, const double &time) override;
+
+    static bool gripperInstalled;
+    static double closingDistance;
+    static double openingDistance;
+    static sofa::core::BaseData* distance;
 
    protected:
     double m_minDuration{0.5};

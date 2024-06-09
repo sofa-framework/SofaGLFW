@@ -183,10 +183,10 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         }
                         m_actuators[i].value=buffer;
                     }
-                    if (m_IPController && !solveInverseProblem)
+                    if (m_IPController && !solveInverseProblem && m_isDrivingSimulation)
                     {
                         // TODO: don't solve the inverse problem since we'll overwrite the solution
-                        m_IPController->setActuators(m_actuators);
+                        m_IPController->applyActuatorsForce(m_actuators);
                     }
 
                     ImGui::LocalEndCollapsingHeader();
@@ -209,7 +209,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                                                            ("##Input" + name).c_str(),
                                                            &buffer, accessory.min, accessory.max,
                                                            ImVec4(0, 0, 0, 0));
-                        if (hasChanged)
+                        if (hasChanged && m_isDrivingSimulation)
                         {
                             std::string value = std::to_string(buffer);
                             std::replace(value.begin(), value.end(), ',', '.');

@@ -24,6 +24,12 @@
 
 namespace sofaimgui::models::actions {
 
+bool Pick::gripperInstalled = false;
+double Pick::closingDistance = 0;
+double Pick::openingDistance = 0;
+sofa::core::BaseData* Pick::distance = nullptr;
+
+
 Pick::Pick(const double &duration, const bool& release)
     : Action(duration)
     , m_release(release)
@@ -37,6 +43,29 @@ void Pick::setDuration(const double& duration)
     m_duration = duration;
     if (m_duration < m_minDuration)
         m_duration = m_minDuration;
+}
+
+bool Pick::apply(RigidCoord &position, const double &time)
+{
+    SOFA_UNUSED(position);
+    SOFA_UNUSED(time);
+
+    if(gripperInstalled && distance)
+    {
+        double alpha = time / m_duration;
+        if (m_release)
+        {
+            double dist = alpha * openingDistance + (1 - alpha) * closingDistance;
+            distance->read(std::to_string(dist));
+        }
+        else
+        {
+            double dist = alpha * closingDistance + (1 - alpha) * openingDistance;
+            distance->read(std::to_string(dist));
+        }
+    }
+
+    return false;
 }
 
 } // namespace

@@ -88,27 +88,27 @@ void moduleAddMoveWindow(py::module &m)
         );
 
     m_a.def("setActuators",
-            [engine](const std::vector<sofa::core::objectmodel::BaseData*> &actuatorsData,
-                     const std::vector<size_t> &indicesInProblem,
-                     const std::string valueType)
+        [engine](const std::vector<sofa::core::objectmodel::BaseData*> &actuatorsData,
+                 const std::vector<size_t> &indicesInProblem,
+                 const std::string valueType)
+        {
+            if (engine)
             {
-                if (engine)
+                size_t nbActuators = std::min(actuatorsData.size(), indicesInProblem.size());
+                std::vector<models::IPController::Actuator> actuators;
+                actuators.reserve(nbActuators);
+                for (size_t i=0; i< nbActuators; i++)
                 {
-                    size_t nbActuators = std::min(actuatorsData.size(), indicesInProblem.size());
-                    std::vector<models::IPController::Actuator> actuators;
-                    actuators.reserve(nbActuators);
-                    for (size_t i=0; i< nbActuators; i++)
-                    {
-                        models::IPController::Actuator actuator;
-                        actuator.data = actuatorsData[i];
-                        actuator.indexInProblem = indicesInProblem[i];
-                        actuator.valueType.setSelectedItem(valueType);
-                        actuators.push_back(actuator);
-                    }
-                    engine->m_moveWindow.setActuators(actuators);
+                    models::IPController::Actuator actuator;
+                    actuator.data = actuatorsData[i];
+                    actuator.indexInProblem = indicesInProblem[i];
+                    actuator.valueType.setSelectedItem(valueType);
+                    actuators.push_back(actuator);
                 }
+                engine->m_moveWindow.setActuators(actuators);
             }
-            );
+        }
+        );
 
     m_a.def("addAccessory",
         [engine](const std::string &description, sofa::core::BaseData* data,

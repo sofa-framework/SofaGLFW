@@ -25,6 +25,7 @@
 #include <Binding_MyRobotWindow.h>
 #include <Binding_SimulationState.h>
 #include <Binding_PlottingWindow.h>
+#include <Binding_ProgramWindow.h>
 
 #include <sofa/gui/common/GUIManager.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
@@ -98,6 +99,7 @@ PYBIND11_MODULE(ImGui, m)
     moduleAddMyRobotWindow(m);
     moduleAddSimulationState(m);
     moduleAddPlottingWindow(m);
+    moduleAddProgramWindow(m);
 }
 
 } // namespace sofaimgui::python3

@@ -67,7 +67,7 @@ class IPController : public sofa::component::controller::Controller
     void setFreeInRotation(const bool &freeRoll, const bool &freePitch, const bool &freeYaw);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}
-    void setActuators(const std::vector<Actuator> &actuators);
+    void applyActuatorsForce(const std::vector<Actuator> &actuators);
 
     void handleEvent(sofa::core::objectmodel::Event *event) override;
 

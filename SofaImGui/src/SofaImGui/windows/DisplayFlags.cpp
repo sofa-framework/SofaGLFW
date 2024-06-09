@@ -25,38 +25,42 @@
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
-#include <fstream>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
+#include <SofaImGui/widgets/Buttons.h>
 
-#include "DisplayFlags.h"
+#include <SofaImGui/windows/DisplayFlags.h>
 
 
-namespace windows
+namespace sofaimgui::windows
 {
 
-    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot
-                          , const char* const& windowNameDisplayFlags
-                          , bool& isDisplayFlagsWindowOpen)
+    DisplayFlagsWindow::DisplayFlagsWindow(const std::string& name, const bool& isWindowOpen)
     {
-        if (isDisplayFlagsWindowOpen)
+        m_name = name;
+        m_isWindowOpen = isWindowOpen;
+    }
+
+    void DisplayFlagsWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags& windowFlags)
+    {
+        if (m_isWindowOpen)
         {
-            if (ImGui::Begin(windowNameDisplayFlags, &isDisplayFlagsWindowOpen))
+            if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
             {
                 sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
                 groot->get(visualStyle);
                 if (visualStyle)
                 {
-                    auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->displayFlags).wref();
+                    auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->d_displayFlags).wref();
 
                     {
                         const bool initialValue = displayFlags.getShowVisualModels();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Visual Models", &changeableValue);
+                        ImGui::LocalCheckBox("Show Visual Models", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowVisualModels(changeableValue);
@@ -66,7 +70,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowBehaviorModels();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Behavior Models", &changeableValue);
+                        ImGui::LocalCheckBox("Show Behavior Models", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowBehaviorModels(changeableValue);
@@ -76,7 +80,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowForceFields();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Force Fields", &changeableValue);
+                        ImGui::LocalCheckBox("Show Force Fields", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowForceFields(changeableValue);
@@ -86,7 +90,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowCollisionModels();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Collision Models", &changeableValue);
+                        ImGui::LocalCheckBox("Show Collision Models", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowCollisionModels(changeableValue);
@@ -96,7 +100,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowBoundingCollisionModels();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Bounding Collision Models", &changeableValue);
+                        ImGui::LocalCheckBox("Show Bounding Collision Models", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowBoundingCollisionModels(changeableValue);
@@ -106,7 +110,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowMappings();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Mappings", &changeableValue);
+                        ImGui::LocalCheckBox("Show Mappings", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowMappings(changeableValue);
@@ -116,7 +120,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowMechanicalMappings();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Mechanical Mappings", &changeableValue);
+                        ImGui::LocalCheckBox("Show Mechanical Mappings", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowMechanicalMappings(changeableValue);
@@ -126,7 +130,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowWireFrame();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Wire Frame", &changeableValue);
+                        ImGui::LocalCheckBox("Show Wire Frame", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowWireFrame(changeableValue);
@@ -136,7 +140,7 @@ namespace windows
                     {
                         const bool initialValue = displayFlags.getShowNormals();
                         bool changeableValue = initialValue;
-                        ImGui::Checkbox("Show Normals", &changeableValue);
+                        ImGui::LocalCheckBox("Show Normals", &changeableValue);
                         if (changeableValue != initialValue)
                         {
                             displayFlags.setShowNormals(changeableValue);

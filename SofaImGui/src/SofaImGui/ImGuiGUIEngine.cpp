@@ -312,6 +312,7 @@ void ImGuiGUIEngine::initDockSpace()
         ImGui::DockBuilderDockWindow(m_myRobotWindow.getName().c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_moveWindow.getName().c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_sceneGraphWindow.getName().c_str(), dock_id_right);
+        ImGui::DockBuilderDockWindow(m_displayFlagsWindow.getName().c_str(), dock_id_right);
 
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.32f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
@@ -409,6 +410,7 @@ void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_myRobotWindow.showWindow(windowFlags);
     m_moveWindow.showWindow(windowFlags);
     m_sceneGraphWindow.showWindow(groot, windowFlags);
+    m_displayFlagsWindow.showWindow(groot, windowFlags);
 
 }
 
@@ -451,6 +453,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::Separator();
 
+            ImGui::LocalCheckBox(m_displayFlagsWindow.getName().c_str(), &m_displayFlagsWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isWindowOpen());
 
             ImGui::EndMenu();

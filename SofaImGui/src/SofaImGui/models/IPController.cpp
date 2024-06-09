@@ -177,7 +177,7 @@ void IPController::setTCPTargetPosition(const double &x, const double &y, const 
     }
 }
 
-void IPController::setActuators(const std::vector<Actuator> &actuators)
+void IPController::applyActuatorsForce(const std::vector<Actuator> &actuators)
 {
     m_actuators = actuators;
     m_updateSolutionOnSolveEndEvent = true;
@@ -215,9 +215,7 @@ void IPController::handleEvent(sofa::core::objectmodel::Event *event)
             else
             {
                 // TODO solve the direct kinematics. And handle contacts.
-                // Use a GenericConstraintSolver in the scene?
-                // --> needs different constraint component, should we merge inverse and direct component?
-                // meanwhile...
+                // Add a direct solver to the QPInverseProblemSolver
                 std::vector<double> d(m_actuators.size());
                 for (const auto& a1: m_actuators)
                     lambda[a1.indexInProblem] = 0;
