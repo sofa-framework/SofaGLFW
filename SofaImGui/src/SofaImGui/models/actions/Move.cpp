@@ -30,17 +30,11 @@ Move::Move(const RigidCoord& initialPoint,
            IPController::SPtr IPController,
            const bool &freeInRotation,
            Type type):
-                        Action(duration),
-                        m_initialPoint(initialPoint),
-                        m_waypoint(waypoint),
-                        m_IPController(IPController),
-                        m_freeInRotation(freeInRotation),
+                        StartMove(initialPoint, waypoint, duration, IPController, freeInRotation),
                         m_type(type),
                         view(*this)
 {
-    checkDuration(); // minimum duration for a move is set to 1 second
     setComment("Move to waypoint");
-    m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
     m_groot = m_IPController->getRootNode();
     addTrajectoryComponent(m_groot);
 }
@@ -49,27 +43,6 @@ Move::~Move()
 {
     if (m_groot)
         m_groot->removeObject(m_trajectory);
-}
-
-bool Move::apply(RigidCoord &position, const double &time)
-{
-    bool hasChanged = true;
-
-    if (m_freeInRotation)
-    {
-        RigidCoord interpolatedPosition = getInterpolatedPosition(time);
-        position[0] = interpolatedPosition[0];
-        position[1] = interpolatedPosition[1];
-        position[2] = interpolatedPosition[2];
-    }
-    else
-    {
-        position = getInterpolatedPosition(time);
-    }
-
-    m_IPController->setFreeInRotation(m_freeInRotation, m_freeInRotation, m_freeInRotation);
-
-    return hasChanged;
 }
 
 void Move::addTrajectoryComponent(sofa::simulation::Node::SPtr groot)
@@ -92,56 +65,9 @@ void Move::setDrawTrajectory(const bool &drawTrajectory)
     m_trajectory->f_listening.setValue(drawTrajectory);
 }
 
-void Move::checkDuration()
-{
-    if (m_duration < m_minDuration)
-        m_duration = m_minDuration;
-}
-
-void Move::checkSpeed()
-{
-    if (m_speed < m_minSpeed)
-        m_speed = m_minSpeed;
-}
-
-void Move::computeSpeed()
-{
-    m_speed = (m_initialPoint - m_waypoint).norm() / m_duration;
-}
-
-void Move::computeDuration()
-{
-    m_duration = (m_initialPoint - m_waypoint).norm() / m_speed;
-    checkDuration();
-}
-
-void Move::setDuration(const double& duration)
-{
-    m_duration = duration;
-    checkDuration();
-    computeSpeed();
-}
-
-void Move::setSpeed(const double& speed)
-{
-    m_speed = speed;
-    checkSpeed();
-    computeDuration();
-}
-
 void Move::setInitialPoint(const RigidCoord& initialPoint)
 {
-    m_initialPoint = initialPoint;
-    computeSpeed();
-
-    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
-}
-
-void Move::setWaypoint(const RigidCoord& waypoint)
-{
-    m_waypoint = waypoint;
-    computeSpeed();
-
+    StartMove::setInitialPoint(initialPoint);
     m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
 }
 

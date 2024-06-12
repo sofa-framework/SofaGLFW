@@ -26,6 +26,7 @@
 #include <SofaImGui/models/modifiers/Modifier.h>
 #include <SofaImGui/models/actions/Action.h>
 #include <SofaImGui/models/actions/Move.h>
+#include <SofaImGui/models/actions/StartMove.h>
 #include <SofaImGui/models/IPController.h>
 
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
@@ -40,14 +41,20 @@ class Track
     typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
-    
-    Track(models::IPController::SPtr IPController): m_IPController(IPController) {};
+
+    Track(models::IPController::SPtr IPController);
+    Track(models::IPController::SPtr IPController, std::shared_ptr<actions::StartMove> startMove);
     ~Track() = default;
 
     void clear();
 
-    std::vector<std::shared_ptr<actions::Action>> getActions() {return m_actions;}
+    std::shared_ptr<actions::StartMove> getStartMove() {return m_startmove;}
+
+    const std::vector<std::shared_ptr<actions::Action>>& getActions() {return m_actions;}
     std::shared_ptr<actions::Action> getAction(const sofa::Index& actionIndex) {return m_actions[actionIndex];}
+
+    const std::vector<std::shared_ptr<modifiers::Modifier>>& getModifiers() {return m_modifiers;}
+    std::shared_ptr<modifiers::Modifier> getModifier(const sofa::Index& modifierIndex) {return m_modifiers[modifierIndex];}
 
     void pushAction(std::shared_ptr<actions::Action> action);
     void pushMove(std::shared_ptr<actions::Move> move);
@@ -63,9 +70,6 @@ class Track
 
     void updateNextMoveInitialPoint(const sofa::Index &actionIndex, const RigidCoord &initialPoint);
 
-    const std::vector<std::shared_ptr<modifiers::Modifier>>& getModifiers() {return m_modifiers;}
-    std::shared_ptr<modifiers::Modifier> getModifier(const sofa::Index& modifierIndex) {return m_modifiers[modifierIndex];}
-
     void pushModifier(std::shared_ptr<modifiers::Modifier> modifier);
     void pushRepeat();
 
@@ -79,6 +83,7 @@ class Track
    protected:
     
     models::IPController::SPtr m_IPController;
+    std::shared_ptr<actions::StartMove> m_startmove;
     std::vector<std::shared_ptr<actions::Action>> m_actions;
     std::vector<std::shared_ptr<modifiers::Modifier>> m_modifiers;
 

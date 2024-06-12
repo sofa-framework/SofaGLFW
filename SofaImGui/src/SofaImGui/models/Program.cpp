@@ -51,9 +51,8 @@ bool Program::importProgram(const std::string &filename)
 
             for(const auto* e = t->FirstChildElement("action"); e != nullptr; e = e->NextSiblingElement("action"))
             {
-                if (strcmp(e->FirstAttribute()->Value(), "move") == 0)
+                if (strcmp(e->FirstAttribute()->Value(), "move") == 0 || strcmp(e->FirstAttribute()->Value(), "startmove") == 0)
                 {
-                    std::shared_ptr<actions::Move> move;
                     if (!e->FindAttribute("wp"))
                         return false;
                     RigidCoord wp;
@@ -71,21 +70,34 @@ bool Program::importProgram(const std::string &filename)
                         return false;
                     bool freeInRotation = e->FindAttribute("freeInRotation")->BoolValue();
 
-                    if (!e->FindAttribute("type"))
-                        return false;
-                    actions::Move::Type type = static_cast<actions::Move::Type>(e->FindAttribute("type")->IntValue());
+                    if (strcmp(e->FirstAttribute()->Value(), "startmove") == 0)
+                    {
+                        auto startmove = track->getStartMove();
+                        startmove->setWaypoint(wp);
+                        startmove->setDuration(duration);
+                        startmove->setFreeInRotation(freeInRotation);
+                        if (e->FindAttribute("comment"))
+                            startmove->setComment(e->Attribute("comment"));
+                    }
+                    else
+                    {
+                        std::shared_ptr<actions::Move> move;
+                        if (!e->FindAttribute("type"))
+                            return false;
+                        actions::Move::Type type = static_cast<actions::Move::Type>(e->FindAttribute("type")->IntValue());
 
-                            // Create the move
-                    move = std::make_shared<actions::Move>(RigidCoord(),
-                                                           wp,
-                                                           duration,
-                                                           m_IPController,
-                                                           freeInRotation,
-                                                           type);
+                        // Create the move
+                        move = std::make_shared<actions::Move>(RigidCoord(),
+                                                               wp,
+                                                               duration,
+                                                               m_IPController,
+                                                               freeInRotation,
+                                                               type);
 
-                    if (e->FindAttribute("comment"))
-                        move->setComment(e->Attribute("comment"));
-                    track->pushMove(move);
+                        if (e->FindAttribute("comment"))
+                            move->setComment(e->Attribute("comment"));
+                        track->pushMove(move);
+                    }
                 }
                 else if (strcmp(e->FirstAttribute()->Value(), "pick") == 0)
                 {
@@ -171,6 +183,28 @@ void Program::exportProgram(const std::string &filename)
         {
             tinyxml2::XMLNode * xmlTrack = document.NewElement("track");
             xmlProgram->InsertEndChild(xmlTrack);
+
+            { // STARTMOVE
+                tinyxml2::XMLElement * xmlStartMove = document.NewElement("action");
+                auto startmove = track->getStartMove();
+                if (xmlStartMove != nullptr)
+                {
+                    xmlStartMove->SetAttribute("name", "startmove");
+                    const auto &waypoint = startmove->getWaypoint();
+                    std::string wp = std::to_string(waypoint[0]) + " "
+                                     + std::to_string(waypoint[1]) + " "
+                                     + std::to_string(waypoint[2]) + " "
+                                     + std::to_string(waypoint[3]) + " "
+                                     + std::to_string(waypoint[4]) + " "
+                                     + std::to_string(waypoint[5]) + " "
+                                     + std::to_string(waypoint[6]) + " ";
+                    xmlStartMove->SetAttribute("wp", wp.c_str());
+                    xmlStartMove->SetAttribute("duration", startmove->getDuration());
+                    xmlStartMove->SetAttribute("freeInRotation", startmove->isFreeInRotation());
+                    xmlStartMove->SetAttribute("comment", startmove->getComment());
+                    xmlTrack->InsertEndChild(xmlStartMove);
+                }
+            }
 
             const auto actions = track->getActions();
             for (const auto& action: actions)

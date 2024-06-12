@@ -20,30 +20,31 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
-#include <SofaImGui/models/actions/Wait.h>
-#include <imgui.h>
+#include <SofaImGui/models/actions/StartMove.h>
 #include <imgui_internal.h>
 #include <ProgramStyle.h>
 #include <SofaImGui/widgets/Buttons.h>
-
+#include <IconsFontAwesome6.h>
 
 namespace sofaimgui::models::actions {
 
-bool Wait::WaitView::showBlock(const std::string &label,
-                               const ImVec2 &size)
+bool StartMove::StartMoveView::showBlock(const std::string &label,
+                                         const ImVec2 &size)
 {
     bool hasValuesChanged = false;
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-    float x = window->DC.CursorPos.x ;
-    float y = window->DC.CursorPos.y ;
+    double x = window->DC.CursorPos.x ;
+    double y = window->DC.CursorPos.y ;
 
-    ImVec2 padding(ImGui::GetStyle().FramePadding);
     ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
     ImVec2 topRight = ImVec2(x + size.x, y);
 
-    ImGui::ActionBlock(label.c_str(), bb, ProgramColors().WaitBlockBg);
+    ImGui::ActionBlock(label.c_str(), bb, ProgramColors().StartMoveBlockBg);
+
+    ImVec2 padding(ImGui::GetStyle().FramePadding);
+    ImVec2 spacing(ImGui::GetStyle().ItemSpacing);
 
     auto rectMin = ImGui::GetItemRectMin();
     auto rectMax = ImGui::GetItemRectMax();
@@ -51,7 +52,7 @@ bool Wait::WaitView::showBlock(const std::string &label,
     ImGui::PushClipRect(rectMin, rectMax, true);
 
     ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().Text);
-    { // Wait
+    { // Move
         x += padding.y;
         y += padding.y;
 
@@ -65,7 +66,7 @@ bool Wait::WaitView::showBlock(const std::string &label,
 
         std::string id = "##comment" + std::to_string(window->DC.CursorPos.x);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0., 0., 0., 0.));
-        if(ImGui::InputText(id.c_str(), wait.getComment(), models::actions::Action::COMMENTSIZE))
+        if (ImGui::InputText(id.c_str(), start.getComment(), models::actions::Action::COMMENTSIZE))
         {
             hasValuesChanged = true;
         }
@@ -75,11 +76,11 @@ bool Wait::WaitView::showBlock(const std::string &label,
     }
     ImGui::PopStyleColor();
 
-    std::string text = "duration";
+    std::string text = "wp.pos";
     ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
     y += textSize.y + padding.y * 3;
 
-    { // Duration
+    { // Way point position
         bb.Min = ImVec2(x, y);
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
@@ -91,22 +92,79 @@ bool Wait::WaitView::showBlock(const std::string &label,
         ImGui::PopStyleColor();
 
         window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
-        window->DC.CursorPos.y = y;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
-        ImGui::PushItemWidth(ProgramSizes().InputWidth);
-        std::string id = "##duration" + std::to_string(window->DC.CursorPos.x);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
-        ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
-        double duration = wait.getDuration();
-        if (ImGui::InputDouble(id.c_str(), &duration, 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
+        RigidCoord waypoint = start.getWaypoint();
+        for (int i=0; i<3; i++)
         {
-            hasValuesChanged = true;
-            wait.setDuration(duration);
+            window->DC.CursorPos.y = y;
+            std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
+
+            ImGui::PushItemWidth(ProgramSizes().InputWidth);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
+            ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
+            if (ImGui::InputDouble(id.c_str(), &waypoint[i], 0, 0, "%0.f", ImGuiInputTextFlags_CharsNoBlank))
+            {
+                hasValuesChanged = true;
+                start.setWaypoint(waypoint);
+                start.computeSpeed();
+            }
+            ImGui::PopStyleColor(2);
+            ImGui::PopItemWidth();
+
+            ImGui::SameLine();
         }
-        ImGui::PopStyleColor(2);
-        ImGui::SameLine();
-        ImGui::PopItemWidth();
+        ImGui::PopStyleVar();
+    }
+
+    text = "wp.rot";
+    textSize = ImGui::CalcTextSize(text.c_str());
+    y = spacing.y + bb.Max.y;
+
+    { // Way point rotation
+        bb.Min = ImVec2(x, y);
+        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
+                        y + textSize.y + padding.y * 2);
+
+        window->DC.CursorPos.x = x;
+        window->DC.CursorPos.y = y;
+
+        std::string label = text + " " + (start.isFreeInRotation()? ICON_FA_LOCK_OPEN: ICON_FA_LOCK) + "##wp.rot" + std::to_string(window->DC.CursorPos.x);
+        if (ImGui::Button(label.c_str()))
+        {
+            start.setFreeInRotation(!start.isFreeInRotation());
+        }
+        ImGui::SetItemTooltip("When unlocked, TCP movement is free in rotation.");
+
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
+        RigidCoord waypoint = start.getWaypoint();
+        for (int i=3; i<7; i++)
+        {
+            window->DC.CursorPos.y = y;
+            std::string id = "##wp" + std::to_string(window->DC.CursorPos.x + i);
+
+            ImGui::PushItemWidth(ProgramSizes().InputWidth);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
+            ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
+
+            if(start.isFreeInRotation())
+                ImGui::BeginDisabled();
+            if (ImGui::InputDouble(id.c_str(), &waypoint[i], 0, 0, "%0.2f", ImGuiInputTextFlags_CharsNoBlank))
+            {
+                hasValuesChanged = true;
+                start.setWaypoint(waypoint);
+                start.computeSpeed();
+            }
+            if(start.isFreeInRotation())
+                ImGui::EndDisabled();
+
+            ImGui::PopStyleColor(2);
+            ImGui::PopItemWidth();
+
+            ImGui::SameLine();
+        }
         ImGui::PopStyleVar();
     }
 

@@ -42,7 +42,7 @@ class Action
     {
     }
 
-    ~Action() = default;
+    virtual ~Action() = default;
     
     virtual bool apply(RigidCoord &/*position*/, const double &/*time*/){return false;}
     virtual void computeDuration(){}

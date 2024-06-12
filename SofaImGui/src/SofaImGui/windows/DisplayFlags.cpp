@@ -51,102 +51,106 @@ namespace sofaimgui::windows
         {
             if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
             {
-                sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
-                groot->get(visualStyle);
-                if (visualStyle)
+                if (ImGui::LocalBeginCollapsingHeader("Show / Hide", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->d_displayFlags).wref();
-
+                    ImGui::Indent();
+                    sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
+                    groot->get(visualStyle);
+                    if (visualStyle)
                     {
-                        const bool initialValue = displayFlags.getShowVisualModels();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Visual Models", &changeableValue);
-                        if (changeableValue != initialValue)
+                        auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->d_displayFlags).wref();
+
                         {
-                            displayFlags.setShowVisualModels(changeableValue);
+                            const bool initialValue = displayFlags.getShowVisualModels();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Visual Models", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowVisualModels(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowBehaviorModels();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Behavior Models", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowBehaviorModels(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowForceFields();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Force Fields", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowForceFields(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowCollisionModels();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Collision Models", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowCollisionModels(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowBoundingCollisionModels();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Bounding Collision Models", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowBoundingCollisionModels(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowMappings();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Mappings", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowMappings(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowMechanicalMappings();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Mechanical Mappings", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowMechanicalMappings(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowWireFrame();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Wire Frame", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowWireFrame(changeableValue);
+                            }
+                        }
+
+                        {
+                            const bool initialValue = displayFlags.getShowNormals();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Normals", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowNormals(changeableValue);
+                            }
                         }
                     }
-
-                    {
-                        const bool initialValue = displayFlags.getShowBehaviorModels();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Behavior Models", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowBehaviorModels(changeableValue);
-                        }
-                    }
-
-                    {
-                        const bool initialValue = displayFlags.getShowForceFields();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Force Fields", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowForceFields(changeableValue);
-                        }
-                    }
-
-                    {
-                        const bool initialValue = displayFlags.getShowCollisionModels();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Collision Models", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowCollisionModels(changeableValue);
-                        }
-                    }
-
-                    {
-                        const bool initialValue = displayFlags.getShowBoundingCollisionModels();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Bounding Collision Models", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowBoundingCollisionModels(changeableValue);
-                        }
-                    }
-
-                    {
-                        const bool initialValue = displayFlags.getShowMappings();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Mappings", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowMappings(changeableValue);
-                        }
-                    }
-
-                    {
-                        const bool initialValue = displayFlags.getShowMechanicalMappings();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Mechanical Mappings", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowMechanicalMappings(changeableValue);
-                        }
-                    }
-
-                    {
-                        const bool initialValue = displayFlags.getShowWireFrame();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Wire Frame", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowWireFrame(changeableValue);
-                        }
-                    }
-
-                    {
-                        const bool initialValue = displayFlags.getShowNormals();
-                        bool changeableValue = initialValue;
-                        ImGui::LocalCheckBox("Show Normals", &changeableValue);
-                        if (changeableValue != initialValue)
-                        {
-                            displayFlags.setShowNormals(changeableValue);
-                        }
-                    }
-
+                    ImGui::Unindent();
                 }
             }
             ImGui::End();

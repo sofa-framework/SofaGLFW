@@ -62,7 +62,6 @@ void moduleAddProgramWindow(py::module &m)
             }
         }, "Add pick action to the program."
         );
-
 }
 
 

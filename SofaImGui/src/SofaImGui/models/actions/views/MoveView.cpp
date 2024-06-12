@@ -48,8 +48,6 @@ bool Move::MoveView::showBlock(const std::string &label,
     else
         move.highlightTrajectory(false);
 
-    std::string text = "Move to Way Point";
-    ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
     ImVec2 padding(ImGui::GetStyle().FramePadding);
     ImVec2 spacing(ImGui::GetStyle().ItemSpacing);
 
@@ -83,8 +81,8 @@ bool Move::MoveView::showBlock(const std::string &label,
     }
     ImGui::PopStyleColor();
 
-    text = "duration";
-    textSize = ImGui::CalcTextSize(text.c_str());
+    std::string text = "duration";
+    ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
     y += textSize.y + padding.y * 3;
 
     { // Duration

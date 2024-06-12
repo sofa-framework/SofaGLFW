@@ -26,11 +26,6 @@
 #include <SofaImGui/windows/BaseWindow.h>
 #include <SofaImGui/models/Program.h>
 
-#include <SofaImGui/models/actions/Move.h>
-#include <SofaImGui/models/actions/Pick.h>
-#include <SofaImGui/models/actions/Wait.h>
-#include <SofaImGui/models/modifiers/Repeat.h>
-
 #include <SofaImGui/models/IPController.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 

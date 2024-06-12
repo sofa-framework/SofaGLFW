@@ -25,6 +25,11 @@
 #include <SofaImGui/Utils.h>
 #include <SofaImGui/widgets/Buttons.h>
 
+#include <SofaImGui/models/actions/Move.h>
+#include <SofaImGui/models/actions/Pick.h>
+#include <SofaImGui/models/actions/Wait.h>
+#include <SofaImGui/models/modifiers/Repeat.h>
+
 #include <sofa/helper/system/FileSystem.h>
 
 #include <imgui_internal.h>
@@ -80,6 +85,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
             static float zoomCoef = 6.;
             static float minSize = ImGui::GetFrameHeight() * 1.5;
             ProgramSizes().TimelineOneSecondSize = zoomCoef * minSize;
+            ProgramSizes().StartMoveBlockSize = 6. * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
             if (ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
                                        ImGuiWindowFlags_AlwaysHorizontalScrollbar))
@@ -248,6 +254,7 @@ void ProgramWindow::showTimeline()
     float indentSize = ImGui::GetFrameHeight();
     ImGui::Indent(indentSize);
 
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
     const ImRect frame_bb(ImVec2(m_trackBeginPos.x, m_trackBeginPos.y - ImGui::GetFrameHeight() * 1.5),
                           ImVec2(m_trackBeginPos.x + width, m_trackBeginPos.y));
     const ImGuiID id = ImGui::GetID("##timeline");
@@ -256,6 +263,7 @@ void ProgramWindow::showTimeline()
     ImGui::SetItemTooltip("Simulation time");
 
     ImGui::BeginGroup(); // Timeline's number (seconds)
+    window->DC.CursorPos.x = m_trackBeginPos.x;
     for (int i=0 ; i<nbSteps; i++)
     {
         std::string text = std::to_string(i) + " s";
@@ -267,12 +275,12 @@ void ProgramWindow::showTimeline()
     }
     ImGui::EndGroup();
 
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
     ImGui::NewLine();
     ImGui::BeginGroup(); // Timeline's lines
     ImGui::SameLine();
+    window->DC.CursorPos.x = m_trackBeginPos.x;
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ProgramSizes().TimelineOneSecondSize / 10, 0.f));
     float height = ImGui::GetFrameHeight() / 3.f;
     float heightSpace = height / 4.f;
@@ -364,6 +372,7 @@ int ProgramWindow::showTracks()
 
         ImGui::SameLine();
         m_trackBeginPos = ImGui::GetCurrentWindow()->DC.CursorPos;
+        m_trackBeginPos.x += ProgramSizes().StartMoveBlockSize;
         showBlocks(track, trackIndex);
 
         { // Empty track background
@@ -508,7 +517,17 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
     ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.x = x;
     ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.y = y;
 
-            // Action blocks
+    // StartMove block
+    {
+        std::shared_ptr<models::actions::StartMove> startmove = track->getStartMove();
+        std::string blockLabel = "##StartMove" + std::to_string(trackIndex);
+        if (startmove->getView()->showBlock(blockLabel, ImVec2(ProgramSizes().StartMoveBlockSize, blockHeight)))
+        {
+            track->updateNextMoveInitialPoint(-1, startmove->getWaypoint());
+        }
+    }
+
+    // Action blocks
     const std::vector<std::shared_ptr<models::actions::Action>> &actions = track->getActions();
     sofa::Index actionIndex = 0;
     while(actionIndex < actions.size())

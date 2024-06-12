@@ -26,59 +26,70 @@
 
 #include <sofa/simulation/Node.h>
 #include <SofaImGui/models/Trajectory.h>
-#include <SofaImGui/models/actions/StartMove.h>
+#include <SofaImGui/models/actions/Action.h>
 #include <SofaImGui/models/IPController.h>
 
 namespace sofaimgui::models::actions {
 
-class Move : public StartMove
+class StartMove : public Action
 {
     typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
     typedef sofa::defaulttype::Rigid3Types::VecCoord VecCoord;
 
    public:
 
-    enum Type {
-        LINE
-    };
+    StartMove(const RigidCoord& initialPoint,
+              const RigidCoord& waypoint,
+              const double& duration,
+              IPController::SPtr IPController,
+              const bool& freeInRotation = true);
 
-    Move(const RigidCoord& initialPoint,
-         const RigidCoord& waypoint,
-         const double& duration,
-         IPController::SPtr IPController,
-         const bool& freeInRotation = true,
-         Type type = LINE);
+    virtual ~StartMove();
+    
+    bool apply(RigidCoord&, const double &time) override;
+    void computeDuration() override;
+    void computeSpeed() override;
+    void setDuration(const double& duration) override;
+    void setSpeed(const double& speed) override;
 
-    virtual ~Move();
+    const RigidCoord& getInitialPoint() {return m_initialPoint;}
+    void setWaypoint(const RigidCoord& waypoint);
+    const RigidCoord& getWaypoint() {return m_waypoint;}
 
-    void setInitialPoint(const RigidCoord& initialPoint) override;
-    RigidCoord getInterpolatedPosition(const double& time) override;
+    virtual void setInitialPoint(const RigidCoord& initialPoint);
+    virtual RigidCoord getInterpolatedPosition(const double& time);
 
-    void setType(Type type) {m_type = type;}
-    Type getType() {return m_type;}
-
-    void addTrajectoryComponent(sofa::simulation::Node::SPtr groot);
-    void highlightTrajectory(const bool &highlight);
-    void setDrawTrajectory(const bool &drawTrajectory);
+    bool isFreeInRotation() {return m_freeInRotation;}
+    void setFreeInRotation(const bool &freeInRotation) {m_freeInRotation=freeInRotation;}
 
    protected:
 
-    const Trajectory::SPtr m_trajectory = sofa::core::objectmodel::New<Trajectory>();
-    sofa::simulation::Node::SPtr m_groot;
+    // TODO: initialPoint, duration and speed is not used here, should be moved to Move.h
+    RigidCoord m_initialPoint;
+    RigidCoord m_waypoint;
 
-    Type m_type;
+    double m_minDuration{0.5};
+    double m_minSpeed{10};
+    double m_maxSpeed; // TODO: set
 
-    class MoveView : public ActionView
+    IPController::SPtr m_IPController;
+
+    bool m_freeInRotation;
+
+    void checkDuration();
+    void checkSpeed();
+
+    class StartMoveView : public ActionView
     {
        public:
-        MoveView(Move &_move) : move(_move) {}
+        StartMoveView(StartMove &_start) : start(_start) {}
         bool showBlock(const std::string &label,
                        const ImVec2 &size);
 
        protected:
-        Move &move;
+        StartMove &start;
     };
-    MoveView view;
+    StartMoveView view;
 
    public :
 

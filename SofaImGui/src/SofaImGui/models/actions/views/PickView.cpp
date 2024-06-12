@@ -45,10 +45,6 @@ bool Pick::PickView::showBlock(const std::string &label,
 
     ImGui::ActionBlock(label.c_str(), bb, ProgramColors().PickBlockBg);
 
-    std::string text = "Pick";
-    ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
-
-
     auto rectMin = ImGui::GetItemRectMin();
     auto rectMax = ImGui::GetItemRectMax();
     rectMax.x -= padding.x;
@@ -79,8 +75,8 @@ bool Pick::PickView::showBlock(const std::string &label,
     }
     ImGui::PopStyleColor();
 
-    text = "duration";
-    textSize = ImGui::CalcTextSize(text.c_str());
+    std::string text = "duration";
+    ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
     y += textSize.y + padding.y * 3;
 
     { // Duration

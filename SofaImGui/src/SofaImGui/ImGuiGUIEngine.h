@@ -89,7 +89,7 @@ public:
     windows::PlottingWindow m_plottingWindow = windows::PlottingWindow("       Plotting", true);
     windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("       My Robot", true);
     windows::MoveWindow m_moveWindow = windows::MoveWindow("       Move", true);
-    windows::DisplayFlagsWindow m_displayFlagsWindow = windows::DisplayFlagsWindow("       Display Flags", false);
+    windows::DisplayFlagsWindow m_displayFlagsWindow = windows::DisplayFlagsWindow("       Display Options", false);
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;

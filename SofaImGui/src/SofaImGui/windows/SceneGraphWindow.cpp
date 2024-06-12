@@ -497,6 +497,11 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                 ImGui::EndTabBar();
             }
         }
+        else
+        {
+            ImGui::PopStyleColor();
+        }
+
         ImGui::End();
         if (!isOpen)
         {

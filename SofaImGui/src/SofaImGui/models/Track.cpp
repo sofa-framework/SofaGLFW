@@ -25,6 +25,23 @@
 
 namespace sofaimgui::models {
 
+Track::Track(models::IPController::SPtr IPController)
+    : m_IPController(IPController)
+{
+    m_startmove = std::make_shared<models::actions::StartMove>(m_IPController->getTCPTargetInitPosition(),
+                                                               m_IPController->getTCPTargetInitPosition(),
+                                                               0.5,
+                                                               m_IPController,
+                                                               true);
+}
+
+Track::Track(models::IPController::SPtr IPController,
+             std::shared_ptr<actions::StartMove> startMove)
+    : m_IPController(IPController)
+    , m_startmove(startMove)
+{
+}
+
 void Track::clear()
 {
     m_actions.clear();
@@ -69,7 +86,7 @@ void Track::pushAction(std::shared_ptr<actions::Action> action)
 void Track::pushMove(std::shared_ptr<actions::Move> move)
 {
     std::shared_ptr<actions::Move> previous = getPreviousMove(m_actions.size());
-    move->setInitialPoint((previous!=nullptr)? previous->getWaypoint(): m_IPController->getTCPTargetInitPosition());
+    move->setInitialPoint((previous!=nullptr)? previous->getWaypoint(): m_startmove->getWaypoint());
     pushAction(move);
 }
 
@@ -100,7 +117,7 @@ void Track::insertAction(const sofa::Index &actionIndex, std::shared_ptr<actions
 void Track::insertMove(const sofa::Index &actionIndex)
 {
     std::shared_ptr<actions::Move> previous = getPreviousMove(actionIndex);
-    auto move = std::make_shared<actions::Move>((previous!=nullptr)? previous->getWaypoint(): m_IPController->getTCPTargetInitPosition(),
+    auto move = std::make_shared<actions::Move>((previous!=nullptr)? previous->getWaypoint(): m_startmove->getWaypoint(),
                                                 m_IPController->getTCPTargetPosition(),
                                                 actions::Action::DEFAULTDURATION,
                                                 m_IPController,
