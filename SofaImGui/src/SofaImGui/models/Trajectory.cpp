@@ -31,7 +31,6 @@ using sofa::type::RGBAColor;
 
 Trajectory::Trajectory()
 {
-    m_drawRatio *= ImGui::GetWindowDpiScale();
 }
 
 void Trajectory::draw(const sofa::core::visual::VisualParams* vparams)

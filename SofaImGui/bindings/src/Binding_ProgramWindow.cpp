@@ -60,7 +60,17 @@ void moduleAddProgramWindow(py::module &m)
                 models::actions::Pick::openingDistance = openingDistance;
                 models::actions::Pick::distance = data;
             }
-        }, "Add pick action to the program."
+        }, "Add the pick action to the program window."
+        );
+
+    m_a.def("importProgram",
+        [engine](std::string filename)
+        {
+            if (engine)
+            {
+                engine->m_programWindow.m_program.importProgram(filename);
+            }
+        }, "Import a program."
         );
 }
 

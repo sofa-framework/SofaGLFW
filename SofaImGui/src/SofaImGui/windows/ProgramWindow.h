@@ -53,7 +53,7 @@ class ProgramWindow : public BaseWindow
     void setTime(const double &time) {m_time=time;}
     void setIPController(models::IPController::SPtr IPController);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
-    
+
     void addTrajectoryComponents(sofa::simulation::Node* groot);
 
    protected:
