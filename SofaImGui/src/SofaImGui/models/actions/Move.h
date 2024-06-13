@@ -52,6 +52,7 @@ class Move : public StartMove
     virtual ~Move();
 
     void setInitialPoint(const RigidCoord& initialPoint) override;
+    void setWaypoint(const RigidCoord& waypoint) override;
     RigidCoord getInterpolatedPosition(const double& time) override;
 
     void setType(Type type) {m_type = type;}

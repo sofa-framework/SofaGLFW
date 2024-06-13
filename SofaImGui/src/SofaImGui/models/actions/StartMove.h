@@ -53,9 +53,9 @@ class StartMove : public Action
     void setSpeed(const double& speed) override;
 
     const RigidCoord& getInitialPoint() {return m_initialPoint;}
-    void setWaypoint(const RigidCoord& waypoint);
     const RigidCoord& getWaypoint() {return m_waypoint;}
 
+    virtual void setWaypoint(const RigidCoord& waypoint);
     virtual void setInitialPoint(const RigidCoord& initialPoint);
     virtual RigidCoord getInterpolatedPosition(const double& time);
 

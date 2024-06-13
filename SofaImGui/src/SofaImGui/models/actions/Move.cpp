@@ -71,6 +71,13 @@ void Move::setInitialPoint(const RigidCoord& initialPoint)
     m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
 }
 
+void Move::setWaypoint(const RigidCoord& waypoint)
+{
+    StartMove::setWaypoint(waypoint);
+    m_trajectory->setPositions(VecCoord{m_initialPoint, m_waypoint});
+}
+
+
 sofa::defaulttype::RigidCoord<3, double> Move::getInterpolatedPosition(const double& time)
 {
     RigidCoord interpolatedPosition;
