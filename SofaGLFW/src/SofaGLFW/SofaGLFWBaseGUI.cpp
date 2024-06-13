@@ -41,6 +41,8 @@
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/simulation/SimulationLoop.h>
 
+#include <sofa/core/objectmodel/KeypressedEvent.h>
+#include <sofa/core/objectmodel/KeyreleasedEvent.h>
 using namespace sofa;
 
 namespace sofaglfw
@@ -489,23 +491,63 @@ void SofaGLFWBaseGUI::error_callback(int error, const char* description)
     SOFA_UNUSED(error);
     msg_error("SofaGLFWBaseGUI") << "Error: " << description << ".";
 }
- 
+
+int SofaGLFWBaseGUI::handleArrowKeys(int key)
+{
+    // Handling arrow keys with custom codes
+    switch (key)
+    {
+            case GLFW_KEY_UP: return 19;   // Custom code for up
+            case GLFW_KEY_DOWN: return 21; // Custom code for down
+            case GLFW_KEY_LEFT: return 18; // Custom code for left
+            case GLFW_KEY_RIGHT: return 20; // Custom code for right
+    }
+    // Default case return the given value as GLFW handle it
+    return key;
+}
+
 void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    SOFA_UNUSED(scancode);
+    const char keyName = SofaGLFWBaseGUI::handleArrowKeys(key);
+    const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
+    auto currentGUI = s_mapGUIs.find(window);
+    if (currentGUI == s_mapGUIs.end() || currentGUI->second == nullptr)
+    {
+        return;
+    }
+
+    auto rootNode = currentGUI->second->getRootNode();
+    if (!rootNode)
+    {
+        return;
+    }
+
+    if (isCtrlKeyPressed)
+    {
+        if (action == GLFW_PRESS)
+        {
+            dmsg_info_when(key == GLFW_KEY_LEFT_CONTROL, "SofaGLFWBaseGUI") << "KeyPressEvent, CONTROL pressed";
+
+            sofa::core::objectmodel::KeypressedEvent keyPressedEvent(keyName);
+            rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyPressedEvent);
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            sofa::core::objectmodel::KeyreleasedEvent keyReleasedEvent(keyName);
+            rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyReleasedEvent);
+        }
+    }
+
+    // Handle specific keys for additional functionality
     switch (key)
     {
         case GLFW_KEY_F:
             if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
             {
-                auto currentGUI = s_mapGUIs.find(window);
-                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
-                {
-                    currentGUI->second->switchFullScreen(window);
-                }
+                currentGUI->second->switchFullScreen(window);
             }
-         break;
+            break;
         case GLFW_KEY_ESCAPE:
             if (action == GLFW_PRESS)
             {
@@ -515,35 +557,9 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
         case GLFW_KEY_SPACE:
             if (action == GLFW_PRESS)
             {
-                auto currentGUI = s_mapGUIs.find(window);
-                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
-                {
-                    currentGUI->second->setSimulationIsRunning(!currentGUI->second->simulationIsRunning());
-                }
+                const bool isRunning = currentGUI->second->simulationIsRunning();
+                currentGUI->second->setSimulationIsRunning(!isRunning);
             }
-        break;
-        case GLFW_KEY_LEFT_CONTROL:
-        case GLFW_KEY_RIGHT_CONTROL:
-            if (action == GLFW_PRESS)
-            {
-                auto currentGUI = s_mapGUIs.find(window);
-                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
-                {
-                    currentGUI->second->m_isMouseInteractionEnabled = true;
-                    msg_warning("SofaGLFWBaseGUI") << "Mouse interaction is not yet available";
-
-                }
-            }
-            else if (action == GLFW_RELEASE)
-            {
-                auto currentGUI = s_mapGUIs.find(window);
-                if (currentGUI != s_mapGUIs.end() && currentGUI->second)
-                {
-                    currentGUI->second->m_isMouseInteractionEnabled = false;
-                }
-            }
-        break;
-        default:
             break;
     }
 }

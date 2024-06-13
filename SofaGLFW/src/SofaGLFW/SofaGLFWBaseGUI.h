@@ -64,7 +64,6 @@ public:
     void setWindowWidth(int width) { m_windowWidth = width; }
     int getWindowHeight() const { return m_windowHeight; }
     void setWindowHeight(int height) { m_windowHeight = height; }
-
     void resizeWindow(int width, int height);
 
     GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
@@ -109,6 +108,9 @@ private:
     static void cursor_enter_callback(GLFWwindow* window, int entered);
     static void monitor_callback(GLFWmonitor* monitor, int event);
     static void character_callback(GLFWwindow* window, unsigned int codepoint);
+
+
+    static int handleArrowKeys(int key);
 
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
