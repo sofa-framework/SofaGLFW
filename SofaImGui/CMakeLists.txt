@@ -12,6 +12,8 @@ sofa_find_package(Sofa.Component.Playback REQUIRED)
 
 sofa_find_package(SoftRobots REQUIRED)
 sofa_find_package(SoftRobots.Inverse REQUIRED)
+sofa_find_package(SofaPython3 REQUIRED)
+sofa_find_package(TinyXML2 REQUIRED)
 
 
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
@@ -188,13 +190,7 @@ set(SOURCE_FILES
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.cpp
     # ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
-
-
-
-
 )
-
-sofa_find_package(TinyXML2 REQUIRED)
 
 find_package(ROS QUIET)
 set(SOFAIMGUI_WITH_ROS ${ROS_FOUND})
