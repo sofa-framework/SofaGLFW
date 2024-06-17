@@ -10,6 +10,10 @@ sofa_find_package(SofaGLFW REQUIRED)
 sofa_find_package(Sofa.GL.Component.Rendering3D REQUIRED)
 sofa_find_package(Sofa.Component.Playback REQUIRED)
 
+sofa_find_package(SoftRobots REQUIRED)
+sofa_find_package(SoftRobots.Inverse REQUIRED)
+
+
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(SOFAIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
@@ -210,10 +214,7 @@ if(ROS_FOUND)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${ROS_LIBRARIES})
 endif(ROS_FOUND)
 
-find_package(SofaPython3 QUIET)
-if(SofaPython3_FOUND)
-    add_subdirectory(bindings)
-endif()
+add_subdirectory(bindings)
 
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
