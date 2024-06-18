@@ -30,7 +30,7 @@ namespace sofaglfw
 
 class SofaGLFWBaseGUI;
 
-class SOFAIMGUI_API BaseGUIEngine
+class SOFAGLFW_API BaseGUIEngine
 {
 public:
     
