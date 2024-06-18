@@ -26,7 +26,7 @@
 
 namespace sofaimgui::windows {
 
-class MyRobotWindow : public BaseWindow
+class SOFAIMGUI_API MyRobotWindow : public BaseWindow
 {
    public:
     MyRobotWindow(const std::string& name, const bool& isWindowOpen);

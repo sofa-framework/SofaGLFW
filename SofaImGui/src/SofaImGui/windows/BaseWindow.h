@@ -28,7 +28,7 @@
 
 namespace sofaimgui::windows {
 
-class BaseWindow
+class SOFAIMGUI_API BaseWindow
 {
    public:
     BaseWindow() = default;

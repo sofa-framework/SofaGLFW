@@ -30,7 +30,7 @@ namespace sofaimgui::windows {
 
 #define MAX_NB_PLOT 4
 
-class PlottingWindow : public BaseWindow
+class SOFAIMGUI_API PlottingWindow : public BaseWindow
 {
    public:
 

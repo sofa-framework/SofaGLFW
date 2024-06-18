@@ -27,7 +27,7 @@
 
 namespace sofaimgui::windows {
 
-class MoveWindow : public BaseWindow
+class SOFAIMGUI_API MoveWindow : public BaseWindow
 {
    public:
     MoveWindow(const std::string& name, const bool& isWindowOpen);

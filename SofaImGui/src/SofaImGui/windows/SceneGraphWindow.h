@@ -26,7 +26,7 @@
 
 namespace sofaimgui::windows {
 
-class SceneGraphWindow : public BaseWindow
+class SOFAIMGUI_API SceneGraphWindow : public BaseWindow
 {
    public:
     SceneGraphWindow(const std::string& name, const bool& isWindowOpen);

@@ -54,7 +54,7 @@ namespace sofa::glfw
 namespace sofaimgui
 {
 
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
+class SOFAIMGUI_API ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
 {
 public:
     ImGuiGUIEngine() = default;

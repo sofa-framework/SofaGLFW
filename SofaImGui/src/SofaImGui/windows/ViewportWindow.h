@@ -27,7 +27,7 @@
 
 namespace sofaimgui::windows {
 
-class ViewportWindow : public BaseWindow
+class SOFAIMGUI_API ViewportWindow : public BaseWindow
 {
    public:
     ViewportWindow(const std::string& name, const bool& isWindowOpen, std::shared_ptr<StateWindow> stateWindow);

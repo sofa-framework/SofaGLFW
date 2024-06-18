@@ -28,7 +28,7 @@
 namespace sofaimgui::windows
 {
 
-class DisplayFlagsWindow : public BaseWindow
+class SOFAIMGUI_API DisplayFlagsWindow : public BaseWindow
 {
 public:
     DisplayFlagsWindow(const std::string& name, const bool& isWindowOpen);

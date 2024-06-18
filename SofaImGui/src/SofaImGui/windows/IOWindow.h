@@ -39,7 +39,7 @@ using namespace std::chrono_literals;
 namespace sofaimgui::windows {
 
 #if SOFAIMGUI_WITH_ROS == 1
-class ROSNode: public rclcpp::Node
+class SOFAIMGUI_API ROSNode: public rclcpp::Node
 {
    public:
     ROSNode(const std::string& name): Node(name){}
@@ -47,7 +47,7 @@ class ROSNode: public rclcpp::Node
 
     std::vector<rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr> m_publishers;
     std::vector<rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr> m_subscriptions;
-    
+
     std::map<std::string, std::vector<float>> m_selectedStateToPublish;
     std::map<std::string, bool> m_selectedDigitalOutputToPublish;
     std::map<std::string, std::vector<float>> m_selectedStateToOverwrite;
@@ -111,7 +111,7 @@ class ROSNode: public rclcpp::Node
 #endif
 
 
-class IOWindow : public BaseWindow
+class SOFAIMGUI_API IOWindow : public BaseWindow
 {
    public:
     IOWindow(const std::string& name, const bool& isWindowOpen);

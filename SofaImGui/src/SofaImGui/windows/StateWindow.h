@@ -27,7 +27,7 @@
 
 namespace sofaimgui::windows {
 
-class StateWindow : public BaseWindow
+class SOFAIMGUI_API StateWindow : public BaseWindow
 {
    public:
     StateWindow(const std::string& name, const bool& isWindowOpen);

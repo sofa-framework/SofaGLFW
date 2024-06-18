@@ -34,7 +34,7 @@ struct ImRect;
 
 namespace sofaimgui::windows {
 
-class ProgramWindow : public BaseWindow
+class SOFAIMGUI_API ProgramWindow : public BaseWindow
 {
     typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
