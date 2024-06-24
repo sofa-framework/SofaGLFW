@@ -1,3 +1,4 @@
+
 /******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
@@ -29,8 +30,12 @@
 
 #include <SofaGLFW/BaseGUIEngine.h>
 #include <SofaGLFW/NullGUIEngine.h>
-
+#include <sofa/gui/common/BaseViewer.h>
 #include <memory>
+
+#include <sofa/gui/common/PickHandler.h>
+#include <sofa/gui/common/MouseOperations.h>
+
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -38,107 +43,98 @@ struct GLFWmonitor;
 namespace sofaglfw
 {
 
-class SofaGLFWWindow;
+    class SofaGLFWWindow;
 
-class SOFAGLFW_API SofaGLFWBaseGUI
-{
-public:
-    
-    SofaGLFWBaseGUI();
-    
-    virtual ~SofaGLFWBaseGUI();
+    class SOFAGLFW_API SofaGLFWBaseGUI : public sofa::gui::common::BaseViewer {
+    public:
+        SofaGLFWBaseGUI();
+        virtual ~SofaGLFWBaseGUI();
+        bool init(int nbMSAASamples = 0);
+        void setErrorCallback() const;
+        void setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename = std::string());
+        void setSimulationIsRunning(bool running);
+        bool simulationIsRunning() const;
+        bool createWindow(int width, int height, const char* title, bool fullscreenAtStartup = false);
+        void destroyWindow();
+        void initVisual();
+        std::size_t runLoop(std::size_t targetNbIterations = 0);
+        void terminate();
 
-    bool init(int nbMSAASamples = 0);
-    void setErrorCallback() const;
-    void setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename = std::string());
-    void setSimulationIsRunning(bool running);
-    bool simulationIsRunning() const;
+        int getWindowWidth() const { return m_windowWidth; }
+        void setWindowWidth(int width) { m_windowWidth = width; }
+        int getWindowHeight() const { return m_windowHeight; }
+        void setWindowHeight(int height) { m_windowHeight = height; }
+        void resizeWindow(int width, int height);
 
-    bool createWindow(int width, int height, const char* title, bool fullscreenAtStartup = false);
-    void destroyWindow();
-    void initVisual();
-    std::size_t runLoop(std::size_t targetNbIterations = 0);
-    void terminate();
+        GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
+        virtual void viewAll() override { std::cout << "viewAll() Called" << std::endl; }
+        virtual void saveView() override { std::cout << "saveView() Called" << std::endl; }
+        virtual void setSizeW(int width) override;
+        virtual void setSizeH(int height) override;
+        virtual int getWidth() override;
+        virtual int getHeight() override;
+        virtual void drawScene() override { std::cout << "drawScene() Called" << std::endl; }
+        virtual void redraw() override { std::cout << "redraw() Called" << std::endl; }
 
-    int getWindowWidth() const { return m_windowWidth; }
-    void setWindowWidth(int width) { m_windowWidth = width; }
-    int getWindowHeight() const { return m_windowHeight; }
-    void setWindowHeight(int height) { m_windowHeight = height; }
-    void resizeWindow(int width, int height);
+        bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
+        void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int screenID = 0);
+        void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int windowID = 0);
+        virtual void setBackgroundImage(const std::string& imageFileName = "textures/SOFA_logo.bmp", unsigned int windowID = 0);
 
-    GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
+        sofa::core::sptr<sofa::simulation::Node> getRootNode() const;
+        bool hasWindow() const { return m_firstWindow != nullptr; }
 
-    bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
-    void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int /* screenID */ = 0);
-    void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int /* windowID */ = 0);
-    void setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */ = 0);
+        [[nodiscard]] std::string getFilename() const { return m_filename; }
 
-    sofa::core::sptr<sofa::simulation::Node> getRootNode() const;
-    bool hasWindow() const { return m_firstWindow != nullptr; }
+        sofa::component::visual::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
+        void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
+        void setWindowIcon(GLFWwindow* glfwWindow);
 
-    [[nodiscard]] std::string getFilename() const
-    {
-        return m_filename;
-    }
+        void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine) { m_guiEngine = guiEngine; }
+        std::shared_ptr<BaseGUIEngine> getGUIEngine() { return m_guiEngine; }
 
-    sofa::component::visual::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
-    void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
-    void setWindowIcon(GLFWwindow* glfwWindow);
+    private:
+        sofa::gui::common::PickHandler pickHandler;
+        static std::unique_ptr<sofa::gui::common::AttachOperation> attachOperation;
 
-    void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine)
-    {
-        m_guiEngine = guiEngine;
-    }
-    
-    std::shared_ptr<BaseGUIEngine> getGUIEngine()
-    {
-        return m_guiEngine;
-    }
-    
-private:
-    // GLFW callbacks
-    static void error_callback(int error, const char* description);
-    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
-    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-    static void close_callback(GLFWwindow* window);
-    // empty (as in non-implemented) GLFW callbacks
-    static void window_focus_callback(GLFWwindow* window, int focused);
-    static void cursor_enter_callback(GLFWwindow* window, int entered);
-    static void monitor_callback(GLFWmonitor* monitor, int event);
-    static void character_callback(GLFWwindow* window, unsigned int codepoint);
+        // GLFW callbacks
+        static void error_callback(int error, const char* description);
+        static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+        static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+        static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+        static void close_callback(GLFWwindow* window);
+        static void window_focus_callback(GLFWwindow* window, int focused);
+        static void cursor_enter_callback(GLFWwindow* window, int entered);
+        static void monitor_callback(GLFWmonitor* monitor, int event);
+        static void character_callback(GLFWwindow* window, unsigned int codepoint);
 
+        static int handleArrowKeys(int key);
 
-    static int handleArrowKeys(int key);
+        void makeCurrentContext(GLFWwindow* sofaWindow);
+        void runStep();
 
-    void makeCurrentContext(GLFWwindow* sofaWindow);
-    void runStep();
+        inline static std::map<GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
+        inline static std::map<GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
 
-    // static members
-    inline static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
-    inline static std::map< GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
+        bool m_bGlfwIsInitialized{ false };
+        bool m_bGlewIsInitialized{ false };
 
-    //members
-    bool m_bGlfwIsInitialized{ false };
-    bool m_bGlewIsInitialized{ false };
+        sofa::simulation::NodeSPtr m_groot;
+        std::string m_filename;
+        sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
+        sofa::core::visual::VisualParams* m_vparams{ nullptr };
+        GLFWwindow* m_firstWindow{ nullptr };
+        int m_windowWidth{ 0 };
+        int m_windowHeight{ 0 };
+        int m_lastWindowPositionX{ 0 };
+        int m_lastWindowPositionY{ 0 };
+        int m_lastWindowWidth{ 0 };
+        int m_lastWindowHeight{ 0 };
 
-    sofa::simulation::NodeSPtr m_groot;
-    std::string m_filename;
-    sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
-    sofa::core::visual::VisualParams* m_vparams{ nullptr };
-    GLFWwindow* m_firstWindow{ nullptr };
-    int m_windowWidth{ 0 };
-    int m_windowHeight{ 0 };
-    int m_lastWindowPositionX{ 0 };
-    int m_lastWindowPositionY{ 0 };
-    int m_lastWindowWidth{ 0 };
-    int m_lastWindowHeight{ 0 };
+        bool m_isMouseInteractionEnabled{ false };
 
-    bool m_isMouseInteractionEnabled { false };
-    
-    std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;
-
-};
+        std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;
+    };
 
 } // namespace sofaglfw
