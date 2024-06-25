@@ -610,7 +610,6 @@ namespace sofaglfw
 
     void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     {
-        std::cout<<"callbackkkkkkkkkkk";
         auto currentGUI = s_mapGUIs.find(window);
         if (currentGUI == s_mapGUIs.end() || !currentGUI->second)
         {
@@ -636,6 +635,26 @@ namespace sofaglfw
                 return;
             }
 
+            if (!SofaGLFWBaseGUI::attachOperation)
+            {
+                try
+                {
+                    std::cout << "Creating AttachBodyButtonSetting" << std::endl;
+                    auto attachSetting = sofa::core::objectmodel::New<sofa::gui::component::AttachBodyButtonSetting>();
+                    std::cout << "Creating AttachOperation" << std::endl;
+                    SofaGLFWBaseGUI::attachOperation = std::make_unique<sofa::gui::common::AttachOperation>(attachSetting);
+                    std::cout << "Configuring AttachOperation" << std::endl;
+                    SofaGLFWBaseGUI::attachOperation->configure(currentGUI->second->getPickHandler(), sofa::gui::common::LEFT);
+                    std::cout << "Starting AttachOperation" << std::endl;
+                    SofaGLFWBaseGUI::attachOperation->start();
+
+                }
+                catch (const std::exception& e)
+                {
+                    std::cerr << "Exception during AttachOperation creation or start: " << e.what() << std::endl;
+                    return;
+                }
+            }
 
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);

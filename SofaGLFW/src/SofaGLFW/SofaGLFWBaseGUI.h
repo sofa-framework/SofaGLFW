@@ -60,6 +60,7 @@ namespace sofaglfw
         std::size_t runLoop(std::size_t targetNbIterations = 0);
         void terminate();
 
+        void configureAttachOperation();
         int getWindowWidth() const { return m_windowWidth; }
         void setWindowWidth(int width) { m_windowWidth = width; }
         int getWindowHeight() const { return m_windowHeight; }
