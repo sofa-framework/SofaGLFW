@@ -53,14 +53,14 @@
 namespace windows {
 
     void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot
-                      , const char* const& windowNameProfiler
-                      , bool& isProfilerOpen)
+            , const char* const& windowNameProfiler
+            , WindowState& winManagerProfiler)
     {
-        if (isProfilerOpen)
+        if (*winManagerProfiler.getStatePtr())
         {
             static int selectedFrame = 0;
 
-            if (ImGui::Begin(windowNameProfiler, &isProfilerOpen))
+            if (ImGui::Begin(windowNameProfiler, winManagerProfiler.getStatePtr()))
             {
                 const auto convertInMs = [](sofa::helper::system::thread::ctime_t t)
                 {

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <sofa/simulation/Node.h>
+#include "WindowState.h"
 
 namespace windows
 {
@@ -42,11 +43,11 @@ namespace windows
          */
          void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot,
                            const char* const& windowNameViewport,
-                           bool& isViewportWindowOpen,
                            CSimpleIniA &ini,
                            std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
                            std::pair<float,
                            float>& m_viewportWindowSize,
-                           bool & isMouseOnViewport );
+                           bool & isMouseOnViewport,
+                           WindowState& winManagerViewPort);
 
 } // namespace sofaimgui

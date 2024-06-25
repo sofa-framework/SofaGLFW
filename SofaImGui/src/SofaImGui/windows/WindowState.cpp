@@ -19,35 +19,61 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#pragma once
 
-#include <sofa/simulation/Node.h>
-#include <SofaImGui/config.h>
-
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
-
-#include <imgui.h>
-#include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
+#include <string>
+#include <fstream>
 #include "WindowState.h"
 
 
-namespace windows
-{
+namespace windows {
 
-    /**
-     * @brief Shows the Profiler window.
-     *
-     * This function displays profiling information, including frame durations, timer percentages, and timer durations.
-     *
-     * @param groot The root node of the simulation.
-     * @param windowNameProfiler The name of the Profiler window.
-     * @param isProfilerOpen A reference to a boolean flag indicating if the Profiler window is open.
-     */
-    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
-                      const char* const& windowNameProfiler,
-                      WindowState& winManagerProfiler);
+    WindowState::WindowState(const std::string& filename) : m_filename(filename)
+    {
+        m_isOpen = readState();
+    }
 
-} // namespace sofaimgui
+    WindowState::~WindowState()
+    {
+        writeState();
+    }
+
+    bool *WindowState::getStatePtr()
+    {
+        return &m_isOpen;
+    }
+
+    void WindowState::setState(bool isOpen)
+    {
+        if (m_isOpen != isOpen)
+        {
+            m_isOpen = isOpen;
+            writeState();  // Write state only if it's value changes
+        }
+    }
+
+    bool WindowState::readState()
+    {
+        std::ifstream file(m_filename);
+        if (!file.is_open())
+        {
+            return false; // Default to "CLOSED" if file not found
+        }
+
+        std::string stateStr;
+        std::getline(file, stateStr);
+        return stateStr == "OPEN";
+    }
+
+    void WindowState::writeState()
+    {
+        std::ofstream file(m_filename);
+        if (!file.is_open())
+        {
+            return;
+        }
+
+        file << (m_isOpen ? "OPEN" : "CLOSED");
+    }
+
+} // namespace windows
+

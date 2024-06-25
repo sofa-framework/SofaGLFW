@@ -94,6 +94,8 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.h
+
 
 
 
@@ -115,9 +117,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
-
-
-
+    ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.cpp
 
 )
 

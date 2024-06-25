@@ -21,33 +21,22 @@
 ******************************************************************************/
 #pragma once
 
-#include <sofa/simulation/Node.h>
-#include <SofaImGui/config.h>
+#include <string>
 
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
+namespace windows {
 
-#include <imgui.h>
-#include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
-#include "WindowState.h"
+    class WindowState {
+    public:
+        WindowState(const std::string& filename);
+        ~WindowState();
+        bool * getStatePtr() ;
+        void setState(bool isOpen);
 
+    private:
+        bool readState();
+        void writeState();
+        bool m_isOpen;
+        std::string m_filename;
+    };
 
-namespace windows
-{
-
-    /**
-     * @brief Shows the Profiler window.
-     *
-     * This function displays profiling information, including frame durations, timer percentages, and timer durations.
-     *
-     * @param groot The root node of the simulation.
-     * @param windowNameProfiler The name of the Profiler window.
-     * @param isProfilerOpen A reference to a boolean flag indicating if the Profiler window is open.
-     */
-    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
-                      const char* const& windowNameProfiler,
-                      WindowState& winManagerProfiler);
-
-} // namespace sofaimgui
+} // namespace windows

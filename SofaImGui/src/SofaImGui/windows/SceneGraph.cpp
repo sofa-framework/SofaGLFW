@@ -40,18 +40,18 @@
 #include <sofa/simulation/graph/DAGNode.h>
 #include "SceneGraph.h"
 
-
 namespace windows
 {
-    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot
-                        , const char* const& windowNameSceneGraph
-                        , bool& isSceneGraphWindowOpen
-                        , std::set<sofa::core::objectmodel::BaseObject*>& openedComponents
-                        , std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents)
+
+    void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
+                        const char* const& windowNameSceneGraph,
+                        std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                        std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                        WindowState& winManagerSceneGraph)
     {
-        if (isSceneGraphWindowOpen)
+        if (*winManagerSceneGraph.getStatePtr())
         {
-            if (ImGui::Begin(windowNameSceneGraph, &isSceneGraphWindowOpen))
+            if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getStatePtr()))
             {
                 const bool expand = ImGui::Button(ICON_FA_EXPAND);
                 ImGui::SameLine();
@@ -509,6 +509,7 @@ namespace windows
             {
                 toRemove.push_back(component);
             }
+
         }
         while(!toRemove.empty())
         {
