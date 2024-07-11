@@ -30,7 +30,7 @@
 
 namespace sofaimgui::models::actions {
 
-class Pick : public Action
+class SOFAIMGUI_API Pick : public Action
 {
     typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 

@@ -29,7 +29,7 @@
 
 namespace sofaimgui::models {
 
-class SimulationState
+class SOFAIMGUI_API SimulationState
 {
    public:
 

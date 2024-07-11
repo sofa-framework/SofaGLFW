@@ -34,7 +34,7 @@
 
 namespace sofaimgui::models {
 
-class Program
+class SOFAIMGUI_API Program
 {
     typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 

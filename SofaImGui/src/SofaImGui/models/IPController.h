@@ -32,7 +32,7 @@
 
 namespace sofaimgui::models {
 
-class IPController : public sofa::component::controller::Controller
+class SOFAIMGUI_API IPController : public sofa::component::controller::Controller
 {
    typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
