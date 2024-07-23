@@ -25,7 +25,6 @@
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
-#include <fstream>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualStyle.h>
@@ -34,18 +33,19 @@
 #include <sofa/simulation/graph/DAGNode.h>
 
 #include "DisplayFlags.h"
+#include "WindowState.h"
 
 
 namespace windows
 {
 
-    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot
-                          , const char* const& windowNameDisplayFlags
-                          , bool& isDisplayFlagsWindowOpen)
+    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
+                          const char* const& windowNameDisplayFlags,
+                          WindowState& winManagerDisplayFlags)
     {
-        if (isDisplayFlagsWindowOpen)
+        if (*winManagerDisplayFlags.getStatePtr())
         {
-            if (ImGui::Begin(windowNameDisplayFlags, &isDisplayFlagsWindowOpen))
+            if (ImGui::Begin(windowNameDisplayFlags, winManagerDisplayFlags.getStatePtr()))
             {
                 sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
                 groot->get(visualStyle);

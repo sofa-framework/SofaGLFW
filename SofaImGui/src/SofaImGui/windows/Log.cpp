@@ -31,22 +31,26 @@
 #include <imgui.h>
 #include <nfd.h>
 #include <IconsFontAwesome5.h>
-#include <fstream>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
+#include <fstream>
+
 #include "Log.h"
+#include "WindowState.h"
 
-namespace windows {
+namespace windows
+{
 
-    void showLog(const char* const& windowNameLog
-                 , bool& isLogWindowOpen)
+    void showLog(const char* const& windowNameLog,
+                 WindowState& winManagerLog)
     {
-        if (isLogWindowOpen)
+
+        if (*winManagerLog.getStatePtr())
         {
-            if (ImGui::Begin(windowNameLog, &isLogWindowOpen))
+            if (ImGui::Begin(windowNameLog, winManagerLog.getStatePtr()))
             {
                 unsigned int i {};
                 const auto& messages = sofa::helper::logging::MainLoggingMessageHandler::getInstance().getMessages();

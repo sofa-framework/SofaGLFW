@@ -20,8 +20,6 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <SofaImGui/ImGuiGUIEngine.h>
-
-#include <iomanip>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/CategoryLibrary.h>
 #include <sofa/core/loader/SceneLoader.h>
@@ -30,7 +28,6 @@
 #include <imgui.h>
 #include <nfd.h>
 #include <IconsFontAwesome5.h>
-#include <fstream>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/type/vector.h>
 #include <sofa/core/ObjectFactory.h>
@@ -38,19 +35,19 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
-
+#include <fstream>
 
 #include "Components.h"
 
 namespace windows
 {
 
-    void showComponents(const char* const& windowNameComponents
-                        , bool& isComponentsWindowOpen)
+    void showComponents(const char* const& windowNameComponents,
+                        WindowState& winManagerComponents)
     {
-        if (isComponentsWindowOpen)
+        if (*winManagerComponents.getStatePtr())
         {
-            if (ImGui::Begin(windowNameComponents, &isComponentsWindowOpen))
+            if (ImGui::Begin(windowNameComponents, winManagerComponents.getStatePtr()))
             {
                 unsigned int nbLoadedComponents = 0;
                 if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))

@@ -54,7 +54,6 @@
 #include <Roboto-Medium.h>
 #include <Style.h>
 #include <SofaImGui/ImGuiDataWidget.h>
-
 #include <sofa/helper/Utils.h>
 #include <sofa/type/vector.h>
 #include <sofa/simulation/Node.h>
@@ -81,13 +80,27 @@
 #include "windows/Settings.h"
 #include "AppIniFile.h"
 #include "windows/ViewPort.h"
+#include "windows/WindowState.h"
 
 using namespace sofa;
 
 namespace sofaimgui
 {
+    constexpr const char* VIEW_FILE_EXTENSION = ".view";
 
-constexpr const char* VIEW_FILE_EXTENSION = ".view";
+ImGuiGUIEngine::ImGuiGUIEngine()
+            : winManagerProfiler("profiler.txt"),
+              winManagerSceneGraph("scenegraph.txt"),
+              winManagerPerformances("performances.txt"),
+              winManagerDisplayFlags("displayflags.txt"),
+              winManagerPlugins("plugins.txt"),
+              winManagerComponents("components.txt"),
+              winManagerLog("log.txt"),
+              winManagerSettings("settings.txt"),
+              winManagerViewPort("viewport.txt"),
+              firstRunState("firstrun.txt")
+{
+}
 
 void ImGuiGUIEngine::init()
 {
@@ -118,6 +131,7 @@ void ImGuiGUIEngine::init()
     {
         ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
         SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        assert(rc == SI_OK);
         pv = sofaimgui::defaultStyle.c_str();
     }
 
@@ -181,7 +195,6 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     baseGUI->initVisual();
 }
 
-
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
@@ -241,11 +254,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
 
-    static auto first_time = true;
-    if (first_time)
-    {
-        first_time = false;
 
+    if (!*firstRunState.getStatePtr())
+    {
         ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
@@ -256,21 +267,17 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
         ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
         ImGui::DockBuilderFinish(dockspace_id);
+
+        winManagerViewPort.setState(true);
+        winManagerSceneGraph.setState(true);
+        winManagerLog.setState(true);
+
+        firstRunState.setState(true);// Mark first run as complete
     }
     ImGui::End();
 
 
     const ImGuiIO& io = ImGui::GetIO();
-
-    static bool isViewportWindowOpen = true;
-    static bool isPerformancesWindowOpen = false;
-    static bool isSceneGraphWindowOpen = true;
-    static bool isDisplayFlagsWindowOpen = false;
-    static bool isPluginsWindowOpen = false;
-    static bool isComponentsWindowOpen = false;
-    static bool isLogWindowOpen = true;
-    static bool isProfilerOpen = false;
-    static bool isSettingsOpen = false;
 
     static bool showFPSInMenuBar = true;
     static bool showTime = true;
@@ -350,7 +357,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::TextDisabled(filename.c_str());
+                ImGui::TextDisabled("%s", filename.c_str());
                 ImGui::EndTooltip();
             }
 
@@ -468,16 +475,25 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::Checkbox(windowNameViewport, &isViewportWindowOpen);
-            ImGui::Checkbox(windowNamePerformances, &isPerformancesWindowOpen);
-            ImGui::Checkbox(windowNameProfiler, &isProfilerOpen);
-            ImGui::Checkbox(windowNameSceneGraph, &isSceneGraphWindowOpen);
-            ImGui::Checkbox(windowNameDisplayFlags, &isDisplayFlagsWindowOpen);
-            ImGui::Checkbox(windowNamePlugins, &isPluginsWindowOpen);
-            ImGui::Checkbox(windowNameComponents, &isComponentsWindowOpen);
-            ImGui::Checkbox(windowNameLog, &isLogWindowOpen);
+            ImGui::Checkbox(windowNameViewport, winManagerViewPort.getStatePtr());
+            ImGui::Checkbox(windowNamePerformances, winManagerPerformances.getStatePtr());
+
+            ImGui::Checkbox(windowNameProfiler, winManagerProfiler.getStatePtr());
+
+            ImGui::Checkbox(windowNameSceneGraph, winManagerSceneGraph.getStatePtr());
+
+            ImGui::Checkbox(windowNameDisplayFlags, winManagerDisplayFlags.getStatePtr());
+
+            ImGui::Checkbox(windowNamePlugins, winManagerPlugins.getStatePtr());
+
+            ImGui::Checkbox(windowNameComponents, winManagerComponents.getStatePtr());
+
+            ImGui::Checkbox(windowNameLog, winManagerLog.getStatePtr());
+
             ImGui::Separator();
-            ImGui::Checkbox(windowNameSettings, &isSettingsOpen);
+
+            ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
+
             ImGui::EndMenu();
         }
 
@@ -541,55 +557,54 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    windows::showViewPort(groot, windowNameViewport, isViewportWindowOpen,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport);
+    windows::showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort);
 
     /***************************************
      * Performances window
      **************************************/
-    windows::showPerformances(windowNamePerformances, io, isPerformancesWindowOpen);
+    windows::showPerformances(windowNamePerformances, io,  winManagerPerformances);
 
 
     /***************************************
      * Profiler window
      **************************************/
-    sofa::helper::AdvancedTimer::setEnabled("Animate", isProfilerOpen);
+    sofa::helper::AdvancedTimer::setEnabled("Animate", winManagerProfiler.getStatePtr());
     sofa::helper::AdvancedTimer::setInterval("Animate", 1);
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
 
-    windows::showProfiler(groot, windowNameProfiler, isProfilerOpen);
-
+    windows::showProfiler(groot, windowNameProfiler, winManagerProfiler);
     /***************************************
      * Scene graph window
      **************************************/
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
-    windows::showSceneGraph(groot, windowNameSceneGraph, isSceneGraphWindowOpen, openedComponents, focusedComponents);
+    windows::showSceneGraph(groot, windowNameSceneGraph, openedComponents, focusedComponents, winManagerSceneGraph);
 
 
     /***************************************
      * Display flags window
      **************************************/
-    windows::showDisplayFlags(groot, windowNameDisplayFlags, isDisplayFlagsWindowOpen);
+    windows::showDisplayFlags(groot, windowNameDisplayFlags, winManagerDisplayFlags);
 
     /***************************************
      * Plugins window
      **************************************/
-    windows::showPlugins(windowNamePlugins, isPluginsWindowOpen);
+    windows::showPlugins(windowNamePlugins, winManagerPlugins);
 
     /***************************************
      * Components window
      **************************************/
-    windows::showComponents(windowNameComponents, isComponentsWindowOpen);
+    windows::showComponents(windowNameComponents, winManagerComponents);
 
     /***************************************
      * Log window
      **************************************/
-    windows::showLog(windowNameLog, isLogWindowOpen);
+    windows::showLog(windowNameLog, winManagerLog);
 
     /***************************************
      * Settings window
      **************************************/
-    windows::showSettings(windowNameSettings, isSettingsOpen,ini);
+    windows::showSettings(windowNameSettings,ini, winManagerSettings);
 
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <sofa/simulation/Node.h>
+#include "WindowState.h"
 
 
 
@@ -36,6 +37,6 @@ namespace windows
         * @param isComponentsWindowOpen A reference to a boolean flag indicating if the Components window is open.
         */
          void showComponents(const char* const& windowNameComponents,
-                             bool& isComponentsWindowOpen);
+                             WindowState& winManagerComponents);
 
 } // namespace sofaimgui

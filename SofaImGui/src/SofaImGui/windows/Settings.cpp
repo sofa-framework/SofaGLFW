@@ -33,13 +33,13 @@
 namespace windows
 {
 
-    void showSettings(const char* const& windowNameSettings
-                      , bool& isSettingsOpen
-                      , CSimpleIniA &ini)
+    void showSettings(const char* const& windowNameSettings,
+                      CSimpleIniA &ini,
+                      WindowState& winManagerSettings)
     {
-        if (isSettingsOpen)
+        if (*winManagerSettings.getStatePtr())
         {
-            if (ImGui::Begin(windowNameSettings, &isSettingsOpen))
+            if (ImGui::Begin(windowNameSettings, winManagerSettings.getStatePtr()))
             {
                 const char* theme = ini.GetValue("Style", "theme", sofaimgui::defaultStyle.c_str());
                 static std::size_t styleCurrent = std::distance(std::begin(sofaimgui::listStyles), std::find_if(std::begin(sofaimgui::listStyles), std::end(sofaimgui::listStyles),

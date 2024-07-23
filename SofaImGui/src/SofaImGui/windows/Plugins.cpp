@@ -37,15 +37,16 @@
 #include <sofa/simulation/graph/DAGNode.h>
 
 #include "Plugins.h"
+#include "WindowState.h"
 
 namespace windows
 {
-    void showPlugins(const char* const& windowNamePlugins
-                     , bool& isPluginsWindowOpen)
+    void showPlugins(const char* const& windowNamePlugins,
+                     WindowState& winManagerPlugins)
     {
-        if (isPluginsWindowOpen)
+        if (*winManagerPlugins.getStatePtr())
         {
-            if (ImGui::Begin(windowNamePlugins, &isPluginsWindowOpen))
+            if (ImGui::Begin(windowNamePlugins, winManagerPlugins.getStatePtr()))
             {
                 if (ImGui::Button("Load"))
                 {
@@ -100,7 +101,7 @@ namespace windows
                         ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
                         ImGui::Spacing();
                         ImGui::TextDisabled("Path:");
-                        ImGui::TextWrapped(selectedPlugin.c_str());
+                        ImGui::TextWrapped("%s", selectedPlugin.c_str());
                     }
                 }
 
