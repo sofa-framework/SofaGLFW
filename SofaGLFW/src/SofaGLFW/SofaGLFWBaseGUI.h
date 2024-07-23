@@ -93,10 +93,14 @@ namespace sofaglfw
 
         void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine) { m_guiEngine = guiEngine; }
         std::shared_ptr<BaseGUIEngine> getGUIEngine() { return m_guiEngine; }
+        void moveRayPickInteractor(int eventX, int eventY) override ;
 
     private:
-        sofa::gui::common::PickHandler pickHandler;
         static std::unique_ptr<sofa::gui::common::AttachOperation> attachOperation;
+        static void handleShiftMouseButton(GLFWwindow* window, SofaGLFWBaseGUI* gui, int button, int action, double xpos, double ypos);
+        static void handleRegularMouseButton(GLFWwindow* window, SofaGLFWBaseGUI* gui, int button, int action, int mods);
+        static void initializeAttachOperation(SofaGLFWBaseGUI* gui);
+
 
         // GLFW callbacks
         static void error_callback(int error, const char* description);
@@ -132,7 +136,8 @@ namespace sofaglfw
         int m_lastWindowPositionY{ 0 };
         int m_lastWindowWidth{ 0 };
         int m_lastWindowHeight{ 0 };
-
+        double lastProjectionMatrix[16];
+        double lastModelviewMatrix[16];
         bool m_isMouseInteractionEnabled{ false };
 
         std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;

@@ -21,6 +21,8 @@
 ******************************************************************************/
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
+
+
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -54,12 +56,36 @@
 using namespace sofa;
 using namespace sofa::gui::common;
 
+using std::endl;
+using namespace sofa::type;
+using namespace sofa::defaulttype;
+using namespace sofa::gl;
+using sofa::simulation::getSimulation;
+using namespace sofa::simulation;
+using namespace sofa::gui::common;
+
 namespace sofaglfw
 {
-    std::unique_ptr<sofa::gui::common::AttachOperation> SofaGLFWBaseGUI::attachOperation;
-    SofaGLFWBaseGUI::SofaGLFWBaseGUI():BaseViewer()
+    SofaGLFWBaseGUI::SofaGLFWBaseGUI()
+    :BaseViewer()
     {
         m_guiEngine = std::make_shared<NullGUIEngine>();
+        //By changing the operation, we delete the previous operation
+        RegisterOperation("attach").add<AttachOperation>();
+        RegisterOperation("Attach").add< AttachOperation >();
+        RegisterOperation("AddFrame").add< AddFrameOperation >();
+        RegisterOperation("SaveCameraViewPoint").add< AddRecordedCameraOperation >();
+        RegisterOperation("StartNavigation").add< StartNavigationOperation >();
+        RegisterOperation("Fix")   .add< FixOperation  >();
+        RegisterOperation("Incise").add< InciseOperation  >();
+        RegisterOperation("Remove").add< TopologyOperation  >();
+        RegisterOperation("Suture").add< AddSutureOperation >();
+        RegisterOperation("ConstraintAttach").add< ConstraintAttachOperation >();
+        this->pick->changeOperation( LEFT,   "Attach");
+        this->pick->changeOperation( MIDDLE, "Incise");
+        this->pick->changeOperation( RIGHT,  "Remove");
+
+
     }
 
     SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
@@ -109,7 +135,7 @@ namespace sofaglfw
 
         if (m_groot) {
             // Initialize the pick handler
-            pickHandler.init(m_groot.get());
+            this->pick->init(m_groot.get());
         }
     }
 
@@ -191,7 +217,7 @@ namespace sofaglfw
         sofa::helper::system::DataRepository.removePath(SOFAGLFW_RESOURCES_DIR);
     }
 
-    bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
+        bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
     {
         m_guiEngine->init();
 
@@ -414,7 +440,7 @@ namespace sofaglfw
                         makeCurrentContext(glfwWindow);
 
                         m_guiEngine->beforeDraw(glfwWindow);
-                        sofaGlfwWindow->draw(m_groot, m_vparams);
+                        sofaGlfwWindow->draw(m_groot, m_vparams,lastModelviewMatrix,lastProjectionMatrix);
                         m_guiEngine->afterDraw();
 
                         m_guiEngine->startFrame(this);
@@ -596,64 +622,104 @@ namespace sofaglfw
             case GLFW_KEY_LEFT_SHIFT:
                 if (action == GLFW_PRESS)
                 {
-                    if (!currentGUI->second->getPickHandler()) std::cout<<"nooo pick";
-
                     const int viewport[4] = {};
                     std::cout<<"key shft pressed\n";
                     currentGUI->second->getPickHandler()->activateRay(viewport[2],viewport[3], rootNode.get());
+                    break;
+                }
+                else
+                {
+                    if (currentGUI->second->getPickHandler())
+                        currentGUI->second->getPickHandler()->deactivateRay();
                     break;
                 }
 
         }
     }
 
-
-    void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-    {
-        auto currentGUI = s_mapGUIs.find(window);
-        if (currentGUI == s_mapGUIs.end() || !currentGUI->second)
+        void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
         {
+            std::cout <<"\n\nmove ray\n";
+
+            const sofa::core::visual::VisualParams::Viewport& viewport = m_vparams->viewport();
+
+            Vec3d p0;
+            Vec3d px;
+            Vec3d py;
+            Vec3d pz;
+            Vec3d px1;
+            Vec3d py1;
+            gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
+            gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
+            gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
+            gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
+            gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
+            gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
+
+
+            px1 -= pz;
+            py1 -= pz;
+            px -= p0;
+            py -= p0;
+            pz -= p0;
+            const double r0 = sqrt(px.norm2() + py.norm2());
+            double r1 = sqrt(px1.norm2() + py1.norm2());
+            r1 = r0 + (r1 - r0) / pz.norm();
+            px.normalize();
+            py.normalize();
+            pz.normalize();
+
+            Mat4x4d transform;
+            transform.identity();
+            transform[0][0] = px[0];
+            transform[1][0] = px[1];
+            transform[2][0] = px[2];
+            transform[0][1] = py[0];
+            transform[1][1] = py[1];
+            transform[2][1] = py[2];
+            transform[0][2] = pz[0];
+            transform[1][2] = pz[1];
+            transform[2][2] = pz[2];
+            transform[0][3] = p0[0];
+            transform[1][3] = p0[1];
+            transform[2][3] = p0[2];
+
+            Mat3x3d mat;
+            mat = transform;
+            Quat<SReal> q;
+            q.fromMatrix(mat);
+
+            Vec3d position, direction;
+            position = transform * Vec4d(0, 0, 0, 1);
+            direction = transform * Vec4d(0, 0, 1, 0);
+            direction.normalize();
+            this->pick->updateRay(position, direction);
+        }
+
+
+
+
+    void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+        auto currentGUI = s_mapGUIs.find(window);
+        if (currentGUI == s_mapGUIs.end() || !currentGUI->second) {
             return;
         }
 
 
         auto rootNode = currentGUI->second->getRootNode();
-        if (!rootNode)
-        {
+        if (!rootNode) {
             return;
         }
-
         bool shiftPressed = (mods & GLFW_MOD_SHIFT);
+        int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
-        if (shiftPressed)
+        if (shiftPressed && state == GLFW_PRESS)
         {
             std::cout << "Shift key pressed: " << shiftPressed << std::endl;
             // Check if the animation is running
-            if (!currentGUI->second->simulationIsRunning())
-            {
+            if (!currentGUI->second->simulationIsRunning()) {
                 std::cout << "Animation is not running. Ignoring mouse interaction." << std::endl;
                 return;
-            }
-
-            if (!SofaGLFWBaseGUI::attachOperation)
-            {
-                try
-                {
-                    std::cout << "Creating AttachBodyButtonSetting" << std::endl;
-                    auto attachSetting = sofa::core::objectmodel::New<sofa::gui::component::AttachBodyButtonSetting>();
-                    std::cout << "Creating AttachOperation" << std::endl;
-                    SofaGLFWBaseGUI::attachOperation = std::make_unique<sofa::gui::common::AttachOperation>(attachSetting);
-                    std::cout << "Configuring AttachOperation" << std::endl;
-                    SofaGLFWBaseGUI::attachOperation->configure(currentGUI->second->getPickHandler(), sofa::gui::common::LEFT);
-                    std::cout << "Starting AttachOperation" << std::endl;
-                    SofaGLFWBaseGUI::attachOperation->start();
-
-                }
-                catch (const std::exception& e)
-                {
-                    std::cerr << "Exception during AttachOperation creation or start: " << e.what() << std::endl;
-                    return;
-                }
             }
 
             double xpos, ypos;
@@ -663,6 +729,7 @@ namespace sofaglfw
             {
                 currentSofaWindow->second->mouseEvent(window, button, action, mods, xpos, ypos);
             }
+
         }
         else
         {
@@ -690,22 +757,14 @@ namespace sofaglfw
                 return;
         }
 
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        currentGUI->second->getPickHandler()->updateMouse2D({ static_cast<int>(xpos), static_cast<int>(ypos), width, height });
-
-        if (SofaGLFWBaseGUI::attachOperation)
-        {
-            SofaGLFWBaseGUI::attachOperation->execution();
-        }
-        else
-        {
             auto currentSofaWindow = s_mapWindows.find(window);
             if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
             {
                 currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos), currentGUI->second);
             }
-        }
+
+
+
     }
     void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     {

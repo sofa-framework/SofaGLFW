@@ -614,7 +614,7 @@ void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
     if (!m_fbo)
     {
         m_fbo = std::make_unique<sofa::gl::FrameBufferObject>();
-        m_currentFBOSize = {500, 500};
+        m_currentFBOSize = {1000, 500};
         m_fbo->init(m_currentFBOSize.first, m_currentFBOSize.second);
     }
     else
