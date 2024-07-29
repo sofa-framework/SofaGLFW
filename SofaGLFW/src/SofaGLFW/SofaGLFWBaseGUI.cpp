@@ -640,8 +640,10 @@ namespace sofaglfw
         void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
         {
             std::cout <<"\n\nmove ray\n";
+            std::cout<<"\n\n::::moveRayPickInteractor::: xpos\t"<<eventX<<":::moveRayPickInteractor:::: ypos\t"<<eventY;
 
             const sofa::core::visual::VisualParams::Viewport& viewport = m_vparams->viewport();
+            std::cout <<"\n "<< viewport.data();
 
             Vec3d p0;
             Vec3d px;
@@ -693,7 +695,7 @@ namespace sofaglfw
             position = transform * Vec4d(0, 0, 0, 1);
             direction = transform * Vec4d(0, 0, 1, 0);
             direction.normalize();
-            this->pick->updateRay(position, direction);
+                    this->pick->updateRay(position, direction);
         }
 
 
@@ -704,17 +706,24 @@ namespace sofaglfw
         if (currentGUI == s_mapGUIs.end() || !currentGUI->second) {
             return;
         }
+        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
+
+        const sofa::core::visual::VisualParams::Viewport& viewport = gui->m_vparams->viewport();
+        std::cout << "Viewport Size: " << viewport[2] << "x" << viewport[3] << std::endl;
 
 
         auto rootNode = currentGUI->second->getRootNode();
         if (!rootNode) {
             return;
         }
-        bool shiftPressed = (mods & GLFW_MOD_SHIFT);
+        bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
         int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-
-        if (shiftPressed && state == GLFW_PRESS)
+std::cout << "\n\n\tstate\t"<<state;
+        if (shiftPressed )
         {
+            if ( state == GLFW_PRESS) { std::cout << "\n\n\tspressseddddd\t"<<state;}
+                std::cout <<"\n\n\t"<< shiftPressed;
+
             std::cout << "Shift key pressed: " << shiftPressed << std::endl;
             // Check if the animation is running
             if (!currentGUI->second->simulationIsRunning()) {
@@ -724,11 +733,15 @@ namespace sofaglfw
 
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
+
+
+std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
             auto currentSofaWindow = s_mapWindows.find(window);
             if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
             {
-                currentSofaWindow->second->mouseEvent(window, button, action, mods, xpos, ypos);
+                currentSofaWindow->second->mouseEvent(window,viewport[2],viewport[3], button, action, mods, xpos, ypos);
             }
+
 
         }
         else
@@ -756,10 +769,23 @@ namespace sofaglfw
             if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
                 return;
         }
+        ypos-=49;
+        xpos-=8;
 
-            auto currentSofaWindow = s_mapWindows.find(window);
+        bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+        int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        auto currentSofaWindow = s_mapWindows.find(window);
+        if (shiftPressed && state == GLFW_PRESS)
+        {
+            const sofa::core::visual::VisualParams::Viewport& viewport = currentGUI->second->m_vparams->viewport();
+
+            currentSofaWindow->second->mouseEvent(window,viewport[2],viewport[3], 0, 1, 1, xpos, ypos);
+
+
+        }
             if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
             {
+
                 currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos), currentGUI->second);
             }
 

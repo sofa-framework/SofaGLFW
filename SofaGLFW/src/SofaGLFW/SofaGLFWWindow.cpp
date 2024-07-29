@@ -74,12 +74,6 @@ namespace sofaglfw
         }
 
 
-        m_currentCamera->getProjectionMatrix( lastProjectionMatrix );
-
-        m_currentCamera->getModelViewMatrix( lastModelviewMatrix );
-        vparams->setModelViewMatrix( lastModelviewMatrix );
-
-        vparams->setProjectionMatrix( lastProjectionMatrix );
 
         if (groot->f_bbox.getValue().isValid())
         {
@@ -95,23 +89,23 @@ namespace sofaglfw
         // matrices
         double projectionMatrix[16];
         double mvMatrix[16];
-        m_currentCamera->getOpenGLProjectionMatrix(projectionMatrix);
-        m_currentCamera->getOpenGLModelViewMatrix(mvMatrix);
+        m_currentCamera->getOpenGLProjectionMatrix(lastProjectionMatrix);
+        m_currentCamera->getOpenGLModelViewMatrix(lastModelviewMatrix);
 
         glViewport(0, 0, vparams->viewport()[2], vparams->viewport()[3]);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glMultMatrixd(projectionMatrix);
+        glMultMatrixd(lastProjectionMatrix);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glMultMatrixd(mvMatrix);
+        glMultMatrixd(lastModelviewMatrix);
 
         // Update the visual params
         vparams->zNear() = m_currentCamera->getZNear();
         vparams->zFar() = m_currentCamera->getZFar();
-        vparams->setProjectionMatrix(projectionMatrix);
-        vparams->setModelViewMatrix(mvMatrix);
+        vparams->setProjectionMatrix(lastProjectionMatrix);
+        vparams->setModelViewMatrix(lastModelviewMatrix);
 
         sofa::simulation::node::draw(vparams, groot.get());
 
@@ -220,22 +214,21 @@ namespace sofaglfw
 
     }
 
-    bool SofaGLFWWindow::mouseEvent(GLFWwindow* window, int button, int action, int mods, double xpos, double ypos) {
+    bool SofaGLFWWindow::mouseEvent(GLFWwindow* window, int width, int height,int button, int action, int mods, double xpos, double ypos) {
         std::cout <<"mouse event glfw\n\n";
         if (!m_currentCamera)
             return true;
 
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
 
-        sofa::gui::common::MousePosition mousepos;
+
+            sofa::gui::common::MousePosition mousepos;
         mousepos.screenWidth = width;
         mousepos.screenHeight = height;
         mousepos.x = static_cast<int>(xpos);
         mousepos.y = static_cast<int>(ypos);
-        auto gui = static_cast<SofaGLFWBaseGUI *>(glfwGetWindowUserPointer(window));
         auto rootNode = gui->getRootNode();
-        if (mods & GLFW_MOD_SHIFT) {
+        if ( GLFW_MOD_SHIFT) {
 
 
             std::cout <<"        if (mods & GLFW_MOD_SHIFT) {n\n";
@@ -254,6 +247,7 @@ namespace sofaglfw
                 if (action == GLFW_RELEASE) {
                     if (button == GLFW_MOUSE_BUTTON_LEFT) {
                         gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::LEFT);
+                        gui->getPickHandler()->deactivateRay();
                     } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
                         gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::RIGHT);
                     } else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {

@@ -59,7 +59,10 @@ namespace sofaglfw
         void initVisual();
         std::size_t runLoop(std::size_t targetNbIterations = 0);
         void terminate();
-
+        void convertWindowToViewportCoords(double windowX, double windowY,
+                                           int viewportX, int viewportY,
+                                           int viewportWidth, int viewportHeight,
+                                           double& viewportXOut, double& viewportYOut);
         void configureAttachOperation();
         int getWindowWidth() const { return m_windowWidth; }
         void setWindowWidth(int width) { m_windowWidth = width; }
