@@ -59,6 +59,8 @@ public:
     void afterDraw() override;
     void terminate() override;
     bool dispatchMouseEvents() override;
+    bool firstViewport ;
+    float x,y;
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
@@ -66,7 +68,6 @@ protected:
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
-
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
 
     // WindowState members

@@ -33,9 +33,10 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/simulation/graph/DAGNode.h>
 #include "ViewPort.h"
-
-
-
+#include <chrono>
+#include <iostream>
+#include "SofaGLFW/SofaGLFWBaseGUI.h"
+#include <iomanip>
 namespace windows
 {
 
@@ -45,18 +46,50 @@ namespace windows
                       std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
                       std::pair<float, float>& m_viewportWindowSize,
                       bool &isMouseOnViewport,
-                      WindowState& winManagerViewPort)
+                      WindowState& winManagerViewPort,
+                      sofaglfw::SofaGLFWBaseGUI* baseGUI,
+                      bool* firstViewport,
+                      float * x,
+                      float *y)
     {
+        static auto lastTime = std::chrono::steady_clock::now();
+        const float precisionThreshold = 1.0f;
         if (*winManagerViewPort.getStatePtr())
         {
+            std::setprecision(1);
             ImVec2 pos;
             if (ImGui::Begin(windowNameViewport, winManagerViewPort.getStatePtr()/*, ImGuiWindowFlags_MenuBar*/))
             {
                 pos = ImGui::GetWindowPos();
 
+
                 ImGui::BeginChild("Render");
                 ImVec2 wsize = ImGui::GetWindowSize();
                 m_viewportWindowSize = { wsize.x, wsize.y};
+
+                ImVec2 viewportPos = ImGui::GetWindowPos();
+                auto currentTime = std::chrono::steady_clock::now();
+                std::chrono::duration<double> elapsedTime = currentTime - lastTime;
+
+
+                lastTime = currentTime;
+                    if (*firstViewport){
+                        *x=viewportPos.x;
+                     *y=viewportPos.y;
+                    *firstViewport=false;
+                        baseGUI->updateViewportPosition(viewportPos.x,viewportPos.y);
+
+                    }
+                    else {
+                        if (std::fabs(viewportPos.x - *x) > precisionThreshold ||
+                            std::fabs(viewportPos.y - *y) > precisionThreshold){
+                            baseGUI->updateViewportPosition(viewportPos.x,viewportPos.y);
+                            *x=viewportPos.x;
+                            *y=viewportPos.y;
+
+                        }
+                    }
+
 
                 ImGui::Image((ImTextureID)m_fbo->getColorTexture(), wsize, ImVec2(0, 1), ImVec2(1, 0));
 
@@ -145,6 +178,7 @@ namespace windows
             }
         }
     }
+
 
 
 }

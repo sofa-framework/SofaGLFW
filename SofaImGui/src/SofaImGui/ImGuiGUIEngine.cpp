@@ -179,12 +179,10 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
 {
     sofa::simulation::node::unload(groot);
-
     groot = sofa::simulation::node::load(filePathName.c_str());
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
     baseGUI->setSimulation(groot, filePathName);
-
     sofa::simulation::node::initRoot(groot.get());
     auto camera = baseGUI->findCamera(groot);
     if (camera)
@@ -211,6 +209,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             newSceneFrame->addTag(core::objectmodel::Tag("createdByGUI"));
             newSceneFrame->d_drawFrame.setValue(true);
             newSceneFrame->init();
+            firstViewport=true;
+            x=1.0f;
+            y=1.0f;
+            std::cout << "pfkepfepkfpekpfkepfkepfkpe";
         }
     }
 
@@ -231,8 +233,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
-
-
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
@@ -560,7 +560,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    windows::showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort);
+    windows::showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&x,&y);
+
 
     /***************************************
      * Performances window

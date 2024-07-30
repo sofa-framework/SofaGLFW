@@ -48,6 +48,10 @@ namespace windows
                            std::pair<float,
                            float>& m_viewportWindowSize,
                            bool & isMouseOnViewport,
-                           WindowState& winManagerViewPort);
+                           WindowState& winManagerViewPort,
+                           sofaglfw::SofaGLFWBaseGUI* baseGUI,
+                           bool *firstViewport,
+                           float *x,
+                           float *y);
 
 } // namespace sofaimgui

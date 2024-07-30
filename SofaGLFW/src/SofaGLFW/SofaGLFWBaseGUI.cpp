@@ -257,7 +257,7 @@ namespace sofaglfw
             glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
             glfwSetScrollCallback(glfwWindow, scroll_callback);
             glfwSetWindowCloseCallback(glfwWindow, close_callback);
-
+        glfwSetWindowPosCallback(glfwWindow, window_pos_callback);
             // this set empty callbacks
             // solve a crash when glfw is quitting and tries to use nullptr callbacks
             // could be potentially useful in the future anyway
@@ -285,6 +285,13 @@ namespace sofaglfw
         {
             return false;
         }
+    }
+    void SofaGLFWBaseGUI::updateViewportPosition(float x, float y) {
+        std::cout << "Updating viewport position to X: " << x << " Y: " << y << std::endl;
+        // Here you can add more logic to update the internal state or perform other operations as needed
+        viewPortPositionX=x;
+        viewPortPositionY=y;
+
     }
 
     void SofaGLFWBaseGUI::resizeWindow(int width, int height)
@@ -315,6 +322,7 @@ namespace sofaglfw
         glfwGetWindowPos(glfwWindow, &windowsX, &windowsY);
         glfwGetWindowSize(glfwWindow, &windowsWidth, &windowsHeight);
         monitors = glfwGetMonitors(&monitorsCount);
+        std::cout<<"\n\n::::::::::: windowsX\t"<<windowsX<<"::::::::::: windowsY\t"<<windowsY;
 
         for (i=0; i<monitorsCount; i++)
         {
@@ -700,6 +708,15 @@ namespace sofaglfw
 
 
 
+    void SofaGLFWBaseGUI::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
+    {
+        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
+
+        std::cout<<"\n\n GLFW position X §§§§\t"<<xpos
+                 <<"GLFW position Y §§§§§\t"<<ypos;
+        gui->winPositionX=xpos;
+        gui->winPositionY=ypos;
+    }
 
     void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
         auto currentGUI = s_mapGUIs.find(window);
@@ -733,9 +750,10 @@ std::cout << "\n\n\tstate\t"<<state;
 
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
+            ypos-=(gui->viewPortPositionY-gui->winPositionY);
+            xpos-=(gui->viewPortPositionX-gui->winPositionX);
 
-
-std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
+//std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
             auto currentSofaWindow = s_mapWindows.find(window);
             if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
             {
@@ -762,6 +780,8 @@ std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
 
     void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     {
+        //std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
+
         auto currentGUI = s_mapGUIs.find(window);
 
         if (currentGUI != s_mapGUIs.end() && currentGUI->second)
@@ -769,8 +789,10 @@ std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
             if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
                 return;
         }
-        ypos-=49;
-        xpos-=8;
+        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
+
+        ypos-=(gui->viewPortPositionY-gui->winPositionY);
+        xpos-=(gui->viewPortPositionX-gui->winPositionX);
 
         bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
         int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
