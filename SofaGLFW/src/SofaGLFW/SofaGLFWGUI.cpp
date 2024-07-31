@@ -85,6 +85,11 @@ void SofaGLFWGUI::setViewerResolution(int width, int height)
 
 }
 
+void SofaGLFWGUI::centerWindow()
+{
+    [[maybe_unused]] bool centered = m_baseGUI.centerWindow();
+}
+
 void SofaGLFWGUI::setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf)
 {
     const type::Vec<2, int>& res = viewerConf->resolution.getValue();
