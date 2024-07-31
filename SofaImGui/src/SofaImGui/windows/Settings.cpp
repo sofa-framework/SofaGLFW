@@ -28,6 +28,8 @@
 #include <Style.h>
 #include <sofa/helper/Utils.h>
 #include "Settings.h"
+
+#include <SofaImGui/UIStrings.h>
 #include "SofaImGui/AppIniFile.h"
 
 namespace windows
@@ -54,7 +56,8 @@ namespace windows
                             styleCurrent = n;
 
                             sofaimgui::setStyle(sofaimgui::listStyles[styleCurrent]);
-                            ini.SetValue("Style", "theme", sofaimgui::listStyles[styleCurrent], "Preset of colors and properties to change the theme of the application");
+                            const auto style = sofaimgui::listStyles[styleCurrent];
+                            ini.SetValue("Style", "theme", style, sofaimgui::ini::styleDescription);
                             SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                         }
                         if (isSelected)

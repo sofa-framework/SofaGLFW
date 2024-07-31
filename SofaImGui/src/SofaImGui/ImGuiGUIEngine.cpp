@@ -70,6 +70,7 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/simulation/graph/DAGNode.h>
+#include <SofaImGui/UIStrings.h>
 #include "windows/Performances.h"
 #include "windows/Log.h"
 #include "windows/Profiler.h"
@@ -129,7 +130,7 @@ void ImGuiGUIEngine::init()
     pv = ini.GetValue("Style", "theme");
     if (!pv)
     {
-        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
+        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), ini::styleDescription);
         SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
         pv = sofaimgui::defaultStyle.c_str();
