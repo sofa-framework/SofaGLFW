@@ -42,6 +42,7 @@ struct GLFWmonitor;
 
 namespace sofaglfw
 {
+    class SofaGLFWMouseManager;
 
     class SofaGLFWWindow;
 
@@ -95,12 +96,6 @@ namespace sofaglfw
         void moveRayPickInteractor(int eventX, int eventY) override ;
 
     private:
-        static std::unique_ptr<sofa::gui::common::AttachOperation> attachOperation;
-        static void handleShiftMouseButton(GLFWwindow* window, SofaGLFWBaseGUI* gui, int button, int action, double xpos, double ypos);
-        static void handleRegularMouseButton(GLFWwindow* window, SofaGLFWBaseGUI* gui, int button, int action, int mods);
-        static void initializeAttachOperation(SofaGLFWBaseGUI* gui);
-
-
         // GLFW callbacks
         static void error_callback(int error, const char* description);
         static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -114,6 +109,7 @@ namespace sofaglfw
         static void character_callback(GLFWwindow* window, unsigned int codepoint);
         static void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
         static int handleArrowKeys(int key);
+        static void translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos);
 
         void makeCurrentContext(GLFWwindow* sofaWindow);
         void runStep();
@@ -138,8 +134,15 @@ namespace sofaglfw
         double lastProjectionMatrix[16];
         double lastModelviewMatrix[16];
         bool m_isMouseInteractionEnabled{ false };
-        float viewPortPositionX,viewPortPositionY;
-        float winPositionX,winPositionY;
+        float viewPortPositionX {0};
+        float viewPortPositionY {0};
+        float winPositionX {0};
+        float winPositionY {0};
+        SofaGLFWMouseManager* m_sofaGLFWMouseManager;
+        int viewPortHeight{0};
+        int viewPortWidth {0};
+        double translatedXPos {0};
+        double translatedYpos {0};
 
 
         std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;

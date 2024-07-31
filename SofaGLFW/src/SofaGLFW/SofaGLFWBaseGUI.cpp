@@ -52,7 +52,7 @@
 #include <sofa/gui/common/MouseOperations.h>
 #include <sofa/gui/common/OperationFactory.h>
 #include <sofa/gui/component/AttachBodyButtonSetting.h>
-
+#include "SofaGLFW/SofaGLFWMouseManager.h"
 using namespace sofa;
 using namespace sofa::gui::common;
 
@@ -67,24 +67,11 @@ using namespace sofa::gui::common;
 namespace sofaglfw
 {
     SofaGLFWBaseGUI::SofaGLFWBaseGUI()
-    :BaseViewer()
+    :BaseViewer(),
+     m_sofaGLFWMouseManager(nullptr)
     {
         m_guiEngine = std::make_shared<NullGUIEngine>();
-        //By changing the operation, we delete the previous operation
-        RegisterOperation("attach").add<AttachOperation>();
-        RegisterOperation("Attach").add< AttachOperation >();
-        RegisterOperation("AddFrame").add< AddFrameOperation >();
-        RegisterOperation("SaveCameraViewPoint").add< AddRecordedCameraOperation >();
-        RegisterOperation("StartNavigation").add< StartNavigationOperation >();
-        RegisterOperation("Fix")   .add< FixOperation  >();
-        RegisterOperation("Incise").add< InciseOperation  >();
-        RegisterOperation("Remove").add< TopologyOperation  >();
-        RegisterOperation("Suture").add< AddSutureOperation >();
-        RegisterOperation("ConstraintAttach").add< ConstraintAttachOperation >();
-        this->pick->changeOperation( LEFT,   "Attach");
-        this->pick->changeOperation( MIDDLE, "Incise");
-        this->pick->changeOperation( RIGHT,  "Remove");
-
+        m_sofaGLFWMouseManager = new SofaGLFWMouseManager();
 
     }
 
@@ -136,6 +123,7 @@ namespace sofaglfw
         if (m_groot) {
             // Initialize the pick handler
             this->pick->init(m_groot.get());
+            m_sofaGLFWMouseManager->setPickHandler(getPickHandler());
         }
     }
 
@@ -238,6 +226,9 @@ namespace sofaglfw
             m_lastWindowPositionX = 100;
             m_lastWindowPositionY = 100;
 
+            setWindowHeight(height);
+            setWindowWidth(width);
+
             glfwWindow = glfwCreateWindow(mode->width, mode->height, title, primaryMonitor, m_firstWindow);
         }
         else
@@ -322,8 +313,6 @@ namespace sofaglfw
         glfwGetWindowPos(glfwWindow, &windowsX, &windowsY);
         glfwGetWindowSize(glfwWindow, &windowsWidth, &windowsHeight);
         monitors = glfwGetMonitors(&monitorsCount);
-        std::cout<<"\n\n::::::::::: windowsX\t"<<windowsX<<"::::::::::: windowsY\t"<<windowsY;
-
         for (i=0; i<monitorsCount; i++)
         {
             mode = glfwGetVideoMode(monitors[i]);
@@ -427,6 +416,8 @@ namespace sofaglfw
         }
 
         m_vparams = sofa::core::visual::VisualParams::defaultInstance();
+        viewPortWidth=m_vparams->viewport()[2];
+        viewPortHeight=m_vparams->viewport()[3];
 
         bool running = true;
         std::size_t currentNbIterations = 0;
@@ -455,6 +446,14 @@ namespace sofaglfw
                         m_guiEngine->endFrame();
 
                         glfwSwapBuffers(glfwWindow);
+
+                        if (viewPortHeight!=m_vparams->viewport()[3] ||
+                            viewPortWidth!=m_vparams->viewport()[2])
+                        {
+                            viewPortHeight=m_vparams->viewport()[3];
+                            viewPortWidth=m_vparams->viewport()[2];
+                        }
+
 
                     }
                     else
@@ -631,7 +630,6 @@ namespace sofaglfw
                 if (action == GLFW_PRESS)
                 {
                     const int viewport[4] = {};
-                    std::cout<<"key shft pressed\n";
                     currentGUI->second->getPickHandler()->activateRay(viewport[2],viewport[3], rootNode.get());
                     break;
                 }
@@ -641,126 +639,106 @@ namespace sofaglfw
                         currentGUI->second->getPickHandler()->deactivateRay();
                     break;
                 }
-
         }
     }
 
-        void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
-        {
-            std::cout <<"\n\nmove ray\n";
-            std::cout<<"\n\n::::moveRayPickInteractor::: xpos\t"<<eventX<<":::moveRayPickInteractor:::: ypos\t"<<eventY;
+    void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
+    {
+        const sofa::core::visual::VisualParams::Viewport& viewport = m_vparams->viewport();
 
-            const sofa::core::visual::VisualParams::Viewport& viewport = m_vparams->viewport();
-            std::cout <<"\n "<< viewport.data();
+        Vec3d p0;
+        Vec3d px;
+        Vec3d py;
+        Vec3d pz;
+        Vec3d px1;
+        Vec3d py1;
+        gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
+        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
+        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
 
-            Vec3d p0;
-            Vec3d px;
-            Vec3d py;
-            Vec3d pz;
-            Vec3d px1;
-            Vec3d py1;
-            gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
-            gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
-            gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
-            gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
-            gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
-            gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
+        px1 -= pz;
+        py1 -= pz;
+        px -= p0;
+        py -= p0;
+        pz -= p0;
 
+        const double r0 = sqrt(px.norm2() + py.norm2());
+        double r1 = sqrt(px1.norm2() + py1.norm2());
+        r1 = r0 + (r1 - r0) / pz.norm();
+        px.normalize();
+        py.normalize();
+        pz.normalize();
 
-            px1 -= pz;
-            py1 -= pz;
-            px -= p0;
-            py -= p0;
-            pz -= p0;
-            const double r0 = sqrt(px.norm2() + py.norm2());
-            double r1 = sqrt(px1.norm2() + py1.norm2());
-            r1 = r0 + (r1 - r0) / pz.norm();
-            px.normalize();
-            py.normalize();
-            pz.normalize();
+        Mat4x4d transform;
+        transform.identity();
+        transform[0][0] = px[0];
+        transform[1][0] = px[1];
+        transform[2][0] = px[2];
+        transform[0][1] = py[0];
+        transform[1][1] = py[1];
+        transform[2][1] = py[2];
+        transform[0][2] = pz[0];
+        transform[1][2] = pz[1];
+        transform[2][2] = pz[2];
+        transform[0][3] = p0[0];
+        transform[1][3] = p0[1];
+        transform[2][3] = p0[2];
 
-            Mat4x4d transform;
-            transform.identity();
-            transform[0][0] = px[0];
-            transform[1][0] = px[1];
-            transform[2][0] = px[2];
-            transform[0][1] = py[0];
-            transform[1][1] = py[1];
-            transform[2][1] = py[2];
-            transform[0][2] = pz[0];
-            transform[1][2] = pz[1];
-            transform[2][2] = pz[2];
-            transform[0][3] = p0[0];
-            transform[1][3] = p0[1];
-            transform[2][3] = p0[2];
+        Mat3x3d mat;
+        mat = transform;
+        Quat<SReal> q;
+        q.fromMatrix(mat);
 
-            Mat3x3d mat;
-            mat = transform;
-            Quat<SReal> q;
-            q.fromMatrix(mat);
-
-            Vec3d position, direction;
-            position = transform * Vec4d(0, 0, 0, 1);
-            direction = transform * Vec4d(0, 0, 1, 0);
-            direction.normalize();
-                    this->pick->updateRay(position, direction);
-        }
-
-
+        Vec3d position, direction;
+        position = transform * Vec4d(0, 0, 0, 1);
+        direction = transform * Vec4d(0, 0, 1, 0);
+        direction.normalize();
+        getPickHandler()->updateRay(position, direction);
+    }
 
     void SofaGLFWBaseGUI::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
     {
         SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
-
-        std::cout<<"\n\n GLFW position X §§§§\t"<<xpos
-                 <<"GLFW position Y §§§§§\t"<<ypos;
         gui->winPositionX=xpos;
         gui->winPositionY=ypos;
     }
 
-    void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+    {
+        double xpos, ypos;
+
         auto currentGUI = s_mapGUIs.find(window);
         if (currentGUI == s_mapGUIs.end() || !currentGUI->second) {
             return;
         }
-        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
 
-        const sofa::core::visual::VisualParams::Viewport& viewport = gui->m_vparams->viewport();
-        std::cout << "Viewport Size: " << viewport[2] << "x" << viewport[3] << std::endl;
-
+        SofaGLFWBaseGUI* gui = currentGUI->second;
 
         auto rootNode = currentGUI->second->getRootNode();
         if (!rootNode) {
             return;
         }
+
         bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
-        int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-std::cout << "\n\n\tstate\t"<<state;
         if (shiftPressed )
         {
-            if ( state == GLFW_PRESS) { std::cout << "\n\n\tspressseddddd\t"<<state;}
-                std::cout <<"\n\n\t"<< shiftPressed;
-
-            std::cout << "Shift key pressed: " << shiftPressed << std::endl;
             // Check if the animation is running
             if (!currentGUI->second->simulationIsRunning()) {
                 std::cout << "Animation is not running. Ignoring mouse interaction." << std::endl;
                 return;
             }
 
-            double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            ypos-=(gui->viewPortPositionY-gui->winPositionY);
-            xpos-=(gui->viewPortPositionX-gui->winPositionX);
+            translateToViewportCoordinates(gui,xpos,ypos);
 
-//std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
             auto currentSofaWindow = s_mapWindows.find(window);
             if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
             {
-                currentSofaWindow->second->mouseEvent(window,viewport[2],viewport[3], button, action, mods, xpos, ypos);
+                currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, button, action, mods, gui->translatedXPos, gui->translatedYpos);
             }
-
-
         }
         else
         {
@@ -778,10 +756,14 @@ std::cout << "\n\n\tstate\t"<<state;
         }
     }
 
+    void SofaGLFWBaseGUI::translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos)
+    {
+        gui->translatedYpos =ypos-(gui->viewPortPositionY-gui->winPositionY);
+        gui->translatedXPos =xpos-(gui->viewPortPositionX-gui->winPositionX);
+    }
+
     void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     {
-        //std::cout<<"\n\n::::::::::: xpos\t"<<xpos<<"::::::::::: ypos\t"<<ypos;
-
         auto currentGUI = s_mapGUIs.find(window);
 
         if (currentGUI != s_mapGUIs.end() && currentGUI->second)
@@ -789,31 +771,26 @@ std::cout << "\n\n\tstate\t"<<state;
             if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
                 return;
         }
-        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
+        SofaGLFWBaseGUI* gui = currentGUI->second;
 
-        ypos-=(gui->viewPortPositionY-gui->winPositionY);
-        xpos-=(gui->viewPortPositionX-gui->winPositionX);
+        translateToViewportCoordinates(gui,xpos,ypos);
 
         bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
         int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+
         auto currentSofaWindow = s_mapWindows.find(window);
+
         if (shiftPressed && state == GLFW_PRESS)
         {
-            const sofa::core::visual::VisualParams::Viewport& viewport = currentGUI->second->m_vparams->viewport();
-
-            currentSofaWindow->second->mouseEvent(window,viewport[2],viewport[3], 0, 1, 1, xpos, ypos);
-
-
+            currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, 0, 1, 1, gui->translatedXPos, gui->translatedYpos);
         }
-            if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-            {
 
-                currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos), currentGUI->second);
-            }
-
-
-
+        if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+        {
+            currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos), currentGUI->second);
+        }
     }
+
     void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     {
         auto currentGUI = s_mapGUIs.find(window);

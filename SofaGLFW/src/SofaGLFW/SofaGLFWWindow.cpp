@@ -41,7 +41,6 @@ using namespace sofa;
 
 namespace sofaglfw
 {
-
     SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera)
             : m_glfwWindow(glfwWindow)
             , m_currentCamera(camera)
@@ -49,12 +48,10 @@ namespace sofaglfw
 
     }
 
-
     void SofaGLFWWindow::close()
     {
         glfwDestroyWindow(m_glfwWindow);
     }
-
 
     void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams, double lastModelviewMatrix [16], double lastProjectionMatrix [16])
     {
@@ -72,8 +69,6 @@ namespace sofaglfw
             msg_error("SofaGLFWGUI") << "No camera defined.";
             return;
         }
-
-
 
         if (groot->f_bbox.getValue().isValid())
         {
@@ -108,7 +103,6 @@ namespace sofaglfw
         vparams->setModelViewMatrix(lastModelviewMatrix);
 
         sofa::simulation::node::draw(vparams, groot.get());
-
     }
 
     void SofaGLFWWindow::setBackgroundColor(const sofa::type::RGBAColor& newColor)
@@ -141,7 +135,6 @@ namespace sofaglfw
             m_currentCamera->fitBoundingBox(node->f_bbox.getValue().minBBox(), node->f_bbox.getValue().maxBBox());
         }
     }
-
 
     void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos, SofaGLFWBaseGUI* gui)
     {
@@ -211,59 +204,69 @@ namespace sofaglfw
             m_currentButton = button;
             m_currentAction = action;
             m_currentMods = mods;
-
     }
 
     bool SofaGLFWWindow::mouseEvent(GLFWwindow* window, int width, int height,int button, int action, int mods, double xpos, double ypos) {
-        std::cout <<"mouse event glfw\n\n";
+
         if (!m_currentCamera)
             return true;
 
-        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
+        SofaGLFWBaseGUI *gui = static_cast<SofaGLFWBaseGUI *>(glfwGetWindowUserPointer(window));
 
-
-            sofa::gui::common::MousePosition mousepos;
+        sofa::gui::common::MousePosition mousepos;
         mousepos.screenWidth = width;
         mousepos.screenHeight = height;
         mousepos.x = static_cast<int>(xpos);
         mousepos.y = static_cast<int>(ypos);
         auto rootNode = gui->getRootNode();
-        if ( GLFW_MOD_SHIFT) {
 
-
-            std::cout <<"        if (mods & GLFW_MOD_SHIFT) {n\n";
+        if (GLFW_MOD_SHIFT)
+        {
             gui->getPickHandler()->activateRay(width, height, rootNode.get());
             gui->getPickHandler()->updateMouse2D(mousepos);
 
-            if (action == GLFW_PRESS) {
-                if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            if (action == GLFW_PRESS)
+            {
+                if (button == GLFW_MOUSE_BUTTON_LEFT)
+                {
                     gui->getPickHandler()->handleMouseEvent(sofa::gui::common::PRESSED, sofa::gui::common::LEFT);
-                } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+                }
+                else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+                {
                     gui->getPickHandler()->handleMouseEvent(sofa::gui::common::PRESSED, sofa::gui::common::RIGHT);
-                } else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+                }
+                else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+                {
                     gui->getPickHandler()->handleMouseEvent(sofa::gui::common::PRESSED, sofa::gui::common::MIDDLE);
                 }
-            } else if (action == GLFW_RELEASE) {
-                if (action == GLFW_RELEASE) {
-                    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            }
+            else if (action == GLFW_RELEASE)
+            {
+                if (action == GLFW_RELEASE)
+                {
+                    if (button == GLFW_MOUSE_BUTTON_LEFT)
+                    {
                         gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::LEFT);
                         gui->getPickHandler()->deactivateRay();
-                    } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+                    }
+                    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+                    {
                         gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::RIGHT);
-                    } else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+                    }
+                    else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+                    {
                         gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::MIDDLE);
                     }
                 }
             }
-
-                gui->moveRayPickInteractor(xpos, ypos);
-            } else {
-
-                gui->getPickHandler()->activateRay(width, height, rootNode.get());
-            }
-            return true;
+            gui->moveRayPickInteractor(xpos, ypos);
         }
-
+        else
+        {
+            gui->getPickHandler()->activateRay(width, height, rootNode.get());
+        }
+        return true;
+    }
 
     void SofaGLFWWindow::scrollEvent(double xoffset, double yoffset)
     {
