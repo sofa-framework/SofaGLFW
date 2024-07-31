@@ -713,14 +713,14 @@ bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
             continue;
 
         // Get intersection of two rectangles - screen and window
-        int minX = std::max(mx, px);
-        int minY = std::max(my, py);
+        const int minX = std::max(mx, px);
+        const int minY = std::max(my, py);
 
-        int maxX = std::min(mx + mode->width, px + sx);
-        int maxY = std::min(my + mode->height, py + sy);
+        const int maxX = std::min(mx + mode->width, px + sx);
+        const int maxY = std::min(my + mode->height, py + sy);
 
         // Calculate area of the intersection
-        int area = std::max(maxX - minX, 0) * std::max(maxY - minY, 0);
+        const int area = std::max(maxX - minX, 0) * std::max(maxY - minY, 0);
 
         // If its bigger than actual (window covers more space on this monitor)
         if (area > best_area)
