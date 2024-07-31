@@ -48,7 +48,8 @@ void SofaGLFWWindow::close()
 
 void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams)
 {
-    glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), m_backgroundColor.a());
+    const auto& [r, g, b, a] = m_backgroundColor.array();
+    glClearColor(r, g, b, a);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -69,8 +70,8 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
         m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
     }
     m_currentCamera->computeZ();
-    m_currentCamera->p_widthViewport.setValue(vparams->viewport()[2]);
-    m_currentCamera->p_heightViewport.setValue(vparams->viewport()[3]);
+    m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
+    m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
 
     // matrices
     double projectionMatrix[16];
