@@ -65,7 +65,7 @@ namespace sofaglfw
         int getWindowHeight() const { return m_windowHeight; }
         void setWindowHeight(int height) { m_windowHeight = height; }
         void resizeWindow(int width, int height);
-        void updateViewportPosition(float x, float y) ;
+        void updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY) ;
 
         GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
         virtual void viewAll() override { std::cout << "viewAll() Called" << std::endl; }

@@ -209,10 +209,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             newSceneFrame->addTag(core::objectmodel::Tag("createdByGUI"));
             newSceneFrame->d_drawFrame.setValue(true);
             newSceneFrame->init();
-            firstViewport=true;
-            x=1.0f;
-            y=1.0f;
-            std::cout << "pfkepfepkfpekpfkepfkepfkpe";
         }
     }
 
@@ -560,7 +556,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    windows::showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&x,&y);
+    windows::showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&lastViewPortPosX,&lastViewPortPosY);
 
 
     /***************************************

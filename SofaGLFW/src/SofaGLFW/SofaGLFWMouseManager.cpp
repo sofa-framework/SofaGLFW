@@ -69,7 +69,6 @@ using namespace sofa;
 
 namespace sofaglfw {
 
-
     SofaGLFWMouseManager::SofaGLFWMouseManager()
     {
         RegisterOperation("attach").add<AttachOperation>();
@@ -89,15 +88,12 @@ namespace sofaglfw {
 
     void SofaGLFWMouseManager::setPickHandler(PickHandler *picker)
     {
-
         pickHandler=picker;
         updateContent();
 
         updateOperation(LEFT,   "Attach");
         updateOperation(MIDDLE, "Incise");
         updateOperation(RIGHT,  "Remove");
-
-
     }
 
     void SofaGLFWMouseManager::updateContent()

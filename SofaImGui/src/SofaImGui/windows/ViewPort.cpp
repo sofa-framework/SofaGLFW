@@ -49,8 +49,8 @@ namespace windows
                       WindowState& winManagerViewPort,
                       sofaglfw::SofaGLFWBaseGUI* baseGUI,
                       bool* firstViewport,
-                      float * x,
-                      float *y)
+                      float * lastViewPortPosX,
+                      float * lastViewPortPosY)
     {
         static auto lastTime = std::chrono::steady_clock::now();
         const float precisionThreshold = 1.0f;
@@ -62,34 +62,30 @@ namespace windows
             {
                 pos = ImGui::GetWindowPos();
 
-
                 ImGui::BeginChild("Render");
                 ImVec2 wsize = ImGui::GetWindowSize();
                 m_viewportWindowSize = { wsize.x, wsize.y};
 
                 ImVec2 viewportPos = ImGui::GetWindowPos();
-                auto currentTime = std::chrono::steady_clock::now();
-                std::chrono::duration<double> elapsedTime = currentTime - lastTime;
 
-
-                lastTime = currentTime;
-                    if (*firstViewport){
-                        *x=viewportPos.x;
-                     *y=viewportPos.y;
+                if (*firstViewport)
+                {
+                    *lastViewPortPosX=viewportPos.x;
+                    *lastViewPortPosY=viewportPos.y;
                     *firstViewport=false;
+                    baseGUI->updateViewportPosition(viewportPos.x,viewportPos.y);
+
+                }
+                else
+                {
+                    if (std::fabs(viewportPos.x - *lastViewPortPosX) > precisionThreshold ||
+                        std::fabs(viewportPos.y - *lastViewPortPosY) > precisionThreshold)
+                    {
                         baseGUI->updateViewportPosition(viewportPos.x,viewportPos.y);
-
+                        *lastViewPortPosX=viewportPos.x;
+                        *lastViewPortPosY=viewportPos.y;
                     }
-                    else {
-                        if (std::fabs(viewportPos.x - *x) > precisionThreshold ||
-                            std::fabs(viewportPos.y - *y) > precisionThreshold){
-                            baseGUI->updateViewportPosition(viewportPos.x,viewportPos.y);
-                            *x=viewportPos.x;
-                            *y=viewportPos.y;
-
-                        }
-                    }
-
+                }
 
                 ImGui::Image((ImTextureID)m_fbo->getColorTexture(), wsize, ImVec2(0, 1), ImVec2(1, 0));
 

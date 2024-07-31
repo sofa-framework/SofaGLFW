@@ -248,7 +248,7 @@ namespace sofaglfw
             glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
             glfwSetScrollCallback(glfwWindow, scroll_callback);
             glfwSetWindowCloseCallback(glfwWindow, close_callback);
-        glfwSetWindowPosCallback(glfwWindow, window_pos_callback);
+            glfwSetWindowPosCallback(glfwWindow, window_pos_callback);
             // this set empty callbacks
             // solve a crash when glfw is quitting and tries to use nullptr callbacks
             // could be potentially useful in the future anyway
@@ -277,12 +277,10 @@ namespace sofaglfw
             return false;
         }
     }
-    void SofaGLFWBaseGUI::updateViewportPosition(float x, float y) {
-        std::cout << "Updating viewport position to X: " << x << " Y: " << y << std::endl;
-        // Here you can add more logic to update the internal state or perform other operations as needed
-        viewPortPositionX=x;
-        viewPortPositionY=y;
-
+    void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
+    {
+        viewPortPositionX=lastViewPortPosX;
+        viewPortPositionY=lastViewPortPosY;
     }
 
     void SofaGLFWBaseGUI::resizeWindow(int width, int height)

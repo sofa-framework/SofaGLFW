@@ -31,8 +31,6 @@
 #include <SimpleIni.h>
 #include "windows/WindowState.h"
 
-
-
 using windows::WindowState;
 
 struct GLFWwindow;
@@ -59,8 +57,9 @@ public:
     void afterDraw() override;
     void terminate() override;
     bool dispatchMouseEvents() override;
-    bool firstViewport ;
-    float x,y;
+    bool firstViewport{true} ;
+    float lastViewPortPosX{0.0f};
+    float lastViewPortPosY{0.0f};
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;

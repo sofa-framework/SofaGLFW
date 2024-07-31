@@ -51,7 +51,7 @@ namespace windows
                            WindowState& winManagerViewPort,
                            sofaglfw::SofaGLFWBaseGUI* baseGUI,
                            bool *firstViewport,
-                           float *x,
-                           float *y);
+                           float *lastViewPortPosX,
+                           float *lastViewPortPosY);
 
 } // namespace sofaimgui
