@@ -24,34 +24,13 @@
 
 #define GLFW_INCLUDE_NONE
 
-#include <GLFW/glfw3.h>
-
 #include <SofaGLFW/SofaGLFWWindow.h>
-
-#include <sofa/helper/logging/Messaging.h>
 #include <sofa/helper/AdvancedTimer.h>
-#include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
-#include <sofa/core/visual/VisualParams.h>
-
-#include <sofa/component/visual/InteractiveCamera.h>
-#include <sofa/component/visual/VisualStyle.h>
-
-#include <sofa/helper/io/STBImage.h>
-
-#include <algorithm>
-#include <sofa/helper/system/FileRepository.h>
-#include <sofa/simulation/SimulationLoop.h>
-
-#include <sofa/core/objectmodel/KeypressedEvent.h>
-#include <sofa/core/objectmodel/KeyreleasedEvent.h>
-#include <sofa/core/objectmodel/MouseEvent.h>
 #include <sofa/gui/common/BaseViewer.h>
-#include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
 #include <sofa/gui/common/MouseOperations.h>
 #include <sofa/gui/common/OperationFactory.h>
-#include <sofa/gui/component/AttachBodyButtonSetting.h>
 
 using namespace sofa;
 using namespace sofa::gui::common;
@@ -60,7 +39,7 @@ using std::endl;
 using namespace sofa::type;
 using namespace sofa::defaulttype;
 using namespace sofa::gl;
-using sofa::simulation::getSimulation;
+using simulation::getSimulation;
 using namespace sofa::simulation;
 using namespace sofa::gui::common;
 
@@ -120,4 +99,4 @@ namespace sofaglfw {
     void SofaGLFWMouseManager::updateOperation(Operation *operation)
     {
     }
-}
+}// namespace sofaglfw

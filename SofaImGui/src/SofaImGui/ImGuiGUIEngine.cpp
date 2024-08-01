@@ -25,27 +25,18 @@
 #include <ostream>
 #include <unordered_set>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
-
-#include <sofa/core/CategoryLibrary.h>
 #include <sofa/helper/logging/LoggingMessageHandler.h>
-
-#include <sofa/core/loader/SceneLoader.h>
 #include <sofa/simulation/SceneLoaderFactory.h>
-
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/simulation/Simulation.h>
-
 #include <sofa/helper/AdvancedTimer.h>
-
 #include <GLFW/glfw3.h>
-
 #include <imgui.h>
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <implot.h>
 #include <nfd.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_opengl2.h>
 #include <IconsFontAwesome5.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
@@ -55,17 +46,12 @@
 #include <Style.h>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/helper/Utils.h>
-#include <sofa/type/vector.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualStyle.h>
-#include <sofa/core/ComponentLibrary.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/PluginManager.h>
-#include <SofaImGui/ObjectColor.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/io/File.h>
-#include <sofa/component/visual/VisualGrid.h>
-#include <sofa/component/visual/LineAxis.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/helper/io/STBImage.h>
@@ -111,7 +97,7 @@ void ImGuiGUIEngine::init()
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    static const std::string imguiIniFile(sofa::helper::Utils::getExecutableDirectory() + "/imgui.ini");
+    static const std::string imguiIniFile(helper::Utils::getExecutableDirectory() + "/imgui.ini");
     io.IniFilename = imguiIniFile.c_str();
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -119,9 +105,9 @@ void ImGuiGUIEngine::init()
 
 
     ini.SetUnicode();
-    if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getAppIniFile()))
+    if (helper::system::FileSystem::exists(AppIniFile::getAppIniFile()))
     {
-        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        SI_Error rc = ini.LoadFile(AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
     }
 
@@ -129,17 +115,17 @@ void ImGuiGUIEngine::init()
     pv = ini.GetValue("Style", "theme");
     if (!pv)
     {
-        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
-        SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        ini.SetValue("Style", "theme", defaultStyle.c_str(), "# Preset of colors and properties to change the theme of the application");
+        SI_Error rc = ini.SaveFile(AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
-        pv = sofaimgui::defaultStyle.c_str();
+        pv = defaultStyle.c_str();
     }
 
     // Setup Dear ImGui style
-    sofaimgui::setStyle(pv);
+    setStyle(pv);
 
-    sofa::helper::system::PluginManager::getInstance().readFromIniFile(
-        sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
+    helper::system::PluginManager::getInstance().readFromIniFile(
+        gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
@@ -176,14 +162,14 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     }
 }
 
-void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
+void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, core::sptr<simulation::Node>& groot, const std::string filePathName)
 {
-    sofa::simulation::node::unload(groot);
-    groot = sofa::simulation::node::load(filePathName.c_str());
+    simulation::node::unload(groot);
+    groot = simulation::node::load(filePathName.c_str());
     if( !groot )
-        groot = sofa::simulation::getSimulation()->createNewGraph("");
+        groot = simulation::getSimulation()->createNewGraph("");
     baseGUI->setSimulation(groot, filePathName);
-    sofa::simulation::node::initRoot(groot.get());
+    simulation::node::initRoot(groot.get());
     auto camera = baseGUI->findCamera(groot);
     if (camera)
     {
@@ -200,10 +186,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     bool alwaysShowFrame = ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
     if (alwaysShowFrame)
     {
-        auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>();
+        auto sceneFrame = groot->get<gl::component::rendering3d::OglSceneFrame>();
         if (!sceneFrame)
         {
-            auto newSceneFrame = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglSceneFrame>();
+            auto newSceneFrame = sofa::core::objectmodel::New<gl::component::rendering3d::OglSceneFrame>();
             groot->addObject(newSceneFrame);
             newSceneFrame->setName("viewportFrame");
             newSceneFrame->addTag(core::objectmodel::Tag("createdByGUI"));
@@ -303,7 +289,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 {
                     const auto filterName = (*it)->getFileTypeDesc();
 
-                    sofa::simulation::SceneLoader::ExtensionList extensions;
+                    simulation::SceneLoader::ExtensionList extensions;
                     (*it)->getExtensionList(&extensions);
                     std::string extensionsString;
                     for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
@@ -362,9 +348,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             if (ImGui::MenuItem(ICON_FA_TIMES_CIRCLE "  Close Simulation"))
             {
-                sofa::simulation::node::unload(groot);
+                simulation::node::unload(groot);
                 baseGUI->setSimulationIsRunning(false);
-                sofa::simulation::node::initRoot(baseGUI->getRootNode().get());
+                simulation::node::initRoot(baseGUI->getRootNode().get());
                 return;
             }
             ImGui::Separator();
@@ -386,7 +372,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Separator();
             if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_CROSSHAIRS"  Center Camera"))
             {
-                sofa::component::visual::BaseCamera::SPtr camera;
+                component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
                 if (camera)
                 {
@@ -404,7 +390,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             const std::string viewFileName = baseGUI->getFilename() + VIEW_FILE_EXTENSION;
             if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_RIGHT"  Save Camera"))
             {
-                sofa::component::visual::BaseCamera::SPtr camera;
+                component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
                 if (camera)
                 {
@@ -418,11 +404,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                 }
             }
-            bool fileExists = sofa::helper::system::FileSystem::exists(viewFileName);
+            bool fileExists = helper::system::FileSystem::exists(viewFileName);
             ImGui::BeginDisabled(!fileExists);
             if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_LEFT"  Restore Camera"))
             {
-                sofa::component::visual::BaseCamera::SPtr camera;
+                component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
                 if (camera)
                 {
@@ -457,7 +443,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 if (result == NFD_OKAY)
                 {
                     helper::io::STBImage image;
-                    image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
+                    image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, helper::io::Image::DataType::UINT32, helper::io::Image::ChannelFormat::RGBA);
 
                     glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
 
@@ -499,7 +485,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
         if (ImGui::Button(animate ? ICON_FA_PAUSE : ICON_FA_PLAY))
         {
-            sofa::helper::getWriteOnlyAccessor(groot->animate_).wref() = !animate;
+            helper::getWriteOnlyAccessor(groot->animate_).wref() = !animate;
         }
         ImGui::SameLine();
         if (animate)
@@ -511,12 +497,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             if (!animate)
             {
-                sofa::helper::AdvancedTimer::begin("Animate");
+                helper::AdvancedTimer::begin("Animate");
 
-                sofa::simulation::node::animate(groot.get(), groot->getDt());
-                sofa::simulation::node::updateVisual(groot.get());
+                simulation::node::animate(groot.get(), groot->getDt());
+                simulation::node::updateVisual(groot.get());
 
-                sofa::helper::AdvancedTimer::end("Animate");
+                helper::AdvancedTimer::end("Animate");
             }
         }
         if (animate)
@@ -528,7 +514,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::Button(ICON_FA_REDO_ALT))
         {
             groot->setTime(0.);
-            sofa::simulation::node::reset ( groot.get() );
+            simulation::node::reset ( groot.get() );
         }
 
         const auto posX = ImGui::GetCursorPosX();
@@ -556,55 +542,55 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    windows::showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&lastViewPortPosX,&lastViewPortPosY);
+    showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&lastViewPortPosX,&lastViewPortPosY);
 
 
     /***************************************
      * Performances window
      **************************************/
-    windows::showPerformances(windowNamePerformances, io,  winManagerPerformances);
+    showPerformances(windowNamePerformances, io,  winManagerPerformances);
 
 
     /***************************************
      * Profiler window
      **************************************/
-    sofa::helper::AdvancedTimer::setEnabled("Animate", winManagerProfiler.getStatePtr());
-    sofa::helper::AdvancedTimer::setInterval("Animate", 1);
-    sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
+    helper::AdvancedTimer::setEnabled("Animate", winManagerProfiler.getStatePtr());
+    helper::AdvancedTimer::setInterval("Animate", 1);
+    helper::AdvancedTimer::setOutputType("Animate", "gui");
 
-    windows::showProfiler(groot, windowNameProfiler, winManagerProfiler);
+    showProfiler(groot, windowNameProfiler, winManagerProfiler);
     /***************************************
      * Scene graph window
      **************************************/
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
-    windows::showSceneGraph(groot, windowNameSceneGraph, openedComponents, focusedComponents, winManagerSceneGraph);
+    showSceneGraph(groot, windowNameSceneGraph, openedComponents, focusedComponents, winManagerSceneGraph);
 
 
     /***************************************
      * Display flags window
      **************************************/
-    windows::showDisplayFlags(groot, windowNameDisplayFlags, winManagerDisplayFlags);
+    showDisplayFlags(groot, windowNameDisplayFlags, winManagerDisplayFlags);
 
     /***************************************
      * Plugins window
      **************************************/
-    windows::showPlugins(windowNamePlugins, winManagerPlugins);
+    showPlugins(windowNamePlugins, winManagerPlugins);
 
     /***************************************
      * Components window
      **************************************/
-    windows::showComponents(windowNameComponents, winManagerComponents);
+    showComponents(windowNameComponents, winManagerComponents);
 
     /***************************************
      * Log window
      **************************************/
-    windows::showLog(windowNameLog, winManagerLog);
+    showLog(windowNameLog, winManagerLog);
 
     /***************************************
      * Settings window
      **************************************/
-    windows::showSettings(windowNameSettings,ini, winManagerSettings);
+    showSettings(windowNameSettings,ini, winManagerSettings);
 
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
@@ -628,7 +614,7 @@ void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
 
     if (!m_fbo)
     {
-        m_fbo = std::make_unique<sofa::gl::FrameBufferObject>();
+        m_fbo = std::make_unique<gl::FrameBufferObject>();
         m_currentFBOSize = {1000, 500};
         m_fbo->init(m_currentFBOSize.first, m_currentFBOSize.second);
     }
@@ -641,7 +627,7 @@ void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
             m_currentFBOSize = {static_cast<unsigned int>(m_viewportWindowSize.first), static_cast<unsigned int>(m_viewportWindowSize.second)};
         }
     }
-    sofa::core::visual::VisualParams::defaultInstance()->viewport() = {0,0,m_currentFBOSize.first, m_currentFBOSize.second};
+    core::visual::VisualParams::defaultInstance()->viewport() = {0,0,m_currentFBOSize.first, m_currentFBOSize.second};
 
     m_fbo->start();
 }

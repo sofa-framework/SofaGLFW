@@ -33,15 +33,12 @@
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/gl/gl.h>
-#include <sofa/gui/common/BaseViewer.h>
-#include <sofa/gui/common/BaseGUI.h>
-#include <sofa/gui/common/PickHandler.h>
 
 using namespace sofa;
 
 namespace sofaglfw
 {
-    SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera)
+    SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, component::visual::BaseCamera::SPtr camera)
             : m_glfwWindow(glfwWindow)
             , m_currentCamera(camera)
     {
@@ -53,7 +50,7 @@ namespace sofaglfw
         glfwDestroyWindow(m_glfwWindow);
     }
 
-    void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams, double lastModelviewMatrix [16], double lastProjectionMatrix [16])
+    void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams* vparams, double lastModelviewMatrix [16], double lastProjectionMatrix [16])
     {
         glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), m_backgroundColor.a());
         glClearDepth(1.0);
@@ -102,20 +99,20 @@ namespace sofaglfw
         vparams->setProjectionMatrix(lastProjectionMatrix);
         vparams->setModelViewMatrix(lastModelviewMatrix);
 
-        sofa::simulation::node::draw(vparams, groot.get());
+        simulation::node::draw(vparams, groot.get());
     }
 
-    void SofaGLFWWindow::setBackgroundColor(const sofa::type::RGBAColor& newColor)
+    void SofaGLFWWindow::setBackgroundColor(const type::RGBAColor& newColor)
     {
         m_backgroundColor = newColor;
     }
 
-    void SofaGLFWWindow::setCamera(sofa::component::visual::BaseCamera::SPtr newCamera)
+    void SofaGLFWWindow::setCamera(component::visual::BaseCamera::SPtr newCamera)
     {
         m_currentCamera = newCamera;
     }
 
-    void SofaGLFWWindow::centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const
+    void SofaGLFWWindow::centerCamera(simulation::NodeSPtr node, core::visual::VisualParams* vparams) const
     {
         if (m_currentCamera)
         {
@@ -144,17 +141,17 @@ namespace sofaglfw
         {
             case GLFW_PRESS:
             {
-                sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
+                core::objectmodel::MouseEvent* mEvent = nullptr;
                 if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftPressed, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::LeftPressed, xpos, ypos);
                 else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightPressed, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::RightPressed, xpos, ypos);
                 else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddlePressed, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::MiddlePressed, xpos, ypos);
                 else
                 {
                     // A fallback event to rule them all...
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonPressed, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::AnyExtraButtonPressed, xpos, ypos);
                 }
                 m_currentCamera->manageEvent(mEvent);
 
@@ -166,17 +163,17 @@ namespace sofaglfw
             }
             case GLFW_RELEASE:
             {
-                sofa::core::objectmodel::MouseEvent* mEvent = nullptr;
+                core::objectmodel::MouseEvent* mEvent = nullptr;
                 if (m_currentButton == GLFW_MOUSE_BUTTON_LEFT)
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftReleased, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::LeftReleased, xpos, ypos);
                 else if (m_currentButton == GLFW_MOUSE_BUTTON_RIGHT)
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::RightReleased, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::RightReleased, xpos, ypos);
                 else if (m_currentButton == GLFW_MOUSE_BUTTON_MIDDLE)
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::MiddleReleased, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::MiddleReleased, xpos, ypos);
                 else
                 {
                     // A fallback event to rules them all...
-                    mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::AnyExtraButtonReleased, xpos, ypos);
+                    mEvent = new core::objectmodel::MouseEvent(core::objectmodel::MouseEvent::AnyExtraButtonReleased, xpos, ypos);
                 }
                 m_currentCamera->manageEvent(mEvent);
 
@@ -188,7 +185,7 @@ namespace sofaglfw
             }
             default:
             {
-                sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Move, xpos, ypos);
+                core::objectmodel::MouseEvent me(core::objectmodel::MouseEvent::Move, xpos, ypos);
                 m_currentCamera->manageEvent(&me);
                 break;
             }
@@ -213,7 +210,7 @@ namespace sofaglfw
 
         SofaGLFWBaseGUI *gui = static_cast<SofaGLFWBaseGUI *>(glfwGetWindowUserPointer(window));
 
-        sofa::gui::common::MousePosition mousepos;
+        gui::common::MousePosition mousepos;
         mousepos.screenWidth = width;
         mousepos.screenHeight = height;
         mousepos.x = static_cast<int>(xpos);
@@ -229,15 +226,15 @@ namespace sofaglfw
             {
                 if (button == GLFW_MOUSE_BUTTON_LEFT)
                 {
-                    gui->getPickHandler()->handleMouseEvent(sofa::gui::common::PRESSED, sofa::gui::common::LEFT);
+                    gui->getPickHandler()->handleMouseEvent(gui::common::PRESSED, gui::common::LEFT);
                 }
                 else if (button == GLFW_MOUSE_BUTTON_RIGHT)
                 {
-                    gui->getPickHandler()->handleMouseEvent(sofa::gui::common::PRESSED, sofa::gui::common::RIGHT);
+                    gui->getPickHandler()->handleMouseEvent(gui::common::PRESSED, gui::common::RIGHT);
                 }
                 else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
                 {
-                    gui->getPickHandler()->handleMouseEvent(sofa::gui::common::PRESSED, sofa::gui::common::MIDDLE);
+                    gui->getPickHandler()->handleMouseEvent(gui::common::PRESSED, gui::common::MIDDLE);
                 }
             }
             else if (action == GLFW_RELEASE)
@@ -246,16 +243,16 @@ namespace sofaglfw
                 {
                     if (button == GLFW_MOUSE_BUTTON_LEFT)
                     {
-                        gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::LEFT);
+                        gui->getPickHandler()->handleMouseEvent(gui::common::RELEASED, gui::common::LEFT);
                         gui->getPickHandler()->deactivateRay();
                     }
                     else if (button == GLFW_MOUSE_BUTTON_RIGHT)
                     {
-                        gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::RIGHT);
+                        gui->getPickHandler()->handleMouseEvent(gui::common::RELEASED, gui::common::RIGHT);
                     }
                     else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
                     {
-                        gui->getPickHandler()->handleMouseEvent(sofa::gui::common::RELEASED, sofa::gui::common::MIDDLE);
+                        gui->getPickHandler()->handleMouseEvent(gui::common::RELEASED, gui::common::MIDDLE);
                     }
                 }
             }
@@ -272,7 +269,7 @@ namespace sofaglfw
     {
         SOFA_UNUSED(xoffset);
         const double yFactor = 10.f;
-        sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Wheel, static_cast<int>(yoffset * yFactor));
+        core::objectmodel::MouseEvent me(core::objectmodel::MouseEvent::Wheel, static_cast<int>(yoffset * yFactor));
         m_currentCamera->manageEvent(&me);
     }
 

@@ -50,8 +50,8 @@ void DataWidget<bool>::showWidget(MyData& data)
  * Vec
  **********************************************************************************************************************/
 
-template< sofa::Size N, typename ValueType>
-void showVecTableHeader(Data<sofa::type::Vec<N, ValueType> >&)
+template< Size N, typename ValueType>
+void showVecTableHeader(Data<type::Vec<N, ValueType> >&)
 {
     ImGui::TableSetupColumn("");
     for (unsigned int i = 0; i < N; ++i)
@@ -61,28 +61,28 @@ void showVecTableHeader(Data<sofa::type::Vec<N, ValueType> >&)
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::Vec<1, ValueType> >&)
+void showVecTableHeader(Data<type::Vec<1, ValueType> >&)
 {
     ImGui::TableSetupColumn("X");
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::Vec<2, ValueType> >&)
+void showVecTableHeader(Data<type::Vec<2, ValueType> >&)
 {
     ImGui::TableSetupColumn("X");
     ImGui::TableSetupColumn("Y");
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::Vec<3, ValueType> >&)
+void showVecTableHeader(Data<type::Vec<3, ValueType> >&)
 {
     ImGui::TableSetupColumn("X");
     ImGui::TableSetupColumn("Y");
     ImGui::TableSetupColumn("Z");
 }
 
-template< sofa::Size N, typename ValueType>
-void showWidgetT(Data<sofa::type::Vec<N, ValueType> >& data)
+template< Size N, typename ValueType>
+void showWidgetT(Data<type::Vec<N, ValueType> >& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
     ImGui::Text("%d elements", data.getValue().size());
@@ -93,7 +93,7 @@ void showWidgetT(Data<sofa::type::Vec<N, ValueType> >& data)
         ImGui::TableHeadersRow();
 
         ImGui::TableNextRow();
-        for (const auto& v : *sofa::helper::getReadAccessor(data))
+        for (const auto& v : *helper::getReadAccessor(data))
         {
             ImGui::TableNextColumn();
             ImGui::Text("%f", v);
@@ -104,49 +104,49 @@ void showWidgetT(Data<sofa::type::Vec<N, ValueType> >& data)
 }
 
 template<>
-void DataWidget<sofa::type::Vec<1, double> >::showWidget(MyData& data)
+void DataWidget<type::Vec<1, double> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::Vec<1, float> >::showWidget(MyData& data)
+void DataWidget<type::Vec<1, float> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::Vec<2, double> >::showWidget(MyData& data)
+void DataWidget<type::Vec<2, double> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::Vec<2, float> >::showWidget(MyData& data)
+void DataWidget<type::Vec<2, float> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::Vec<3, double> >::showWidget(MyData& data)
+void DataWidget<type::Vec<3, double> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::Vec<3, float> >::showWidget(MyData& data)
+void DataWidget<type::Vec<3, float> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::Vec<4, double> >::showWidget(MyData& data)
+void DataWidget<type::Vec<4, double> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::Vec<4, float> >::showWidget(MyData& data)
+void DataWidget<type::Vec<4, float> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
@@ -155,8 +155,8 @@ void DataWidget<sofa::type::Vec<4, float> >::showWidget(MyData& data)
  * Vectors of Vec
  **********************************************************************************************************************/
 
-template< sofa::Size N, typename ValueType>
-void showVecTableHeader(Data<sofa::type::vector<sofa::type::Vec<N, ValueType> > >&)
+template< Size N, typename ValueType>
+void showVecTableHeader(Data<type::vector<type::Vec<N, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
     for (unsigned int i = 0; i < N; ++i)
@@ -166,14 +166,14 @@ void showVecTableHeader(Data<sofa::type::vector<sofa::type::Vec<N, ValueType> > 
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::vector<sofa::type::Vec<1, ValueType> > >&)
+void showVecTableHeader(Data<type::vector<type::Vec<1, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
     ImGui::TableSetupColumn("X");
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::vector<sofa::type::Vec<2, ValueType> > >&)
+void showVecTableHeader(Data<type::vector<type::Vec<2, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
     ImGui::TableSetupColumn("X");
@@ -181,7 +181,7 @@ void showVecTableHeader(Data<sofa::type::vector<sofa::type::Vec<2, ValueType> > 
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::vector<sofa::type::Vec<3, ValueType> > >&)
+void showVecTableHeader(Data<type::vector<type::Vec<3, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
     ImGui::TableSetupColumn("X");
@@ -189,8 +189,8 @@ void showVecTableHeader(Data<sofa::type::vector<sofa::type::Vec<3, ValueType> > 
     ImGui::TableSetupColumn("Z");
 }
 
-template< sofa::Size N, typename ValueType>
-void showWidgetT(Data<sofa::type::vector<sofa::type::Vec<N, ValueType> > >& data)
+template< Size N, typename ValueType>
+void showWidgetT(Data<type::vector<type::Vec<N, ValueType> > >& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
     ImGui::Text("%d elements", data.getValue().size());
@@ -201,7 +201,7 @@ void showWidgetT(Data<sofa::type::vector<sofa::type::Vec<N, ValueType> > >& data
         ImGui::TableHeadersRow();
 
         unsigned int counter {};
-        for (const auto& vec : *sofa::helper::getReadAccessor(data))
+        for (const auto& vec : *helper::getReadAccessor(data))
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
@@ -218,49 +218,49 @@ void showWidgetT(Data<sofa::type::vector<sofa::type::Vec<N, ValueType> > >& data
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<1, double> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<1, double> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<1, float> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<1, float> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<2, double> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<2, double> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<2, float> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<2, float> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<3, double> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<3, double> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<3, float> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<3, float> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<4, double> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<4, double> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::type::Vec<4, float> > >::showWidget(MyData& data)
+void DataWidget<type::vector<type::Vec<4, float> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
@@ -269,18 +269,18 @@ void DataWidget<sofa::type::vector<sofa::type::Vec<4, float> > >::showWidget(MyD
  * Vectors of RigidCoord
  **********************************************************************************************************************/
 
-template< sofa::Size N, typename ValueType>
-void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<N, ValueType> > >&)
+template< Size N, typename ValueType>
+void showVecTableHeader(Data<type::vector<defaulttype::RigidCoord<N, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
-    for (unsigned int i = 0; i < sofa::defaulttype::RigidCoord<N, ValueType>::total_size; ++i)
+    for (unsigned int i = 0; i < defaulttype::RigidCoord<N, ValueType>::total_size; ++i)
     {
         ImGui::TableSetupColumn(std::to_string(i).c_str());
     }
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<3, ValueType> > >&)
+void showVecTableHeader(Data<type::vector<defaulttype::RigidCoord<3, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
     ImGui::TableSetupColumn("X");
@@ -294,7 +294,7 @@ void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<3,
 }
 
 template<typename ValueType>
-void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<2, ValueType> > >&)
+void showVecTableHeader(Data<type::vector<defaulttype::RigidCoord<2, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
     ImGui::TableSetupColumn("X");
@@ -303,19 +303,19 @@ void showVecTableHeader(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<2,
     ImGui::TableSetupColumn("w");
 }
 
-template< sofa::Size N, typename ValueType>
-void showWidgetT(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<N, ValueType> > >& data)
+template< Size N, typename ValueType>
+void showWidgetT(Data<type::vector<defaulttype::RigidCoord<N, ValueType> > >& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
     ImGui::Text("%d elements", data.getValue().size());
-    if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), sofa::defaulttype::RigidCoord<N, ValueType>::total_size + 1, flags))
+    if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), defaulttype::RigidCoord<N, ValueType>::total_size + 1, flags))
     {
         showVecTableHeader(data);
 
         ImGui::TableHeadersRow();
 
         unsigned int counter {};
-        for (const auto& vec : *sofa::helper::getReadAccessor(data))
+        for (const auto& vec : *helper::getReadAccessor(data))
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
@@ -346,25 +346,25 @@ void showWidgetT(Data<sofa::type::vector<sofa::defaulttype::RigidCoord<N, ValueT
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<3, double> > >::showWidget(MyData& data)
+void DataWidget<type::vector<defaulttype::RigidCoord<3, double> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<3, float> > >::showWidget(MyData& data)
+void DataWidget<type::vector<defaulttype::RigidCoord<3, float> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<2, double> > >::showWidget(MyData& data)
+void DataWidget<type::vector<defaulttype::RigidCoord<2, double> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<2, float> > >::showWidget(MyData& data)
+void DataWidget<type::vector<defaulttype::RigidCoord<2, float> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
@@ -374,9 +374,9 @@ void DataWidget<sofa::type::vector<sofa::defaulttype::RigidCoord<2, float> > >::
  **********************************************************************************************************************/
 
 template< typename GeometryElement>
-void showWidgetT(Data<sofa::type::vector<sofa::topology::Element<GeometryElement> > >& data)
+void showWidgetT(Data<type::vector<topology::Element<GeometryElement> > >& data)
 {
-    constexpr auto N = sofa::topology::Element<GeometryElement>::static_size;
+    constexpr auto N = topology::Element<GeometryElement>::static_size;
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
     ImGui::Text("%d elements", data.getValue().size());
     if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), N + 1, flags))
@@ -390,7 +390,7 @@ void showWidgetT(Data<sofa::type::vector<sofa::topology::Element<GeometryElement
         ImGui::TableHeadersRow();
 
         unsigned int counter {};
-        for (const auto& vec : *sofa::helper::getReadAccessor(data))
+        for (const auto& vec : *helper::getReadAccessor(data))
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
@@ -407,43 +407,43 @@ void showWidgetT(Data<sofa::type::vector<sofa::topology::Element<GeometryElement
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::topology::Edge> >::showWidget(MyData& data)
+void DataWidget<type::vector<topology::Edge> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::topology::Hexahedron> >::showWidget(MyData& data)
+void DataWidget<type::vector<topology::Hexahedron> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::topology::Pentahedron> >::showWidget(MyData& data)
+void DataWidget<type::vector<topology::Pentahedron> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::topology::Pyramid> >::showWidget(MyData& data)
+void DataWidget<type::vector<topology::Pyramid> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::topology::Quad> >::showWidget(MyData& data)
+void DataWidget<type::vector<topology::Quad> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::topology::Tetrahedron> >::showWidget(MyData& data)
+void DataWidget<type::vector<topology::Tetrahedron> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<sofa::type::vector<sofa::topology::Triangle> >::showWidget(MyData& data)
+void DataWidget<type::vector<topology::Triangle> >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
@@ -453,7 +453,7 @@ void DataWidget<sofa::type::vector<sofa::topology::Triangle> >::showWidget(MyDat
  **********************************************************************************************************************/
 
 template<class TReal>
-void showWidgetT(Data<std::map<std::string, sofa::type::vector<TReal> > >& data)
+void showWidgetT(Data<std::map<std::string, type::vector<TReal> > >& data)
 {
     const auto& label = data.getName();
     const auto id = data.getName() + data.getOwner()->getPathName();
@@ -469,13 +469,13 @@ void showWidgetT(Data<std::map<std::string, sofa::type::vector<TReal> > >& data)
 }
 
 template<>
-void DataWidget<std::map<std::string, sofa::type::vector<double> > >::showWidget(MyData& data)
+void DataWidget<std::map<std::string, type::vector<double> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
 
 template<>
-void DataWidget<std::map<std::string, sofa::type::vector<float> > >::showWidget(MyData& data)
+void DataWidget<std::map<std::string, type::vector<float> > >::showWidget(MyData& data)
 {
     showWidgetT(data);
 }
@@ -486,57 +486,57 @@ void DataWidget<std::map<std::string, sofa::type::vector<float> > >::showWidget(
 
 const bool dw_bool = DataWidgetFactory::Add<bool>();
 
-const bool dw_vec1d = DataWidgetFactory::Add<sofa::type::Vec<1, double> >();
-const bool dw_vec1f = DataWidgetFactory::Add<sofa::type::Vec<1, float> >();
+const bool dw_vec1d = DataWidgetFactory::Add<type::Vec<1, double> >();
+const bool dw_vec1f = DataWidgetFactory::Add<type::Vec<1, float> >();
 
-const bool dw_vec2d = DataWidgetFactory::Add<sofa::type::Vec<2, double> >();
-const bool dw_vec2f = DataWidgetFactory::Add<sofa::type::Vec<2, float> >();
+const bool dw_vec2d = DataWidgetFactory::Add<type::Vec<2, double> >();
+const bool dw_vec2f = DataWidgetFactory::Add<type::Vec<2, float> >();
 
-const bool dw_vec3d = DataWidgetFactory::Add<sofa::type::Vec<3, double> >();
-const bool dw_vec3f = DataWidgetFactory::Add<sofa::type::Vec<3, float> >();
+const bool dw_vec3d = DataWidgetFactory::Add<type::Vec<3, double> >();
+const bool dw_vec3f = DataWidgetFactory::Add<type::Vec<3, float> >();
 
-const bool dw_vec4d = DataWidgetFactory::Add<sofa::type::Vec<4, double> >();
-const bool dw_vec4f = DataWidgetFactory::Add<sofa::type::Vec<4, float> >();
+const bool dw_vec4d = DataWidgetFactory::Add<type::Vec<4, double> >();
+const bool dw_vec4f = DataWidgetFactory::Add<type::Vec<4, float> >();
 
-const bool dw_vec6d = DataWidgetFactory::Add<sofa::type::Vec<6, double> >();
-const bool dw_vec6f = DataWidgetFactory::Add<sofa::type::Vec<6, float> >();
+const bool dw_vec6d = DataWidgetFactory::Add<type::Vec<6, double> >();
+const bool dw_vec6f = DataWidgetFactory::Add<type::Vec<6, float> >();
 
-const bool dw_vec8d = DataWidgetFactory::Add<sofa::type::Vec<8, double> >();
-const bool dw_vec8f = DataWidgetFactory::Add<sofa::type::Vec<8, float> >();
+const bool dw_vec8d = DataWidgetFactory::Add<type::Vec<8, double> >();
+const bool dw_vec8f = DataWidgetFactory::Add<type::Vec<8, float> >();
 
-const bool dw_vector_vec1d = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<1, double> > >();
-const bool dw_vector_vec1f = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<1, float> > >();
+const bool dw_vector_vec1d = DataWidgetFactory::Add<type::vector<type::Vec<1, double> > >();
+const bool dw_vector_vec1f = DataWidgetFactory::Add<type::vector<type::Vec<1, float> > >();
 
-const bool dw_vector_vec2d = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<2, double> > >();
-const bool dw_vector_vec2f = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<2, float> > >();
+const bool dw_vector_vec2d = DataWidgetFactory::Add<type::vector<type::Vec<2, double> > >();
+const bool dw_vector_vec2f = DataWidgetFactory::Add<type::vector<type::Vec<2, float> > >();
 
-const bool dw_vector_vec3d = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<3, double> > >();
-const bool dw_vector_vec3f = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<3, float> > >();
+const bool dw_vector_vec3d = DataWidgetFactory::Add<type::vector<type::Vec<3, double> > >();
+const bool dw_vector_vec3f = DataWidgetFactory::Add<type::vector<type::Vec<3, float> > >();
 
-const bool dw_vector_vec4d = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<4, double> > >();
-const bool dw_vector_vec4f = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<4, float> > >();
+const bool dw_vector_vec4d = DataWidgetFactory::Add<type::vector<type::Vec<4, double> > >();
+const bool dw_vector_vec4f = DataWidgetFactory::Add<type::vector<type::Vec<4, float> > >();
 
-const bool dw_vector_vec6d = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<6, double> > >();
-const bool dw_vector_vec6f = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<6, float> > >();
+const bool dw_vector_vec6d = DataWidgetFactory::Add<type::vector<type::Vec<6, double> > >();
+const bool dw_vector_vec6f = DataWidgetFactory::Add<type::vector<type::Vec<6, float> > >();
 
-const bool dw_vector_vec8d = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<8, double> > >();
-const bool dw_vector_vec8f = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Vec<8, float> > >();
+const bool dw_vector_vec8d = DataWidgetFactory::Add<type::vector<type::Vec<8, double> > >();
+const bool dw_vector_vec8f = DataWidgetFactory::Add<type::vector<type::Vec<8, float> > >();
 
-const bool dw_vector_rigid2d = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<2, double> > >();
-const bool dw_vector_rigid2f = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<2, float> > >();
+const bool dw_vector_rigid2d = DataWidgetFactory::Add<type::vector<defaulttype::RigidCoord<2, double> > >();
+const bool dw_vector_rigid2f = DataWidgetFactory::Add<type::vector<defaulttype::RigidCoord<2, float> > >();
 
-const bool dw_vector_rigid3d = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<3, double> > >();
-const bool dw_vector_rigid3f = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::RigidCoord<3, float> > >();
+const bool dw_vector_rigid3d = DataWidgetFactory::Add<type::vector<defaulttype::RigidCoord<3, double> > >();
+const bool dw_vector_rigid3f = DataWidgetFactory::Add<type::vector<defaulttype::RigidCoord<3, float> > >();
 
-const bool dw_vector_edge = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Edge > >();
-const bool dw_vector_hexa = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Hexahedron > >();
-const bool dw_vector_penta = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Pentahedron > >();
-const bool dw_vector_pyramid = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Pyramid > >();
-const bool dw_vector_quad = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Quad > >();
-const bool dw_vector_tetra = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Tetrahedron > >();
-const bool dw_vector_tri = DataWidgetFactory::Add<sofa::type::vector<sofa::topology::Triangle > >();
+const bool dw_vector_edge = DataWidgetFactory::Add<type::vector<topology::Edge > >();
+const bool dw_vector_hexa = DataWidgetFactory::Add<type::vector<topology::Hexahedron > >();
+const bool dw_vector_penta = DataWidgetFactory::Add<type::vector<topology::Pentahedron > >();
+const bool dw_vector_pyramid = DataWidgetFactory::Add<type::vector<topology::Pyramid > >();
+const bool dw_vector_quad = DataWidgetFactory::Add<type::vector<topology::Quad > >();
+const bool dw_vector_tetra = DataWidgetFactory::Add<type::vector<topology::Tetrahedron > >();
+const bool dw_vector_tri = DataWidgetFactory::Add<type::vector<topology::Triangle > >();
 
-const bool dw_map_vectorf = DataWidgetFactory::Add<std::map<std::string, sofa::type::vector<float> > >();
-const bool dw_map_vectord = DataWidgetFactory::Add<std::map<std::string, sofa::type::vector<double> > >();
+const bool dw_map_vectorf = DataWidgetFactory::Add<std::map<std::string, type::vector<float> > >();
+const bool dw_map_vectord = DataWidgetFactory::Add<std::map<std::string, type::vector<double> > >();
 
 }

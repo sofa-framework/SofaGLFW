@@ -45,13 +45,9 @@
 
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/objectmodel/KeyreleasedEvent.h>
-#include <sofa/core/objectmodel/MouseEvent.h>
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
-#include <sofa/gui/common/MouseOperations.h>
-#include <sofa/gui/common/OperationFactory.h>
-#include <sofa/gui/component/AttachBodyButtonSetting.h>
 #include "SofaGLFW/SofaGLFWMouseManager.h"
 using namespace sofa;
 using namespace sofa::gui::common;
@@ -60,19 +56,22 @@ using std::endl;
 using namespace sofa::type;
 using namespace sofa::defaulttype;
 using namespace sofa::gl;
-using sofa::simulation::getSimulation;
+using simulation::getSimulation;
 using namespace sofa::simulation;
 using namespace sofa::gui::common;
+using namespace  core::visual;
+using namespace component::visual;
+using namespace core::objectmodel;
 
 namespace sofaglfw
 {
     SofaGLFWBaseGUI::SofaGLFWBaseGUI()
-    :BaseViewer(),
-     m_sofaGLFWMouseManager(nullptr)
+            :lastProjectionMatrix{0.0},
+            lastModelviewMatrix{0.0},
+            m_sofaGLFWMouseManager(nullptr)
     {
         m_guiEngine = std::make_shared<NullGUIEngine>();
         m_sofaGLFWMouseManager = new SofaGLFWMouseManager();
-
     }
 
     SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
@@ -80,7 +79,7 @@ namespace sofaglfw
         terminate();
     }
 
-    sofa::core::sptr<sofa::simulation::Node> SofaGLFWBaseGUI::getRootNode() const
+    core::sptr<Node> SofaGLFWBaseGUI::getRootNode() const
     {
         return m_groot;
     }
@@ -99,7 +98,7 @@ namespace sofaglfw
             // max = 32 (MSAA with 32 samples)
             glfwWindowHint(GLFW_SAMPLES, std::clamp(nbMSAASamples, 0, 32) );
 
-            m_glDrawTool = new sofa::gl::DrawToolGL();
+            m_glDrawTool = new DrawToolGL();
             m_bGlfwIsInitialized = true;
             return true;
         }
@@ -114,11 +113,11 @@ namespace sofaglfw
         glfwSetErrorCallback(error_callback);
     }
 
-    void SofaGLFWBaseGUI::setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename) {
+    void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename) {
         m_groot = groot;
         m_filename = filename;
 
-        sofa::core::visual::VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
+        VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
 
         if (m_groot) {
             // Initialize the pick handler
@@ -146,14 +145,14 @@ namespace sofaglfw
         return false;
     }
 
-    sofa::component::visual::BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(sofa::simulation::NodeSPtr groot)
+   BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(NodeSPtr groot)
     {
-        sofa::component::visual::BaseCamera::SPtr camera;
+        BaseCamera::SPtr camera;
         groot->get(camera);
         if (!camera)
         {
-            camera = sofa::core::objectmodel::New<component::visual::InteractiveCamera>();
-            camera->setName(core::objectmodel::Base::shortName(camera.get()));
+            camera = sofa::core::objectmodel::New<InteractiveCamera>();
+            camera->setName(Base::shortName(camera.get()));
             m_groot->addObject(camera);
             camera->bwdInit();
         }
@@ -180,7 +179,7 @@ namespace sofaglfw
         return m_windowHeight;
     }
 
-    void SofaGLFWBaseGUI::changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera)
+    void SofaGLFWBaseGUI::changeCamera(BaseCamera::SPtr newCamera)
     {
         for (auto& w : s_mapWindows)
         {
@@ -191,9 +190,9 @@ namespace sofaglfw
     void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
     {
         //STBImage relies on DataRepository to find files: it must be extended with the resource files from this plugin
-        sofa::helper::system::DataRepository.addFirstPath(SOFAGLFW_RESOURCES_DIR);
+        helper::system::DataRepository.addFirstPath(SOFAGLFW_RESOURCES_DIR);
 
-        sofa::helper::io::STBImage img;
+        helper::io::STBImage img;
         if (img.load("SOFA.png"))
         {
             GLFWimage images[1];
@@ -202,7 +201,7 @@ namespace sofaglfw
             images[0].pixels = img.getPixels();
             glfwSetWindowIcon(glfwWindow, 1, images);
         }
-        sofa::helper::system::DataRepository.removePath(SOFAGLFW_RESOURCES_DIR);
+        helper::system::DataRepository.removePath(SOFAGLFW_RESOURCES_DIR);
     }
 
         bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
@@ -272,10 +271,9 @@ namespace sofaglfw
 
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
+
     }
     void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
     {
@@ -375,7 +373,7 @@ namespace sofaglfw
         }
     }
 
-    void SofaGLFWBaseGUI::setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int /* windowID */)
+    void SofaGLFWBaseGUI::setBackgroundColor(const RGBAColor& newColor, unsigned int /* windowID */)
     {
         // only manage the first window for now
         if (hasWindow())
@@ -413,7 +411,7 @@ namespace sofaglfw
             return 0;
         }
 
-        m_vparams = sofa::core::visual::VisualParams::defaultInstance();
+        m_vparams = VisualParams::defaultInstance();
         viewPortWidth=m_vparams->viewport()[2];
         viewPortHeight=m_vparams->viewport()[3];
 
@@ -451,8 +449,6 @@ namespace sofaglfw
                             viewPortHeight=m_vparams->viewport()[3];
                             viewPortWidth=m_vparams->viewport()[2];
                         }
-
-
                     }
                     else
                     {
@@ -473,17 +469,17 @@ namespace sofaglfw
 
     void SofaGLFWBaseGUI::initVisual()
     {
-        sofa::simulation::node::initTextures(m_groot.get());
+        node::initTextures(m_groot.get());
 
-        component::visual::VisualStyle::SPtr visualStyle = nullptr;
+        VisualStyle::SPtr visualStyle = nullptr;
         m_groot->get(visualStyle);
         if (!visualStyle)
         {
-            visualStyle = sofa::core::objectmodel::New<component::visual::VisualStyle>();
-            visualStyle->setName(sofa::helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
+            visualStyle = sofa::core::objectmodel::New<VisualStyle>();
+            visualStyle->setName(helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
 
-            core::visual::DisplayFlags* displayFlags = visualStyle->displayFlags.beginEdit();
-            displayFlags->setShowVisualModels(sofa::core::visual::tristate::true_value);
+            DisplayFlags* displayFlags = visualStyle->d_displayFlags.beginEdit();
+            displayFlags->setShowVisualModels(tristate::true_value);
             visualStyle->displayFlags.endEdit();
 
             m_groot->addObject(visualStyle);
@@ -519,7 +515,7 @@ namespace sofaglfw
 
         glEnable(GL_LIGHT0);
 
-        m_vparams = sofa::core::visual::VisualParams::defaultInstance();
+        m_vparams = VisualParams::defaultInstance();
         for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
         {
             sofaGlfwWindow->centerCamera(m_groot, m_vparams);
@@ -530,12 +526,12 @@ namespace sofaglfw
     {
         if(simulationIsRunning())
         {
-            sofa::helper::AdvancedTimer::begin("Animate");
+            helper::AdvancedTimer::begin("Animate");
 
-            simulation::node::animate(m_groot.get(), m_groot->getDt());
-            simulation::node::updateVisual(m_groot.get());
+            node::animate(m_groot.get(), m_groot->getDt());
+            node::updateVisual(m_groot.get());
 
-            sofa::helper::AdvancedTimer::end("Animate");
+            helper::AdvancedTimer::end("Animate");
         }
     }
 
@@ -571,7 +567,7 @@ namespace sofaglfw
 
     void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        const char keyName = SofaGLFWBaseGUI::handleArrowKeys(key);
+        const char keyName = handleArrowKeys(key);
         const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
         auto currentGUI = s_mapGUIs.find(window);
@@ -592,13 +588,13 @@ namespace sofaglfw
             {
                 dmsg_info_when(key == GLFW_KEY_LEFT_CONTROL, "SofaGLFWBaseGUI") << "KeyPressEvent, CONTROL pressed";
 
-                sofa::core::objectmodel::KeypressedEvent keyPressedEvent(keyName);
-                rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyPressedEvent);
+                KeypressedEvent keyPressedEvent(keyName);
+                rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyPressedEvent);
             }
             else if (action == GLFW_RELEASE)
             {
-                sofa::core::objectmodel::KeyreleasedEvent keyReleasedEvent(keyName);
-                rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyReleasedEvent);
+                KeyreleasedEvent keyReleasedEvent(keyName);
+                rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyReleasedEvent);
             }
         }
 
@@ -625,24 +621,28 @@ namespace sofaglfw
                 }
                 break;
             case GLFW_KEY_LEFT_SHIFT:
-                if (action == GLFW_PRESS)
+                if (currentGUI->second->getPickHandler()) // Check if getPickHandler() is not null
                 {
-                    const int viewport[4] = {};
-                    currentGUI->second->getPickHandler()->activateRay(viewport[2],viewport[3], rootNode.get());
-                    break;
-                }
-                else
-                {
-                    if (currentGUI->second->getPickHandler())
+                    if (action == GLFW_PRESS)
+                    {
+                        int viewport[4] = {}; // Properly initialize the viewport array
+                        currentGUI->second->getPickHandler()->activateRay(viewport[2], viewport[3], rootNode.get());
+                    }
+                    else if (action == GLFW_RELEASE)
+                    {
                         currentGUI->second->getPickHandler()->deactivateRay();
-                    break;
+                    }
                 }
+                break;
+
+            default:
+                break;
         }
     }
 
     void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
     {
-        const sofa::core::visual::VisualParams::Viewport& viewport = m_vparams->viewport();
+        const VisualParams::Viewport& viewport = m_vparams->viewport();
 
         Vec3d p0;
         Vec3d px;
@@ -721,11 +721,12 @@ namespace sofaglfw
         }
 
         bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+
         if (shiftPressed )
         {
             // Check if the animation is running
             if (!currentGUI->second->simulationIsRunning()) {
-                std::cout << "Animation is not running. Ignoring mouse interaction." << std::endl;
+                msg_error("SofaGLFWBaseGUI") << "Animation is not running. Ignoring mouse interaction.";
                 return;
             }
 

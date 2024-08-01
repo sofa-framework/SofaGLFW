@@ -145,7 +145,7 @@ namespace sofaglfw
         double translatedYpos {0};
 
 
-        std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;
+        std::shared_ptr<BaseGUIEngine> m_guiEngine;
     };
 
 } // namespace sofaglfw

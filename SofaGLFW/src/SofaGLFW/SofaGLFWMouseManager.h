@@ -20,27 +20,10 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaGLFW/config.h>
 #include <sofa/gui/common/PickHandler.h>
-#include <SofaGLFW/config.h>
-
-#include <sofa/simulation/Simulation.h>
-#include <sofa/gl/DrawToolGL.h>
 #include <sofa/component/visual/BaseCamera.h>
-#include <sofa/simulation/Node.h>
-
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <SofaGLFW/NullGUIEngine.h>
 #include <sofa/gui/common/BaseViewer.h>
-#include <memory>
-
-#include <sofa/gui/common/PickHandler.h>
 #include <sofa/gui/common/MouseOperations.h>
-
-
-
-#include <sofa/simulation/fwd.h>
-#include <sofa/component/visual/BaseCamera.h>
 #include "SofaGLFWBaseGUI.h"
 
 struct GLFWwindow;
