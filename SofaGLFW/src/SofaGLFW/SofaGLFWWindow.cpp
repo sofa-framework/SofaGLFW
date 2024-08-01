@@ -75,30 +75,30 @@ namespace sofaglfw
     m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
     m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
 
-        m_currentCamera->getModelViewMatrix( lastModelviewMatrix );
-        vparams->setModelViewMatrix( lastModelviewMatrix );
-        // matrices
-        double projectionMatrix[16];
-        double mvMatrix[16];
-        m_currentCamera->getOpenGLProjectionMatrix(lastProjectionMatrix);
-        m_currentCamera->getOpenGLModelViewMatrix(lastModelviewMatrix);
+    m_currentCamera->getModelViewMatrix( lastModelviewMatrix );
+    vparams->setModelViewMatrix( lastModelviewMatrix );
+    // matrices
+    double projectionMatrix[16];
+    double mvMatrix[16];
+    m_currentCamera->getOpenGLProjectionMatrix(lastProjectionMatrix);
+    m_currentCamera->getOpenGLModelViewMatrix(lastModelviewMatrix);
 
-        glViewport(0, 0, vparams->viewport()[2], vparams->viewport()[3]);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glMultMatrixd(lastProjectionMatrix);
+    glViewport(0, 0, vparams->viewport()[2], vparams->viewport()[3]);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMultMatrixd(lastProjectionMatrix);
 
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glMultMatrixd(lastModelviewMatrix);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glMultMatrixd(lastModelviewMatrix);
 
-        // Update the visual params
-        vparams->zNear() = m_currentCamera->getZNear();
-        vparams->zFar() = m_currentCamera->getZFar();
-        vparams->setProjectionMatrix(lastProjectionMatrix);
-        vparams->setModelViewMatrix(lastModelviewMatrix);
+    // Update the visual params
+    vparams->zNear() = m_currentCamera->getZNear();
+    vparams->zFar() = m_currentCamera->getZFar();
+    vparams->setProjectionMatrix(lastProjectionMatrix);
+    vparams->setModelViewMatrix(lastModelviewMatrix);
 
-        simulation::node::draw(vparams, groot.get());
+    simulation::node::draw(vparams, groot.get());
     }
 
     void SofaGLFWWindow::setBackgroundColor(const type::RGBAColor& newColor)
