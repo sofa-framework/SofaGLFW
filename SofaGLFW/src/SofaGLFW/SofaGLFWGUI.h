@@ -46,6 +46,7 @@ public:
     void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
     sofa::simulation::Node* currentSimulation() override;
     void setViewerResolution(int width, int height) override;
+    void centerWindow() override;
     void setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf) override;
     void setFullScreen() override;
     void setBackgroundColor(const sofa::type::RGBAColor& color) override;

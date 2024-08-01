@@ -35,10 +35,9 @@
 #include <sofa/gl/gl.h>
 
 using namespace sofa;
-
 namespace sofaglfw
 {
-    SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, component::visual::BaseCamera::SPtr camera)
+    SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera)
             : m_glfwWindow(glfwWindow)
             , m_currentCamera(camera)
     {
@@ -50,11 +49,11 @@ namespace sofaglfw
         glfwDestroyWindow(m_glfwWindow);
     }
 
-    void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams* vparams, double lastModelviewMatrix [16], double lastProjectionMatrix [16])
-    {
-        glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), m_backgroundColor.a());
-        glClearDepth(1.0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams, double lastModelviewMatrix [16], double lastProjectionMatrix [16]){
+    glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), m_backgroundColor.a());
+    glClearDepth(1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_LIGHTING);
         glEnable(GL_DEPTH_TEST);
@@ -67,14 +66,14 @@ namespace sofaglfw
             return;
         }
 
-        if (groot->f_bbox.getValue().isValid())
-        {
-            vparams->sceneBBox() = groot->f_bbox.getValue();
-            m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
-        }
-        m_currentCamera->computeZ();
-        m_currentCamera->p_widthViewport.setValue(vparams->viewport()[2]);
-        m_currentCamera->p_heightViewport.setValue(vparams->viewport()[3]);
+    if (groot->f_bbox.getValue().isValid())
+    {
+        vparams->sceneBBox() = groot->f_bbox.getValue();
+        m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
+    }
+    m_currentCamera->computeZ();
+    m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
+    m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
 
         m_currentCamera->getModelViewMatrix( lastModelviewMatrix );
         vparams->setModelViewMatrix( lastModelviewMatrix );

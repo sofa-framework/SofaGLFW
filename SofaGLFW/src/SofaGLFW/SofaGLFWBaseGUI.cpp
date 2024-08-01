@@ -871,4 +871,82 @@ namespace sofaglfw
         // that would have led to regular text input and generally behaves as a standard text field on that platform.
     }
 
+bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
+{
+    if (hasWindow())
+    {
+        // only manage the first window for now
+        // and the main screen
+        window = (!window) ? m_firstWindow : window;
+    }
+
+    int sx = 0, sy = 0;
+    int px = 0, py = 0;
+    int mx = 0, my = 0;
+    int monitor_count = 0;
+    int best_area = 0;
+    int final_x = 0, final_y = 0;
+
+    glfwGetWindowSize(window, &sx, &sy);
+    glfwGetWindowPos(window, &px, &py);
+
+    // Iterate throug all monitors
+    GLFWmonitor** m = glfwGetMonitors(&monitor_count);
+    if (!m)
+        return false;
+
+    for (int j = 0; j < monitor_count; ++j)
+    {
+
+        glfwGetMonitorPos(m[j], &mx, &my);
+        const GLFWvidmode* mode = glfwGetVideoMode(m[j]);
+        if (!mode)
+            continue;
+
+        // Get intersection of two rectangles - screen and window
+        const int minX = std::max(mx, px);
+        const int minY = std::max(my, py);
+
+        const int maxX = std::min(mx + mode->width, px + sx);
+        const int maxY = std::min(my + mode->height, py + sy);
+
+        // Calculate area of the intersection
+        const int area = std::max(maxX - minX, 0) * std::max(maxY - minY, 0);
+
+        // If its bigger than actual (window covers more space on this monitor)
+        if (area > best_area)
+        {
+            // Calculate proper position in this monitor
+            final_x = mx + (mode->width - sx) / 2;
+            final_y = my + (mode->height - sy) / 2;
+
+            best_area = area;
+        }
+
+    }
+
+    // We found something
+    if (best_area)
+        glfwSetWindowPos(window, final_x, final_y);
+
+    // Something is wrong - current window has NOT any intersection with any monitors. Move it to the default one.
+    else
+    {
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        if (primary)
+        {
+            const GLFWvidmode* desktop = glfwGetVideoMode(primary);
+
+            if (desktop)
+                glfwSetWindowPos(window, (desktop->width - sx) / 2, (desktop->height - sy) / 2);
+            else
+                return false;
+        }
+        else
+            return false;
+    }
+
+    return true;
+}
+
 } // namespace sofaglfw

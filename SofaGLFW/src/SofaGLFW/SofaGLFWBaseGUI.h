@@ -48,36 +48,40 @@ namespace sofaglfw
 
     class SOFAGLFW_API SofaGLFWBaseGUI : public sofa::gui::common::BaseViewer {
     public:
+
         SofaGLFWBaseGUI();
+
         virtual ~SofaGLFWBaseGUI();
+
         bool init(int nbMSAASamples = 0);
         void setErrorCallback() const;
         void setSimulation(sofa::simulation::NodeSPtr groot, const std::string& filename = std::string());
         void setSimulationIsRunning(bool running);
         bool simulationIsRunning() const;
+
         bool createWindow(int width, int height, const char* title, bool fullscreenAtStartup = false);
         void destroyWindow();
         void initVisual();
         std::size_t runLoop(std::size_t targetNbIterations = 0);
         void terminate();
+
         int getWindowWidth() const { return m_windowWidth; }
         void setWindowWidth(int width) { m_windowWidth = width; }
         int getWindowHeight() const { return m_windowHeight; }
         void setWindowHeight(int height) { m_windowHeight = height; }
         void resizeWindow(int width, int height);
+        bool centerWindow(GLFWwindow* window = nullptr);
         void updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY) ;
 
         GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
-        virtual void viewAll() override { std::cout << "viewAll() Called" << std::endl; }
-        virtual void saveView() override { std::cout << "saveView() Called" << std::endl; }
-        virtual void setSizeW(int width) override;
-        virtual void setSizeH(int height) override;
-        virtual int getWidth() override;
-        virtual int getHeight() override;
-        virtual void drawScene() override { std::cout << "drawScene() Called" << std::endl; }
-        virtual void redraw() override { std::cout << "redraw() Called" << std::endl; }
-
-        bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
+        virtual void viewAll() ;
+        virtual void saveView() ;
+        virtual void setSizeW(int width) ;
+        virtual void setSizeH(int height) ;
+        virtual int getWidth() ;
+        virtual int getHeight() ;
+        virtual void drawScene()   ;
+        virtual void redraw()  ;        bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
         void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int screenID = 0);
         void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int windowID = 0);
         virtual void setBackgroundImage(const std::string& imageFileName = "textures/SOFA_logo.bmp", unsigned int windowID = 0);
