@@ -49,7 +49,6 @@ namespace windows
     {
         if (*winManagerViewPort.getStatePtr())
         {
-            std::setprecision(1);
             ImVec2 pos;
             if (ImGui::Begin(windowNameViewport, winManagerViewPort.getStatePtr()/*, ImGuiWindowFlags_MenuBar*/))
             {

@@ -163,20 +163,40 @@ namespace sofaglfw
     }
 
 
-    void SofaGLFWBaseGUI::setSizeW(int width) {
+    void SofaGLFWBaseGUI::setSizeW(int width)
+    {
         m_windowWidth = width;
     }
 
-    void SofaGLFWBaseGUI::setSizeH(int height) {
+    void SofaGLFWBaseGUI::setSizeH(int height)
+    {
         m_windowHeight = height;
     }
 
-    int SofaGLFWBaseGUI::getWidth() {
+    int SofaGLFWBaseGUI::getWidth()
+    {
         return m_windowWidth;
     }
 
-    int SofaGLFWBaseGUI::getHeight() {
+    int SofaGLFWBaseGUI::getHeight()
+    {
         return m_windowHeight;
+    }
+
+    void SofaGLFWBaseGUI::redraw()
+    {
+    }
+
+    void SofaGLFWBaseGUI::drawScene()
+    {
+    }
+
+    void SofaGLFWBaseGUI::viewAll()
+    {
+    }
+
+    void SofaGLFWBaseGUI::saveView()
+    {
     }
 
     void SofaGLFWBaseGUI::changeCamera(BaseCamera::SPtr newCamera)

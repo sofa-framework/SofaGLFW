@@ -26,9 +26,6 @@
 #include <sofa/gui/common/MouseOperations.h>
 #include "SofaGLFWBaseGUI.h"
 
-struct GLFWwindow;
-struct GLFWmonitor;
-class SofaMouseManager;
 
 using namespace sofa::gui::common;
 
