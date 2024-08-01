@@ -134,7 +134,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
-    ImGui_ImplOpenGL2_Init();
+    ImGui_ImplOpenGL3_NewFrame;
 #else
     ImGui_ImplOpenGL3_Init(nullptr);
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
@@ -200,7 +200,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     // Start the Dear ImGui frame
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
-    ImGui_ImplOpenGL2_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
 #else
     ImGui_ImplOpenGL3_NewFrame();
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
@@ -594,7 +594,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
-    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #else
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
@@ -642,7 +642,7 @@ void ImGuiGUIEngine::terminate()
     NFD_Quit();
 
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
-    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
 #else
     ImGui_ImplOpenGL3_Shutdown();
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
