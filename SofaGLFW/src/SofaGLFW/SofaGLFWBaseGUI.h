@@ -65,6 +65,7 @@ public:
     int getWindowHeight() const { return m_windowHeight; }
     void setWindowHeight(int height) { m_windowHeight = height; }
     void resizeWindow(int width, int height);
+    bool centerWindow(GLFWwindow* window = nullptr);
 
     GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
 
