@@ -879,6 +879,10 @@ bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
         // and the main screen
         window = (!window) ? m_firstWindow : window;
     }
+    if (window == nullptr)
+    {
+            return false;
+    }
 
     int sx = 0, sy = 0;
     int px = 0, py = 0;

@@ -74,14 +74,16 @@ namespace sofaglfw
         void updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY) ;
 
         GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
-        virtual void viewAll() ;
-        virtual void saveView() ;
-        virtual void setSizeW(int width) ;
-        virtual void setSizeH(int height) ;
-        virtual int getWidth() ;
-        virtual int getHeight() ;
-        virtual void drawScene()   ;
-        virtual void redraw()  ;        bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
+        virtual void viewAll() override { std::cout << "viewAll() Called" << std::endl; }
+        virtual void saveView() override { std::cout << "saveView() Called" << std::endl; }
+        virtual void setSizeW(int width) override;
+        virtual void setSizeH(int height) override;
+        virtual int getWidth() override;
+        virtual int getHeight() override;
+        virtual void drawScene() override { std::cout << "drawScene() Called" << std::endl; }
+        virtual void redraw() override { std::cout << "redraw() Called" << std::endl; }
+
+        bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
         void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int screenID = 0);
         void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int windowID = 0);
         virtual void setBackgroundImage(const std::string& imageFileName = "textures/SOFA_logo.bmp", unsigned int windowID = 0);
