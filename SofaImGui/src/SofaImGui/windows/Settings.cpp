@@ -66,25 +66,33 @@ namespace windows
                     ImGui::EndCombo();
                 }
 
+                float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
+                {
+                    ImGuiIO& io = ImGui::GetIO();
+                    io.FontGlobalScale = globalScale;
+                    constexpr float MIN_SCALE = 0.3f;
+                    constexpr float MAX_SCALE = 2.0f;
+                    ImGui::DragFloat("global scale", &io.FontGlobalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
 
-                ImGuiIO& io = ImGui::GetIO();
-                const float MIN_SCALE = 0.3f;
-                const float MAX_SCALE = 2.0f;
-                ImGui::DragFloat("global scale", &io.FontGlobalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
-
+                    ini.SetDoubleValue("Visualization", "globalScale", static_cast<double>(io.FontGlobalScale));
+                    if (std::abs(globalScale - io.FontGlobalScale) > 0.005f)
+                    {
+                        [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                    }
+                }
 
                 bool alwaysShowFrame = ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
                 if (ImGui::Checkbox("Always show scene frame", &alwaysShowFrame))
                 {
                     ini.SetBoolValue("Visualization", "alwaysShowFrame", alwaysShowFrame);
-                    SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                    [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                 }
 
                 bool showViewportSettingsButton = ini.GetBoolValue("Visualization", "showViewportSettingsButton", true);
                 if (ImGui::Checkbox("Show viewport settings button", &showViewportSettingsButton))
                 {
                     ini.SetBoolValue("Visualization", "showViewportSettingsButton", showViewportSettingsButton);
-                    SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                    [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                 }
 
             }
