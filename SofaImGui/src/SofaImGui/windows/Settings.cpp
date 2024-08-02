@@ -72,7 +72,10 @@ namespace windows
                     ImGui::DragFloat("global scale", &io.FontGlobalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
 
                     ini.SetDoubleValue("Visualization", "globalScale", static_cast<double>(io.FontGlobalScale));
-                    [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                    if (std::abs(globalScale - io.FontGlobalScale) > 0.005f)
+                    {
+                        [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                    }
                 }
 
                 bool alwaysShowFrame = ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
