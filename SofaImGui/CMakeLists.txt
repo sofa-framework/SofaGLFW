@@ -85,6 +85,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.h
+    ${SOFAIMGUI_SOURCE_DIR}/UIStrings.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
