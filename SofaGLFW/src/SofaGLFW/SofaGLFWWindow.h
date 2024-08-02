@@ -31,33 +31,33 @@ struct GLFWwindow;
 namespace sofaglfw
 {
 
-    class SOFAGLFW_API SofaGLFWWindow
-    {
-    public:
-        SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera);
-        virtual ~SofaGLFWWindow() = default;
+class SOFAGLFW_API SofaGLFWWindow
+{
+public:
+    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera);
+    virtual ~SofaGLFWWindow() = default;
 
-        void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams,double  lastModelviewMatrix [16],double lastProjectionMatrix[16]);
-        void close();
+    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams,double  lastModelviewMatrix [16],double lastProjectionMatrix[16]);
+    void close();
 
-        void mouseMoveEvent(int xpos, int ypos,SofaGLFWBaseGUI* gui);
-        void mouseButtonEvent(int button, int action, int mods);
-        void scrollEvent(double xoffset, double yoffset);
-        void setBackgroundColor(const sofa::type::RGBAColor& newColor);
+    void mouseMoveEvent(int xpos, int ypos,SofaGLFWBaseGUI* gui);
+    void mouseButtonEvent(int button, int action, int mods);
+    void scrollEvent(double xoffset, double yoffset);
+    void setBackgroundColor(const sofa::type::RGBAColor& newColor);
 
-        void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
-        void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
-        bool mouseEvent(GLFWwindow* window,int width,int height ,int button, int action, int mods, double xpos, double ypos);  // Declaration for mouseEvent function
+    void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
+    void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
+    bool mouseEvent(GLFWwindow* window,int width,int height ,int button, int action, int mods, double xpos, double ypos);  // Declaration for mouseEvent function
 
-    private:
-        GLFWwindow* m_glfwWindow{nullptr};
-        sofa::component::visual::BaseCamera::SPtr m_currentCamera;
-        int m_currentButton{ -1 };
-        int m_currentAction{ -1 };
-        int m_currentMods{ -1 };
-        int m_currentXPos{ -1 };
-        int m_currentYPos{ -1 };
-        sofa::type::RGBAColor m_backgroundColor{ sofa::type::RGBAColor::black() };
-    };
+private:
+    GLFWwindow* m_glfwWindow{nullptr};
+    sofa::component::visual::BaseCamera::SPtr m_currentCamera;
+    int m_currentButton{ -1 };
+    int m_currentAction{ -1 };
+    int m_currentMods{ -1 };
+    int m_currentXPos{ -1 };
+    int m_currentYPos{ -1 };
+    sofa::type::RGBAColor m_backgroundColor{ sofa::type::RGBAColor::black() };
+};
 
 } // namespace sofaglfw

@@ -55,16 +55,16 @@ namespace sofaglfw
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glEnable(GL_LIGHTING);
-        glEnable(GL_DEPTH_TEST);
-        glDisable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_COLOR_MATERIAL);
 
-        // draw the scene
-        if (!m_currentCamera)
-        {
-            msg_error("SofaGLFWGUI") << "No camera defined.";
-            return;
-        }
+    // draw the scene
+    if (!m_currentCamera)
+    {
+        msg_error("SofaGLFWGUI") << "No camera defined.";
+        return;
+    }
 
     if (groot->f_bbox.getValue().isValid())
     {

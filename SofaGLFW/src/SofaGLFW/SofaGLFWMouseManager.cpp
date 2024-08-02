@@ -20,7 +20,6 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-#include "SofaGLFW/SofaGLFWMouseManager.h"
 
 #define GLFW_INCLUDE_NONE
 
@@ -31,6 +30,7 @@
 #include <sofa/gui/common/PickHandler.h>
 #include <sofa/gui/common/MouseOperations.h>
 #include <sofa/gui/common/OperationFactory.h>
+#include "SofaGLFW/SofaGLFWMouseManager.h"
 
 using namespace sofa;
 using namespace sofa::gui::common;
@@ -61,42 +61,22 @@ namespace sofaglfw {
         RegisterOperation("Suture").add< AddSutureOperation >();
         RegisterOperation("ConstraintAttach").add< ConstraintAttachOperation >();
     }
-    SofaGLFWMouseManager::~SofaGLFWMouseManager()
-    {
-    }
 
     void SofaGLFWMouseManager::setPickHandler(PickHandler *picker)
     {
         pickHandler=picker;
-        updateContent();
 
         updateOperation(LEFT,   "Attach");
         updateOperation(MIDDLE, "Incise");
         updateOperation(RIGHT,  "Remove");
     }
 
-    void SofaGLFWMouseManager::updateContent()
-    {
-    }
-
-    void SofaGLFWMouseManager::render()
-    {
-    }
-
-    void SofaGLFWMouseManager::selectOperation(int button)
-    {
-    }
-
     void SofaGLFWMouseManager::updateOperation(MOUSE_BUTTON button, const std::string &id)
     {
         if (pickHandler)
         {
-            Operation *operation = pickHandler->changeOperation(button, id);
-            updateOperation(operation);
+            pickHandler->changeOperation(button, id);
         }
     }
 
-    void SofaGLFWMouseManager::updateOperation(Operation *operation)
-    {
-    }
 }// namespace sofaglfw

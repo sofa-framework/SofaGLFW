@@ -33,6 +33,7 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/core/visual/VisualParams.h>
+#include "SofaGLFW/SofaGLFWMouseManager.h"
 
 #include <sofa/component/visual/InteractiveCamera.h>
 #include <sofa/component/visual/VisualStyle.h>
@@ -48,7 +49,6 @@
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
-#include "SofaGLFW/SofaGLFWMouseManager.h"
 using namespace sofa;
 using namespace sofa::gui::common;
 
@@ -65,14 +65,12 @@ using namespace core::objectmodel;
 
 namespace sofaglfw
 {
-    SofaGLFWBaseGUI::SofaGLFWBaseGUI()
-            :lastProjectionMatrix{0.0},
-            lastModelviewMatrix{0.0},
-            m_sofaGLFWMouseManager(nullptr)
-    {
-        m_guiEngine = std::make_shared<NullGUIEngine>();
-        m_sofaGLFWMouseManager = new SofaGLFWMouseManager();
-    }
+SofaGLFWBaseGUI::SofaGLFWBaseGUI()
+        :lastProjectionMatrix{0.0},
+         lastModelviewMatrix{0.0}
+{
+    m_guiEngine = std::make_shared<NullGUIEngine>();
+}
 
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
 {
@@ -113,18 +111,19 @@ void SofaGLFWBaseGUI::setErrorCallback() const
     glfwSetErrorCallback(error_callback);
 }
 
-void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename) {
+void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename)
+{
     m_groot = groot;
     m_filename = filename;
 
-        VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
+    VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
 
-        if (m_groot) {
-            // Initialize the pick handler
-            this->pick->init(m_groot.get());
-            m_sofaGLFWMouseManager->setPickHandler(getPickHandler());
-        }
+    if (m_groot) {
+        // Initialize the pick handler
+        this->pick->init(m_groot.get());
+        m_sofaGLFWMouseManager.setPickHandler(getPickHandler());
     }
+}
 
 void SofaGLFWBaseGUI::setSimulationIsRunning(bool running)
 {
@@ -199,13 +198,13 @@ BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(NodeSPtr groot)
     {
     }
 
-    void SofaGLFWBaseGUI::changeCamera(BaseCamera::SPtr newCamera)
+void SofaGLFWBaseGUI::changeCamera(BaseCamera::SPtr newCamera)
+{
+    for (auto& w : s_mapWindows)
     {
-        for (auto& w : s_mapWindows)
-        {
-            w.second->setCamera(newCamera);
-        }
+        w.second->setCamera(newCamera);
     }
+}
 
 void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
 {
@@ -224,7 +223,7 @@ void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
     helper::system::DataRepository.removePath(SOFAGLFW_RESOURCES_DIR);
 }
 
-    bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
+bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
     m_guiEngine->init();
 
@@ -297,17 +296,17 @@ void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
 }
     void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
     {
-        viewPortPositionX=lastViewPortPosX;
-        viewPortPositionY=lastViewPortPosY;
+        viewPortPosition[0]=lastViewPortPosX;
+        viewPortPosition[1]=lastViewPortPosY;
     }
 
-    void SofaGLFWBaseGUI::resizeWindow(int width, int height)
+void SofaGLFWBaseGUI::resizeWindow(int width, int height)
+{
+    if (hasWindow())
     {
-        if (hasWindow())
-        {
-            glfwSetWindowSize(m_firstWindow, width, height);
-        }
+        glfwSetWindowSize(m_firstWindow, width, height);
     }
+}
 
 void SofaGLFWBaseGUI::destroyWindow()
 {
@@ -350,48 +349,48 @@ GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
 }
 
 
-    bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
+bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
+{
+    if (hasWindow())
     {
-        if (hasWindow())
-        {
-            glfwWindow = (!glfwWindow) ? m_firstWindow : glfwWindow;
-            return glfwGetWindowMonitor(glfwWindow) != nullptr;
-        }
-        return false;
+        glfwWindow = (!glfwWindow) ? m_firstWindow : glfwWindow;
+        return glfwGetWindowMonitor(glfwWindow) != nullptr;
     }
+    return false;
+}
 
-    void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* screenID */)
+void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* screenID */)
+{
+    if (hasWindow())
     {
-        if (hasWindow())
+        // only manage the first window for now
+        // and the main screen
+        glfwWindow = (!glfwWindow) ? m_firstWindow : glfwWindow;
+
+        bool isFullScreen = glfwGetWindowMonitor(glfwWindow) != nullptr;
+
+        if (!isFullScreen)
         {
-            // only manage the first window for now
-            // and the main screen
-            glfwWindow = (!glfwWindow) ? m_firstWindow : glfwWindow;
+            // backup window position and window size
+            glfwGetWindowPos(glfwWindow, &m_lastWindowPositionX, &m_lastWindowPositionY);
+            glfwGetWindowSize(glfwWindow, &m_lastWindowWidth, &m_lastWindowHeight);
 
-            bool isFullScreen = glfwGetWindowMonitor(glfwWindow) != nullptr;
+            GLFWmonitor* monitor = getCurrentMonitor(glfwWindow);
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-            if (!isFullScreen)
-            {
-                // backup window position and window size
-                glfwGetWindowPos(glfwWindow, &m_lastWindowPositionX, &m_lastWindowPositionY);
-                glfwGetWindowSize(glfwWindow, &m_lastWindowWidth, &m_lastWindowHeight);
-
-                GLFWmonitor* monitor = getCurrentMonitor(glfwWindow);
-                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-                glfwSetWindowMonitor(glfwWindow, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
-            }
-            else
-            {
-                glfwSetWindowAttrib(glfwWindow, GLFW_DECORATED, GLFW_TRUE);
-                glfwSetWindowMonitor(glfwWindow, nullptr, m_lastWindowPositionX, m_lastWindowPositionY, m_lastWindowWidth, m_lastWindowHeight, GLFW_DONT_CARE);
-            }
+            glfwSetWindowMonitor(glfwWindow, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
         }
         else
         {
-            msg_error("SofaGLFWBaseGUI") << "No window to set fullscreen"; // can happen with runSofa/BaseGUI
+            glfwSetWindowAttrib(glfwWindow, GLFW_DECORATED, GLFW_TRUE);
+            glfwSetWindowMonitor(glfwWindow, nullptr, m_lastWindowPositionX, m_lastWindowPositionY, m_lastWindowWidth, m_lastWindowHeight, GLFW_DONT_CARE);
         }
     }
+    else
+    {
+        msg_error("SofaGLFWBaseGUI") << "No window to set fullscreen"; // can happen with runSofa/BaseGUI
+    }
+}
 
     void SofaGLFWBaseGUI::setBackgroundColor(const RGBAColor& newColor, unsigned int /* windowID */)
     {
@@ -487,60 +486,60 @@ GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
         return currentNbIterations;
     }
 
-    void SofaGLFWBaseGUI::initVisual()
+void SofaGLFWBaseGUI::initVisual()
+{
+    node::initTextures(m_groot.get());
+
+    VisualStyle::SPtr visualStyle = nullptr;
+    m_groot->get(visualStyle);
+    if (!visualStyle)
     {
-        node::initTextures(m_groot.get());
+        visualStyle = sofa::core::objectmodel::New<VisualStyle>();
+        visualStyle->setName(helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
 
-        VisualStyle::SPtr visualStyle = nullptr;
-        m_groot->get(visualStyle);
-        if (!visualStyle)
-        {
-            visualStyle = sofa::core::objectmodel::New<VisualStyle>();
-            visualStyle->setName(helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
+        DisplayFlags* displayFlags = visualStyle->d_displayFlags.beginEdit();
+        displayFlags->setShowVisualModels(tristate::true_value);
+        visualStyle->displayFlags.endEdit();
 
-            DisplayFlags* displayFlags = visualStyle->d_displayFlags.beginEdit();
-            displayFlags->setShowVisualModels(tristate::true_value);
-            visualStyle->displayFlags.endEdit();
-
-            m_groot->addObject(visualStyle);
-            visualStyle->init();
-        }
-
-        //init gl states
-        glDepthFunc(GL_LEQUAL);
-        glClearDepth(1.0);
-        glEnable(GL_NORMALIZE);
-
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        // Setup 'light 0'
-        float lightAmbient[4] = { 0.5f, 0.5f, 0.5f,1.0f };
-        float lightDiffuse[4] = { 0.9f, 0.9f, 0.9f,1.0f };
-        float lightSpecular[4] = { 1.0f, 1.0f, 1.0f,1.0f };
-        float lightPosition[4] = { -0.7f, 0.3f, 0.0f,1.0f };
-        glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-        glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-
-        // Enable color tracking
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-
-        // All materials hereafter have full specular reflectivity with a high shine
-        float materialSpecular[4] = { 1.0f, 1.0f, 1.0f,1.0f };
-        glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
-        glMateriali(GL_FRONT, GL_SHININESS, 128);
-
-        glShadeModel(GL_SMOOTH);
-
-        glEnable(GL_LIGHT0);
-
-        m_vparams = VisualParams::defaultInstance();
-        for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
-        {
-            sofaGlfwWindow->centerCamera(m_groot, m_vparams);
-        }
+        m_groot->addObject(visualStyle);
+        visualStyle->init();
     }
+
+    //init gl states
+    glDepthFunc(GL_LEQUAL);
+    glClearDepth(1.0);
+    glEnable(GL_NORMALIZE);
+
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+    // Setup 'light 0'
+    float lightAmbient[4] = { 0.5f, 0.5f, 0.5f,1.0f };
+    float lightDiffuse[4] = { 0.9f, 0.9f, 0.9f,1.0f };
+    float lightSpecular[4] = { 1.0f, 1.0f, 1.0f,1.0f };
+    float lightPosition[4] = { -0.7f, 0.3f, 0.0f,1.0f };
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+
+    // Enable color tracking
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+    // All materials hereafter have full specular reflectivity with a high shine
+    float materialSpecular[4] = { 1.0f, 1.0f, 1.0f,1.0f };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+    glMateriali(GL_FRONT, GL_SHININESS, 128);
+
+    glShadeModel(GL_SMOOTH);
+
+    glEnable(GL_LIGHT0);
+
+    m_vparams = VisualParams::defaultInstance();
+    for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
+    {
+        sofaGlfwWindow->centerCamera(m_groot, m_vparams);
+    }
+}
 
     void SofaGLFWBaseGUI::runStep()
     {
@@ -585,80 +584,80 @@ GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
         return key;
     }
 
-    void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    const char keyName = handleArrowKeys(key);
+    const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+
+    auto currentGUI = s_mapGUIs.find(window);
+    if (currentGUI == s_mapGUIs.end() || currentGUI->second == nullptr)
     {
-        const char keyName = handleArrowKeys(key);
-        const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+        return;
+    }
 
-        auto currentGUI = s_mapGUIs.find(window);
-        if (currentGUI == s_mapGUIs.end() || currentGUI->second == nullptr)
+    auto rootNode = currentGUI->second->getRootNode();
+    if (!rootNode)
+    {
+        return;
+    }
+
+    if (isCtrlKeyPressed)
+    {
+        if (action == GLFW_PRESS)
         {
-            return;
+            dmsg_info_when(key == GLFW_KEY_LEFT_CONTROL, "SofaGLFWBaseGUI") << "KeyPressEvent, CONTROL pressed";
+
+            KeypressedEvent keyPressedEvent(keyName);
+            rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyPressedEvent);
         }
-
-        auto rootNode = currentGUI->second->getRootNode();
-        if (!rootNode)
+        else if (action == GLFW_RELEASE)
         {
-            return;
-        }
-
-        if (isCtrlKeyPressed)
-        {
-            if (action == GLFW_PRESS)
-            {
-                dmsg_info_when(key == GLFW_KEY_LEFT_CONTROL, "SofaGLFWBaseGUI") << "KeyPressEvent, CONTROL pressed";
-
-                KeypressedEvent keyPressedEvent(keyName);
-                rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyPressedEvent);
-            }
-            else if (action == GLFW_RELEASE)
-            {
-                KeyreleasedEvent keyReleasedEvent(keyName);
-                rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyReleasedEvent);
-            }
-        }
-
-        // Handle specific keys for additional functionality
-        switch (key)
-        {
-            case GLFW_KEY_F:
-                if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
-                {
-                    currentGUI->second->switchFullScreen(window);
-                }
-                break;
-            case GLFW_KEY_ESCAPE:
-                if (action == GLFW_PRESS)
-                {
-                    glfwSetWindowShouldClose(window, GLFW_TRUE);
-                }
-                break;
-            case GLFW_KEY_SPACE:
-                if (action == GLFW_PRESS)
-                {
-                    const bool isRunning = currentGUI->second->simulationIsRunning();
-                    currentGUI->second->setSimulationIsRunning(!isRunning);
-                }
-                break;
-            case GLFW_KEY_LEFT_SHIFT:
-                if (currentGUI->second->getPickHandler()) // Check if getPickHandler() is not null
-                {
-                    if (action == GLFW_PRESS)
-                    {
-                        int viewport[4] = {}; // Properly initialize the viewport array
-                        currentGUI->second->getPickHandler()->activateRay(viewport[2], viewport[3], rootNode.get());
-                    }
-                    else if (action == GLFW_RELEASE)
-                    {
-                        currentGUI->second->getPickHandler()->deactivateRay();
-                    }
-                }
-                break;
-
-            default:
-                break;
+            KeyreleasedEvent keyReleasedEvent(keyName);
+            rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyReleasedEvent);
         }
     }
+
+    // Handle specific keys for additional functionality
+    switch (key)
+    {
+        case GLFW_KEY_F:
+            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
+            {
+                currentGUI->second->switchFullScreen(window);
+            }
+            break;
+        case GLFW_KEY_ESCAPE:
+            if (action == GLFW_PRESS)
+            {
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+            }
+            break;
+        case GLFW_KEY_SPACE:
+            if (action == GLFW_PRESS)
+            {
+                const bool isRunning = currentGUI->second->simulationIsRunning();
+                currentGUI->second->setSimulationIsRunning(!isRunning);
+            }
+            break;
+        case GLFW_KEY_LEFT_SHIFT:
+            if (currentGUI->second->getPickHandler()) // Check if getPickHandler() is not null
+            {
+                if (action == GLFW_PRESS)
+                {
+                    int viewport[4] = {}; // Properly initialize the viewport array
+                    currentGUI->second->getPickHandler()->activateRay(viewport[2], viewport[3], rootNode.get());
+                }
+                else if (action == GLFW_RELEASE)
+                {
+                    currentGUI->second->getPickHandler()->deactivateRay();
+                }
+            }
+            break;
+
+        default:
+            break;
+    }
+}
 
     void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
     {
@@ -720,125 +719,125 @@ GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
     void SofaGLFWBaseGUI::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
     {
         SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
-        gui->winPositionX=xpos;
-        gui->winPositionY=ypos;
+        gui->windowPosition[0]=xpos;
+        gui->windowPosition[1]=ypos;
     }
 
-    void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    double xpos, ypos;
+
+    auto currentGUI = s_mapGUIs.find(window);
+    if (currentGUI == s_mapGUIs.end() || !currentGUI->second) {
+        return;
+    }
+
+    SofaGLFWBaseGUI* gui = currentGUI->second;
+
+    auto rootNode = currentGUI->second->getRootNode();
+    if (!rootNode) {
+        return;
+    }
+
+    bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+
+    if (shiftPressed )
     {
-        double xpos, ypos;
-
-        auto currentGUI = s_mapGUIs.find(window);
-        if (currentGUI == s_mapGUIs.end() || !currentGUI->second) {
+        // Check if the animation is running
+        if (!currentGUI->second->simulationIsRunning()) {
+            msg_error("SofaGLFWBaseGUI") << "Animation is not running. Ignoring mouse interaction.";
             return;
         }
 
-        SofaGLFWBaseGUI* gui = currentGUI->second;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        translateToViewportCoordinates(gui,xpos,ypos);
 
-        auto rootNode = currentGUI->second->getRootNode();
-        if (!rootNode) {
-            return;
-        }
-
-        bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
-
-        if (shiftPressed )
+        auto currentSofaWindow = s_mapWindows.find(window);
+        if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
         {
-            // Check if the animation is running
-            if (!currentGUI->second->simulationIsRunning()) {
-                msg_error("SofaGLFWBaseGUI") << "Animation is not running. Ignoring mouse interaction.";
-                return;
-            }
-
-            glfwGetCursorPos(window, &xpos, &ypos);
-            translateToViewportCoordinates(gui,xpos,ypos);
-
-            auto currentSofaWindow = s_mapWindows.find(window);
-            if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-            {
-                currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, button, action, mods, gui->translatedXPos, gui->translatedYpos);
-            }
-        }
-        else
-        {
-            if (currentGUI != s_mapGUIs.end() && currentGUI->second)
-            {
-                if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
-                    return;
-            }
-
-            auto currentSofaWindow = s_mapWindows.find(window);
-            if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-            {
-                currentSofaWindow->second->mouseButtonEvent(button, action, mods);
-            }
+            currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, button, action, mods, gui->translatedCursorPos[0], gui->translatedCursorPos[1]);
         }
     }
+    else
+    {
+        if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+        {
+            if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+                return;
+        }
+
+        auto currentSofaWindow = s_mapWindows.find(window);
+        if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+        {
+            currentSofaWindow->second->mouseButtonEvent(button, action, mods);
+        }
+    }
+}
 
     void SofaGLFWBaseGUI::translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos)
     {
-        gui->translatedYpos =ypos-(gui->viewPortPositionY-gui->winPositionY);
-        gui->translatedXPos =xpos-(gui->viewPortPositionX-gui->winPositionX);
+        gui->translatedCursorPos[0] =xpos-(gui->viewPortPosition[0]-gui->windowPosition[0]);
+        gui->translatedCursorPos[1] =ypos-(gui->viewPortPosition[1]-gui->windowPosition[1]);
     }
 
-    void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    auto currentGUI = s_mapGUIs.find(window);
+
+    if (currentGUI != s_mapGUIs.end() && currentGUI->second)
     {
-        auto currentGUI = s_mapGUIs.find(window);
-
-        if (currentGUI != s_mapGUIs.end() && currentGUI->second)
-        {
-            if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
-                return;
-        }
-        SofaGLFWBaseGUI* gui = currentGUI->second;
-
-        translateToViewportCoordinates(gui,xpos,ypos);
-
-        bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
-        int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-
-        auto currentSofaWindow = s_mapWindows.find(window);
-
-        if (shiftPressed && state == GLFW_PRESS)
-        {
-            currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, 0, 1, 1, gui->translatedXPos, gui->translatedYpos);
-        }
-
-        if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-        {
-            currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos), currentGUI->second);
-        }
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
     }
+    SofaGLFWBaseGUI* gui = currentGUI->second;
 
-    void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+    translateToViewportCoordinates(gui,xpos,ypos);
+
+    bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+    int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+
+    auto currentSofaWindow = s_mapWindows.find(window);
+
+    if (shiftPressed && state == GLFW_PRESS)
     {
-        auto currentGUI = s_mapGUIs.find(window);
-        if (currentGUI != s_mapGUIs.end() && currentGUI->second)
-        {
-            if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
-                return;
-        }
-
-        auto currentSofaWindow = s_mapWindows.find(window);
-        if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
-        {
-            currentSofaWindow->second->scrollEvent(xoffset, yoffset);
-        }
+        currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, 0, 1, 1, gui->translatedCursorPos[0], gui->translatedCursorPos[1]);
     }
 
-    void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
-        auto currentSofaWindow = s_mapWindows.find(window);
-        if (currentSofaWindow != s_mapWindows.end())
-        {
-            if (SofaGLFWWindow* glfwWindow = currentSofaWindow->second)
-            {
-                glfwWindow->close();
-                delete glfwWindow;
-            }
-            s_mapWindows.erase(window);
-        }
+        currentSofaWindow->second->mouseMoveEvent(static_cast<int>(xpos), static_cast<int>(ypos), currentGUI->second);
     }
+}
+
+void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    auto currentGUI = s_mapGUIs.find(window);
+    if (currentGUI != s_mapGUIs.end() && currentGUI->second)
+    {
+        if (!currentGUI->second->getGUIEngine()->dispatchMouseEvents())
+            return;
+    }
+
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
+    {
+        currentSofaWindow->second->scrollEvent(xoffset, yoffset);
+    }
+}
+
+void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
+{
+    auto currentSofaWindow = s_mapWindows.find(window);
+    if (currentSofaWindow != s_mapWindows.end())
+    {
+        if (SofaGLFWWindow* glfwWindow = currentSofaWindow->second)
+        {
+            glfwWindow->close();
+            delete glfwWindow;
+        }
+        s_mapWindows.erase(window);
+    }
+}
 
 void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
 {

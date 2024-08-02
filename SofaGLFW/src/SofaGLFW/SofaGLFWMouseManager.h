@@ -21,10 +21,8 @@
 ******************************************************************************/
 #pragma once
 #include <sofa/gui/common/PickHandler.h>
-#include <sofa/component/visual/BaseCamera.h>
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/MouseOperations.h>
-#include "SofaGLFWBaseGUI.h"
 
 
 using namespace sofa::gui::common;
@@ -34,20 +32,14 @@ namespace sofaglfw
     class SOFAGLFW_API SofaGLFWMouseManager {
     public:
         SofaGLFWMouseManager();
-        ~SofaGLFWMouseManager();
 
         void setPickHandler(PickHandler* picker);
-        void updateContent();
-        void render();
 
     private:
-        void selectOperation(int operation);
         void updateOperation(MOUSE_BUTTON button, const std::string& id);
-        void updateOperation(Operation* operation);
 
         PickHandler* pickHandler;
-        std::map<std::string, std::function<void()>> operations;
-        std::map<int, std::string> buttonOperations;
+
     };
 
 } // namespace sofaglfw

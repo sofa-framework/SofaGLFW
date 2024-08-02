@@ -32,15 +32,16 @@
 #include <sofa/gui/common/BaseViewer.h>
 #include <memory>
 
+#include "SofaGLFW/SofaGLFWMouseManager.h"
+
 struct GLFWwindow;
 struct GLFWmonitor;
+using namespace sofa::type;
 
 namespace sofaglfw
 {
-    class SofaGLFWMouseManager;
 
     class SofaGLFWWindow;
-
 class SOFAGLFW_API SofaGLFWBaseGUI : public sofa::gui::common::BaseViewer {
 public:
 
@@ -135,15 +136,13 @@ private:
     double lastProjectionMatrix[16];
     double lastModelviewMatrix[16];
     bool m_isMouseInteractionEnabled{ false };
-    float viewPortPositionX {0};
-    float viewPortPositionY {0};
-    float winPositionX {0};
-    float winPositionY {0};
-    SofaGLFWMouseManager* m_sofaGLFWMouseManager;
+    SofaGLFWMouseManager m_sofaGLFWMouseManager;
     int viewPortHeight{0};
     int viewPortWidth {0};
-    double translatedXPos {0};
-    double translatedYpos {0};
+    Vec2d translatedCursorPos;
+    Vec2f viewPortPosition;
+    Vec2f windowPosition;
+
 
 
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
