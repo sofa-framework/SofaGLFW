@@ -392,99 +392,99 @@ void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* s
     }
 }
 
-    void SofaGLFWBaseGUI::setBackgroundColor(const RGBAColor& newColor, unsigned int /* windowID */)
+void SofaGLFWBaseGUI::setBackgroundColor(const RGBAColor& newColor, unsigned int /* windowID */)
+{
+    // only manage the first window for now
+    if (hasWindow())
     {
-        // only manage the first window for now
-        if (hasWindow())
-        {
-            s_mapWindows[m_firstWindow]->setBackgroundColor(newColor);
-        }
-        else
-        {
-            msg_error("SofaGLFWBaseGUI") << "No window to set the background in";// can happen with runSofa/BaseGUI
-        }
+        s_mapWindows[m_firstWindow]->setBackgroundColor(newColor);
+    }
+    else
+    {
+        msg_error("SofaGLFWBaseGUI") << "No window to set the background in";// can happen with runSofa/BaseGUI
+    }
+}
+
+
+void SofaGLFWBaseGUI::setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */)
+{
+
+}
+
+void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
+{
+    glfwMakeContextCurrent(glfwWindow);
+    glfwSwapInterval( 0 ); //request disabling vsync
+    if (!m_bGlewIsInitialized)
+    {
+        glewInit();
+        m_bGlewIsInitialized = true;
+    }
+}
+
+std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
+{
+    if (!m_groot)
+    {
+        msg_error("SofaGLFWBaseGUI") << "Cannot start main loop: root node is invalid";
+        return 0;
     }
 
+    m_vparams = VisualParams::defaultInstance();
+    viewPortWidth=m_vparams->viewport()[2];
+    viewPortHeight=m_vparams->viewport()[3];
 
-    void SofaGLFWBaseGUI::setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */)
+    bool running = true;
+    std::size_t currentNbIterations = 0;
+    std::stringstream tmpStr;
+    while (!s_mapWindows.empty() && running)
     {
+        SIMULATION_LOOP_SCOPE
 
-    }
+        // Keep running
+        runStep();
 
-    void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
-    {
-        glfwMakeContextCurrent(glfwWindow);
-        glfwSwapInterval( 0 ); //request disabling vsync
-        if (!m_bGlewIsInitialized)
+        for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
         {
-            glewInit();
-            m_bGlewIsInitialized = true;
-        }
-    }
-
-    std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
-    {
-        if (!m_groot)
-        {
-            msg_error("SofaGLFWBaseGUI") << "Cannot start main loop: root node is invalid";
-            return 0;
-        }
-
-        m_vparams = VisualParams::defaultInstance();
-        viewPortWidth=m_vparams->viewport()[2];
-        viewPortHeight=m_vparams->viewport()[3];
-
-        bool running = true;
-        std::size_t currentNbIterations = 0;
-        std::stringstream tmpStr;
-        while (!s_mapWindows.empty() && running)
-        {
-            SIMULATION_LOOP_SCOPE
-
-            // Keep running
-            runStep();
-
-            for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
+            if (sofaGlfwWindow)
             {
-                if (sofaGlfwWindow)
+                // while user did not request to close this window (i.e press escape), draw
+                if (!glfwWindowShouldClose(glfwWindow))
                 {
-                    // while user did not request to close this window (i.e press escape), draw
-                    if (!glfwWindowShouldClose(glfwWindow))
+                    makeCurrentContext(glfwWindow);
+
+                    m_guiEngine->beforeDraw(glfwWindow);
+                    sofaGlfwWindow->draw(m_groot, m_vparams,lastModelviewMatrix,lastProjectionMatrix);
+                    m_guiEngine->afterDraw();
+
+                    m_guiEngine->startFrame(this);
+                    m_guiEngine->endFrame();
+
+                    glfwSwapBuffers(glfwWindow);
+
+                    if (viewPortHeight!=m_vparams->viewport()[3] ||
+                        viewPortWidth!=m_vparams->viewport()[2])
                     {
-                        makeCurrentContext(glfwWindow);
-
-                        m_guiEngine->beforeDraw(glfwWindow);
-                        sofaGlfwWindow->draw(m_groot, m_vparams,lastModelviewMatrix,lastProjectionMatrix);
-                        m_guiEngine->afterDraw();
-
-                        m_guiEngine->startFrame(this);
-                        m_guiEngine->endFrame();
-
-                        glfwSwapBuffers(glfwWindow);
-
-                        if (viewPortHeight!=m_vparams->viewport()[3] ||
-                            viewPortWidth!=m_vparams->viewport()[2])
-                        {
-                            viewPortHeight=m_vparams->viewport()[3];
-                            viewPortWidth=m_vparams->viewport()[2];
-                        }
-                    }
-                    else
-                    {
-                        // otherwise close this window
-                        close_callback(glfwWindow);
+                        viewPortHeight=m_vparams->viewport()[3];
+                        viewPortWidth=m_vparams->viewport()[2];
                     }
                 }
+                else
+                {
+                    // otherwise close this window
+                    close_callback(glfwWindow);
+                }
             }
-
-            glfwPollEvents();
-
-            currentNbIterations++;
-            running = (targetNbIterations > 0) ? currentNbIterations < targetNbIterations : true;
         }
 
-        return currentNbIterations;
+        glfwPollEvents();
+
+        currentNbIterations++;
+        running = (targetNbIterations > 0) ? currentNbIterations < targetNbIterations : true;
     }
+
+    return currentNbIterations;
+}
 
 void SofaGLFWBaseGUI::initVisual()
 {
@@ -541,48 +541,48 @@ void SofaGLFWBaseGUI::initVisual()
     }
 }
 
-    void SofaGLFWBaseGUI::runStep()
+void SofaGLFWBaseGUI::runStep()
+{
+    if(simulationIsRunning())
     {
-        if(simulationIsRunning())
-        {
-            helper::AdvancedTimer::begin("Animate");
+        helper::AdvancedTimer::begin("Animate");
 
-            node::animate(m_groot.get(), m_groot->getDt());
-            node::updateVisual(m_groot.get());
+        node::animate(m_groot.get(), m_groot->getDt());
+        node::updateVisual(m_groot.get());
 
-            helper::AdvancedTimer::end("Animate");
-        }
+        helper::AdvancedTimer::end("Animate");
     }
+}
 
-    void SofaGLFWBaseGUI::terminate()
+void SofaGLFWBaseGUI::terminate()
+{
+    if (!m_bGlfwIsInitialized)
+        return;
+
+    m_guiEngine->terminate();
+
+    glfwTerminate();
+}
+
+void SofaGLFWBaseGUI::error_callback(int error, const char* description)
+{
+    SOFA_UNUSED(error);
+    msg_error("SofaGLFWBaseGUI") << "Error: " << description << ".";
+}
+
+int SofaGLFWBaseGUI::handleArrowKeys(int key)
+{
+    // Handling arrow keys with custom codes
+    switch (key)
     {
-        if (!m_bGlfwIsInitialized)
-            return;
-
-        m_guiEngine->terminate();
-
-        glfwTerminate();
+        case GLFW_KEY_UP: return 19;   // Custom code for up
+        case GLFW_KEY_DOWN: return 21; // Custom code for down
+        case GLFW_KEY_LEFT: return 18; // Custom code for left
+        case GLFW_KEY_RIGHT: return 20; // Custom code for right
     }
-
-    void SofaGLFWBaseGUI::error_callback(int error, const char* description)
-    {
-        SOFA_UNUSED(error);
-        msg_error("SofaGLFWBaseGUI") << "Error: " << description << ".";
-    }
-
-    int SofaGLFWBaseGUI::handleArrowKeys(int key)
-    {
-        // Handling arrow keys with custom codes
-        switch (key)
-        {
-            case GLFW_KEY_UP: return 19;   // Custom code for up
-            case GLFW_KEY_DOWN: return 21; // Custom code for down
-            case GLFW_KEY_LEFT: return 18; // Custom code for left
-            case GLFW_KEY_RIGHT: return 20; // Custom code for right
-        }
-        // Default case return the given value as GLFW handle it
-        return key;
-    }
+    // Default case return the given value as GLFW handle it
+    return key;
+}
 
 void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
