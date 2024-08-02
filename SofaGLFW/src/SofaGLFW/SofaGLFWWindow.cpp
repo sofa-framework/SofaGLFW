@@ -37,17 +37,17 @@
 using namespace sofa;
 namespace sofaglfw
 {
-    SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera)
-            : m_glfwWindow(glfwWindow)
-            , m_currentCamera(camera)
-    {
+SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera)
+        : m_glfwWindow(glfwWindow)
+        , m_currentCamera(camera)
+{
 
-    }
+}
 
-    void SofaGLFWWindow::close()
-    {
-        glfwDestroyWindow(m_glfwWindow);
-    }
+void SofaGLFWWindow::close()
+{
+    glfwDestroyWindow(m_glfwWindow);
+}
 
 
 void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams, double lastModelviewMatrix [16], double lastProjectionMatrix [16]){
@@ -99,7 +99,7 @@ void SofaGLFWWindow::draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::
     vparams->setModelViewMatrix(lastModelviewMatrix);
 
     simulation::node::draw(vparams, groot.get());
-    }
+}
 
 void SofaGLFWWindow::setBackgroundColor(const type::RGBAColor& newColor)
 {
