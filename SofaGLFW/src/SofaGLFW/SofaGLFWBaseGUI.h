@@ -93,8 +93,14 @@ public:
     void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
     void setWindowIcon(GLFWwindow* glfwWindow);
 
-    void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine) { m_guiEngine = guiEngine; }
-    std::shared_ptr<BaseGUIEngine> getGUIEngine() { return m_guiEngine; }
+    void setGUIEngine(std::shared_ptr<BaseGUIEngine> guiEngine)
+    {
+        m_guiEngine = guiEngine;
+    }
+    std::shared_ptr<BaseGUIEngine> getGUIEngine()
+    {
+        return m_guiEngine;
+    }
     void moveRayPickInteractor(int eventX, int eventY) override ;
 
 private:
