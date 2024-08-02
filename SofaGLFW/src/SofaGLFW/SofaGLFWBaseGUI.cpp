@@ -74,48 +74,48 @@ namespace sofaglfw
         m_sofaGLFWMouseManager = new SofaGLFWMouseManager();
     }
 
-    SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
+SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
+{
+    terminate();
+}
+
+core::sptr<Node> SofaGLFWBaseGUI::getRootNode() const
+{
+    return m_groot;
+}
+
+bool SofaGLFWBaseGUI::init(int nbMSAASamples)
+{
+    if (m_bGlfwIsInitialized)
+        return true;
+
+    setErrorCallback();
+
+    if (glfwInit() == GLFW_TRUE)
     {
-        terminate();
-    }
+        // defined samples for MSAA
+        // min = 0  (no MSAA Anti-aliasing)
+        // max = 32 (MSAA with 32 samples)
+        glfwWindowHint(GLFW_SAMPLES, std::clamp(nbMSAASamples, 0, 32) );
 
-    core::sptr<Node> SofaGLFWBaseGUI::getRootNode() const
+        m_glDrawTool = new DrawToolGL();
+        m_bGlfwIsInitialized = true;
+        return true;
+    }
+    else
     {
-        return m_groot;
+        return false;
     }
+}
 
-    bool SofaGLFWBaseGUI::init(int nbMSAASamples)
-    {
-        if (m_bGlfwIsInitialized)
-            return true;
+void SofaGLFWBaseGUI::setErrorCallback() const
+{
+    glfwSetErrorCallback(error_callback);
+}
 
-        setErrorCallback();
-
-        if (glfwInit() == GLFW_TRUE)
-        {
-            // defined samples for MSAA
-            // min = 0  (no MSAA Anti-aliasing)
-            // max = 32 (MSAA with 32 samples)
-            glfwWindowHint(GLFW_SAMPLES, std::clamp(nbMSAASamples, 0, 32) );
-
-            m_glDrawTool = new DrawToolGL();
-            m_bGlfwIsInitialized = true;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    void SofaGLFWBaseGUI::setErrorCallback() const
-    {
-        glfwSetErrorCallback(error_callback);
-    }
-
-    void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename) {
-        m_groot = groot;
-        m_filename = filename;
+void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename) {
+    m_groot = groot;
+    m_filename = filename;
 
         VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
 
@@ -126,41 +126,41 @@ namespace sofaglfw
         }
     }
 
-    void SofaGLFWBaseGUI::setSimulationIsRunning(bool running)
+void SofaGLFWBaseGUI::setSimulationIsRunning(bool running)
+{
+    if (m_groot)
     {
-        if (m_groot)
-        {
-            m_groot->setAnimate(running);
-        }
+        m_groot->setAnimate(running);
+    }
+}
+
+
+bool SofaGLFWBaseGUI::simulationIsRunning() const
+{
+    if (m_groot)
+    {
+        return m_groot->getAnimate();
     }
 
+    return false;
+}
 
-    bool SofaGLFWBaseGUI::simulationIsRunning() const
+BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(NodeSPtr groot)
+{
+    BaseCamera::SPtr camera;
+    groot->get(camera);
+    if (!camera)
     {
-        if (m_groot)
-        {
-            return m_groot->getAnimate();
-        }
-
-        return false;
+        camera = sofa::core::objectmodel::New<InteractiveCamera>();
+        camera->setName(Base::shortName(camera.get()));
+        m_groot->addObject(camera);
+        camera->bwdInit();
     }
 
-   BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(NodeSPtr groot)
-    {
-        BaseCamera::SPtr camera;
-        groot->get(camera);
-        if (!camera)
-        {
-            camera = sofa::core::objectmodel::New<InteractiveCamera>();
-            camera->setName(Base::shortName(camera.get()));
-            m_groot->addObject(camera);
-            camera->bwdInit();
-        }
+    camera->setBoundingBox(m_groot->f_bbox.getValue().minBBox(), m_groot->f_bbox.getValue().maxBBox());
 
-        camera->setBoundingBox(m_groot->f_bbox.getValue().minBBox(), m_groot->f_bbox.getValue().maxBBox());
-
-        return camera;
-    }
+    return camera;
+}
 
 
     void SofaGLFWBaseGUI::setSizeW(int width)
@@ -207,94 +207,94 @@ namespace sofaglfw
         }
     }
 
-    void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
-    {
-        //STBImage relies on DataRepository to find files: it must be extended with the resource files from this plugin
-        helper::system::DataRepository.addFirstPath(SOFAGLFW_RESOURCES_DIR);
+void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
+{
+    //STBImage relies on DataRepository to find files: it must be extended with the resource files from this plugin
+    helper::system::DataRepository.addFirstPath(SOFAGLFW_RESOURCES_DIR);
 
-        helper::io::STBImage img;
-        if (img.load("SOFA.png"))
-        {
-            GLFWimage images[1];
-            images[0].height = img.getHeight();
-            images[0].width = img.getWidth();
-            images[0].pixels = img.getPixels();
-            glfwSetWindowIcon(glfwWindow, 1, images);
-        }
-        helper::system::DataRepository.removePath(SOFAGLFW_RESOURCES_DIR);
+    helper::io::STBImage img;
+    if (img.load("SOFA.png"))
+    {
+        GLFWimage images[1];
+        images[0].height = img.getHeight();
+        images[0].width = img.getWidth();
+        images[0].pixels = img.getPixels();
+        glfwSetWindowIcon(glfwWindow, 1, images);
     }
+    helper::system::DataRepository.removePath(SOFAGLFW_RESOURCES_DIR);
+}
 
-        bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
+    bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
+{
+    m_guiEngine->init();
+
+    if (m_groot == nullptr)
     {
-        m_guiEngine->init();
-
-        if (m_groot == nullptr)
-        {
-            msg_error("SofaGLFWBaseGUI") << "No simulation root has been defined. Quitting.";
-            return false;
-        }
-
-        GLFWwindow* glfwWindow = nullptr;
-        if (fullscreenAtStartup)
-        {
-            GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-
-            m_lastWindowWidth = width;
-            m_lastWindowHeight = height;
-            m_lastWindowPositionX = 100;
-            m_lastWindowPositionY = 100;
-
-            setWindowHeight(height);
-            setWindowWidth(width);
-
-            glfwWindow = glfwCreateWindow(mode->width, mode->height, title, primaryMonitor, m_firstWindow);
-        }
-        else
-        {
-            glfwWindow = glfwCreateWindow(width > 0 ? width : 100, height > 0 ? height : 100, title, nullptr, m_firstWindow);
-        }
-
-        setWindowIcon(glfwWindow);
-
-        if (!m_firstWindow)
-            m_firstWindow = glfwWindow;
-
-        if (glfwWindow)
-        {
-            glfwSetKeyCallback(glfwWindow, key_callback);
-            glfwSetCursorPosCallback(glfwWindow, cursor_position_callback);
-            glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
-            glfwSetScrollCallback(glfwWindow, scroll_callback);
-            glfwSetWindowCloseCallback(glfwWindow, close_callback);
-            glfwSetWindowPosCallback(glfwWindow, window_pos_callback);
-            // this set empty callbacks
-            // solve a crash when glfw is quitting and tries to use nullptr callbacks
-            // could be potentially useful in the future anyway
-            glfwSetWindowFocusCallback(glfwWindow, window_focus_callback);
-            glfwSetCursorEnterCallback(glfwWindow, cursor_enter_callback);
-            glfwSetMonitorCallback(monitor_callback);
-            glfwSetCharCallback(glfwWindow, character_callback);
-
-            glfwSetWindowUserPointer(glfwWindow, this);
-
-            makeCurrentContext(glfwWindow);
-
-            m_guiEngine->initBackend(glfwWindow);
-
-            auto camera = findCamera(m_groot);
-
-            SofaGLFWWindow* sofaWindow = new SofaGLFWWindow(glfwWindow, camera);
-
-            s_mapWindows[glfwWindow] = sofaWindow;
-            s_mapGUIs[glfwWindow] = this;
-
-            return true;
-        }
-
+        msg_error("SofaGLFWBaseGUI") << "No simulation root has been defined. Quitting.";
         return false;
-
     }
+
+    GLFWwindow* glfwWindow = nullptr;
+    if (fullscreenAtStartup)
+    {
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+        m_lastWindowWidth = width;
+        m_lastWindowHeight = height;
+        m_lastWindowPositionX = 100;
+        m_lastWindowPositionY = 100;
+
+        setWindowHeight(height);
+        setWindowWidth(width);
+
+        glfwWindow = glfwCreateWindow(mode->width, mode->height, title, primaryMonitor, m_firstWindow);
+    }
+    else
+    {
+        glfwWindow = glfwCreateWindow(width > 0 ? width : 100, height > 0 ? height : 100, title, nullptr, m_firstWindow);
+    }
+
+    setWindowIcon(glfwWindow);
+
+    if (!m_firstWindow)
+        m_firstWindow = glfwWindow;
+
+    if (glfwWindow)
+    {
+        glfwSetKeyCallback(glfwWindow, key_callback);
+        glfwSetCursorPosCallback(glfwWindow, cursor_position_callback);
+        glfwSetMouseButtonCallback(glfwWindow, mouse_button_callback);
+        glfwSetScrollCallback(glfwWindow, scroll_callback);
+        glfwSetWindowCloseCallback(glfwWindow, close_callback);
+        glfwSetWindowPosCallback(glfwWindow, window_pos_callback);
+        // this set empty callbacks
+        // solve a crash when glfw is quitting and tries to use nullptr callbacks
+        // could be potentially useful in the future anyway
+        glfwSetWindowFocusCallback(glfwWindow, window_focus_callback);
+        glfwSetCursorEnterCallback(glfwWindow, cursor_enter_callback);
+        glfwSetMonitorCallback(monitor_callback);
+        glfwSetCharCallback(glfwWindow, character_callback);
+
+        glfwSetWindowUserPointer(glfwWindow, this);
+
+        makeCurrentContext(glfwWindow);
+
+        m_guiEngine->initBackend(glfwWindow);
+
+        auto camera = findCamera(m_groot);
+
+        SofaGLFWWindow* sofaWindow = new SofaGLFWWindow(glfwWindow, camera);
+
+        s_mapWindows[glfwWindow] = sofaWindow;
+        s_mapGUIs[glfwWindow] = this;
+
+        return true;
+    }
+
+    return false;
+
+}
     void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
     {
         viewPortPositionX=lastViewPortPosX;
@@ -309,45 +309,45 @@ namespace sofaglfw
         }
     }
 
-    void SofaGLFWBaseGUI::destroyWindow()
+void SofaGLFWBaseGUI::destroyWindow()
+{
+}
+
+GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
+{
+    int monitorsCount, i;
+    int windowsX, windowsY, windowsWidth, windowsHeight;
+    int monitorX, monitorY, monitorWidth, monitorHeight;
+    int overlap, bestOverlap;
+    GLFWmonitor *bestMonitor;
+    GLFWmonitor **monitors;
+    const GLFWvidmode *mode;
+
+    bestOverlap = 0;
+    bestMonitor = nullptr;
+
+    glfwGetWindowPos(glfwWindow, &windowsX, &windowsY);
+    glfwGetWindowSize(glfwWindow, &windowsWidth, &windowsHeight);
+    monitors = glfwGetMonitors(&monitorsCount);
+    for (i=0; i<monitorsCount; i++)
     {
-    }
+        mode = glfwGetVideoMode(monitors[i]);
+        glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
+        monitorWidth = mode->width;
+        monitorHeight = mode->height;
 
-    GLFWmonitor* SofaGLFWBaseGUI::getCurrentMonitor(GLFWwindow *glfwWindow)
-    {
-        int monitorsCount, i;
-        int windowsX, windowsY, windowsWidth, windowsHeight;
-        int monitorX, monitorY, monitorWidth, monitorHeight;
-        int overlap, bestOverlap;
-        GLFWmonitor *bestMonitor;
-        GLFWmonitor **monitors;
-        const GLFWvidmode *mode;
+        overlap = std::max(0, std::min(windowsX + windowsWidth, monitorX + monitorWidth) - std::max(windowsX, monitorX)) *
+                  std::max(0, std::min(windowsY + windowsHeight, monitorY + monitorHeight) - std::max(windowsY, monitorY));
 
-        bestOverlap = 0;
-        bestMonitor = nullptr;
-
-        glfwGetWindowPos(glfwWindow, &windowsX, &windowsY);
-        glfwGetWindowSize(glfwWindow, &windowsWidth, &windowsHeight);
-        monitors = glfwGetMonitors(&monitorsCount);
-        for (i=0; i<monitorsCount; i++)
+        if (bestOverlap < overlap)
         {
-            mode = glfwGetVideoMode(monitors[i]);
-            glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
-            monitorWidth = mode->width;
-            monitorHeight = mode->height;
-
-            overlap = std::max(0, std::min(windowsX + windowsWidth, monitorX + monitorWidth) - std::max(windowsX, monitorX)) *
-                      std::max(0, std::min(windowsY + windowsHeight, monitorY + monitorHeight) - std::max(windowsY, monitorY));
-
-            if (bestOverlap < overlap)
-            {
-                bestOverlap = overlap;
-                bestMonitor = monitors[i];
-            }
+            bestOverlap = overlap;
+            bestMonitor = monitors[i];
         }
-
-        return bestMonitor;
     }
+
+    return bestMonitor;
+}
 
 
     bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
@@ -840,56 +840,56 @@ namespace sofaglfw
         }
     }
 
-    void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
-    {
-        SOFA_UNUSED(window);
-        SOFA_UNUSED(focused);
-        //if (focused)
-        //{
-        //    // The window gained input focus
-        //}
-        //else
-        //{
-        //    // The window lost input focus
-        //}
-    }
-    void SofaGLFWBaseGUI::cursor_enter_callback(GLFWwindow* window, int entered)
-    {
-        SOFA_UNUSED(window);
-        SOFA_UNUSED(entered);
+void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
+{
+    SOFA_UNUSED(window);
+    SOFA_UNUSED(focused);
+    //if (focused)
+    //{
+    //    // The window gained input focus
+    //}
+    //else
+    //{
+    //    // The window lost input focus
+    //}
+}
+void SofaGLFWBaseGUI::cursor_enter_callback(GLFWwindow* window, int entered)
+{
+    SOFA_UNUSED(window);
+    SOFA_UNUSED(entered);
 
-        //if (entered)
-        //{
-        //    // The cursor entered the content area of the window
-        //}
-        //else
-        //{
-        //    // The cursor left the content area of the window
-        //}
-    }
-    void SofaGLFWBaseGUI::monitor_callback(GLFWmonitor* monitor, int event)
-    {
-        SOFA_UNUSED(monitor);
-        SOFA_UNUSED(event);
+    //if (entered)
+    //{
+    //    // The cursor entered the content area of the window
+    //}
+    //else
+    //{
+    //    // The cursor left the content area of the window
+    //}
+}
+void SofaGLFWBaseGUI::monitor_callback(GLFWmonitor* monitor, int event)
+{
+    SOFA_UNUSED(monitor);
+    SOFA_UNUSED(event);
 
-        //if (event == GLFW_CONNECTED)
-        //{
-        //    // The monitor was connected
-        //}
-        //else if (event == GLFW_DISCONNECTED)
-        //{
-        //    // The monitor was disconnected
-        //}
-    }
+    //if (event == GLFW_CONNECTED)
+    //{
+    //    // The monitor was connected
+    //}
+    //else if (event == GLFW_DISCONNECTED)
+    //{
+    //    // The monitor was disconnected
+    //}
+}
 
-    void SofaGLFWBaseGUI::character_callback(GLFWwindow* window, unsigned int codepoint)
-    {
-        SOFA_UNUSED(window);
-        SOFA_UNUSED(codepoint);
+void SofaGLFWBaseGUI::character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+    SOFA_UNUSED(window);
+    SOFA_UNUSED(codepoint);
 
-        // The callback function receives Unicode code points for key events
-        // that would have led to regular text input and generally behaves as a standard text field on that platform.
-    }
+    // The callback function receives Unicode code points for key events
+    // that would have led to regular text input and generally behaves as a standard text field on that platform.
+}
 
 bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
 {
