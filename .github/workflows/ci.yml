@@ -86,7 +86,7 @@ jobs:
 
   deploy:
     name: Deploy artifacts
-    if: always() && startsWith(github.ref, 'refs/heads/') # we are on a branch (not a PR)
+    if: always() && startsWith(github.ref, 'refs/heads/') # we are on a branch (not a PR).
     needs: [build-and-test]
     runs-on: ubuntu-latest
     continue-on-error: true
