@@ -37,7 +37,6 @@ namespace sofaglfw
 
     SofaGLFWMouseManager::SofaGLFWMouseManager()
     {
-        RegisterOperation("attach").add<AttachOperation>();
         RegisterOperation("Attach").add< AttachOperation >();
         RegisterOperation("AddFrame").add< AddFrameOperation >();
         RegisterOperation("SaveCameraViewPoint").add< AddRecordedCameraOperation >();
