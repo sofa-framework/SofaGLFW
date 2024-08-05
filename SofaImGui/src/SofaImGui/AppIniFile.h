@@ -25,7 +25,7 @@
 
 namespace sofaimgui
 {
-    class ImGuiGUIEngine;
+    extern const std::string& getConfigurationFolderPath();
 
     class AppIniFile
     {
