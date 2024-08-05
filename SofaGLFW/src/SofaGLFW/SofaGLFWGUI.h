@@ -32,7 +32,7 @@ namespace sofaglfw
 
 class SofaGLFWWindow;
 
-class SOFAGLFW_API SofaGLFWGUI : public sofa::gui::common::BaseGUI
+class SOFAGLFW_API SofaGLFWGUI : public BaseGUI
 {
 public:
     SofaGLFWGUI() = default;
@@ -44,12 +44,12 @@ public:
     void redraw() override;
     int closeGUI() override;
     void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
-    sofa::simulation::Node* currentSimulation() override;
+    Node* currentSimulation() override;
     void setViewerResolution(int width, int height) override;
     void centerWindow() override;
     void setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf) override;
     void setFullScreen() override;
-    void setBackgroundColor(const sofa::type::RGBAColor& color) override;
+    void setBackgroundColor(const RGBAColor& color) override;
     void setBackgroundImage(const std::string& image) override;
     static BaseGUI * CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
 protected:

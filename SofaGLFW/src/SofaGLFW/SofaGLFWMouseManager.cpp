@@ -20,33 +20,20 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-
-#define GLFW_INCLUDE_NONE
-
 #include <SofaGLFW/SofaGLFWWindow.h>
 #include <sofa/helper/AdvancedTimer.h>
 #include <sofa/simulation/Simulation.h>
-#include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/PickHandler.h>
 #include <sofa/gui/common/MouseOperations.h>
 #include <sofa/gui/common/OperationFactory.h>
 #include "SofaGLFW/SofaGLFWMouseManager.h"
 
 using namespace sofa;
-using namespace sofa::gui::common;
-
-using std::endl;
 using namespace sofa::type;
 using namespace sofa::defaulttype;
-using namespace sofa::gl;
-using simulation::getSimulation;
-using namespace sofa::simulation;
-using namespace sofa::gui::common;
 
-
-using namespace sofa;
-
-namespace sofaglfw {
+namespace sofaglfw
+{
 
     SofaGLFWMouseManager::SofaGLFWMouseManager()
     {

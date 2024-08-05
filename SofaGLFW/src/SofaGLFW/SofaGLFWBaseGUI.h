@@ -42,7 +42,8 @@ namespace sofaglfw
 {
 
     class SofaGLFWWindow;
-class SOFAGLFW_API SofaGLFWBaseGUI : public sofa::gui::common::BaseViewer {
+class SOFAGLFW_API SofaGLFWBaseGUI : public BaseViewer
+{
 public:
 
     SofaGLFWBaseGUI();
@@ -81,10 +82,10 @@ public:
 
     bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
     void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int screenID = 0);
-    void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int windowID = 0);
+    void setBackgroundColor(const RGBAColor& newColor, unsigned int windowID = 0);
     virtual void setBackgroundImage(const std::string& imageFileName = "textures/SOFA_logo.bmp", unsigned int windowID = 0);
 
-    sofa::core::sptr<sofa::simulation::Node> getRootNode() const;
+    sofa::core::sptr<Node> getRootNode() const;
     bool hasWindow() const { return m_firstWindow != nullptr; }
 
     [[nodiscard]] std::string getFilename() const { return m_filename; }

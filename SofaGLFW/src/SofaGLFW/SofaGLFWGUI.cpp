@@ -73,7 +73,7 @@ void SofaGLFWGUI::setScene(simulation::NodeSPtr groot, const char* filename, boo
     m_baseGUI.restoreCamera(m_baseGUI.findCamera(groot));
 }
 
-simulation::Node* SofaGLFWGUI::currentSimulation()
+Node* SofaGLFWGUI::currentSimulation()
 { 
     return m_baseGUI.getRootNode().get();
 }
@@ -93,9 +93,9 @@ void SofaGLFWGUI::centerWindow()
     [[maybe_unused]] bool centered = m_baseGUI.centerWindow();
 }
 
-void SofaGLFWGUI::setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf)
+void SofaGLFWGUI::setViewerConfiguration(component::setting::ViewerSetting* viewerConf)
 {
-    const type::Vec<2, int>& res = viewerConf->resolution.getValue();
+    const Vec<2, int>& res = viewerConf->resolution.getValue();
 
     if (viewerConf->fullscreen.getValue())
     {
@@ -112,7 +112,7 @@ void SofaGLFWGUI::setFullScreen()
     m_baseGUI.switchFullScreen();
 }
 
-void SofaGLFWGUI::setBackgroundColor(const type::RGBAColor& color)
+void SofaGLFWGUI::setBackgroundColor(const RGBAColor& color)
 {
     m_baseGUI.setBackgroundColor(color);
 }
@@ -122,7 +122,7 @@ void SofaGLFWGUI::setBackgroundImage(const std::string& image)
     SOFA_UNUSED(image);
 }
 
-gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, simulation::NodeSPtr groot, const char* filename)
+BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, simulation::NodeSPtr groot, const char* filename)
 {
     mGuiName = name;
     auto* gui = new SofaGLFWGUI();

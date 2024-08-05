@@ -43,7 +43,7 @@ public:
     void mouseMoveEvent(int xpos, int ypos,SofaGLFWBaseGUI* gui);
     void mouseButtonEvent(int button, int action, int mods);
     void scrollEvent(double xoffset, double yoffset);
-    void setBackgroundColor(const sofa::type::RGBAColor& newColor);
+    void setBackgroundColor(const RGBAColor& newColor);
 
     void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
     void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
@@ -57,7 +57,7 @@ private:
     int m_currentMods{ -1 };
     int m_currentXPos{ -1 };
     int m_currentYPos{ -1 };
-    sofa::type::RGBAColor m_backgroundColor{ sofa::type::RGBAColor::black() };
+    RGBAColor m_backgroundColor{ RGBAColor::black() };
 };
 
 } // namespace sofaglfw

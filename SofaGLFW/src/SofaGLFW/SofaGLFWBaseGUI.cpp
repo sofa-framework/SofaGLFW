@@ -206,7 +206,7 @@ void SofaGLFWBaseGUI::changeCamera(BaseCamera::SPtr newCamera)
     }
 }
 
-void SofaGLFWBaseGUI::restoreCamera(sofa::component::visual::BaseCamera::SPtr camera)
+void SofaGLFWBaseGUI::restoreCamera(BaseCamera::SPtr camera)
 {
     if (camera)
     {

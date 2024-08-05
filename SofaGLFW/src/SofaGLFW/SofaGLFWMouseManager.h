@@ -29,17 +29,15 @@ using namespace sofa::gui::common;
 
 namespace sofaglfw
 {
-    class SOFAGLFW_API SofaGLFWMouseManager {
-    public:
-        SofaGLFWMouseManager();
+class SOFAGLFW_API SofaGLFWMouseManager
+{
+public:
+    SofaGLFWMouseManager();
+    void setPickHandler(PickHandler* picker);
 
-        void setPickHandler(PickHandler* picker);
-
-    private:
-        void updateOperation(MOUSE_BUTTON button, const std::string& id);
-
-        PickHandler* pickHandler;
-
-    };
+private:
+    void updateOperation(MOUSE_BUTTON button, const std::string& id);
+    PickHandler* pickHandler;
+};
 
 } // namespace sofaglfw
