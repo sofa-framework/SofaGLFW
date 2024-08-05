@@ -82,7 +82,6 @@ using namespace sofa;
 
 namespace sofaimgui
 {
-    constexpr const char* VIEW_FILE_EXTENSION = ".view";
 
 ImGuiGUIEngine::ImGuiGUIEngine()
             : winManagerProfiler("profiler.txt"),
@@ -188,6 +187,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
         camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
         baseGUI->changeCamera(camera);
     }
+
     baseGUI->initVisual();
 }
 
@@ -398,7 +398,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 }
             }
 
-            const std::string viewFileName = baseGUI->getFilename() + VIEW_FILE_EXTENSION;
+            const std::string viewFileName = baseGUI->getFilename() + std::string(baseGUI->getCameraFileExtension());
             if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_RIGHT"  Save Camera"))
             {
                 sofa::component::visual::BaseCamera::SPtr camera;
@@ -421,17 +421,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
-                if (camera)
-                {
-                    if (camera->importParametersFromFile(viewFileName))
-                    {
-                        msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
-                    }
-                    else
-                    {
-                        msg_error("GUI") << "Could not import camera parameters from " << viewFileName << " .";
-                    }
-                }
+                baseGUI->restoreCamera(camera);
             }
 
             ImGui::EndDisabled();

@@ -68,6 +68,9 @@ void SofaGLFWGUI::setScene(simulation::NodeSPtr groot, const char* filename, boo
     this->configureGUI(groot);
 
     m_baseGUI.initVisual();
+
+    // update camera if a sidecar file is present
+    m_baseGUI.restoreCamera(m_baseGUI.findCamera(groot));
 }
 
 simulation::Node* SofaGLFWGUI::currentSimulation()

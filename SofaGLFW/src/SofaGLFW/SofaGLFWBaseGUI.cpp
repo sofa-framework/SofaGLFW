@@ -206,6 +206,22 @@ void SofaGLFWBaseGUI::changeCamera(BaseCamera::SPtr newCamera)
     }
 }
 
+void SofaGLFWBaseGUI::restoreCamera(sofa::component::visual::BaseCamera::SPtr camera)
+{
+    if (camera)
+    {
+        const std::string viewFileName = this->getFilename() + std::string(this->getCameraFileExtension());
+        if (camera->importParametersFromFile(viewFileName))
+        {
+            msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
+        }
+        else
+        {
+            msg_error("GUI") << "Could not import camera parameters from " << viewFileName << " .";
+        }
+    }
+}
+
 void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
 {
     //STBImage relies on DataRepository to find files: it must be extended with the resource files from this plugin
