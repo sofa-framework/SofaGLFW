@@ -89,17 +89,19 @@ using namespace sofa;
 namespace sofaimgui
 {
 
+constexpr const char* DEFAULT_CONFIG_FOLDER = ".config/";
+
 ImGuiGUIEngine::ImGuiGUIEngine()
-            : winManagerProfiler("profiler.txt"),
-              winManagerSceneGraph("scenegraph.txt"),
-              winManagerPerformances("performances.txt"),
-              winManagerDisplayFlags("displayflags.txt"),
-              winManagerPlugins("plugins.txt"),
-              winManagerComponents("components.txt"),
-              winManagerLog("log.txt"),
-              winManagerSettings("settings.txt"),
-              winManagerViewPort("viewport.txt"),
-              firstRunState("firstrun.txt")
+            : winManagerProfiler(std::string(DEFAULT_CONFIG_FOLDER) + std::string("profiler.txt")),
+              winManagerSceneGraph(std::string(DEFAULT_CONFIG_FOLDER) + std::string("scenegraph.txt")),
+              winManagerPerformances(std::string(DEFAULT_CONFIG_FOLDER) + std::string("performances.txt")),
+              winManagerDisplayFlags(std::string(DEFAULT_CONFIG_FOLDER) + std::string("displayflags.txt")),
+              winManagerPlugins(std::string(DEFAULT_CONFIG_FOLDER) + std::string("plugins.txt")),
+              winManagerComponents(std::string(DEFAULT_CONFIG_FOLDER) + std::string("components.txt")),
+              winManagerLog(std::string(DEFAULT_CONFIG_FOLDER) + std::string("log.txt")),
+              winManagerSettings(std::string(DEFAULT_CONFIG_FOLDER) + std::string("settings.txt")),
+              winManagerViewPort(std::string(DEFAULT_CONFIG_FOLDER) + std::string("viewport.txt")),
+              firstRunState(std::string(DEFAULT_CONFIG_FOLDER) + std::string("firstrun.txt"))
 {
 }
 

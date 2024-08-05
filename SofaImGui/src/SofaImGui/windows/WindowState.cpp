@@ -24,10 +24,11 @@
 #include <fstream>
 #include "WindowState.h"
 
+#include <filesystem>
 
 namespace windows {
 
-    WindowState::WindowState(const std::string& filename) : m_filename(filename)
+    WindowState::WindowState(const std::string& path) : m_path(path)
     {
         m_isOpen = readState();
     }
@@ -53,7 +54,7 @@ namespace windows {
 
     bool WindowState::readState()
     {
-        std::ifstream file(m_filename);
+        std::ifstream file(m_path);
         if (!file.is_open())
         {
             return false; // Default to "CLOSED" if file not found
@@ -61,12 +62,24 @@ namespace windows {
 
         std::string stateStr;
         std::getline(file, stateStr);
+
         return stateStr == "OPEN";
     }
 
     void WindowState::writeState()
     {
-        std::ofstream file(m_filename);
+        const std::filesystem::path p = m_path;
+
+        if (!std::filesystem::exists(p.parent_path()))
+        {
+            if (!std::filesystem::create_directories(p.parent_path()))
+            {
+                // could not create director(ies) : permissions, wrong, etc.
+                return;
+            }
+        }
+
+        std::ofstream file(p);
         if (!file.is_open())
         {
             return;
@@ -76,4 +89,3 @@ namespace windows {
     }
 
 } // namespace windows
-
