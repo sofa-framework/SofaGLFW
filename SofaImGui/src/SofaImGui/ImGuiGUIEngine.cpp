@@ -89,19 +89,17 @@ using namespace sofa;
 namespace sofaimgui
 {
 
-constexpr const char* DEFAULT_CONFIG_FOLDER = ".config/";
-
 ImGuiGUIEngine::ImGuiGUIEngine()
-            : winManagerProfiler(sofaimgui::getConfigurationFolderPath() + std::string("/profiler.txt")),
-              winManagerSceneGraph(sofaimgui::getConfigurationFolderPath() + std::string("/scenegraph.txt")),
-              winManagerPerformances(sofaimgui::getConfigurationFolderPath() + std::string("/performances.txt")),
-              winManagerDisplayFlags(sofaimgui::getConfigurationFolderPath() + std::string("/displayflags.txt")),
-              winManagerPlugins(sofaimgui::getConfigurationFolderPath() + std::string("/plugins.txt")),
-              winManagerComponents(sofaimgui::getConfigurationFolderPath() + std::string("/components.txt")),
-              winManagerLog(sofaimgui::getConfigurationFolderPath() + std::string("/log.txt")),
-              winManagerSettings(sofaimgui::getConfigurationFolderPath() + std::string("/settings.txt")),
-              winManagerViewPort(sofaimgui::getConfigurationFolderPath() + std::string("/viewport.txt")),
-              firstRunState(sofaimgui::getConfigurationFolderPath() + std::string("/firstrun.txt"))
+            : winManagerProfiler(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("profiler.txt"))),
+              winManagerSceneGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("scenegraph.txt"))),
+              winManagerPerformances(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("performances.txt"))),
+              winManagerDisplayFlags(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("displayflags.txt"))),
+              winManagerPlugins(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("plugins.txt"))),
+              winManagerComponents(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("components.txt"))),
+              winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt"))),
+              winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt"))),
+              winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt"))),
+              firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
 {
 }
 
