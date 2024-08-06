@@ -70,9 +70,9 @@ namespace windows {
     {
         const std::filesystem::path p = m_path;
 
-        if (!std::filesystem::exists(p.parent_path()))
+        if (!FileSystem::exists(p.parent_path()))
         {
-            if (!std::filesystem::create_directories(p.parent_path()))
+            if (!FileSystem::createDirectory(p.parent_path()))
             {
                 // could not create director(ies) : permissions, wrong, etc.
                 return;
