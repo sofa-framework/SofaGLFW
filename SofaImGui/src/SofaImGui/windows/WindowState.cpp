@@ -24,7 +24,7 @@
 #include <fstream>
 #include "WindowState.h"
 
-#include <filesystem>
+#include <sofa/helper/system/FileSystem.h>
 
 namespace windows {
 
@@ -70,9 +70,9 @@ namespace windows {
     {
         const std::filesystem::path p = m_path;
 
-        if (!FileSystem::exists(p.parent_path()))
+        if (!sofa::helper::system::FileSystem::exists(p.parent_path()))
         {
-            if (!FileSystem::createDirectory(p.parent_path()))
+            if (!sofa::helper::system::FileSystem::createDirectory(p.parent_path()))
             {
                 // could not create director(ies) : permissions, wrong, etc.
                 return;
