@@ -448,7 +448,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 }
             }
             ImGui::Separator();
-            if (ImGui::MenuItem(ICON_FA_REFRESH  "  Reset View"))
+            if (ImGui::MenuItem(ICON_FA_REFRESH  "  Reset UI Layout"))
             {
                 resetView(dockspace_id,windowNameSceneGraph,windowNameLog,windowNameViewport);
             }
