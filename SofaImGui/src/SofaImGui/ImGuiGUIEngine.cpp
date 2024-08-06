@@ -259,7 +259,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     if (!*firstRunState.getStatePtr())
     {
-        resetView(dockspace_id,windowNameSceneGraph,windowNameLog,windowNameViewport);
+        resetView(dockspace_id, windowNameSceneGraph, windowNameLog, windowNameViewport);
     }
     ImGui::End();
 
@@ -449,9 +449,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
             ImGui::Separator();
             if (ImGui::MenuItem(ICON_FA_REFRESH  "  Reset View"))
-             {
+            {
                 resetView(dockspace_id,windowNameSceneGraph,windowNameLog,windowNameViewport);
-             }
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Windows"))
@@ -601,7 +601,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::RenderPlatformWindowsDefault();
     }
 }
-void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport) {
+void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport)
+{
     ImGuiViewport* viewport = ImGui::GetMainViewport();
 
     ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
@@ -620,6 +621,7 @@ void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameScene
     winManagerLog.setState(true);
     firstRunState.setState(true);// Mark first run as complete
 }
+
 void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
 {
     glClearColor(0,0,0,1);
