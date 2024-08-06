@@ -30,7 +30,7 @@ namespace sofaimgui
 {
     const std::string& AppIniFile::getAppIniFile()
     {
-        static const std::string appIniFile(helper::Utils::getExecutableDirectory() + "/settings.ini");
+        static const std::string appIniFile(sofa::helper::Utils::getExecutableDirectory() + "/settings.ini");
         return appIniFile;
     }
 

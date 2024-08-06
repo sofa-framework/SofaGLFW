@@ -34,7 +34,7 @@ public:
     
     ~ImGuiGUI() override = default;
 
-    static BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+    static sofa::gui::common::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
 };
 
 } // namespace sofaimgui

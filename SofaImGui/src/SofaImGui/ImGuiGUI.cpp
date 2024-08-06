@@ -33,7 +33,7 @@ namespace sofaimgui
 {
 
 ImGuiGUI::ImGuiGUI()
-: SofaGLFWGUI()
+: sofaglfw::SofaGLFWGUI()
 {
     auto guiEngine = std::make_shared<ImGuiGUIEngine>();
     this->m_baseGUI.setGUIEngine(guiEngine);
@@ -42,7 +42,7 @@ ImGuiGUI::ImGuiGUI()
 
 sofa::gui::common::BaseGUI* ImGuiGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
 {
-    mGuiName = name;
+    ImGuiGUI::mGuiName = name;
     auto* gui = new ImGuiGUI();
 
     if (!gui->init())

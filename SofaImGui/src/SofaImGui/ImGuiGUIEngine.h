@@ -70,16 +70,16 @@ protected:
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
 
     // WindowState members
-    WindowState winManagerProfiler;
-    WindowState winManagerSceneGraph;
-    WindowState winManagerPerformances;
-    WindowState winManagerDisplayFlags;
-    WindowState winManagerPlugins;
-    WindowState winManagerComponents;
-    WindowState winManagerLog;
-    WindowState winManagerSettings;
-    WindowState winManagerViewPort;
-    WindowState firstRunState;
+    windows::WindowState winManagerProfiler;
+    windows::WindowState winManagerSceneGraph;
+    windows::WindowState winManagerPerformances;
+    windows::WindowState winManagerDisplayFlags;
+    windows::WindowState winManagerPlugins;
+    windows::WindowState winManagerComponents;
+    windows::WindowState winManagerLog;
+    windows::WindowState winManagerSettings;
+    windows::WindowState winManagerViewPort;
+    windows::WindowState firstRunState;
 };
 
 } // namespace sofaimgui
