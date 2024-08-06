@@ -1,4 +1,3 @@
-
 /******************************************************************************
 *                 SOFA, Simulation Open-Framework Architecture                *
 *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
@@ -32,7 +31,7 @@
 #include <sofa/gui/common/BaseViewer.h>
 #include <memory>
 
-#include "SofaGLFW/SofaGLFWMouseManager.h"
+#include <SofaGLFW/SofaGLFWMouseManager.h>
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -41,7 +40,7 @@ using namespace sofa::type;
 namespace sofaglfw
 {
 
-    class SofaGLFWWindow;
+class SofaGLFWWindow;
 class SOFAGLFW_API SofaGLFWBaseGUI : public BaseViewer
 {
 public:

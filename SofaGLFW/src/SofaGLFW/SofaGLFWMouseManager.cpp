@@ -42,7 +42,7 @@ namespace sofaglfw
         RegisterOperation("AddFrame").add< AddFrameOperation >();
         RegisterOperation("SaveCameraViewPoint").add< AddRecordedCameraOperation >();
         RegisterOperation("StartNavigation").add< StartNavigationOperation >();
-        RegisterOperation("Fix")   .add< FixOperation  >();
+        RegisterOperation("Fix").add< FixOperation  >();
         RegisterOperation("Incise").add< InciseOperation  >();
         RegisterOperation("Remove").add< TopologyOperation  >();
         RegisterOperation("Suture").add< AddSutureOperation >();

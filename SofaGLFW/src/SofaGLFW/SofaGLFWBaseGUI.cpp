@@ -162,41 +162,41 @@ BaseCamera::SPtr SofaGLFWBaseGUI::findCamera(NodeSPtr groot)
 }
 
 
-    void SofaGLFWBaseGUI::setSizeW(int width)
-    {
-        m_windowWidth = width;
-    }
+void SofaGLFWBaseGUI::setSizeW(int width)
+{
+    m_windowWidth = width;
+}
 
-    void SofaGLFWBaseGUI::setSizeH(int height)
-    {
-        m_windowHeight = height;
-    }
+void SofaGLFWBaseGUI::setSizeH(int height)
+{
+    m_windowHeight = height;
+}
 
-    int SofaGLFWBaseGUI::getWidth()
-    {
-        return m_windowWidth;
-    }
+int SofaGLFWBaseGUI::getWidth()
+{
+    return m_windowWidth;
+}
 
-    int SofaGLFWBaseGUI::getHeight()
-    {
-        return m_windowHeight;
-    }
+int SofaGLFWBaseGUI::getHeight()
+{
+    return m_windowHeight;
+}
 
-    void SofaGLFWBaseGUI::redraw()
-    {
-    }
+void SofaGLFWBaseGUI::redraw()
+{
+}
 
-    void SofaGLFWBaseGUI::drawScene()
-    {
-    }
+void SofaGLFWBaseGUI::drawScene()
+{
+}
 
-    void SofaGLFWBaseGUI::viewAll()
-    {
-    }
+void SofaGLFWBaseGUI::viewAll()
+{
+}
 
-    void SofaGLFWBaseGUI::saveView()
-    {
-    }
+void SofaGLFWBaseGUI::saveView()
+{
+}
 
 void SofaGLFWBaseGUI::changeCamera(BaseCamera::SPtr newCamera)
 {
@@ -478,12 +478,10 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
                     glfwSwapBuffers(glfwWindow);
 
-                    if (viewPortHeight!=m_vparams->viewport()[3] ||
-                        viewPortWidth!=m_vparams->viewport()[2])
-                    {
-                        viewPortHeight=m_vparams->viewport()[3];
-                        viewPortWidth=m_vparams->viewport()[2];
-                    }
+
+                    viewPortHeight=m_vparams->viewport()[3];
+                    viewPortWidth=m_vparams->viewport()[2];
+
                 }
                 else
                 {
@@ -656,7 +654,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             }
             break;
         case GLFW_KEY_LEFT_SHIFT:
-            if (currentGUI->second->getPickHandler()) // Check if getPickHandler() is not null
+            if (currentGUI->second->getPickHandler())
             {
                 if (action == GLFW_PRESS)
                 {
@@ -761,7 +759,7 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
     {
         // Check if the animation is running
         if (!currentGUI->second->simulationIsRunning()) {
-            msg_error("SofaGLFWBaseGUI") << "Animation is not running. Ignoring mouse interaction.";
+            msg_info("SofaGLFWBaseGUI") << "Animation is not running. Ignoring mouse interaction.";
             return;
         }
 
@@ -792,8 +790,7 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
 
     void SofaGLFWBaseGUI::translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos)
     {
-        gui->translatedCursorPos[0] =xpos-(gui->viewPortPosition[0]-gui->windowPosition[0]);
-        gui->translatedCursorPos[1] =ypos-(gui->viewPortPosition[1]-gui->windowPosition[1]);
+        gui->translatedCursorPos = Vec2d{xpos, ypos} - (gui->viewPortPosition - gui->windowPosition);
     }
 
 void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
