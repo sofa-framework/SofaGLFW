@@ -34,6 +34,7 @@ class SOFAGLFW_API SofaGLFWMouseManager
 public:
     SofaGLFWMouseManager();
     void setPickHandler(PickHandler* picker);
+    bool m_isMouseInteractionEnabled{ false };
 
 private:
     void updateOperation(MOUSE_BUTTON button, const std::string& id);

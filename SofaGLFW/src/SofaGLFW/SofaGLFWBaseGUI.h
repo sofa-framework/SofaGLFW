@@ -142,17 +142,14 @@ private:
     int m_lastWindowPositionY{ 0 };
     int m_lastWindowWidth{ 0 };
     int m_lastWindowHeight{ 0 };
-    double lastProjectionMatrix[16];
-    double lastModelviewMatrix[16];
-    bool m_isMouseInteractionEnabled{ false };
+    fixed_array<double, 16>  m_lastProjectionMatrix;
+    fixed_array<double, 16>  m_lastModelviewMatrix;
     SofaGLFWMouseManager m_sofaGLFWMouseManager;
-    int viewPortHeight{0};
-    int viewPortWidth {0};
-    Vec2d translatedCursorPos;
-    Vec2f viewPortPosition;
-    Vec2f windowPosition;
-
-
+    int m_viewPortHeight{0};
+    int m_viewPortWidth {0};
+    Vec2d m_translatedCursorPos;
+    Vec2f m_viewPortPosition;
+    Vec2f m_windowPosition;
 
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
 };

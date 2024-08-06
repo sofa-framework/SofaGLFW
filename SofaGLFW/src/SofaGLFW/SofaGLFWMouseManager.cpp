@@ -26,7 +26,7 @@
 #include <sofa/gui/common/PickHandler.h>
 #include <sofa/gui/common/MouseOperations.h>
 #include <sofa/gui/common/OperationFactory.h>
-#include "SofaGLFW/SofaGLFWMouseManager.h"
+#include <SofaGLFW/SofaGLFWMouseManager.h>
 
 using namespace sofa;
 using namespace sofa::type;

@@ -33,7 +33,7 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/core/visual/VisualParams.h>
-#include "SofaGLFW/SofaGLFWMouseManager.h"
+#include <SofaGLFW/SofaGLFWMouseManager.h>
 
 #include <sofa/component/visual/InteractiveCamera.h>
 #include <sofa/component/visual/VisualStyle.h>
@@ -66,8 +66,6 @@ using namespace core::objectmodel;
 namespace sofaglfw
 {
 SofaGLFWBaseGUI::SofaGLFWBaseGUI()
-        :lastProjectionMatrix{0.0},
-         lastModelviewMatrix{0.0}
 {
     m_guiEngine = std::make_shared<NullGUIEngine>();
 }
@@ -312,8 +310,8 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
 }
     void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
     {
-        viewPortPosition[0]=lastViewPortPosX;
-        viewPortPosition[1]=lastViewPortPosY;
+        m_viewPortPosition[0]=lastViewPortPosX;
+        m_viewPortPosition[1]=lastViewPortPosY;
     }
 
 void SofaGLFWBaseGUI::resizeWindow(int width, int height)
@@ -447,8 +445,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
     }
 
     m_vparams = VisualParams::defaultInstance();
-    viewPortWidth=m_vparams->viewport()[2];
-    viewPortHeight=m_vparams->viewport()[3];
+    m_viewPortWidth=m_vparams->viewport()[2];
+    m_viewPortHeight=m_vparams->viewport()[3];
 
     bool running = true;
     std::size_t currentNbIterations = 0;
@@ -470,7 +468,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     makeCurrentContext(glfwWindow);
 
                     m_guiEngine->beforeDraw(glfwWindow);
-                    sofaGlfwWindow->draw(m_groot, m_vparams,lastModelviewMatrix,lastProjectionMatrix);
+                    sofaGlfwWindow->draw(m_groot, m_vparams, const_cast<double*>(m_lastModelviewMatrix.data()), const_cast<double*>(m_lastProjectionMatrix.data()));
                     m_guiEngine->afterDraw();
 
                     m_guiEngine->startFrame(this);
@@ -479,8 +477,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     glfwSwapBuffers(glfwWindow);
 
 
-                    viewPortHeight=m_vparams->viewport()[3];
-                    viewPortWidth=m_vparams->viewport()[2];
+                    m_viewPortHeight=m_vparams->viewport()[3];
+                    m_viewPortWidth=m_vparams->viewport()[2];
 
                 }
                 else
@@ -658,9 +656,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             {
                 if (action == GLFW_PRESS)
                 {
-                    int viewport[4] = {}; // Properly initialize the viewport array
-                    currentGUI->second->getPickHandler()->activateRay(viewport[2], viewport[3], rootNode.get());
-                }
+                    fixed_array<int, 4> viewport;
+                    currentGUI->second->getPickHandler()->activateRay(viewport[3], viewport[4], rootNode.get());              }
                 else if (action == GLFW_RELEASE)
                 {
                     currentGUI->second->getPickHandler()->deactivateRay();
@@ -683,12 +680,12 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
         Vec3d pz;
         Vec3d px1;
         Vec3d py1;
-        gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
-        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
-        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
+        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
+        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
 
         px1 -= pz;
         py1 -= pz;
@@ -733,8 +730,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     void SofaGLFWBaseGUI::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
     {
         SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
-        gui->windowPosition[0]=xpos;
-        gui->windowPosition[1]=ypos;
+        gui->m_windowPosition[0]=xpos;
+        gui->m_windowPosition[1]=ypos;
     }
 
 void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -769,7 +766,7 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
         auto currentSofaWindow = s_mapWindows.find(window);
         if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
         {
-            currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, button, action, mods, gui->translatedCursorPos[0], gui->translatedCursorPos[1]);
+            currentSofaWindow->second->mouseEvent(window,gui->m_viewPortWidth,gui->m_viewPortHeight, button, action, mods, gui->m_translatedCursorPos[0], gui->m_translatedCursorPos[1]);
         }
     }
     else
@@ -790,7 +787,7 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
 
     void SofaGLFWBaseGUI::translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos)
     {
-        gui->translatedCursorPos = Vec2d{xpos, ypos} - (gui->viewPortPosition - gui->windowPosition);
+        gui->m_translatedCursorPos = Vec2d{xpos, ypos} - (gui->m_viewPortPosition - gui->m_windowPosition);
     }
 
 void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -813,7 +810,7 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
 
     if (shiftPressed && state == GLFW_PRESS)
     {
-        currentSofaWindow->second->mouseEvent(window,gui->viewPortWidth,gui->viewPortHeight, 0, 1, 1, gui->translatedCursorPos[0], gui->translatedCursorPos[1]);
+        currentSofaWindow->second->mouseEvent(window,gui->m_viewPortWidth,gui->m_viewPortHeight, 0, 1, 1, gui->m_translatedCursorPos[0], gui->m_translatedCursorPos[1]);
     }
 
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
