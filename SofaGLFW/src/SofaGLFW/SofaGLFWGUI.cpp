@@ -122,7 +122,6 @@ void SofaGLFWGUI::setBackgroundImage(const std::string& image)
     SOFA_UNUSED(image);
 }
 
-
 sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)
 {
     SofaGLFWGUI::mGuiName = name;
