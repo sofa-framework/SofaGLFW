@@ -75,11 +75,6 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
     m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
 
-    m_currentCamera->getModelViewMatrix( lastModelviewMatrix );
-    vparams->setModelViewMatrix( lastModelviewMatrix );
-    // matrices
-    double projectionMatrix[16];
-    double mvMatrix[16];
     m_currentCamera->getOpenGLProjectionMatrix(lastProjectionMatrix);
     m_currentCamera->getOpenGLModelViewMatrix(lastModelviewMatrix);
 
