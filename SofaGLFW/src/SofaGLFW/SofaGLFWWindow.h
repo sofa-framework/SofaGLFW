@@ -37,7 +37,7 @@ public:
     SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera);
     virtual ~SofaGLFWWindow() = default;
 
-    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams,double  lastModelviewMatrix [16],double lastProjectionMatrix[16]);
+    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
     void close();
 
     void mouseMoveEvent(int xpos, int ypos,SofaGLFWBaseGUI* gui);

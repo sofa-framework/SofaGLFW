@@ -142,8 +142,6 @@ private:
     int m_lastWindowPositionY{ 0 };
     int m_lastWindowWidth{ 0 };
     int m_lastWindowHeight{ 0 };
-    fixed_array<double, 16>  m_lastProjectionMatrix;
-    fixed_array<double, 16>  m_lastModelviewMatrix;
     SofaGLFWMouseManager m_sofaGLFWMouseManager;
     int m_viewPortHeight{0};
     int m_viewPortWidth {0};

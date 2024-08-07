@@ -50,7 +50,7 @@ void SofaGLFWWindow::close()
 }
 
 
-void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams* vparams, double lastModelviewMatrix [16], double lastProjectionMatrix [16]){
+void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams* vparams){
     glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), m_backgroundColor.a());
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -74,6 +74,13 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     m_currentCamera->computeZ();
     m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
     m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
+
+    // matrices
+    double lastModelviewMatrix [16];
+    double lastProjectionMatrix [16];
+
+    vparams->getModelViewMatrix(lastModelviewMatrix);
+    vparams->getProjectionMatrix(lastProjectionMatrix);
 
     m_currentCamera->getOpenGLProjectionMatrix(lastProjectionMatrix);
     m_currentCamera->getOpenGLModelViewMatrix(lastModelviewMatrix);

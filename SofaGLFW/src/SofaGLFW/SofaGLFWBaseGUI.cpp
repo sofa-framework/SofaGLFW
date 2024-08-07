@@ -468,7 +468,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     makeCurrentContext(glfwWindow);
 
                     m_guiEngine->beforeDraw(glfwWindow);
-                    sofaGlfwWindow->draw(m_groot, m_vparams, const_cast<double*>(m_lastModelviewMatrix.data()), const_cast<double*>(m_lastProjectionMatrix.data()));
+                    sofaGlfwWindow->draw(m_groot, m_vparams);
                     m_guiEngine->afterDraw();
 
                     m_guiEngine->startFrame(this);
@@ -674,18 +674,24 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     {
         const VisualParams::Viewport& viewport = m_vparams->viewport();
 
+        double lastProjectionMatrix[16];
+        double lastModelviewMatrix[16];
+
+        m_vparams->getProjectionMatrix(lastProjectionMatrix);
+        m_vparams->getModelViewMatrix(lastModelviewMatrix);
+
         Vec3d p0;
         Vec3d px;
         Vec3d py;
         Vec3d pz;
         Vec3d px1;
         Vec3d py1;
-        gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
-        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
-        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   m_lastModelviewMatrix.data(), m_lastProjectionMatrix.data(), viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
+        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
+        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
+        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
 
         px1 -= pz;
         py1 -= pz;
