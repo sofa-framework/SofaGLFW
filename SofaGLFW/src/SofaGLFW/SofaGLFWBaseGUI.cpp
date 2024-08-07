@@ -308,11 +308,11 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     return false;
 
 }
-    void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
-    {
-        m_viewPortPosition[0]=lastViewPortPosX;
-        m_viewPortPosition[1]=lastViewPortPosY;
-    }
+void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
+{
+    m_viewPortPosition[0]=lastViewPortPosX;
+    m_viewPortPosition[1]=lastViewPortPosY;
+}
 
 void SofaGLFWBaseGUI::resizeWindow(int width, int height)
 {
@@ -670,75 +670,75 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     }
 }
 
-    void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
-    {
-        const VisualParams::Viewport& viewport = m_vparams->viewport();
+void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
+{
+    const VisualParams::Viewport& viewport = m_vparams->viewport();
 
-        double lastProjectionMatrix[16];
-        double lastModelviewMatrix[16];
+    double lastProjectionMatrix[16];
+    double lastModelviewMatrix[16];
 
-        m_vparams->getProjectionMatrix(lastProjectionMatrix);
-        m_vparams->getModelViewMatrix(lastModelviewMatrix);
+    m_vparams->getProjectionMatrix(lastProjectionMatrix);
+    m_vparams->getModelViewMatrix(lastModelviewMatrix);
 
-        Vec3d p0;
-        Vec3d px;
-        Vec3d py;
-        Vec3d pz;
-        Vec3d px1;
-        Vec3d py1;
-        gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
-        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
-        gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
-        gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
+    Vec3d p0;
+    Vec3d px;
+    Vec3d py;
+    Vec3d pz;
+    Vec3d px1;
+    Vec3d py1;
+    gluUnProject(eventX,   viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(p0[0]),  &(p0[1]),  &(p0[2]));
+    gluUnProject(eventX+1, viewport[3]-1-(eventY),   0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px[0]),  &(px[1]),  &(px[2]));
+    gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py[0]),  &(py[1]),  &(py[2]));
+    gluUnProject(eventX,   viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(pz[0]),  &(pz[1]),  &(pz[2]));
+    gluUnProject(eventX+1, viewport[3]-1-(eventY),   0.1, lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(px1[0]), &(px1[1]), &(px1[2]));
+    gluUnProject(eventX,   viewport[3]-1-(eventY+1), 0,   lastModelviewMatrix, lastProjectionMatrix, viewport.data(), &(py1[0]), &(py1[1]), &(py1[2]));
 
-        px1 -= pz;
-        py1 -= pz;
-        px -= p0;
-        py -= p0;
-        pz -= p0;
+    px1 -= pz;
+    py1 -= pz;
+    px -= p0;
+    py -= p0;
+    pz -= p0;
 
-        const double r0 = sqrt(px.norm2() + py.norm2());
-        double r1 = sqrt(px1.norm2() + py1.norm2());
-        r1 = r0 + (r1 - r0) / pz.norm();
-        px.normalize();
-        py.normalize();
-        pz.normalize();
+    const double r0 = sqrt(px.norm2() + py.norm2());
+    double r1 = sqrt(px1.norm2() + py1.norm2());
+    r1 = r0 + (r1 - r0) / pz.norm();
+    px.normalize();
+    py.normalize();
+    pz.normalize();
 
-        Mat4x4d transform;
-        transform.identity();
-        transform[0][0] = px[0];
-        transform[1][0] = px[1];
-        transform[2][0] = px[2];
-        transform[0][1] = py[0];
-        transform[1][1] = py[1];
-        transform[2][1] = py[2];
-        transform[0][2] = pz[0];
-        transform[1][2] = pz[1];
-        transform[2][2] = pz[2];
-        transform[0][3] = p0[0];
-        transform[1][3] = p0[1];
-        transform[2][3] = p0[2];
+    Mat4x4d transform;
+    transform.identity();
+    transform[0][0] = px[0];
+    transform[1][0] = px[1];
+    transform[2][0] = px[2];
+    transform[0][1] = py[0];
+    transform[1][1] = py[1];
+    transform[2][1] = py[2];
+    transform[0][2] = pz[0];
+    transform[1][2] = pz[1];
+    transform[2][2] = pz[2];
+    transform[0][3] = p0[0];
+    transform[1][3] = p0[1];
+    transform[2][3] = p0[2];
 
-        Mat3x3d mat;
-        mat = transform;
-        Quat<SReal> q;
-        q.fromMatrix(mat);
+    Mat3x3d mat;
+    mat = transform;
+    Quat<SReal> q;
+    q.fromMatrix(mat);
 
-        Vec3d position, direction;
-        position = transform * Vec4d(0, 0, 0, 1);
-        direction = transform * Vec4d(0, 0, 1, 0);
-        direction.normalize();
-        getPickHandler()->updateRay(position, direction);
-    }
+    Vec3d position, direction;
+    position = transform * Vec4d(0, 0, 0, 1);
+    direction = transform * Vec4d(0, 0, 1, 0);
+    direction.normalize();
+    getPickHandler()->updateRay(position, direction);
+}
 
-    void SofaGLFWBaseGUI::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
-    {
-        SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
-        gui->m_windowPosition[0]=xpos;
-        gui->m_windowPosition[1]=ypos;
-    }
+void SofaGLFWBaseGUI::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
+{
+    SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
+    gui->m_windowPosition[0]=xpos;
+    gui->m_windowPosition[1]=ypos;
+}
 
 void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -791,10 +791,10 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
     }
 }
 
-    void SofaGLFWBaseGUI::translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos)
-    {
-        gui->m_translatedCursorPos = Vec2d{xpos, ypos} - (gui->m_viewPortPosition - gui->m_windowPosition);
-    }
+void SofaGLFWBaseGUI::translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos)
+{
+    gui->m_translatedCursorPos = Vec2d{xpos, ypos} - (gui->m_viewPortPosition - gui->m_windowPosition);
+}
 
 void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
