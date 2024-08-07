@@ -27,7 +27,7 @@ namespace windows {
 
     class WindowState {
     public:
-        WindowState(const std::string& filename);
+        WindowState(const std::string& path);
         ~WindowState();
         bool * getStatePtr() ;
         void setState(bool isOpen);
@@ -36,7 +36,7 @@ namespace windows {
         bool readState();
         void writeState();
         bool m_isOpen;
-        std::string m_filename;
+        std::string m_path;
     };
 
 } // namespace windows
