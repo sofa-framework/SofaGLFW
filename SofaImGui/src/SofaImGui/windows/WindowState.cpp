@@ -68,14 +68,7 @@ namespace windows {
 
     void WindowState::writeState()
     {
-        if (!sofa::helper::system::FileSystem::exists(m_path))
-        {
-            if (!sofa::helper::system::FileSystem::createDirectory(m_path))
-            {
-                // could not create director(ies) : permissions, wrong, etc.
-                return;
-            }
-        }
+        m_path = sofa::helper::system::FileSystem::findOrCreateAValidPath(m_path);
 
         std::ofstream file(m_path);
         if (!file.is_open())
