@@ -79,9 +79,6 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     double lastModelviewMatrix [16];
     double lastProjectionMatrix [16];
 
-    vparams->getModelViewMatrix(lastModelviewMatrix);
-    vparams->getProjectionMatrix(lastProjectionMatrix);
-
     m_currentCamera->getOpenGLProjectionMatrix(lastProjectionMatrix);
     m_currentCamera->getOpenGLModelViewMatrix(lastModelviewMatrix);
 
