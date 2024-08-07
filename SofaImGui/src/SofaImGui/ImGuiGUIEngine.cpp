@@ -47,6 +47,7 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_opengl2.h>
 #include <IconsFontAwesome5.h>
+#include <IconsFontAwesome4.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
 #include <filesystem>
@@ -258,22 +259,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     if (!*firstRunState.getStatePtr())
     {
-        ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
-        ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
-        ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
-
-        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
-        ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
-        ImGui::DockBuilderFinish(dockspace_id);
-
-        winManagerViewPort.setState(true);
-        winManagerSceneGraph.setState(true);
-        winManagerLog.setState(true);
-
-        firstRunState.setState(true);// Mark first run as complete
+        resetView(dockspace_id, windowNameSceneGraph, windowNameLog, windowNameViewport);
     }
     ImGui::End();
 
@@ -461,7 +447,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     image.save(outPath, 90);
                 }
             }
-
+            ImGui::Separator();
+            if (ImGui::MenuItem(ICON_FA_REFRESH  "  Reset UI Layout"))
+            {
+                resetView(dockspace_id,windowNameSceneGraph,windowNameLog,windowNameViewport);
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Windows"))
@@ -610,6 +600,26 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
+}
+void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport)
+{
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+    ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
+    ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
+    ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
+
+    auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
+    ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
+    auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
+    ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
+    ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
+    ImGui::DockBuilderFinish(dockspace_id);
+
+    winManagerViewPort.setState(true);
+    winManagerSceneGraph.setState(true);
+    winManagerLog.setState(true);
+    firstRunState.setState(true);// Mark first run as complete
 }
 
 void ImGuiGUIEngine::beforeDraw(GLFWwindow*)

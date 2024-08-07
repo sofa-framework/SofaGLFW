@@ -50,7 +50,7 @@ public:
 
     ImGuiGUIEngine() ;
     ~ImGuiGUIEngine() = default;
-    
+
     void init() override;
     void initBackend(GLFWwindow*) override;
     void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
@@ -68,6 +68,7 @@ protected:
     CSimpleIniA ini;
 
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
+    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members
     windows::WindowState winManagerProfiler;
