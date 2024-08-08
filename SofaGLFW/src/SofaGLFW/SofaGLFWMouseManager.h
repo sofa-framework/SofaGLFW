@@ -23,6 +23,8 @@
 #include <sofa/gui/common/PickHandler.h>
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/MouseOperations.h>
+#include <sofa/gui/common/PickHandler.h>
+#include <memory>
 
 
 using namespace sofa::gui::common;
@@ -38,6 +40,11 @@ public:
 
 private:
     void updateOperation(MOUSE_BUTTON button, const std::string& id);
+
+    void updateContent();
+    std::map< int, std::string > mapIndexOperation;
+    sofa::type::fixed_array< std::string, sofa::gui::common::NONE > usedOperations;
+
     PickHandler* pickHandler;
 };
 

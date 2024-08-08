@@ -47,6 +47,9 @@ namespace windows {
             ImGui::SliderFloat("Show Factor Size", &settings.showFactorSize, 1.0f, 5.0f);
             ImGui::EndGroup();
             ImGui::End();
+
+
         }
     }
+
 }
