@@ -127,6 +127,10 @@ void ImGuiGUIEngine::init()
     {
         ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), ini::styleDescription);
         SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        if (rc != SI_OK)
+        {
+            msg_error("ImGuiGUIEngine") << std::strerror(errno) << "'" << sofaimgui::AppIniFile::getAppIniFile() << "'";
+        }
         assert(rc == SI_OK);
         pv = sofaimgui::defaultStyle.c_str();
     }
