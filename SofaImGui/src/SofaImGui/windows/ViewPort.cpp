@@ -37,15 +37,14 @@ namespace windows
 
     void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot,
                       const char* const& windowNameViewport,
-                      CSimpleIniA &ini,
+                      const CSimpleIniA &ini,
                       std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
                       std::pair<float, float>& m_viewportWindowSize,
                       bool &isMouseOnViewport,
                       WindowState& winManagerViewPort,
                       sofaglfw::SofaGLFWBaseGUI* baseGUI,
-                      bool* firstViewport,
-                      float* lastViewPortPosX,
-                      float* lastViewPortPosY)
+                      bool& isViewportDisplayedForTheFirstTime,
+                      sofa::type::Vec2f& lastViewPortPos)
     {
         if (*winManagerViewPort.getStatePtr())
         {
@@ -60,19 +59,18 @@ namespace windows
 
                 ImVec2 viewportPos = ImGui::GetWindowPos();
 
-                if (*firstViewport)
+                if (isViewportDisplayedForTheFirstTime)
                 {
-                    *lastViewPortPosX=viewportPos.x;
-                    *lastViewPortPosY=viewportPos.y;
-                    *firstViewport=false;
-                    baseGUI->updateViewportPosition(viewportPos.x,viewportPos.y);
-
+                    lastViewPortPos.x() = viewportPos.x;
+                    lastViewPortPos.y() = viewportPos.y;
+                    isViewportDisplayedForTheFirstTime = false;
+                    baseGUI->updateViewportPosition(viewportPos.x, viewportPos.y);
                 }
-                else if (hasViewportMoved(viewportPos.x, viewportPos.y, *lastViewPortPosX, *lastViewPortPosY, precisionThreshold))
+                else if (hasViewportMoved(viewportPos.x, viewportPos.y, lastViewPortPos.x(), lastViewPortPos.y(), precisionThreshold))
                 {
-                        baseGUI->updateViewportPosition(viewportPos.x,viewportPos.y);
-                        *lastViewPortPosX=viewportPos.x;
-                        *lastViewPortPosY=viewportPos.y;
+                    baseGUI->updateViewportPosition(viewportPos.x, viewportPos.y);
+                    lastViewPortPos.x() = viewportPos.x;
+                    lastViewPortPos.y() = viewportPos.y;
                 }
 
                 ImGui::Image((ImTextureID)m_fbo->getColorTexture(), wsize, ImVec2(0, 1), ImVec2(1, 0));
@@ -164,7 +162,8 @@ namespace windows
 
     }
 
-    bool hasViewportMoved(float currentX, float currentY, float lastX, float lastY, float threshold) {
-        return (std::fabs(currentX - lastX) > threshold || std::fabs(currentY - lastY) > threshold);
+    bool hasViewportMoved(const float currentX, const float currentY, const float lastX, const float lastY, const float threshold)
+    {
+        return std::fabs(currentX - lastX) > threshold || std::fabs(currentY - lastY) > threshold;
     }
 }

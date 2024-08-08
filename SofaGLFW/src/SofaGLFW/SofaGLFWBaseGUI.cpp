@@ -21,8 +21,6 @@
 ******************************************************************************/
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
-
-
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -308,10 +306,9 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     return false;
 
 }
-void SofaGLFWBaseGUI::updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY)
+void SofaGLFWBaseGUI::updateViewportPosition(const float viewportPositionX, const float viewportPositionY)
 {
-    m_viewPortPosition[0]=lastViewPortPosX;
-    m_viewPortPosition[1]=lastViewPortPosY;
+    m_viewPortPosition = { viewportPositionX, viewportPositionY };
 }
 
 void SofaGLFWBaseGUI::resizeWindow(int width, int height)
@@ -445,8 +442,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
     }
 
     m_vparams = VisualParams::defaultInstance();
-    m_viewPortWidth=m_vparams->viewport()[2];
-    m_viewPortHeight=m_vparams->viewport()[3];
+    m_viewPortWidth = m_vparams->viewport()[2];
+    m_viewPortHeight = m_vparams->viewport()[3];
 
     bool running = true;
     std::size_t currentNbIterations = 0;
@@ -477,8 +474,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     glfwSwapBuffers(glfwWindow);
 
 
-                    m_viewPortHeight=m_vparams->viewport()[3];
-                    m_viewPortWidth=m_vparams->viewport()[2];
+                    m_viewPortHeight = m_vparams->viewport()[3];
+                    m_viewPortWidth = m_vparams->viewport()[2];
 
                 }
                 else
@@ -656,8 +653,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             {
                 if (action == GLFW_PRESS)
                 {
-                    fixed_array<int, 4> viewport;
-                    currentGUI->second->getPickHandler()->activateRay(viewport[3], viewport[4], rootNode.get());              }
+                    currentGUI->second->getPickHandler()->activateRay(0, 0, rootNode.get());
+                }
                 else if (action == GLFW_RELEASE)
                 {
                     currentGUI->second->getPickHandler()->deactivateRay();
@@ -736,14 +733,12 @@ void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
 void SofaGLFWBaseGUI::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
 {
     SofaGLFWBaseGUI* gui = static_cast<SofaGLFWBaseGUI*>(glfwGetWindowUserPointer(window));
-    gui->m_windowPosition[0]=xpos;
-    gui->m_windowPosition[1]=ypos;
+    gui->m_windowPosition[0] = static_cast<float>(xpos);
+    gui->m_windowPosition[1] = static_cast<float>(ypos);
 }
 
 void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    double xpos, ypos;
-
     auto currentGUI = s_mapGUIs.find(window);
     if (currentGUI == s_mapGUIs.end() || !currentGUI->second) {
         return;
@@ -756,23 +751,29 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
         return;
     }
 
-    bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+    const bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
 
     if (shiftPressed )
     {
         // Check if the animation is running
-        if (!currentGUI->second->simulationIsRunning()) {
+        if (!currentGUI->second->simulationIsRunning())
+        {
             msg_info("SofaGLFWBaseGUI") << "Animation is not running. Ignoring mouse interaction.";
             return;
         }
 
-        glfwGetCursorPos(window, &xpos, &ypos);
-        translateToViewportCoordinates(gui,xpos,ypos);
-
-        auto currentSofaWindow = s_mapWindows.find(window);
+        const auto currentSofaWindow = s_mapWindows.find(window);
         if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
         {
-            currentSofaWindow->second->mouseEvent(window,gui->m_viewPortWidth,gui->m_viewPortHeight, button, action, mods, gui->m_translatedCursorPos[0], gui->m_translatedCursorPos[1]);
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            translateToViewportCoordinates(gui,xpos,ypos);
+
+            currentSofaWindow->second->mouseEvent(
+                window, gui->m_viewPortWidth, gui->m_viewPortHeight, button,
+                action, mods,
+                gui->m_translatedCursorPos[0],
+                gui->m_translatedCursorPos[1]);
         }
     }
     else

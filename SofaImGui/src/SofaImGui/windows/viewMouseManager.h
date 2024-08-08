@@ -26,6 +26,6 @@
 using namespace sofaimgui;
 namespace windows
 {
-    void  showMainWindow(const char* const&windowNameMouseManager,WindowState &winManagerMouse) ;
+    void  showManagerMouseWindow(const char* const&windowNameMouseManager,WindowState &winManagerMouse) ;
 
 } // namespace sofaimgui

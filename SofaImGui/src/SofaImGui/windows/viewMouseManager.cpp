@@ -33,7 +33,7 @@ namespace windows {
     OperationSettings settings;
     int selectedOperation = 0;
 
-    void  showMainWindow(const char* const&windowNameMouseManager,WindowState& winManagerMouse) {
+    void  showManagerMouseWindow(const char* const&windowNameMouseManager,WindowState& winManagerMouse) {
         if(*winManagerMouse.getStatePtr()){
             ImGui::Begin(windowNameMouseManager, winManagerMouse.getStatePtr());
             ImGui::Text("Left Button");

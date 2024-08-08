@@ -43,7 +43,6 @@
 
 namespace windows
 {
-
     void showLog(const char* const& windowNameLog,
                  WindowState& winManagerLog)
     {
@@ -62,7 +61,10 @@ namespace windows
                     return d;
                 }();
 
-                static bool showInfo { true };
+                static bool autoScroll{ true };
+                static bool showInfo{ true };
+                ImGui::Checkbox("AutoScroll", &autoScroll);
+                ImGui::SameLine();
                 ImGui::Checkbox("Show Info", &showInfo);
                 ImGui::SameLine();
 
@@ -108,7 +110,8 @@ namespace windows
                     }
                 }
 
-                if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_RowBg))
+                std::size_t nbRows = 0;
+                if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY))
                 {
                     ImGui::TableSetupColumn("logId", ImGuiTableColumnFlags_WidthFixed);
                     ImGui::TableSetupColumn("message type", ImGuiTableColumnFlags_WidthFixed);
@@ -122,6 +125,8 @@ namespace windows
                         }
 
                         ImGui::TableNextRow();
+                        nbRows++;
+
                         ImGui::TableNextColumn();
 
                         std::stringstream ss;
@@ -164,6 +169,14 @@ namespace windows
                         ImGui::TableNextColumn();
                         ImGui::TextWrapped(message.message().str().c_str());
                     }
+
+                    static std::size_t lastNbRows = 0;
+                    if (autoScroll && lastNbRows < nbRows)
+                    {
+                        ImGui::SetScrollHereY(1.0f);
+                    }
+                    lastNbRows = nbRows;
+
                     ImGui::EndTable();
                 }
             }

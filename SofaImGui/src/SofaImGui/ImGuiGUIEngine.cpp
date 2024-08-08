@@ -47,6 +47,7 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_opengl2.h>
 #include <IconsFontAwesome5.h>
+#include <IconsFontAwesome4.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
 #include <filesystem>
@@ -85,17 +86,17 @@ namespace sofaimgui
 {
 
 ImGuiGUIEngine::ImGuiGUIEngine()
-            : winManagerProfiler("profiler.txt"),
-              winManagerSceneGraph("scenegraph.txt"),
-              winManagerPerformances("performances.txt"),
-              winManagerDisplayFlags("displayflags.txt"),
-              winManagerPlugins("plugins.txt"),
-              winManagerComponents("components.txt"),
-              winManagerLog("log.txt"),
-              winManagerSettings("settings.txt"),
-              winManagerViewPort("viewport.txt"),
-              firstRunState("firstrun.txt"),
-              winManagerMouse("mousemanager.txt")
+            : winManagerProfiler(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("profiler.txt"))),
+              winManagerSceneGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("scenegraph.txt"))),
+              winManagerPerformances(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("performances.txt"))),
+              winManagerDisplayFlags(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("displayflags.txt"))),
+              winManagerPlugins(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("plugins.txt"))),
+              winManagerComponents(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("components.txt"))),
+              winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt"))),
+              winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt"))),
+              winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt"))),
+              firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt"))),
+    winManagerMouse("mousemanager.txt")
 {
 }
 
@@ -251,28 +252,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
-    static constexpr auto windowNameMouseManager = ICON_FA_MOUSE "  Mouse Manager";
-
-
+    static constexpr auto windowNameMouseManager = ICON_FA_MOUSE "  MouseManager";
 
     if (!*firstRunState.getStatePtr())
     {
-        ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
-        ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
-        ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
-
-        auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
-        auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
-        ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
-        ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
-        ImGui::DockBuilderFinish(dockspace_id);
-
-        winManagerViewPort.setState(true);
-        winManagerSceneGraph.setState(true);
-        winManagerLog.setState(true);
-
-        firstRunState.setState(true);// Mark first run as complete
+        resetView(dockspace_id, windowNameSceneGraph, windowNameLog, windowNameViewport);
     }
     ImGui::End();
 
@@ -460,13 +444,18 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     image.save(outPath, 90);
                 }
             }
-
+            ImGui::Separator();
+            if (ImGui::MenuItem(ICON_FA_REFRESH  "  Reset UI Layout"))
+            {
+                resetView(dockspace_id,windowNameSceneGraph,windowNameLog,windowNameViewport);
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::Checkbox(windowNameViewport, winManagerViewPort.getStatePtr());
             ImGui::Checkbox(windowNamePerformances, winManagerPerformances.getStatePtr());
+
             ImGui::Checkbox(windowNameProfiler, winManagerProfiler.getStatePtr());
 
             ImGui::Checkbox(windowNameSceneGraph, winManagerSceneGraph.getStatePtr());
@@ -482,8 +471,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Separator();
 
             ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
-
-            ImGui::Separator();
 
             ImGui::Checkbox(windowNameMouseManager,winManagerMouse.getStatePtr());
 
@@ -550,9 +537,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&lastViewPortPosX,&lastViewPortPosY);
+    showViewPort(groot, windowNameViewport, ini, m_fbo, m_viewportWindowSize,
+                 isMouseOnViewport, winManagerViewPort, baseGUI,
+                 isViewportDisplayedForTheFirstTime, lastViewPortPos);
 
-    showMainWindow(windowNameMouseManager,winManagerMouse);
+
+    showManagerMouseWindow(windowNameMouseManager,winManagerMouse);
     /***************************************
      * Performances window
      **************************************/
@@ -613,6 +603,26 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
+}
+void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport)
+{
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+    ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
+    ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
+    ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
+
+    auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
+    ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
+    auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
+    ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
+    ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
+    ImGui::DockBuilderFinish(dockspace_id);
+
+    winManagerViewPort.setState(true);
+    winManagerSceneGraph.setState(true);
+    winManagerLog.setState(true);
+    firstRunState.setState(true);// Mark first run as complete
 }
 
 void ImGuiGUIEngine::beforeDraw(GLFWwindow*)

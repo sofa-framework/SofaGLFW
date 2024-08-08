@@ -57,9 +57,6 @@ public:
     void afterDraw() override;
     void terminate() override;
     bool dispatchMouseEvents() override;
-    bool firstViewport{true} ;
-    float lastViewPortPosX{0.0f};
-    float lastViewPortPosY{0.0f};
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
@@ -68,6 +65,7 @@ protected:
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
+    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members
     windows::WindowState winManagerProfiler;
@@ -80,6 +78,9 @@ protected:
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
     windows::WindowState firstRunState;
+
+    bool isViewportDisplayedForTheFirstTime{true};
+    sofa::type::Vec2f lastViewPortPos;
     windows::WindowState winManagerMouse;
 };
 
