@@ -47,7 +47,7 @@ public:
 
     void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
     void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
-    bool mouseEvent(GLFWwindow* window,int width,int height ,int button, int action, int mods, double xpos, double ypos);  // Declaration for mouseEvent function
+    bool mouseEvent(GLFWwindow* window,int width,int height ,int button, int action, int mods, double xpos, double ypos) const;
 
 private:
     GLFWwindow* m_glfwWindow{nullptr};

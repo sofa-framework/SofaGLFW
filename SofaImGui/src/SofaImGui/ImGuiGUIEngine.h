@@ -57,9 +57,6 @@ public:
     void afterDraw() override;
     void terminate() override;
     bool dispatchMouseEvents() override;
-    bool firstViewport{true} ;
-    float lastViewPortPosX{0.0f};
-    float lastViewPortPosY{0.0f};
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
@@ -80,6 +77,9 @@ protected:
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
     windows::WindowState firstRunState;
+
+    bool isViewportDisplayedForTheFirstTime{true};
+    sofa::type::Vec2f lastViewPortPos;
 };
 
 } // namespace sofaimgui

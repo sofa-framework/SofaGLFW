@@ -543,7 +543,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&lastViewPortPosX,&lastViewPortPosY);
+    showViewPort(groot, windowNameViewport, ini, m_fbo, m_viewportWindowSize,
+                 isMouseOnViewport, winManagerViewPort, baseGUI,
+                 isViewportDisplayedForTheFirstTime, lastViewPortPos);
 
 
     /***************************************

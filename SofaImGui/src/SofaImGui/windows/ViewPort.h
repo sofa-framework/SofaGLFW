@@ -41,22 +41,19 @@ namespace windows
          * @param isMouseOnViewport A reference to a boolean flag indicating if the mouse cursor is over the viewport.
          * @param winManagerViewPort The state manager for the viewport window.
          * @param baseGUI A pointer to the base GUI object.
-         * @param firstViewport A pointer to a boolean indicating if this is the first time the viewport is being displayed.
-         * @param lastViewPortPosX A pointer to the last recorded X position of the viewport.
-         * @param lastViewPortPosY A pointer to the last recorded Y position of the viewport.
+         * @param isViewportDisplayedForTheFirstTime A reference to a boolean indicating if this is the first time the viewport is being displayed.
+         * @param lastViewPortPos A reference to the last recorded position of the viewport.
          */
         void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot,
                           const char* const& windowNameViewport,
-                          CSimpleIniA &ini,
+                          const CSimpleIniA &ini,
                           std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
-                          std::pair<float,
-                          float>& m_viewportWindowSize,
+                          std::pair<float, float>& m_viewportWindowSize,
                           bool & isMouseOnViewport,
                           WindowState& winManagerViewPort,
                           sofaglfw::SofaGLFWBaseGUI* baseGUI,
-                          bool* firstViewport,
-                          float* lastViewPortPosX,
-                          float* lastViewPortPosY);
+                          bool& isViewportDisplayedForTheFirstTime,
+                          sofa::type::Vec2f& lastViewPortPos);
 
         /**
          * @brief Checks if the viewport position has moved beyond a specified threshold.
@@ -71,7 +68,7 @@ namespace windows
          * @param threshold The precision threshold to determine significant movement.
          * @return True if the viewport has moved beyond the threshold, false otherwise.
          */
-        bool hasViewportMoved(float currentX,
+        static bool hasViewportMoved(float currentX,
                               float currentY,
                               float lastX,
                               float lastY,

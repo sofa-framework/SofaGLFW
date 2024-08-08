@@ -67,7 +67,7 @@ public:
     void setWindowHeight(int height) { m_windowHeight = height; }
     void resizeWindow(int width, int height);
     bool centerWindow(GLFWwindow* window = nullptr);
-    void updateViewportPosition(float lastViewPortPosX, float lastViewPortPosY) ;
+    void updateViewportPosition(float viewportPositionX, float viewportPositionY) ;
 
     GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
     void viewAll() override;
