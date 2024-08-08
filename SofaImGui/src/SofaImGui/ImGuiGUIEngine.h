@@ -68,7 +68,7 @@ protected:
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-    void showMainWindow(bool* p_open) ;
+
     // WindowState members
     windows::WindowState winManagerProfiler;
     windows::WindowState winManagerSceneGraph;
@@ -80,7 +80,7 @@ protected:
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
     windows::WindowState firstRunState;
-    windows::WindowState mousemanager;
+    windows::WindowState winManagerMouse;
 };
 
 } // namespace sofaimgui

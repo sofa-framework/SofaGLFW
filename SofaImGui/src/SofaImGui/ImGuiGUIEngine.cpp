@@ -75,6 +75,7 @@
 #include "windows/Components.h"
 #include "windows/Settings.h"
 #include "AppIniFile.h"
+#include "windows/viewMouseManager.h"
 #include "windows/ViewPort.h"
 #include "windows/WindowState.h"
 
@@ -94,7 +95,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
               winManagerSettings("settings.txt"),
               winManagerViewPort("viewport.txt"),
               firstRunState("firstrun.txt"),
-              mousemanager("mouse")
+              winManagerMouse("mousemanager.txt")
 {
 }
 
@@ -192,45 +193,6 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     baseGUI->initVisual();
 }
 
-    // Example settings
-    struct OperationSettings {
-    float stiffness = 1.0f;
-    float arrowSize = 10.0f;
-    float showFactorSize = 1.0f;
-};
-
-    // Global settings
-    OperationSettings settings;
-    int selectedOperation = 0;  // 0: Attach, 1: Fix, 2: Incise, etc.
-
-    // Function to create and display the main window
-    void ImGuiGUIEngine:: showMainWindow(bool* p_open) {
-        ImGui::Begin("Operations", p_open);
-
-        const char* operations[] = {"Attach", "Fix", "Incise"};
-        ImGui::Combo("Operation", &selectedOperation, operations, IM_ARRAYSIZE(operations));
-
-        switch (selectedOperation) {
-            case 0:
-                ImGui::Text("Attach Operation");
-            ImGui::SliderFloat("Stiffness", &settings.stiffness, 0.0f, 10.0f);
-            ImGui::SliderFloat("Arrow Size", &settings.arrowSize, 0.0f, 20.0f);
-            ImGui::SliderFloat("Show Factor Size", &settings.showFactorSize, 0.0f, 5.0f);
-            break;
-            case 1:
-                ImGui::Text("Fix Operation");
-            ImGui::SliderFloat("Stiffness", &settings.stiffness, 0.0f, 10.0f);
-            break;
-            case 2:
-                ImGui::Text("Incise Operation");
-            ImGui::SliderFloat("Stiffness", &settings.stiffness, 0.0f, 10.0f);
-            ImGui::SliderFloat("Arrow Size", &settings.arrowSize, 0.0f, 20.0f);
-            ImGui::SliderFloat("Show Factor Size", &settings.showFactorSize, 0.0f, 5.0f);
-            break;
-        }
-
-        ImGui::End();
-    }
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     auto groot = baseGUI->getRootNode();
@@ -289,7 +251,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
-        static constexpr auto mousemanagername = ICON_FA_SLIDERS_H "  mouse mamanger";
+    static constexpr auto windowNameMouseManager = ICON_FA_MOUSE "  Mouse Manager";
 
 
 
@@ -505,7 +467,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             ImGui::Checkbox(windowNameViewport, winManagerViewPort.getStatePtr());
             ImGui::Checkbox(windowNamePerformances, winManagerPerformances.getStatePtr());
-            ImGui::Checkbox(mousemanagername,mousemanager.getStatePtr());
             ImGui::Checkbox(windowNameProfiler, winManagerProfiler.getStatePtr());
 
             ImGui::Checkbox(windowNameSceneGraph, winManagerSceneGraph.getStatePtr());
@@ -521,6 +482,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Separator();
 
             ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
+
+            ImGui::Separator();
+
+            ImGui::Checkbox(windowNameMouseManager,winManagerMouse.getStatePtr());
 
             ImGui::EndMenu();
         }
@@ -587,7 +552,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      **************************************/
     showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort,baseGUI,&firstViewport,&lastViewPortPosX,&lastViewPortPosY);
 
-    ImGuiGUIEngine::showMainWindow(mousemanager.getStatePtr());
+    showMainWindow(windowNameMouseManager,winManagerMouse);
     /***************************************
      * Performances window
      **************************************/
