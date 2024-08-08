@@ -656,8 +656,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             {
                 if (action == GLFW_PRESS)
                 {
-                    fixed_array<int, 4> viewport;
-                    currentGUI->second->getPickHandler()->activateRay(viewport[3], viewport[4], rootNode.get());              }
+                    currentGUI->second->getPickHandler()->activateRay(0, 0, rootNode.get());
+                }
                 else if (action == GLFW_RELEASE)
                 {
                     currentGUI->second->getPickHandler()->deactivateRay();
