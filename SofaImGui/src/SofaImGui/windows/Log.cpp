@@ -43,7 +43,6 @@
 
 namespace windows
 {
-
     void showLog(const char* const& windowNameLog,
                  WindowState& winManagerLog)
     {
@@ -62,7 +61,10 @@ namespace windows
                     return d;
                 }();
 
-                static bool showInfo { true };
+                static bool autoScroll{ true };
+                static bool showInfo{ true };
+                ImGui::Checkbox("AutoScroll", &autoScroll);
+                ImGui::SameLine();
                 ImGui::Checkbox("Show Info", &showInfo);
                 ImGui::SameLine();
 
@@ -108,6 +110,7 @@ namespace windows
                     }
                 }
 
+                std::size_t nbRows = 0;
                 if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_RowBg))
                 {
                     ImGui::TableSetupColumn("logId", ImGuiTableColumnFlags_WidthFixed);
@@ -122,6 +125,8 @@ namespace windows
                         }
 
                         ImGui::TableNextRow();
+                        nbRows++;
+
                         ImGui::TableNextColumn();
 
                         std::stringstream ss;
@@ -166,6 +171,14 @@ namespace windows
                     }
                     ImGui::EndTable();
                 }
+
+                static std::size_t lastNbRows = 0;
+                if (autoScroll && lastNbRows < nbRows)
+                {
+                    ImGui::SetScrollHereY(1.0f);
+                }
+                lastNbRows = nbRows;
+
             }
             ImGui::End();
         }
