@@ -111,7 +111,7 @@ namespace windows
                 }
 
                 std::size_t nbRows = 0;
-                if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_RowBg))
+                if (ImGui::BeginTable("logTable", 4, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY))
                 {
                     ImGui::TableSetupColumn("logId", ImGuiTableColumnFlags_WidthFixed);
                     ImGui::TableSetupColumn("message type", ImGuiTableColumnFlags_WidthFixed);
@@ -169,16 +169,16 @@ namespace windows
                         ImGui::TableNextColumn();
                         ImGui::TextWrapped(message.message().str().c_str());
                     }
+
+                    static std::size_t lastNbRows = 0;
+                    if (autoScroll && lastNbRows < nbRows)
+                    {
+                        ImGui::SetScrollHereY(1.0f);
+                    }
+                    lastNbRows = nbRows;
+
                     ImGui::EndTable();
                 }
-
-                static std::size_t lastNbRows = 0;
-                if (autoScroll && lastNbRows < nbRows)
-                {
-                    ImGui::SetScrollHereY(1.0f);
-                }
-                lastNbRows = nbRows;
-
             }
             ImGui::End();
         }
