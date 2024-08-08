@@ -31,8 +31,6 @@
 #include <SimpleIni.h>
 #include "windows/WindowState.h"
 
-
-
 using windows::WindowState;
 
 struct GLFWwindow;
@@ -66,7 +64,6 @@ protected:
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
-
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
     void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport) ;
 
@@ -81,6 +78,9 @@ protected:
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
     windows::WindowState firstRunState;
+
+    bool isViewportDisplayedForTheFirstTime{true};
+    sofa::type::Vec2f lastViewPortPos;
 };
 
 } // namespace sofaimgui

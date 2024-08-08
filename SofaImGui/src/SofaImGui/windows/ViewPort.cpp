@@ -20,10 +20,8 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <SofaImGui/ImGuiGUIEngine.h>
-#include <sofa/core/loader/SceneLoader.h>
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/simulation/Simulation.h>
-#include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
 #include <IconsFontAwesome5.h>
 #include <sofa/simulation/Node.h>
@@ -31,21 +29,22 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/gui/common/BaseGUI.h>
-#include <sofa/simulation/graph/DAGNode.h>
 #include "ViewPort.h"
-
-
-
+#include "SofaGLFW/SofaGLFWBaseGUI.h"
+#include <iomanip>
 namespace windows
 {
 
     void showViewPort(sofa::core::sptr<sofa::simulation::Node> groot,
                       const char* const& windowNameViewport,
-                      CSimpleIniA &ini,
+                      const CSimpleIniA &ini,
                       std::unique_ptr<sofa::gl::FrameBufferObject>& m_fbo,
                       std::pair<float, float>& m_viewportWindowSize,
                       bool &isMouseOnViewport,
-                      WindowState& winManagerViewPort)
+                      WindowState& winManagerViewPort,
+                      sofaglfw::SofaGLFWBaseGUI* baseGUI,
+                      bool& isViewportDisplayedForTheFirstTime,
+                      sofa::type::Vec2f& lastViewPortPos)
     {
         if (*winManagerViewPort.getStatePtr())
         {
@@ -57,6 +56,22 @@ namespace windows
                 ImGui::BeginChild("Render");
                 ImVec2 wsize = ImGui::GetWindowSize();
                 m_viewportWindowSize = { wsize.x, wsize.y};
+
+                ImVec2 viewportPos = ImGui::GetWindowPos();
+
+                if (isViewportDisplayedForTheFirstTime)
+                {
+                    lastViewPortPos.x() = viewportPos.x;
+                    lastViewPortPos.y() = viewportPos.y;
+                    isViewportDisplayedForTheFirstTime = false;
+                    baseGUI->updateViewportPosition(viewportPos.x, viewportPos.y);
+                }
+                else if (hasViewportMoved(viewportPos.x, viewportPos.y, lastViewPortPos.x(), lastViewPortPos.y(), precisionThreshold))
+                {
+                    baseGUI->updateViewportPosition(viewportPos.x, viewportPos.y);
+                    lastViewPortPos.x() = viewportPos.x;
+                    lastViewPortPos.y() = viewportPos.y;
+                }
 
                 ImGui::Image((ImTextureID)m_fbo->getColorTexture(), wsize, ImVec2(0, 1), ImVec2(1, 0));
 
@@ -144,7 +159,11 @@ namespace windows
                 ImGui::End();
             }
         }
+
     }
 
-
+    bool hasViewportMoved(const float currentX, const float currentY, const float lastX, const float lastY, const float threshold)
+    {
+        return std::fabs(currentX - lastX) > threshold || std::fabs(currentY - lastY) > threshold;
+    }
 }

@@ -20,44 +20,25 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaGLFW/config.h>
+#include <sofa/gui/common/PickHandler.h>
+#include <sofa/gui/common/BaseViewer.h>
+#include <sofa/gui/common/MouseOperations.h>
 
-#include <sofa/simulation/fwd.h>
-#include <sofa/component/visual/BaseCamera.h>
-#include "SofaGLFWBaseGUI.h"
 
-struct GLFWwindow;
+using namespace sofa::gui::common;
 
 namespace sofaglfw
 {
-
-class SOFAGLFW_API SofaGLFWWindow
+class SOFAGLFW_API SofaGLFWMouseManager
 {
 public:
-    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera);
-    virtual ~SofaGLFWWindow() = default;
-
-    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
-    void close();
-
-    void mouseMoveEvent(int xpos, int ypos,SofaGLFWBaseGUI* gui);
-    void mouseButtonEvent(int button, int action, int mods);
-    void scrollEvent(double xoffset, double yoffset);
-    void setBackgroundColor(const RGBAColor& newColor);
-
-    void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
-    void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
-    bool mouseEvent(GLFWwindow* window,int width,int height ,int button, int action, int mods, double xpos, double ypos) const;
+    SofaGLFWMouseManager();
+    void setPickHandler(PickHandler* picker);
+    bool m_isMouseInteractionEnabled{ false };
 
 private:
-    GLFWwindow* m_glfwWindow{nullptr};
-    sofa::component::visual::BaseCamera::SPtr m_currentCamera;
-    int m_currentButton{ -1 };
-    int m_currentAction{ -1 };
-    int m_currentMods{ -1 };
-    int m_currentXPos{ -1 };
-    int m_currentYPos{ -1 };
-    RGBAColor m_backgroundColor{ RGBAColor::black() };
+    void updateOperation(MOUSE_BUTTON button, const std::string& id);
+    PickHandler* pickHandler;
 };
 
 } // namespace sofaglfw

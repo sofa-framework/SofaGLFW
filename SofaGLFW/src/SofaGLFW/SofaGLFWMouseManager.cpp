@@ -19,45 +19,50 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#pragma once
-#include <SofaGLFW/config.h>
 
-#include <sofa/simulation/fwd.h>
-#include <sofa/component/visual/BaseCamera.h>
-#include "SofaGLFWBaseGUI.h"
+#include <SofaGLFW/SofaGLFWWindow.h>
+#include <sofa/helper/AdvancedTimer.h>
+#include <sofa/simulation/Simulation.h>
+#include <sofa/gui/common/PickHandler.h>
+#include <sofa/gui/common/MouseOperations.h>
+#include <sofa/gui/common/OperationFactory.h>
+#include <SofaGLFW/SofaGLFWMouseManager.h>
 
-struct GLFWwindow;
+using namespace sofa;
+using namespace sofa::type;
+using namespace sofa::defaulttype;
 
 namespace sofaglfw
 {
 
-class SOFAGLFW_API SofaGLFWWindow
-{
-public:
-    SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera);
-    virtual ~SofaGLFWWindow() = default;
+    SofaGLFWMouseManager::SofaGLFWMouseManager()
+    {
+        RegisterOperation("Attach").add< AttachOperation >();
+        RegisterOperation("AddFrame").add< AddFrameOperation >();
+        RegisterOperation("SaveCameraViewPoint").add< AddRecordedCameraOperation >();
+        RegisterOperation("StartNavigation").add< StartNavigationOperation >();
+        RegisterOperation("Fix").add< FixOperation  >();
+        RegisterOperation("Incise").add< InciseOperation  >();
+        RegisterOperation("Remove").add< TopologyOperation  >();
+        RegisterOperation("Suture").add< AddSutureOperation >();
+        RegisterOperation("ConstraintAttach").add< ConstraintAttachOperation >();
+    }
 
-    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
-    void close();
+    void SofaGLFWMouseManager::setPickHandler(PickHandler *picker)
+    {
+        pickHandler=picker;
 
-    void mouseMoveEvent(int xpos, int ypos,SofaGLFWBaseGUI* gui);
-    void mouseButtonEvent(int button, int action, int mods);
-    void scrollEvent(double xoffset, double yoffset);
-    void setBackgroundColor(const RGBAColor& newColor);
+        updateOperation(LEFT,   "Attach");
+        updateOperation(MIDDLE, "Incise");
+        updateOperation(RIGHT,  "Remove");
+    }
 
-    void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
-    void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
-    bool mouseEvent(GLFWwindow* window,int width,int height ,int button, int action, int mods, double xpos, double ypos) const;
+    void SofaGLFWMouseManager::updateOperation(MOUSE_BUTTON button, const std::string &id)
+    {
+        if (pickHandler)
+        {
+            pickHandler->changeOperation(button, id);
+        }
+    }
 
-private:
-    GLFWwindow* m_glfwWindow{nullptr};
-    sofa::component::visual::BaseCamera::SPtr m_currentCamera;
-    int m_currentButton{ -1 };
-    int m_currentAction{ -1 };
-    int m_currentMods{ -1 };
-    int m_currentXPos{ -1 };
-    int m_currentYPos{ -1 };
-    RGBAColor m_backgroundColor{ RGBAColor::black() };
-};
-
-} // namespace sofaglfw
+}// namespace sofaglfw

@@ -56,17 +56,12 @@
 #include <Style.h>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/helper/Utils.h>
-#include <sofa/type/vector.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualStyle.h>
-#include <sofa/core/ComponentLibrary.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/PluginManager.h>
-#include <SofaImGui/ObjectColor.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/io/File.h>
-#include <sofa/component/visual/VisualGrid.h>
-#include <sofa/component/visual/LineAxis.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/helper/io/STBImage.h>
@@ -112,7 +107,7 @@ void ImGuiGUIEngine::init()
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    static const std::string imguiIniFile(sofa::helper::Utils::getExecutableDirectory() + "/imgui.ini");
+    static const std::string imguiIniFile(helper::Utils::getExecutableDirectory() + "/imgui.ini");
     io.IniFilename = imguiIniFile.c_str();
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -538,7 +533,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    windows::showViewPort(groot, windowNameViewport,ini,m_fbo,m_viewportWindowSize,isMouseOnViewport, winManagerViewPort);
+    showViewPort(groot, windowNameViewport, ini, m_fbo, m_viewportWindowSize,
+                 isMouseOnViewport, winManagerViewPort, baseGUI,
+                 isViewportDisplayedForTheFirstTime, lastViewPortPos);
+
 
     /***************************************
      * Performances window

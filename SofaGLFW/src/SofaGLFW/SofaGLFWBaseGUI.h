@@ -20,7 +20,6 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <SofaGLFW/config.h>
 
 #include <sofa/simulation/Simulation.h>
 #include <sofa/gl/DrawToolGL.h>
@@ -29,23 +28,25 @@
 
 #include <SofaGLFW/BaseGUIEngine.h>
 #include <SofaGLFW/NullGUIEngine.h>
-
+#include <sofa/gui/common/BaseViewer.h>
 #include <memory>
+
+#include <SofaGLFW/SofaGLFWMouseManager.h>
 
 struct GLFWwindow;
 struct GLFWmonitor;
+using namespace sofa::type;
 
 namespace sofaglfw
 {
 
 class SofaGLFWWindow;
-
-class SOFAGLFW_API SofaGLFWBaseGUI
+class SOFAGLFW_API SofaGLFWBaseGUI : public BaseViewer
 {
 public:
-    
+
     SofaGLFWBaseGUI();
-    
+
     virtual ~SofaGLFWBaseGUI();
 
     bool init(int nbMSAASamples = 0);
@@ -66,21 +67,27 @@ public:
     void setWindowHeight(int height) { m_windowHeight = height; }
     void resizeWindow(int width, int height);
     bool centerWindow(GLFWwindow* window = nullptr);
+    void updateViewportPosition(float viewportPositionX, float viewportPositionY) ;
 
     GLFWmonitor* getCurrentMonitor(GLFWwindow *window);
+    void viewAll() override;
+    void saveView() override ;
+    void setSizeW(int width) override;
+    void setSizeH(int height) override;
+    int getWidth() override;
+    int getHeight() override;
+    void drawScene() override ;
+    void redraw() override;
 
     bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
-    void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int /* screenID */ = 0);
-    void setBackgroundColor(const sofa::type::RGBAColor& newColor, unsigned int /* windowID */ = 0);
-    void setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */ = 0);
+    void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int screenID = 0);
+    void setBackgroundColor(const RGBAColor& newColor, unsigned int windowID = 0);
+    virtual void setBackgroundImage(const std::string& imageFileName = "textures/SOFA_logo.bmp", unsigned int windowID = 0);
 
-    sofa::core::sptr<sofa::simulation::Node> getRootNode() const;
+    sofa::core::sptr<Node> getRootNode() const;
     bool hasWindow() const { return m_firstWindow != nullptr; }
 
-    [[nodiscard]] std::string getFilename() const
-    {
-        return m_filename;
-    }
+    [[nodiscard]] std::string getFilename() const { return m_filename; }
 
     sofa::component::visual::BaseCamera::SPtr findCamera(sofa::simulation::NodeSPtr groot);
     void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
@@ -93,12 +100,12 @@ public:
     {
         m_guiEngine = guiEngine;
     }
-    
     std::shared_ptr<BaseGUIEngine> getGUIEngine()
     {
         return m_guiEngine;
     }
-    
+    void moveRayPickInteractor(int eventX, int eventY) override ;
+
 private:
     // GLFW callbacks
     static void error_callback(int error, const char* description);
@@ -107,23 +114,20 @@ private:
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     static void close_callback(GLFWwindow* window);
-    // empty (as in non-implemented) GLFW callbacks
     static void window_focus_callback(GLFWwindow* window, int focused);
     static void cursor_enter_callback(GLFWwindow* window, int entered);
     static void monitor_callback(GLFWmonitor* monitor, int event);
     static void character_callback(GLFWwindow* window, unsigned int codepoint);
-
-
+    static void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
     static int handleArrowKeys(int key);
+    static void translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos);
 
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
 
-    // static members
-    inline static std::map< GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
-    inline static std::map< GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
+    inline static std::map<GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
+    inline static std::map<GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
 
-    //members
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
 
@@ -138,11 +142,14 @@ private:
     int m_lastWindowPositionY{ 0 };
     int m_lastWindowWidth{ 0 };
     int m_lastWindowHeight{ 0 };
+    SofaGLFWMouseManager m_sofaGLFWMouseManager;
+    int m_viewPortHeight{0};
+    int m_viewPortWidth {0};
+    Vec2d m_translatedCursorPos;
+    Vec2f m_viewPortPosition;
+    Vec2f m_windowPosition;
 
-    bool m_isMouseInteractionEnabled { false };
-    
-    std::shared_ptr<sofaglfw::BaseGUIEngine> m_guiEngine;
-
+    std::shared_ptr<BaseGUIEngine> m_guiEngine;
 };
 
 } // namespace sofaglfw
