@@ -64,66 +64,19 @@ namespace sofaglfw
             pickHandler->changeOperation(button, id);
         }
     }
-     #include <iostream>
-#include <typeinfo>
 
-// Assuming that updateOperation, pickHandler, mapIndexOperation, and usedOperations are class members.
+    void SofaGLFWMouseManager::updateContent() {
+        const OperationFactory::RegisterStorage &registry = OperationFactory::getInstance()->registry;
 
-void SofaGLFWMouseManager::updateContent() {
-    // Get the registry
-    const OperationFactory::RegisterStorage &registry = OperationFactory::getInstance()->registry;
+        int idx = 0;
+        for (OperationFactory::RegisterStorage::const_iterator it = registry.begin(); it != registry.end(); ++it) {
 
-    // Start of the function
-    std::cout << "updateContent() called." << std::endl;
-    std::cout << "Registry size: " << registry.size() << std::endl;
-
-    // Print contents of usedOperations
-    std::cout << "usedOperations: " << std::endl;
-    for (int i = 0; i < sofa::gui::common::NONE; ++i) {
-        std::cout << "usedOperations[" << i << "]: " << usedOperations[i] << std::endl;
-    }
-
-    // Print pickHandler details
-    std::cout << "pickHandler address: " << pickHandler << std::endl;
-    if (pickHandler != nullptr) {
-        std::cout << "pickHandler type: " << typeid(*pickHandler).name() << std::endl;
-    } else {
-        std::cout << "pickHandler is nullptr." << std::endl;
-    }
-
-    int idx = 0;
-    for (OperationFactory::RegisterStorage::const_iterator it = registry.begin(); it != registry.end(); ++it) {
-        // Print each operation's description
-        std::cout << "Operation " << idx << " ID: " << it->first << std::endl;
-        std::cout << "Operation Description: " << OperationFactory::GetDescription(it->first) << std::endl;
-
-        // Debug comparisons with usedOperations
-        std::cout << "Comparing with LEFT: " << OperationFactory::GetDescription(usedOperations[LEFT]) << std::endl;
-        std::cout << "Comparing with MIDDLE: " << OperationFactory::GetDescription(usedOperations[MIDDLE]) << std::endl;
-        std::cout << "Comparing with RIGHT: " << OperationFactory::GetDescription(usedOperations[RIGHT]) << std::endl;
-
-        // Check each operation
-        if (OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[LEFT])) {
-            std::cout << "Matched LEFT operation" << std::endl;
+            OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[LEFT]) ;
+            OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[MIDDLE]);
+            OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[RIGHT]);
+            mapIndexOperation.insert(std::make_pair(idx++, it->first));
         }
-        if (OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[MIDDLE])) {
-            std::cout << "Matched MIDDLE operation" << std::endl;
-        }
-        if (OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[RIGHT])) {
-            std::cout << "Matched RIGHT operation" << std::endl;
-        }
-
-        // Insert into map
-        mapIndexOperation.insert(std::make_pair(idx++, it->first));
-        std::cout << "Inserted into mapIndexOperation: " << idx-1 << " -> " << it->first << std::endl;
     }
-
-    // Print final mapIndexOperation contents
-    std::cout << "Final mapIndexOperation contents:" << std::endl;
-    for (const auto& entry : mapIndexOperation) {
-        std::cout << "Index: " << entry.first << " -> Operation ID: " << entry.second << std::endl;
-    }
-}
 
 
 }// namespace sofaglfw

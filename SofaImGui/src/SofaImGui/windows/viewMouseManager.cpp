@@ -38,13 +38,16 @@ namespace windows {
             ImGui::Begin(windowNameMouseManager, winManagerMouse.getStatePtr());
             ImGui::Text("Left Button");
             ImGui::BeginGroup();
-            const char* operations[] = {"Attach", "Fix", "Incise"};
+
+            ///todo: get operations descriptions from SofaGlFWMouseManager (update content)
+
+            const char* operations[] = {"Attach an object to the Mouse using a spring force field"};
             ImGui::Combo("Operation", &selectedOperation, operations, IM_ARRAYSIZE(operations));
 
-            ImGui::Text("Attach Operation");
             ImGui::SliderFloat("Stiffness", &settings.stiffness, 0.0f, 1000.0f);
-            ImGui::SliderFloat("Arrow Size", &settings.arrowSize, 0.0f, 0.0f);
+            ImGui::SliderFloat("Arrow Size", &settings.arrowSize, 0.0f, 10.0f);
             ImGui::SliderFloat("Show Factor Size", &settings.showFactorSize, 1.0f, 5.0f);
+
             ImGui::EndGroup();
             ImGui::End();
 
