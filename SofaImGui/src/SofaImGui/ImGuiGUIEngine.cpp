@@ -96,7 +96,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
               winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt"))),
               winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt"))),
               firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt"))),
-    winManagerMouse("mousemanager.txt")
+              winManagerMouse(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mousemanager.txt")))
 {
 }
 
@@ -252,7 +252,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
-    static constexpr auto windowNameMouseManager = ICON_FA_MOUSE "  MouseManager";
+    static constexpr auto windowNameMouseManager = ICON_FA_MOUSE_POINTER "  MouseManager";
 
     if (!*firstRunState.getStatePtr())
     {
