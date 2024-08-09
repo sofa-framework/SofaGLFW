@@ -97,10 +97,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.h
-
-
-
-
+    ${SOFAIMGUI_SOURCE_DIR}/windows/viewMouseManager.h
 )
 
 set(SOURCE_FILES
@@ -120,7 +117,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.cpp
-
+    ${SOFAIMGUI_SOURCE_DIR}/windows/viewMouseManager.cpp
 )
 
 

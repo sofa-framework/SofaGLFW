@@ -76,6 +76,7 @@
 #include "windows/Components.h"
 #include "windows/Settings.h"
 #include "AppIniFile.h"
+#include "windows/viewMouseManager.h"
 #include "windows/ViewPort.h"
 #include "windows/WindowState.h"
 
@@ -94,7 +95,8 @@ ImGuiGUIEngine::ImGuiGUIEngine()
               winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt"))),
               winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt"))),
               winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt"))),
-              firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
+              firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt"))),
+              winManagerMouse(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mousemanager.txt")))
 {
 }
 
@@ -250,7 +252,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
-
+    static constexpr auto windowNameMouseManager = ICON_FA_MOUSE_POINTER "  MouseManager";
 
     if (!*firstRunState.getStatePtr())
     {
@@ -470,6 +472,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
 
+            ImGui::Checkbox(windowNameMouseManager,winManagerMouse.getStatePtr());
+
             ImGui::EndMenu();
         }
 
@@ -538,6 +542,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                  isViewportDisplayedForTheFirstTime, lastViewPortPos);
 
 
+    showManagerMouseWindow(windowNameMouseManager,winManagerMouse);
     /***************************************
      * Performances window
      **************************************/

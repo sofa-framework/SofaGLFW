@@ -51,7 +51,7 @@ namespace sofaglfw
     void SofaGLFWMouseManager::setPickHandler(PickHandler *picker)
     {
         pickHandler=picker;
-
+        updateContent();
         updateOperation(LEFT,   "Attach");
         updateOperation(MIDDLE, "Incise");
         updateOperation(RIGHT,  "Remove");
@@ -64,5 +64,19 @@ namespace sofaglfw
             pickHandler->changeOperation(button, id);
         }
     }
+
+    void SofaGLFWMouseManager::updateContent() {
+        const OperationFactory::RegisterStorage &registry = OperationFactory::getInstance()->registry;
+
+        int idx = 0;
+        for (OperationFactory::RegisterStorage::const_iterator it = registry.begin(); it != registry.end(); ++it) {
+
+            OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[LEFT]) ;
+            OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[MIDDLE]);
+            OperationFactory::GetDescription(it->first) == OperationFactory::GetDescription(usedOperations[RIGHT]);
+            mapIndexOperation.insert(std::make_pair(idx++, it->first));
+        }
+    }
+
 
 }// namespace sofaglfw

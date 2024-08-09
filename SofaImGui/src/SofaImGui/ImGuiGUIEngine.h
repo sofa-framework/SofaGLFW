@@ -48,7 +48,7 @@ public:
 
     ImGuiGUIEngine() ;
     ~ImGuiGUIEngine() = default;
-
+    
     void init() override;
     void initBackend(GLFWwindow*) override;
     void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
@@ -81,6 +81,7 @@ protected:
 
     bool isViewportDisplayedForTheFirstTime{true};
     sofa::type::Vec2f lastViewPortPos;
+    windows::WindowState winManagerMouse;
 };
 
 } // namespace sofaimgui

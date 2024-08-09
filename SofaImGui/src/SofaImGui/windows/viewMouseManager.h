@@ -20,32 +20,12 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-#include <sofa/gui/common/PickHandler.h>
-#include <sofa/gui/common/BaseViewer.h>
-#include <sofa/gui/common/MouseOperations.h>
-#include <sofa/gui/common/PickHandler.h>
-#include <memory>
+#include "SofaImGui/ImGuiGUIEngine.h"
+#include "WindowState.h"
 
-
-using namespace sofa::gui::common;
-
-namespace sofaglfw
+using namespace sofaimgui;
+namespace windows
 {
-class SOFAGLFW_API SofaGLFWMouseManager
-{
-public:
-    SofaGLFWMouseManager();
-    void setPickHandler(PickHandler* picker);
-    bool m_isMouseInteractionEnabled{ false };
+    void  showManagerMouseWindow(const char* const&windowNameMouseManager,WindowState &winManagerMouse) ;
 
-private:
-    void updateOperation(MOUSE_BUTTON button, const std::string& id);
-
-    void updateContent();
-    std::map< int, std::string > mapIndexOperation;
-    sofa::type::fixed_array< std::string, sofa::gui::common::NONE > usedOperations;
-
-    PickHandler* pickHandler;
-};
-
-} // namespace sofaglfw
+} // namespace sofaimgui

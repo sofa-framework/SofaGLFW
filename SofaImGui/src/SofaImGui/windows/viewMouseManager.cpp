@@ -19,33 +19,40 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#pragma once
-#include <sofa/gui/common/PickHandler.h>
-#include <sofa/gui/common/BaseViewer.h>
-#include <sofa/gui/common/MouseOperations.h>
-#include <sofa/gui/common/PickHandler.h>
-#include <memory>
+
+#include "viewMouseManager.h"
+
+#include "SofaImGui/ImGuiGUIEngine.h"
+namespace windows {
+    struct OperationSettings {
+        float stiffness = 1.0f;
+        float arrowSize = 10.0f;
+        float showFactorSize = 1.0f;
+    };
+
+    OperationSettings settings;
+    int selectedOperation = 0;
+
+    void  showManagerMouseWindow(const char* const&windowNameMouseManager,WindowState& winManagerMouse) {
+        if(*winManagerMouse.getStatePtr()){
+            ImGui::Begin(windowNameMouseManager, winManagerMouse.getStatePtr());
+            ImGui::Text("Left Button");
+            ImGui::BeginGroup();
+
+            ///todo: get operations descriptions from SofaGlFWMouseManager (update content)
+
+            const char* operations[] = {"Attach an object to the Mouse using a spring force field"};
+            ImGui::Combo("Operation", &selectedOperation, operations, IM_ARRAYSIZE(operations));
+
+            ImGui::SliderFloat("Stiffness", &settings.stiffness, 0.0f, 1000.0f);
+            ImGui::SliderFloat("Arrow Size", &settings.arrowSize, 0.0f, 10.0f);
+            ImGui::SliderFloat("Show Factor Size", &settings.showFactorSize, 1.0f, 5.0f);
+
+            ImGui::EndGroup();
+            ImGui::End();
 
 
-using namespace sofa::gui::common;
+        }
+    }
 
-namespace sofaglfw
-{
-class SOFAGLFW_API SofaGLFWMouseManager
-{
-public:
-    SofaGLFWMouseManager();
-    void setPickHandler(PickHandler* picker);
-    bool m_isMouseInteractionEnabled{ false };
-
-private:
-    void updateOperation(MOUSE_BUTTON button, const std::string& id);
-
-    void updateContent();
-    std::map< int, std::string > mapIndexOperation;
-    sofa::type::fixed_array< std::string, sofa::gui::common::NONE > usedOperations;
-
-    PickHandler* pickHandler;
-};
-
-} // namespace sofaglfw
+}
