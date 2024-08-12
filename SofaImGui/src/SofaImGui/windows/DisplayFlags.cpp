@@ -49,9 +49,10 @@ namespace windows
             {
                 sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
                 groot->get(visualStyle);
+                
                 if (visualStyle)
                 {
-                    auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->displayFlags).wref();
+                    auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->d_displayFlags).wref();
 
                     {
                         const bool initialValue = displayFlags.getShowVisualModels();
