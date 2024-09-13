@@ -70,6 +70,12 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
 
     setErrorCallback();
 
+    // on macOS, glfwInit change the current working directory...
+    // giving this hint avoids doing the change
+#if defined(__APPLE__)
+    glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
+#endif
+
     if (glfwInit() == GLFW_TRUE)
     {
         // defined samples for MSAA
