@@ -34,6 +34,7 @@ FetchContent_Declare(nfd
         GIT_TAG        d4df2b6ad5420f5300c00f418bf28d86291fa675                # v1.0.0
 )
 FetchContent_MakeAvailable(nfd)
+set_property(TARGET nfd  PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 FetchContent_Declare(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
