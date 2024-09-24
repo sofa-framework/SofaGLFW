@@ -193,8 +193,6 @@ set(SOURCE_FILES
 )
 
 find_package(ROS QUIET)
-set(SOFAIMGUI_WITH_ROS ${ROS_FOUND})
-message("SOFAIMGUI_WITH_ROS = " ${SOFAIMGUI_WITH_ROS})
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
@@ -205,10 +203,15 @@ target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Renderin
 set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd glfw tinyxml2::tinyxml2)
 
-if(ROS_FOUND)
+option(SOFAIMGUI_WITH_ROS "If true, will enable ROS communication." OFF)
+if(NOT ROS_FOUND)
+    set(SOFAIMGUI_WITH_ROS OFF)
+endif(NOT ROS_FOUND)
+if(ROS_FOUND AND SOFAIMGUI_WITH_ROS)
+    message("Found ROS and enabling SOFAIMGUI_WITH_ROS")
     target_include_directories(${PROJECT_NAME} PRIVATE ${ROS_INCLUDE_DIRS})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${ROS_LIBRARIES})
-endif(ROS_FOUND)
+endif(ROS_FOUND AND SOFAIMGUI_WITH_ROS)
 
 add_subdirectory(bindings)
 
