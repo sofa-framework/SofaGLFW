@@ -85,7 +85,21 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 {
     SOFA_UNUSED(windowFlags);
 
-    if (m_isWindowOpen && !m_data.empty())
+    if(hasData() && groot->getAnimate())
+    {
+        size_t nbData = m_data.size();
+        for (size_t k=0; k<nbData; k++)
+        {
+            auto& data = m_data[k];
+            const sofa::defaulttype::AbstractTypeInfo* typeInfo = data.value->getValueTypeInfo();
+            float value = typeInfo->getScalarValue(data.value->getValueVoidPtr(), 0);
+            float time = groot->getTime();
+            RollingBuffer& buffer = m_buffers[k];
+            buffer.addPoint(time, value);
+        }
+    }
+
+    if (m_isWindowOpen && hasData())
     {
         if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, ImGuiWindowFlags_NoScrollbar))
         {
@@ -168,13 +182,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
                             auto& data = m_data[k];
                             if (data.idSubplot == i)
                             {
-                                const sofa::defaulttype::AbstractTypeInfo* typeInfo = data.value->getValueTypeInfo();
-                                float value = typeInfo->getScalarValue(data.value->getValueVoidPtr(), 0);
-                                float time = groot->getTime();
                                 RollingBuffer& buffer = m_buffers[k];                                
-
-                                if (groot->getAnimate())
-                                    buffer.addPoint(time, value);
 
                                 ImPlot::PlotLine(data.description.c_str(),
                                                  &buffer.data[0].x,

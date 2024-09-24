@@ -65,6 +65,7 @@ class SOFAIMGUI_API PlottingWindow : public BaseWindow
 
     void showWindow(sofa::simulation::Node::SPtr groot, const ImGuiWindowFlags &windowFlags);
     void addData(const PlottingData data) {m_data.push_back(data);}
+    bool hasData() {return !m_data.empty();}
     void clearData();
 
    protected:

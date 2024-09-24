@@ -211,6 +211,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         m_IOWindow.setSimulationState(m_simulationState);
         m_stateWindow->setSimulationState(m_simulationState);
+
+        if (!m_plottingWindow.hasData())
+        {
+            m_plottingWindow.setWindowOpen(false);
+        }
     }
 
     showViewportWindow(baseGUI);
@@ -439,6 +444,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.isWindowOpen());
+
             if (!m_IPController)
                 ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isWindowOpen());
@@ -449,7 +455,12 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
             ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
+
+            if (!m_plottingWindow.hasData())
+                ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_plottingWindow.getName().c_str(), &m_plottingWindow.isWindowOpen());
+            if (!m_plottingWindow.hasData())
+                ImGui::EndDisabled();
 
             ImGui::Separator();
 
