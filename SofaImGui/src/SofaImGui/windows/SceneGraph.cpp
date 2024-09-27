@@ -28,7 +28,7 @@
 #include <sofa/simulation/Simulation.h>
 #include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/type/vector.h>
 #include <sofa/simulation/Node.h>
@@ -58,7 +58,7 @@ namespace windows
                 const bool collapse = ImGui::Button(ICON_FA_COMPRESS);
                 ImGui::SameLine();
                 static bool showSearch = false;
-                if (ImGui::Button(ICON_FA_SEARCH))
+                if (ImGui::Button(ICON_FA_MAGNIFYING_GLASS))
                 {
                     showSearch = !showSearch;
                 }
@@ -137,7 +137,7 @@ namespace windows
                             }
                             else if (object->countLoggedMessages({sofa::helper::logging::Message::Warning})!=0)
                             {
-                                icon = ICON_FA_EXCLAMATION_TRIANGLE;
+                                icon = ICON_FA_TRIANGLE_EXCLAMATION;
                                 objectColor = ImVec4(1.f, 0.5f, 0.f, 1.f); //orange
                             }
                             else if (object->countLoggedMessages({sofa::helper::logging::Message::Info, sofa::helper::logging::Message::Deprecated, sofa::helper::logging::Message::Advice})!=0)

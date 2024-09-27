@@ -46,8 +46,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_opengl2.h>
-#include <IconsFontAwesome5.h>
 #include <IconsFontAwesome4.h>
+#include <IconsFontAwesome6.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
 #include <filesystem>
@@ -249,11 +249,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNamePerformances = ICON_FA_CHART_LINE "  Performances";
     static constexpr auto windowNameProfiler = ICON_FA_HOURGLASS "  Profiler";
     static constexpr auto windowNameSceneGraph = ICON_FA_SITEMAP "  Scene Graph";
-    static constexpr auto windowNameDisplayFlags = ICON_FA_EYE "  Display Flags";
-    static constexpr auto windowNamePlugins = ICON_FA_PLUS_CIRCLE "  Plugins";
+    static constexpr auto windowNameDisplayFlags = ICON_FA_EYE "  Display Flags"     ;
+    static constexpr auto windowNamePlugins = ICON_FA_CIRCLE_PLUS "  Plugins";
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
-    static constexpr auto windowNameSettings = ICON_FA_SLIDERS_H "  Settings";
+    static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
 
 
     if (!*firstRunState.getStatePtr())
@@ -332,7 +332,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
 
             const auto filename = baseGUI->getFilename();
-            if (ImGui::MenuItem(ICON_FA_REDO "  Reload File"))
+            if (ImGui::MenuItem(ICON_FA_ROTATE_RIGHT "  Reload File"))
             {
                 if (!filename.empty() && helper::system::FileSystem::exists(filename))
                 {
@@ -347,7 +347,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 ImGui::EndTooltip();
             }
 
-            if (ImGui::MenuItem(ICON_FA_TIMES_CIRCLE "  Close Simulation"))
+            if (ImGui::MenuItem(ICON_FA_CIRCLE_XMARK "  Close Simulation"))
             {
                 sofa::simulation::node::unload(groot);
                 baseGUI->setSimulationIsRunning(false);
@@ -417,7 +417,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::EndDisabled();
 
             ImGui::Separator();
-            if (ImGui::MenuItem(ICON_FA_SAVE"  Save Screenshot"))
+            if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK"  Save Screenshot"))
             {
                 nfdchar_t *outPath;
                 std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
@@ -447,7 +447,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 }
             }
             ImGui::Separator();
-            if (ImGui::MenuItem(ICON_FA_REFRESH  "  Reset UI Layout"))
+            if (ImGui::MenuItem(ICON_FA_ARROWS_ROTATE  "  Reset UI Layout"))
             {
                 resetView(dockspace_id,windowNameSceneGraph,windowNameLog,windowNameViewport);
             }
@@ -488,7 +488,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
         }
-        if (ImGui::Button(ICON_FA_STEP_FORWARD))
+        if (ImGui::Button(ICON_FA_FORWARD_STEP))
         {
             if (!animate)
             {
@@ -506,7 +506,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::PopStyleVar();
         }
         ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_REDO_ALT))
+        if (ImGui::Button(ICON_FA_ROTATE_RIGHT))
         {
             groot->setTime(0.);
             sofa::simulation::node::reset ( groot.get() );

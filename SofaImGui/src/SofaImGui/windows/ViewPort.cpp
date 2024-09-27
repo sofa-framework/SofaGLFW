@@ -23,7 +23,7 @@
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/simulation/Simulation.h>
 #include <imgui.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualGrid.h>
 #include <sofa/component/visual/LineAxis.h>
@@ -90,7 +90,7 @@ namespace windows
 
                 if (ImGui::Begin("viewportSettingsMenuWindow", winManagerViewPort.getStatePtr(), window_flags))
                 {
-                    if (ImGui::Button(ICON_FA_COG))
+                    if (ImGui::Button(ICON_FA_GEAR))
                     {
                         ImGui::OpenPopup("viewportSettingsMenu");
                     }
@@ -116,7 +116,7 @@ namespace windows
                                 grid->d_enable.setValue(!grid->d_enable.getValue());
                             }
                         }
-                        if (ImGui::Selectable(ICON_FA_ARROWS_ALT "  Show Axis"))
+                        if (ImGui::Selectable(ICON_FA_UP_DOWN_LEFT_RIGHT "  Show Axis"))
                         {
                             auto axis = groot->get<sofa::component::visual::LineAxis>();
                             if (!axis)

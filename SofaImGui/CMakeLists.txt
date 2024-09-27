@@ -36,7 +36,7 @@ FetchContent_MakeAvailable(ImPlot)
 
 FetchContent_Declare(IconFontCppHeaders
         GIT_REPOSITORY https://github.com/juliettef/IconFontCppHeaders
-        GIT_TAG        1856754666dff0db6c1af489a977f0ea2269f520
+        GIT_TAG        bf610efb2e5d4361df799d0dfb5ae3977d7bba2e
 )
 FetchContent_MakeAvailable(IconFontCppHeaders)
 
@@ -55,7 +55,8 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imgui_internal.h
     ${implot_SOURCE_DIR}/implot.h
     ${implot_SOURCE_DIR}/implot_internal.h
-    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome5.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome4.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome6.h
     ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h
