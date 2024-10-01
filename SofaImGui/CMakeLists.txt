@@ -25,7 +25,7 @@ include(FetchContent)
 
 FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/SofaComplianceRobotics/imgui
-        GIT_TAG        6fa02efced7bd8f5678e1b997eb46dbf3b66eb7c  # branch internaldocking up to date with ocornut/imgui/v1.90.3-docking
+        GIT_TAG        d919717b4dc4a1bfbc00f7e68da0f363d14e3d59  # branch internaldocking up to date with ocornut/imgui/v1.90.3-docking
 )
 FetchContent_MakeAvailable(imgui)
 
