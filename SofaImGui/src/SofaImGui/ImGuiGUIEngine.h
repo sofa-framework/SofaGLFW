@@ -103,13 +103,14 @@ protected:
     void showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
-    void setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
-    
+    void applyDarkMode(const bool &darkMode, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
+    void saveDarkModeSetting();
+
     models::IPController::SPtr m_IPController;
     models::SimulationState m_simulationState;
     bool m_animate{false};
     int m_mode{0};
-    bool m_nightStyle{false};
+    bool m_darkMode{false};
     bool m_robotConnection{false};
 
 };

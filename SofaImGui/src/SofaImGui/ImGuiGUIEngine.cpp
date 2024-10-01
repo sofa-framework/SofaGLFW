@@ -109,6 +109,12 @@ const std::string& ImGuiGUIEngine::getAppIniFile()
     return appIniFile;
 }
 
+void ImGuiGUIEngine::saveDarkModeSetting()
+{
+    ini.SetValue("Style", "darkMode", (m_darkMode)? "on": "off");
+    ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+}
+
 void ImGuiGUIEngine::setIPController(sofa::simulation::Node::SPtr groot,
                                      softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                                      sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
@@ -144,7 +150,17 @@ void ImGuiGUIEngine::init()
         assert(rc == SI_OK);
     }
 
-    setNightLightStyle(m_nightStyle);
+    const char* darkMode = ini.GetValue("Style", "darkMode");
+    if (darkMode)
+    {
+        std::string m = darkMode;
+        m_darkMode = (m=="on");
+    }
+    else
+    {
+        saveDarkModeSetting(); // dark mode is off by default
+    }
+    applyDarkMode(m_darkMode);
 
     sofa::helper::system::PluginManager::getInstance().readFromIniFile(
         sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
@@ -502,12 +518,12 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         const auto posX = ImGui::GetCursorPosX();
 
-        // Night / light style
+        // Dark / light mode
         static bool firstTime = true;
         if (firstTime)
         {
             firstTime = false;
-            setNightLightStyle(m_nightStyle, baseGUI);
+            applyDarkMode(m_darkMode, baseGUI);
         }
         auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize(ICON_FA_SUN).x
                         - 2 * ImGui::GetStyle().ItemSpacing.x;
@@ -516,25 +532,27 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonText, ImGui::GetColorU32(ImGuiCol_TextDisabled));
-        if (ImGui::ButtonEx(m_nightStyle? ICON_FA_SUN: ICON_FA_MOON, buttonSize))
+        if (ImGui::ButtonEx(m_darkMode? ICON_FA_SUN: ICON_FA_MOON, buttonSize))
         {
             ImGui::PopStyleColor(3);
-            m_nightStyle = !m_nightStyle;
-            setNightLightStyle(m_nightStyle, baseGUI);
+            m_darkMode = !m_darkMode;
+            applyDarkMode(m_darkMode, baseGUI);
+            saveDarkModeSetting();
         }
         else
         {
             ImGui::PopStyleColor(3);
         }
+        ImGui::SetItemTooltip((m_darkMode)? "Light mode": "Dark mode");
         ImGui::SetCursorPosX(posX);
 
         ImGui::EndMainMenuBar();
     }
 }
 
-void ImGuiGUIEngine::setNightLightStyle(const bool &nightStyle, sofaglfw::SofaGLFWBaseGUI* baseGUI)
+void ImGuiGUIEngine::applyDarkMode(const bool &darkMode, sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
-    if (nightStyle)
+    if (darkMode)
     {
         sofaimgui::setStyle("deep_dark");
         if (baseGUI)
