@@ -235,7 +235,7 @@ void Drag(const char* label, const ImRect &bb, double *value)
 
     ImGuiContext& g = *GImGui;
     const bool hovered = ImGui::ItemHoverable(bb, id, g.LastItemData.InFlags);
-    const bool clicked = hovered && ImGui::IsMouseClicked(0, id);
+    const bool clicked = hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left, ImGuiInputFlags_None, id);
     const bool makeActive = (clicked || g.NavActivateId == id);
 
     if (hovered || ImGui::IsMouseDown(0, id))

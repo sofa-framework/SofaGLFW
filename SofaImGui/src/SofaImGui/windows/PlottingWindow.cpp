@@ -254,6 +254,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
             }
             ImGui::PopStyleColor();
         }
+        ImGui::End();
     }
 }
 

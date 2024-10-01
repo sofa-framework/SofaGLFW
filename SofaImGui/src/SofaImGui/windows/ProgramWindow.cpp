@@ -109,9 +109,8 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
             float coefMax = 20.f;
             zoomCoef = (zoomCoef < 1)? 1 : zoomCoef;
             zoomCoef = (zoomCoef > coefMax)? coefMax : zoomCoef;
-
-            ImGui::End();
         }
+        ImGui::End();
     }
 }
 
@@ -192,7 +191,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
 
     ImVec4 color(0.95f, 0.f, 0.f, 1.0f);
 
-    float thicknessRect = ImGui::GetStyle().SeparatorTextBorderSize;
+    float thicknessRect = 1.0f;
     float widthTri = ImGui::GetStyle().ItemInnerSpacing.x * 2;
 
     m_cursor = m_time * ProgramSizes().TimelineOneSecondSize;
@@ -217,7 +216,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
 
     ImGuiContext& g = *GImGui;
     const bool hovered = ImGui::ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
-    const bool clicked = hovered && ImGui::IsMouseClicked(0, id);
+    const bool clicked = hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left, ImGuiInputFlags_None, id);
     const bool make_active = (clicked || g.NavActivateId == id);
     if (clicked)
         ImGui::SetKeyOwner(ImGuiKey_MouseLeft, id);
@@ -243,7 +242,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     }
 
     window->DrawList->AddTriangleFilled(p0Tri, p1Tri, p2Tri, ImGui::GetColorU32(color));
-    window->DrawList->AddRectFilled(p0Rect, p1Rect, ImGui::GetColorU32(color), ImGui::GetStyle().FrameRounding / 2.f);
+    window->DrawList->AddRectFilled(p0Rect, p1Rect, ImGui::GetColorU32(color), 1.0f);
 }
 
 void ProgramWindow::showTimeline()

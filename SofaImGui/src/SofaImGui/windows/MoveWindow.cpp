@@ -220,8 +220,8 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                 }
             }
 
-            ImGui::End();
         }
+        ImGui::End();
     }
 }
 
@@ -230,7 +230,7 @@ bool MoveWindow::showSliderDouble(const char* name, const char* label1, const ch
     ImGui::AlignTextToFramePadding();
     ImVec2 pos = ImGui::GetCurrentWindow()->DC.CursorPos;
     pos.y += ImGui::GetFrameHeight() / 4.;
-    ImVec2 size(ImGuiStyleVar_WindowBorderSize, ImGui::GetFrameHeight() / 2.);
+    ImVec2 size(1.0f, ImGui::GetFrameHeight() / 2.);
     ImGui::GetWindowDrawList()->AddRectFilled(pos,
                                               ImVec2(pos.x + size.x, pos.y + size.y),
                                               ImGui::GetColorU32(color), ImGuiStyleVar_FrameRounding);

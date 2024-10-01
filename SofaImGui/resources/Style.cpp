@@ -19,6 +19,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#include "sofa/helper/logging/Messaging.h"
 #include <Style.h>
 #include <string>
 
@@ -53,7 +54,7 @@ void setStyleVars()
     style.ScrollbarRounding                 = 8;
     style.GrabRounding                      = 8;
     style.TabRounding                       = 14;
-    style.TabBarBorderSize                  = 4;
+    style.TabBarBorderSize                  = 1;
 
     style.LogSliderDeadzone                 = 4;
     style.WindowMenuButtonPosition = ImGuiDir_None;

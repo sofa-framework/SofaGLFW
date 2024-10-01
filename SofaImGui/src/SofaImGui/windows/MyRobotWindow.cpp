@@ -107,9 +107,8 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     ImGui::LocalEndCollapsingHeader();
                 }
             }
-
-            ImGui::End();
         }
+        ImGui::End();
     }
 }
 

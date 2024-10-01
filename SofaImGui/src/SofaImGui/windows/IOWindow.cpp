@@ -89,6 +89,7 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
                 showROSWindow();
 #endif
         }
+        ImGui::End();
     }
 }
 
