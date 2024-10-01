@@ -93,6 +93,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                     clickedObject = node;
                 if (open)
                 {
+                    int i = 0;
                     for (const auto object : node->getNodeObjects())
                     {
                         ImGui::TableNextRow();
@@ -144,7 +145,9 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                         }
 
                         ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
+                        ImGui::PushID(i++);
                         const auto objectOpen = ImGui::TreeNodeEx(icon, objectFlags);
+                        ImGui::PopID();
                         ImGui::PopStyleColor();
 
                         if (ImGui::IsItemClicked())
@@ -333,10 +336,6 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                     clickedObject = nullptr;
                 }
             }
-        }
-        else
-        {
-            ImGui::PopStyleColor();
         }
         ImGui::End();
     }
