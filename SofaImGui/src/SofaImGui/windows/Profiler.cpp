@@ -36,7 +36,7 @@
 
 #include <implot.h>
 
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 
 #include <sofa/helper/Utils.h>
 #include <sofa/simulation/Node.h>

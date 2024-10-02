@@ -27,7 +27,7 @@
 #include <sofa/simulation/Simulation.h>
 #include <imgui.h>
 #include <nfd.h>
-#include <IconsFontAwesome5.h>
+#include <IconsFontAwesome6.h>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/type/vector.h>
 #include <sofa/core/ObjectFactory.h>
@@ -319,7 +319,7 @@ namespace windows
                 }
                 ImGui::Text("%d loaded components", nbLoadedComponents);
 
-                if (ImGui::Button(ICON_FA_SAVE" "))
+                if (ImGui::Button(ICON_FA_FLOPPY_DISK" "))
                 {
                     nfdchar_t *outPath;
                     const nfdresult_t result = NFD_SaveDialog(&outPath, nullptr, 0, nullptr, "log.txt");
