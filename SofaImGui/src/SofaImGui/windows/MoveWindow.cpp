@@ -96,7 +96,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     ImGui::LocalEndCollapsingHeader();
                 }
 
-                if (ImGui::LocalBeginCollapsingHeader(m_TCPRotationDescription.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowOverlap))
+                if (ImGui::LocalBeginCollapsingHeader(m_TCPRotationDescription.c_str(), ImGuiTreeNodeFlags_AllowOverlap))
                 {
                     ImGui::SameLine();
 

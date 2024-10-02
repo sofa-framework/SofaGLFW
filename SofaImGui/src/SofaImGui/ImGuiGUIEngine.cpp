@@ -331,15 +331,18 @@ void ImGuiGUIEngine::initDockSpace()
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.25f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_IOWindow.getName().c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_myRobotWindow.getName().c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_moveWindow.getName().c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_sceneGraphWindow.getName().c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_displayFlagsWindow.getName().c_str(), dock_id_right);
+
+        auto dock_id_right_up = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Up, 0.55f, nullptr, &dock_id_right);
+        ImGui::DockBuilderDockWindow(m_moveWindow.getName().c_str(), dock_id_right_up);
+        ImGui::DockBuilderDockWindow(m_sceneGraphWindow.getName().c_str(), dock_id_right_up);
+
+        ImGui::DockBuilderDockWindow(m_viewportWindow.getName().c_str(), dockspaceID);
 
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.32f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
         ImGui::DockBuilderDockWindow(m_plottingWindow.getName().c_str(), dock_id_down);
 
-        ImGui::DockBuilderDockWindow(m_viewportWindow.getName().c_str(), dockspaceID);
         ImGui::DockBuilderGetNode(dockspaceID)->WantHiddenTabBarToggle = true;
 
         ImGui::DockBuilderFinish(dockspaceID);
