@@ -25,6 +25,8 @@
 
 #include <implot.h>
 #include <sofa/helper/map.h>
+#include <sofa/helper/OptionsGroup.h>
+
 
 namespace sofaimgui
 {
@@ -481,6 +483,31 @@ void DataWidget<std::map<std::string, type::vector<float> > >::showWidget(MyData
 }
 
 /***********************************************************************************************************************
+ * OptionsGroup
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<helper::OptionsGroup>::showWidget(MyData& data)
+{
+    const auto& label = data.getName();
+    const auto id = data.getName() + data.getOwner()->getPathName();
+
+    const auto& optionsGroup = data.getValue();
+    int selectedOption = static_cast<int>(optionsGroup.getSelectedId());
+
+    std::unique_ptr<const char*[]> charArray(new const char*[optionsGroup.size()]);
+    for (unsigned int i = 0; i < optionsGroup.size(); ++i)
+    {
+        charArray[i] = optionsGroup[i].c_str();
+    }
+
+    if (ImGui::Combo((label + "##" + id).c_str(), &selectedOption, charArray.get(), static_cast<int>(optionsGroup.size())))
+    {
+        helper::WriteAccessor(data)->setSelectedItem(selectedOption);
+    }
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -538,5 +565,7 @@ const bool dw_vector_tri = DataWidgetFactory::Add<type::vector<topology::Triangl
 
 const bool dw_map_vectorf = DataWidgetFactory::Add<std::map<std::string, type::vector<float> > >();
 const bool dw_map_vectord = DataWidgetFactory::Add<std::map<std::string, type::vector<double> > >();
+
+const bool dw_optionsGroup = DataWidgetFactory::Add<helper::OptionsGroup>();
 
 }
