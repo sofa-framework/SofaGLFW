@@ -91,6 +91,16 @@ namespace sofaimgui::windows
                         }
 
                         {
+                            const bool initialValue = displayFlags.getShowInteractionForceFields();
+                            bool changeableValue = initialValue;
+                            ImGui::LocalCheckBox("Interaction Force Fields", &changeableValue);
+                            if (changeableValue != initialValue)
+                            {
+                                displayFlags.setShowInteractionForceFields(changeableValue);
+                            }
+                        }
+
+                        {
                             const bool initialValue = displayFlags.getShowCollisionModels();
                             bool changeableValue = initialValue;
                             ImGui::LocalCheckBox("Collision Models", &changeableValue);
