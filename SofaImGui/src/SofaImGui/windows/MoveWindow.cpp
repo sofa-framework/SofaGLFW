@@ -96,6 +96,8 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     ImGui::LocalEndCollapsingHeader();
                 }
 
+                m_IPController->setFreeInRotation(m_freeRoll, m_freePitch, m_freeYaw);
+
                 if (ImGui::LocalBeginCollapsingHeader(m_TCPRotationDescription.c_str(), ImGuiTreeNodeFlags_AllowOverlap))
                 {
                     ImGui::SameLine();
@@ -120,8 +122,6 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         showOptions();
                         ImGui::EndPopup();
                     }
-
-                    m_IPController->setFreeInRotation(m_freeRoll, m_freePitch, m_freeYaw);
 
                     if (m_freeRoll)
                         ImGui::BeginDisabled();
@@ -219,7 +219,6 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     ImGui::LocalEndCollapsingHeader();
                 }
             }
-
         }
         ImGui::End();
     }
