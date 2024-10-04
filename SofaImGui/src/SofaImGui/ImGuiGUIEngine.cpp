@@ -121,7 +121,12 @@ void ImGuiGUIEngine::setIPController(sofa::simulation::Node::SPtr groot,
                                      core::behavior::BaseMechanicalState::SPtr TCPMechanical,
                                      softrobotsinverse::constraint::PositionEffector<defaulttype::Rigid3Types>::SPtr rotationEffector)
 {
+    if (m_IPController)
+        groot->removeObject(m_IPController.get());
+
     m_IPController = sofa::core::objectmodel::New<models::IPController>(groot, solver, TCPTargetMechanical, TCPMechanical, rotationEffector);
+    m_IPController->setName(groot->getNameHelper().resolveName(m_IPController->getClassName(), sofa::core::ComponentNameHelper::Convention::python));
+
     groot->addObject(m_IPController.get());
     m_programWindow.setIPController(m_IPController);
     m_moveWindow.setIPController(m_IPController);
