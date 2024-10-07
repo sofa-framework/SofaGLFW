@@ -95,6 +95,16 @@ namespace windows
                     }
 
                     {
+                        const bool initialValue = displayFlags.getShowDetectionOutputs();
+                        bool changeableValue = initialValue;
+                        ImGui::Checkbox("Show Detection Outputs", &changeableValue);
+                        if (changeableValue != initialValue)
+                        {
+                            displayFlags.setShowDetectionOutputs(changeableValue);
+                        }
+                    }
+
+                    {
                         const bool initialValue = displayFlags.getShowBoundingCollisionModels();
                         bool changeableValue = initialValue;
                         ImGui::Checkbox("Show Bounding Collision Models", &changeableValue);
