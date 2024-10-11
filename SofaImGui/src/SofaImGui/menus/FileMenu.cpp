@@ -151,7 +151,7 @@ void FileMenu::saveProject()
 
 void FileMenu::addExit()
 {
-    if (ImGui::MenuItem("Exit"))
+    if (ImGui::MenuItem("Exit", "Ctrl+Q"))
     {
         //TODO: brutal exit, need to clean up everything (simulation, window, opengl, imgui etc)
         exit(EXIT_SUCCESS);
