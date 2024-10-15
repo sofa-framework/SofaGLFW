@@ -226,7 +226,7 @@ jobs:
                   -DAPPLICATION_RUNSOFAGLFW=ON \
                   -DPLUGIN_SOFAGLFW=ON \
                   -DPLUGIN_SOFAIMGUI=ON \
-                  -DSoftRobots.Inverse_DIR=$SoftRobotsInverse_DIR \ 
+                  -DSoftRobots.Inverse_DIR="$GITHUB_WORKSPACE/SoftRobots.Inverse/lib/cmake/SoftRobots.Inverse" \ 
                   ../src \
               && ninja -v install"
           else
@@ -242,7 +242,7 @@ jobs:
               -DAPPLICATION_RUNSOFAGLFW=ON \
               -DPLUGIN_SOFAGLFW=ON \
               -DPLUGIN_SOFAIMGUI=ON \
-              -DSoftRobots.Inverse_DIR=$SoftRobotsInverse_DIR \ 
+              -DSoftRobots.Inverse_DIR="$GITHUB_WORKSPACE/SoftRobots.Inverse/lib/cmake/SoftRobots.Inverse" \ 
               ../src
             ninja -v install
             echo ${CCACHE_BASEDIR}
