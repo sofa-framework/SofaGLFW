@@ -106,7 +106,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Get artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           path: artifacts
 
@@ -168,6 +168,34 @@ jobs:
           sofa_root: ${{ github.workspace }}/sofa
           sofa_version: ${{ matrix.sofa_branch }}
           sofa_scope: 'standard'
+
+      - name: Install SoftRobots
+        shell: bash
+        run: |
+          SoftRobots_ROOT="$GITHUB_WORKSPACE/SoftRobots"
+          mkdir -p "${{ runner.temp }}/sp3_tmp/zip" "${{ runner.temp }}/sp3_tmp/binaries" "$SoftRobots_ROOT"
+          url="https://github.com/SofaDefrost/SoftRobots/releases/download"
+          url="${url}/release-${{ matrix.sofa_branch }}/SoftRobots_${{ matrix.sofa_branch }}_for-SOFA-${{ matrix.sofa_branch }}_${{ runner.os }}.zip"
+          echo "Getting SoftRobots from $url"
+          curl --output "${{ runner.temp }}/sp3_tmp/SoftRobots.zip" -L $url
+          unzip -qq "${{ runner.temp }}/sp3_tmp/SoftRobots.zip" -d "${{ runner.temp }}/sp3_tmp/binaries"
+          mv "${{ runner.temp }}"/sp3_tmp/binaries/SoftRobots_*/* "$SoftRobots_ROOT"
+          echo "SoftRobots_ROOT=$SoftRobots_ROOT" | tee -a $GITHUB_ENV
+          echo "SoftRobots_DIR=$SoftRobots_ROOT/lib/cmake/SoftRobots" | tee -a $GITHUB_ENV
+
+      - name: Install SoftRobots.Inverse
+        shell: bash
+        run: |
+          SoftRobots.Inverse_ROOT="$GITHUB_WORKSPACE/SoftRobots.Inverse"
+          mkdir -p "${{ runner.temp }}/sp3_tmp/zip" "${{ runner.temp }}/sp3_tmp/binaries" "$SoftRobots.Inverse_ROOT"
+          url="https://github.com/SofaDefrost/SoftRobots.Inverse/releases/download"
+          url="${url}/release-main/SoftRobots.Inverse_main_for-SOFA-${{ matrix.sofa_branch }}_${{ runner.os }}.zip"
+          echo "Getting SoftRobots.Inverse from $url"
+          curl --output "${{ runner.temp }}/sp3_tmp/SoftRobots.Inverse.zip" -L $url
+          unzip -qq "${{ runner.temp }}/sp3_tmp/SoftRobots.Inverse.zip" -d "${{ runner.temp }}/sp3_tmp/binaries"
+          mv "${{ runner.temp }}"/sp3_tmp/binaries/SoftRobots.Inverse_*/* "$SoftRobots.Inverse_ROOT"
+          echo "SoftRobots.Inverse_ROOT=$SoftRobots.Inverse_ROOT" | tee -a $GITHUB_ENV
+          echo "SoftRobots.Inverse_DIR=$SoftRobots.Inverse_ROOT/lib/cmake/SoftRobots.Inverse" | tee -a $GITHUB_ENV
 
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -250,7 +278,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Get artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           path: artifacts
 
