@@ -226,6 +226,7 @@ jobs:
                   -DAPPLICATION_RUNSOFAGLFW=ON \
                   -DPLUGIN_SOFAGLFW=ON \
                   -DPLUGIN_SOFAIMGUI=ON \
+                  -DSoftRobots.Inverse_DIR=$SoftRobotsInverse_DIR \ 
                   ../src \
               && ninja -v install"
           else
@@ -235,12 +236,13 @@ jobs:
               -GNinja \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_PREFIX_PATH=$SOFA_ROOT/lib/cmake;$SoftRobotsInverse_ROOT/lib/cmake \
+              -DCMAKE_PREFIX_PATH=$SOFA_ROOT/lib/cmake \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
               -DAPPLICATION_RUNSOFAGLFW=ON \
               -DPLUGIN_SOFAGLFW=ON \
               -DPLUGIN_SOFAIMGUI=ON \
+              -DSoftRobots.Inverse_DIR=$SoftRobotsInverse_DIR \ 
               ../src
             ninja -v install
             echo ${CCACHE_BASEDIR}
