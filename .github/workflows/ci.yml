@@ -188,16 +188,16 @@ jobs:
       - name: Install SoftRobots.Inverse
         shell: bash
         run: |
-          SoftRobots.Inverse_ROOT="$GITHUB_WORKSPACE/SoftRobots.Inverse"
-          mkdir -p "${{ runner.temp }}/sri_tmp/zip" "${{ runner.temp }}/sri_tmp/binaries" "$SoftRobots.Inverse_ROOT"
+          SoftRobotsInverse_ROOT="$GITHUB_WORKSPACE/SoftRobots.Inverse"
+          mkdir -p "${{ runner.temp }}/sri_tmp/zip" "${{ runner.temp }}/sri_tmp/binaries" "$SoftRobotsInverse_ROOT"
           url="https://github.com/SofaDefrost/SoftRobots.Inverse/releases/download"
           url="${url}/release-main/SoftRobots.Inverse_main_for-SOFA-${{ matrix.sofa_branch }}_${{ runner.os }}.zip"
           echo "Getting SoftRobots.Inverse from $url"
           curl --output "${{ runner.temp }}/sri_tmp/SoftRobots.Inverse.zip" -L $url
           unzip -qq "${{ runner.temp }}/sri_tmp/SoftRobots.Inverse.zip" -d "${{ runner.temp }}/sri_tmp/binaries"
-          mv "${{ runner.temp }}"/sri_tmp/binaries/SoftRobots.Inverse_*/* "$SoftRobots.Inverse_ROOT"
-          echo "SoftRobots.Inverse_ROOT=$SoftRobots.Inverse_ROOT" | tee -a $GITHUB_ENV
-          echo "SoftRobots.Inverse_DIR=$SoftRobots.Inverse_ROOT/lib/cmake/SoftRobots.Inverse" | tee -a $GITHUB_ENV
+          mv "${{ runner.temp }}"/sri_tmp/binaries/SoftRobots.Inverse_*/* "$SoftRobotsInverse_ROOT"
+          echo "SoftRobotsInverse_ROOT=$SoftRobotsInverse_ROOT" | tee -a $GITHUB_ENV
+          echo "SoftRobotsInverse_DIR=$SoftRobotsInverse_ROOT/lib/cmake/SoftRobots.Inverse" | tee -a $GITHUB_ENV
 
       - name: Checkout source code
         uses: actions/checkout@v2
