@@ -220,7 +220,7 @@ jobs:
               && cd /d $WORKSPACE_BUILD_PATH \
               && cmake \
                   -GNinja \
-                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake;$GITHUB_WORKSPACE/SoftRobots.Inverse/lib/cmake" \
+                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake;$GITHUB_WORKSPACE/SoftRobots.Inverse/lib/cmake/SoftRobots.Inverse" \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
                   -DAPPLICATION_RUNSOFAGLFW=ON \
@@ -230,12 +230,13 @@ jobs:
               && ninja -v install"
           else
             cd "$WORKSPACE_BUILD_PATH"
+            echo "$GITHUB_WORKSPACE/SoftRobots.Inverse/lib/cmake/SoftRobots.Inverse"
             ccache -z
             cmake \
               -GNinja \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_PREFIX_PATH=$SOFA_ROOT/lib/cmake;$GITHUB_WORKSPACE/SoftRobots.Inverse/lib/cmake \
+              -DCMAKE_PREFIX_PATH=$SOFA_ROOT/lib/cmake;$GITHUB_WORKSPACE/SoftRobots.Inverse/lib/cmake/SoftRobots.Inverse \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
               -DAPPLICATION_RUNSOFAGLFW=ON \
