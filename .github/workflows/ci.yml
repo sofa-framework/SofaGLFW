@@ -169,7 +169,7 @@ jobs:
         with:
           sofa_root: ${{ github.workspace }}/sofa
           sofa_version: ${{ matrix.sofa_branch }}
-          sofa_scope: 'standard'
+          sofa_scope: 'standard'         
 
       - name: Install SoftRobots
         shell: bash
@@ -198,6 +198,7 @@ jobs:
           mv "${{ runner.temp }}"/sri_tmp/binaries/SoftRobots.Inverse_*/* "$SoftRobotsInverse_ROOT"
           echo "SoftRobotsInverse_ROOT=$SoftRobotsInverse_ROOT" | tee -a $GITHUB_ENV
           env "SoftRobots.Inverse_DIR=$SoftRobotsInverse_ROOT/lib/cmake/SoftRobots.Inverse" | grep Inverse_DIR | tee -a $GITHUB_ENV
+          echo "libqpOASES_DIR=$SoftRobotsInverse_ROOT/lib/cmake/libqpOASES" | tee -a $GITHUB_ENV
 
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -210,6 +211,19 @@ jobs:
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
             sudo apt-get -qq install xorg-dev libgtk-3-dev
+            sudo apt-get -qq install libtinyxml2-dev
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew update && brew upgrade
+            brew install tinyxml2
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            TinyXML2_ROOT=$GITHUB_WORKSPACE/TinyXML2
+            mkdir -p "${{ runner.temp }}/tinyxml_tmp/zip" "${{ runner.temp }}/tinyxml_tmp/binaries" "$TinyXML2_ROOT"
+            url="https://www.sofa-framework.org/download/WinDepPack/VS-2017/latest"
+            echo "Getting TinyXML2 from Windows dependencies pack: $url"
+            curl --output "${{ runner.temp }}/tinyxml_tmp/win_dependencies.zip" -L $url
+            unzip -qq "${{ runner.temp }}/tinyxml_tmp/win_dependencies.zip" -d "${{ runner.temp }}/tinyxml_tmp/binaries"
+            mv "${{ runner.temp }}"/tinyxml_tmp/binaries/SOFA_WinDepPack_*/* "$TinyXML2_ROOT"
+            echo "tinyxml2_DIR=$TinyXML2_ROOT" | tee -a $GITHUB_ENV
           fi
 
       - name: Build and install
@@ -220,7 +234,7 @@ jobs:
               && cd /d $WORKSPACE_BUILD_PATH \
               && cmake \
                   -GNinja \
-                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake;" \
+                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake" \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
                   -DAPPLICATION_RUNSOFAGLFW=ON \
@@ -235,7 +249,7 @@ jobs:
               -GNinja \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_PREFIX_PATH=$SOFA_ROOT/lib/cmake; \
+              -DCMAKE_PREFIX_PATH=$SOFA_ROOT/lib/cmake \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
               -DAPPLICATION_RUNSOFAGLFW=ON \
