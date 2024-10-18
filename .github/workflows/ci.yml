@@ -48,6 +48,7 @@ jobs:
               && cd /d $WORKSPACE_BUILD_PATH \
               && cmake \
                   -GNinja \
+                  -DTINYXML2_ROOT="$TINYXML2_ROOT" \
                   -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake" \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
