@@ -234,13 +234,13 @@ jobs:
               && cd /d $WORKSPACE_BUILD_PATH \
               && cmake \
                   -GNinja \
-                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake;$TINYXML2_ROOT/lib/win64" \
+                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake;$TINYXML2_ROOT;$TINYXML2_ROOT/lib/win64" \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
                   -DAPPLICATION_RUNSOFAGLFW=ON \
                   -DPLUGIN_SOFAGLFW=ON \
                   -DPLUGIN_SOFAIMGUI=ON \
-                  ../src \
+                  -S ../src \
               && ninja -v install"
           else
             cd "$WORKSPACE_BUILD_PATH"
