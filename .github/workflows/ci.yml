@@ -159,7 +159,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13, windows-2022]
+        os: [ubuntu-22.04, macos-13, windows-2022] 
         sofa_branch: [master]
 
     steps:          
@@ -208,6 +208,7 @@ jobs:
       - name: Install deps
         shell: bash
         run: |
+          cmake --version 
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
             sudo apt-get -qq install xorg-dev libgtk-3-dev
@@ -222,8 +223,9 @@ jobs:
             echo "Getting TinyXML2 from Windows dependencies pack: $url"
             curl --output "${{ runner.temp }}/tinyxml_tmp/win_dependencies.zip" -L $url
             unzip -qq "${{ runner.temp }}/tinyxml_tmp/win_dependencies.zip" -d "${{ runner.temp }}/tinyxml_tmp/binaries"
-            mv "${{ runner.temp }}"/tinyxml_tmp/binaries/SOFA_WinDepPack_*/* "$TinyXML2_ROOT"
-            echo "TINYXML2_ROOT=$TinyXML2_ROOT" | tee -a $GITHUB_ENV
+            mv "${{ runner.temp }}"/tinyxml_tmp/binaries/SOFA_WinDepPack_*/* "$TinyXML2_ROOT" 
+            echo "$TinyXML2_ROOT/include" >> $GITHUB_PATH
+            echo "$TinyXML2_ROOT/lib/win64" >> $GITHUB_PATH
           fi
 
       - name: Build and install
@@ -234,13 +236,13 @@ jobs:
               && cd /d $WORKSPACE_BUILD_PATH \
               && cmake \
                   -GNinja \
-                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake;$TINYXML2_ROOT;$TINYXML2_ROOT/lib/win64" \
+                  -DCMAKE_PREFIX_PATH="$SOFA_ROOT/lib/cmake" \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_INSTALL_PREFIX="$WORKSPACE_INSTALL_PATH" \
                   -DAPPLICATION_RUNSOFAGLFW=ON \
                   -DPLUGIN_SOFAGLFW=ON \
                   -DPLUGIN_SOFAIMGUI=ON \
-                  -S ../src \
+                  ../src \
               && ninja -v install"
           else
             cd "$WORKSPACE_BUILD_PATH"
