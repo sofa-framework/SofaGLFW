@@ -47,6 +47,7 @@
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
+#include <sofa/helper/system/FileSystem.h>
 using namespace sofa;
 using namespace sofa::gui::common;
 
@@ -213,13 +214,16 @@ void SofaGLFWBaseGUI::restoreCamera(BaseCamera::SPtr camera)
     if (camera)
     {
         const std::string viewFileName = this->getFilename() + std::string(this->getCameraFileExtension());
-        if (camera->importParametersFromFile(viewFileName))
+        if (helper::system::FileSystem::isFile(viewFileName))
         {
-            msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
-        }
-        else
-        {
-            msg_error("GUI") << "Could not import camera parameters from " << viewFileName << " .";
+            if (camera->importParametersFromFile(viewFileName))
+            {
+                msg_info("GUI") << "Current camera parameters have been imported from " << viewFileName << " .";
+            }
+            else
+            {
+                msg_error("GUI") << "Could not import camera parameters from " << viewFileName << " .";
+            }
         }
     }
 }
