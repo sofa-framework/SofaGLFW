@@ -38,7 +38,7 @@ PlottingWindow::PlottingWindow(const std::string& name,
                                const bool& isWindowOpen)
 {
     m_name = name;
-    m_isWindowOpen = isWindowOpen;
+    m_isOpen = isWindowOpen;
 }
 
 void PlottingWindow::clearData()
@@ -85,7 +85,7 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
 {
     SOFA_UNUSED(windowFlags);
 
-    if(hasData() && groot->getAnimate())
+    if(!m_data.empty() && groot->getAnimate())
     {
         size_t nbData = m_data.size();
         for (size_t k=0; k<nbData; k++)
@@ -98,10 +98,10 @@ void PlottingWindow::showWindow(sofa::simulation::Node::SPtr groot, const ImGuiW
             buffer.addPoint(time, value);
         }
     }
-
-    if (m_isWindowOpen && hasData())
+    
+    if (enabled() && isOpen())
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, ImGuiWindowFlags_NoScrollbar))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen, ImGuiWindowFlags_NoScrollbar))
         {
             static PlottingData* dragedData;
             ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());

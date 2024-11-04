@@ -25,6 +25,7 @@
 
 #include <sofa/simulation/Node.h>
 #include <SofaImGui/config.h>
+#include "imgui.h"
 
 namespace sofaimgui::windows {
 
@@ -34,18 +35,29 @@ class SOFAIMGUI_API BaseWindow
     BaseWindow() = default;
     ~BaseWindow() = default;
 
+    std::string getName() const {return m_name;}
+
+    /// Set the window as able to drive the robot in simulation.
     virtual void setDrivingTCPTarget(const bool &isDrivingSimulation) {m_isDrivingSimulation=isDrivingSimulation;}
+
+    /// Does the window have tools to drive the robot in simulation.
     bool isDrivingSimulation() {return m_isDrivingSimulation;}
 
-    std::string getName() const {return m_name;}
-    bool& isWindowOpen() {return m_isWindowOpen;}
-    void setWindowOpen(const bool &isOpen) {m_isWindowOpen=isOpen;}
+    /// Set the user choice to open the window or not.
+    void setOpen(const bool &isOpen) {m_isOpen=isOpen;}
+
+    /// Does the user choose to open the window or not.
+    bool& isOpen() {return m_isOpen;}
+
+    /// The window may have nothing to display. It should override this method with the corresponding checks.
+    /// For example: the PlottingWindow needs data to plot, if none are given, the window is disabled.
+    virtual bool enabled() {return true;}
 
    protected:
 
-    bool m_isWindowOpen{false};
-    std::string m_name;
-    bool m_isDrivingSimulation{false};
+    bool m_isOpen{false}; /// The user choice to open the window or not
+    std::string m_name; /// The name of the window
+    bool m_isDrivingSimulation{false}; /// Does the window have tools to drive the robot in simulation
 };
 
 }

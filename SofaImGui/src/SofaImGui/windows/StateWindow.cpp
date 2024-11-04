@@ -31,7 +31,7 @@ StateWindow::StateWindow(const std::string& name,
                          const bool& isWindowOpen)
 {
     m_name = name;
-    m_isWindowOpen = isWindowOpen;
+    m_isOpen = isWindowOpen;
 }
 
 void StateWindow::setSimulationState(const models::SimulationState &simulationState)
@@ -41,7 +41,7 @@ void StateWindow::setSimulationState(const models::SimulationState &simulationSt
 
 void StateWindow::showWindow()
 {
-    if (m_isWindowOpen && !m_simulationStateData.empty())
+    if (enabled() && isOpen())
     {
         static bool openstate = true;
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.20f, 0.34f, 0.05f));

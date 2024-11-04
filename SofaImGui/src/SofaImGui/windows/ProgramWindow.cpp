@@ -50,13 +50,13 @@ ProgramWindow::ProgramWindow(const std::string& name,
                              const bool& isWindowOpen)
 {
     m_name = name;
-    m_isWindowOpen = isWindowOpen;
+    m_isOpen = isWindowOpen;
 }
 
 void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                                const ImGuiWindowFlags& windowFlags)
 {
-    if (m_isWindowOpen && m_IPController != nullptr)
+    if (enabled() && isOpen())
     {
         if (baseGUI)
             m_baseGUI = baseGUI;
@@ -73,8 +73,8 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
         }
         ProgramSizes().InputWidth = ImGui::CalcTextSize("10000").x;
         ProgramSizes().AlignWidth = ImGui::CalcTextSize("iterations    ").x;
-
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen,
+        
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen,
                          windowFlags | ImGuiWindowFlags_AlwaysAutoResize
                          ))
         {

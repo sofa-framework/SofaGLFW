@@ -30,16 +30,16 @@ ViewportWindow::ViewportWindow(const std::string& name, const bool& isWindowOpen
     : m_stateWindow(stateWindow)
 {
     m_name = name;
-    m_isWindowOpen = isWindowOpen;
+    m_isOpen = isWindowOpen;
 }
 
 void ViewportWindow::showWindow(sofa::simulation::Node* groot,
                                 const ImTextureID& texture,
                                 const ImGuiWindowFlags& windowFlags)
 {
-    if (m_isWindowOpen)
+    if (enabled() && isOpen())
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen, windowFlags))
         {
             ImGui::BeginChild("Render");
             ImVec2 wsize = ImGui::GetWindowSize();
@@ -74,10 +74,10 @@ bool ViewportWindow::addStepButton()
 {
     ImVec2 buttonSize = ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
     bool isItemClicked = false;
-
-    if (m_isWindowOpen)
+    
+    if (m_isOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen))
         {
             if(ImGui::BeginChild("Render"))
             {
@@ -86,7 +86,7 @@ bool ViewportWindow::addStepButton()
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-                if (ImGui::Begin("ViewportChildButtons", &m_isWindowOpen,
+                if (ImGui::Begin("ViewportChildButtons", &m_isOpen,
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();
@@ -113,10 +113,10 @@ bool ViewportWindow::addAnimateButton(bool *animate)
 {
     ImVec2 buttonSize = ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
     bool isItemClicked = false;
-
-    if (m_isWindowOpen)
+    
+    if (m_isOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen))
         {
             if(ImGui::BeginChild("Render"))
             {
@@ -125,7 +125,7 @@ bool ViewportWindow::addAnimateButton(bool *animate)
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-                if (ImGui::Begin("ViewportChildButtons", &m_isWindowOpen,
+                if (ImGui::Begin("ViewportChildButtons", &m_isOpen,
                          ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();
@@ -154,10 +154,10 @@ bool ViewportWindow::addAnimateButton(bool *animate)
 bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes, const double &maxItemWidth)
 {
     bool hasValueChanged = false;
-
-    if (m_isWindowOpen)
+    
+    if (m_isOpen)
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen))
         {
             if(ImGui::BeginChild("Render"))
             {
@@ -166,7 +166,7 @@ bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], cons
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-                if (ImGui::Begin("ViewportChildButtons", &m_isWindowOpen,
+                if (ImGui::Begin("ViewportChildButtons", &m_isOpen,
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();

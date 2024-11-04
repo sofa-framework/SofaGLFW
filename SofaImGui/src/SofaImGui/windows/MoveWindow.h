@@ -53,6 +53,8 @@ class SOFAIMGUI_API MoveWindow : public BaseWindow
 
     void clearData() {m_accessories.clear();}
     void addAccessory(const Accessory &accessory) {m_accessories.push_back(accessory);}
+    bool hasActuators() {return !m_actuators.empty();}
+    bool enabled() override {return m_IPController!=nullptr || !m_actuators.empty();}
 
    protected:
     

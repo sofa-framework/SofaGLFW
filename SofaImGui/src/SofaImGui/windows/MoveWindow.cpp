@@ -34,7 +34,7 @@ MoveWindow::MoveWindow(const std::string& name,
                          const bool& isWindowOpen)
 {
     m_name = name;
-    m_isWindowOpen = isWindowOpen;
+    m_isOpen = isWindowOpen;
     m_isDrivingSimulation = true;
 }
 
@@ -66,9 +66,9 @@ void MoveWindow::setActuatorsLimits(double min, double max)
 
 void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 {
-    if (m_isWindowOpen && (m_IPController != nullptr || !m_actuators.empty()))
+    if (enabled() && isOpen())
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen, windowFlags))
         {
             if (m_IPController != nullptr)
             {

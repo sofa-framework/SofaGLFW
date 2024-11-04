@@ -81,14 +81,15 @@ public:
     bool getRobotConnection() {return m_robotConnection;}
     models::SimulationState& getSimulationState() {return m_simulationState;}
 
-    std::shared_ptr<windows::StateWindow> m_stateWindow = std::make_shared<windows::StateWindow>("State", true);
-    windows::ViewportWindow m_viewportWindow = windows::ViewportWindow("       Viewport", true, m_stateWindow);
-    windows::SceneGraphWindow m_sceneGraphWindow = windows::SceneGraphWindow("       Scene Graph", false);
-    windows::IOWindow m_IOWindow = windows::IOWindow("       Input/Output", false);
-    windows::ProgramWindow m_programWindow = windows::ProgramWindow("       Program", true);
-    windows::PlottingWindow m_plottingWindow = windows::PlottingWindow("       Plotting", true);
-    windows::MyRobotWindow m_myRobotWindow = windows::MyRobotWindow("       My Robot", true);
-    windows::MoveWindow m_moveWindow = windows::MoveWindow("       Move", true);
+    std::shared_ptr<windows::StateWindow> m_stateWindow = std::make_shared<windows::StateWindow>("State", false);
+
+    windows::ViewportWindow     m_viewportWindow     = windows::ViewportWindow("       Viewport", true, m_stateWindow);
+    windows::SceneGraphWindow   m_sceneGraphWindow   = windows::SceneGraphWindow("       Scene Graph", false);
+    windows::IOWindow           m_IOWindow           = windows::IOWindow("       Input/Output", false);
+    windows::ProgramWindow      m_programWindow      = windows::ProgramWindow("       Program", true);
+    windows::PlottingWindow     m_plottingWindow     = windows::PlottingWindow("       Plotting", true);
+    windows::MyRobotWindow      m_myRobotWindow      = windows::MyRobotWindow("       My Robot", true);
+    windows::MoveWindow         m_moveWindow         = windows::MoveWindow("       Move", true);
     windows::DisplayFlagsWindow m_displayFlagsWindow = windows::DisplayFlagsWindow("       Display Options", false);
 
 protected:

@@ -33,6 +33,7 @@ class SOFAIMGUI_API MyRobotWindow : public BaseWindow
     ~MyRobotWindow() = default;
 
     void showWindow(const ImGuiWindowFlags &windowFlags);
+    bool enabled() override {return (!m_information.empty() || !m_settings.empty());}
 
     struct Information{
         std::string description;

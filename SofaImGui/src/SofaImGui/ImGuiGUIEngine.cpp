@@ -112,7 +112,9 @@ const std::string& ImGuiGUIEngine::getAppIniFile()
 void ImGuiGUIEngine::saveDarkModeSetting()
 {
     ini.SetValue("Style", "darkMode", (m_darkMode)? "on": "off");
-    ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+    const std::string settingsFile = sofaimgui::AppIniFile::getAppIniFile();
+    msg_info("") << "Saving dark mode setting in " << settingsFile;
+    ini.SaveFile(settingsFile.c_str());
 }
 
 void ImGuiGUIEngine::setIPController(sofa::simulation::Node::SPtr groot,
@@ -225,18 +227,20 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     {
         firstTime = false;
 
-        if (!m_IPController)
-        {
-            m_programWindow.setWindowOpen(false);
-        }
-
         m_IOWindow.setSimulationState(m_simulationState);
         m_stateWindow->setSimulationState(m_simulationState);
 
-        if (!m_plottingWindow.hasData())
-        {
-            m_plottingWindow.setWindowOpen(false);
-        }
+        if(!m_programWindow.enabled())
+            m_programWindow.setOpen(false);
+
+        if(!m_plottingWindow.enabled())
+            m_plottingWindow.setOpen(false);
+
+        if(!m_myRobotWindow.enabled())
+            m_myRobotWindow.setOpen(false);
+
+        if(!m_moveWindow.enabled())
+            m_moveWindow.setOpen(false);
     }
 
     showViewportWindow(baseGUI);
@@ -466,30 +470,55 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isWindowOpen());
-            ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.isWindowOpen());
-
-            if (!m_IPController)
+            if (!m_IOWindow.enabled())
                 ImGui::BeginDisabled();
-            ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isWindowOpen());
-            if (!m_IPController)
+            ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isOpen());
+            if (!m_IOWindow.enabled())
+                ImGui::EndDisabled();
+
+            if (!m_programWindow.enabled())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_programWindow.getName().c_str(), &m_programWindow.isOpen());
+            if (!m_programWindow.enabled())
+                ImGui::EndDisabled();
+
+            if (!m_plottingWindow.enabled())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_plottingWindow.getName().c_str(), &m_plottingWindow.isOpen());
+            if (!m_plottingWindow.enabled())
+                ImGui::EndDisabled();
+
+            if (!m_myRobotWindow.enabled())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isOpen());
+            if (!m_myRobotWindow.enabled())
+                ImGui::EndDisabled();
+
+            if (!m_moveWindow.enabled())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_moveWindow.getName().c_str(), &m_moveWindow.isOpen());
+            if (!m_moveWindow.enabled())
                 ImGui::EndDisabled();
 
             ImGui::Separator();
 
-            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isWindowOpen());
-            ImGui::LocalCheckBox(m_myRobotWindow.getName().c_str(), &m_myRobotWindow.isWindowOpen());
-
-            if (!m_plottingWindow.hasData())
+            if (!m_viewportWindow.enabled())
                 ImGui::BeginDisabled();
-            ImGui::LocalCheckBox(m_plottingWindow.getName().c_str(), &m_plottingWindow.isWindowOpen());
-            if (!m_plottingWindow.hasData())
+            ImGui::LocalCheckBox(m_viewportWindow.getName().c_str(), &m_viewportWindow.isOpen());
+            if (!m_viewportWindow.enabled())
                 ImGui::EndDisabled();
 
-            ImGui::Separator();
+            if (!m_sceneGraphWindow.enabled())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isOpen());
+            if (!m_sceneGraphWindow.enabled())
+                ImGui::EndDisabled();
 
-            ImGui::LocalCheckBox(m_displayFlagsWindow.getName().c_str(), &m_displayFlagsWindow.isWindowOpen());
-            ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isWindowOpen());
+            if (!m_displayFlagsWindow.enabled())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_displayFlagsWindow.getName().c_str(), &m_displayFlagsWindow.isOpen());
+            if (!m_displayFlagsWindow.enabled())
+                ImGui::EndDisabled();
 
             ImGui::EndMenu();
         }

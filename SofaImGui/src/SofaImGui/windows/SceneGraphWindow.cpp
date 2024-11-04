@@ -31,17 +31,17 @@ namespace sofaimgui::windows {
 SceneGraphWindow::SceneGraphWindow(const std::string& name, const bool& isWindowOpen)
 {
     m_name = name;
-    m_isWindowOpen = isWindowOpen;
+    m_isOpen = isWindowOpen;
 }
 
 void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags& windowFlags)
 {
     static std::set<sofa::core::objectmodel::BaseObject*> openedComponents;
     static std::set<sofa::core::objectmodel::BaseObject*> focusedComponents;
-
-    if (m_isWindowOpen)
+    
+    if (enabled() && isOpen())
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen, windowFlags))
         {
             ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
             const bool expand = ImGui::Button(ICON_FA_EXPAND, buttonSize);

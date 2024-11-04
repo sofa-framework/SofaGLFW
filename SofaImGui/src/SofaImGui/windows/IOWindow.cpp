@@ -38,7 +38,7 @@ namespace sofaimgui::windows {
 IOWindow::IOWindow(const std::string& name, const bool& isWindowOpen)
 {
     m_name = name;
-    m_isWindowOpen = isWindowOpen;
+    m_isOpen = isWindowOpen;
 
 #if SOFAIMGUI_WITH_ROS == 1
     rclcpp::init(0, nullptr);
@@ -61,10 +61,10 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
                           const ImGuiWindowFlags &windowFlags)
 {
     SOFA_UNUSED(groot);
-
-    if (m_isWindowOpen)
+    
+    if (enabled() && isOpen())
     {
-        if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+        if (ImGui::Begin(m_name.c_str(), &m_isOpen, windowFlags))
         {
             m_itemWidth = ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x * 4;
 

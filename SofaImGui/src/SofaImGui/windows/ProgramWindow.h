@@ -46,6 +46,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
 
     void showWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI,
                     const ImGuiWindowFlags &windowFlags);
+    bool enabled() override {return m_IPController!=nullptr;}
 
     void animateBeginEvent(sofa::simulation::Node *groot);
     void animateEndEvent(sofa::simulation::Node *groot);

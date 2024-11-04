@@ -42,14 +42,14 @@ namespace sofaimgui::windows
     DisplayFlagsWindow::DisplayFlagsWindow(const std::string& name, const bool& isWindowOpen)
     {
         m_name = name;
-        m_isWindowOpen = isWindowOpen;
+        m_isOpen = isWindowOpen;
     }
 
     void DisplayFlagsWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWindowFlags& windowFlags)
     {
-        if (m_isWindowOpen)
+        if (enabled() && isOpen())
         {
-            if (ImGui::Begin(m_name.c_str(), &m_isWindowOpen, windowFlags))
+            if (ImGui::Begin(m_name.c_str(), &m_isOpen, windowFlags))
             {
                 if (ImGui::LocalBeginCollapsingHeader("Show / Hide", ImGuiTreeNodeFlags_DefaultOpen))
                 {
