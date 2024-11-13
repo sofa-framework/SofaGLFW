@@ -86,7 +86,7 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     for (auto &setting: m_settings)
                     {
                         ImGui::AlignTextToFramePadding();
-                        ImGui::Text("%s: ", setting.description.c_str());
+                        ImGui::Text("%s", setting.description.c_str());
                         ImGui::SameLine();
 
                         auto* typeinfo = setting.data->getValueTypeInfo();
@@ -96,7 +96,7 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                         for (size_t i=0; i<typeinfo->size(); i++)
                         {
                             setting.buffer = typeinfo->getScalarValue(values, i);
-                            ImGui::LocalInputDouble(("##setting" + setting.description).c_str(), &setting.buffer, 0, 0);
+                            showSliderDouble(setting.description, &setting.buffer, setting.min, setting.max);
                             setting.buffer = std::clamp(setting.buffer, setting.min, setting.max);
                             uiValue += std::to_string(setting.buffer) + " ";
                         }
@@ -110,6 +110,29 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
         }
         ImGui::End();
     }
+}
+
+bool MyRobotWindow::showSliderDouble(const std::string& name, double* v, const double& min, const double& max)
+{
+    bool hasValueChanged = false;
+    float inputWidth = ImGui::CalcTextSize("-100000,00").x + ImGui::GetFrameHeight() / 2 + ImGui::GetStyle().ItemSpacing.x * 2;
+    float sliderWidth = ImGui::GetWindowWidth() - inputWidth - ImGui::CalcTextSize(name.c_str()).x - ImGui::GetStyle().WindowPadding.x * 4 - ImGui::GetStyle().IndentSpacing;
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+    ImGui::PushItemWidth(sliderWidth);
+    if (ImGui::SliderScalar(("##SettingSlider" + name).c_str() , ImGuiDataType_Double, v, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput))
+        hasValueChanged=true;
+    ImGui::PopItemWidth();
+    ImGui::PopStyleColor();
+
+    ImGui::SameLine();
+
+    double step = max - min;
+
+    if (ImGui::LocalInputDouble(("##SettingInput" + name).c_str(), v, powf(10.0f, floorf(log10f(step * 0.01))), step * 0.1))
+        hasValueChanged=true;
+
+    return hasValueChanged;
 }
 
 }

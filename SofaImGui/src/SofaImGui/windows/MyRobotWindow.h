@@ -56,6 +56,8 @@ class SOFAIMGUI_API MyRobotWindow : public BaseWindow
 
     std::vector<Information> m_information;
     std::vector<Setting> m_settings;
+
+    bool showSliderDouble(const std::string &name, double* v, const double& min, const double& max);
 };
 
 }
