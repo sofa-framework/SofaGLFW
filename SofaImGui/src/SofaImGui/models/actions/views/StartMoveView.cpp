@@ -51,7 +51,6 @@ bool StartMove::StartMoveView::showBlock(const std::string &label,
     rectMax.x -= padding.x;
     ImGui::PushClipRect(rectMin, rectMax, true);
 
-    ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().Text);
     { // Move
         x += padding.y;
         y += padding.y;
@@ -74,7 +73,6 @@ bool StartMove::StartMoveView::showBlock(const std::string &label,
 
         ImGui::PopClipRect();
     }
-    ImGui::PopStyleColor();
 
     std::string text = "wp.pos";
     ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
@@ -85,11 +83,9 @@ bool StartMove::StartMoveView::showBlock(const std::string &label,
         bb.Max = ImVec2(x + textSize.x + padding.x * 2,
                         y + textSize.y + padding.y * 2);
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().Text);
         drawList->AddText(ImVec2(x + padding.x,
                                  y + padding.y),
                           ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
-        ImGui::PopStyleColor();
 
         window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
 

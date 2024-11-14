@@ -387,7 +387,7 @@ int ProgramWindow::showTracks()
             if (ImGui::ItemAdd(bb, ImGui::GetID(trackLabel.c_str())))
             { // Backgroung
                 ImGui::GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max,
-                                                          ImGui::GetColorU32(ImGuiCol_FrameBg),
+                                                          ImGui::GetColorU32(ProgramColors().EmptyTrackBg),
                                                           ImGui::GetStyle().FrameRounding,
                                                           ImDrawFlags_None);
             }
@@ -420,16 +420,16 @@ bool ProgramWindow::showTrackButtons(const int &trackIndex, const char* const me
 
     { // Block backgroung
         drawList->AddRectFilled(bb.Min, bb.Max,
-                                ImGui::GetColorU32(ImGuiCol_MenuBarBg),
+                                ImGui::GetColorU32(ImGuiCol_Header),
                                 ImGui::GetStyle().FrameRounding,
                                 ImDrawFlags_None);
     }
 
     window->DC.CursorPos.x = x;
     window->DC.CursorPos.y = y;
-    ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_MenuBarBg)); // Color of track button
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetColorU32(ImGuiCol_MenuBarBg)); // Color of track button
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_MenuBarBg)); // Color of track button
+    ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_Header)); // Color of track button
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetColorU32(ImGuiCol_Header)); // Color of track button
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_Header)); // Color of track button
 
     if (!collapsed || ProgramSizes().TrackHeight > ProgramSizes().TrackMinHeight) // hide the button at the end of the collapsing animation
     {

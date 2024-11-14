@@ -58,6 +58,23 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
             addStateWindow();
             addSimulationTimeAndFPS(groot);
 
+            // Panel backgroung
+            ImDrawList* drawList = ImGui::GetWindowDrawList();
+            ImVec2 size(ImGui::GetFrameHeight() * 7 + ImGui::GetStyle().FramePadding.x * 2, ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2);
+
+            float x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth() / 2.f - ImGui::GetFrameHeight() * 4.f + ImGui::GetStyle().FramePadding.x;
+            float y = ImGui::GetWindowPos().y + ImGui::GetStyle().FramePadding.y;
+
+            ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
+            { // Draw
+                auto color = ImGui::GetStyle().Colors[ImGuiCol_TabActive];
+                color.w = 0.6f;
+                drawList->AddRectFilled(bb.Min, bb.Max,
+                                        ImGui::GetColorU32(color),
+                                        ImGui::GetStyle().FrameRounding,
+                                        ImDrawFlags_None);
+            }
+
             ImGui::EndChild();
         }
         ImGui::End();
@@ -82,7 +99,8 @@ bool ViewportWindow::addStepButton()
             if(ImGui::BeginChild("Render"))
             {
                 auto position = ImGui::GetWindowPos();
-                position.x += ImGui::GetWindowWidth() / 2;
+                position.x += ImGui::GetWindowWidth() / 2 - ImGui::GetFrameHeight() * 4.f;
+                position.y += ImGui::GetStyle().FramePadding.y;
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -121,7 +139,8 @@ bool ViewportWindow::addAnimateButton(bool *animate)
             if(ImGui::BeginChild("Render"))
             {
                 auto position = ImGui::GetWindowPos();
-                position.x += ImGui::GetWindowWidth() / 2;
+                position.x += ImGui::GetWindowWidth() / 2.f - ImGui::GetFrameHeight() * 4.f;
+                position.y += ImGui::GetStyle().FramePadding.y;
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -162,7 +181,8 @@ bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], cons
             if(ImGui::BeginChild("Render"))
             {
                 auto position = ImGui::GetWindowPos();
-                position.x += ImGui::GetWindowWidth() / 2;
+                position.x += ImGui::GetWindowWidth() / 2.f - ImGui::GetFrameHeight() * 4.f;
+                position.y += ImGui::GetStyle().FramePadding.y;
                 ImGui::SetNextWindowPos(position);  // attach the button window to top middle of the viewport window
 
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -171,7 +191,11 @@ bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], cons
                 {
                     ImGui::SameLine();
                     ImGui::PushItemWidth(maxItemWidth + ImGuiStyleVar_FramePadding * 2.0f + ImGui::GetTextLineHeightWithSpacing());
-                    hasValueChanged = ImGui::Combo("Driving Tab##Viewport", mode, listModes, sizeListModes);
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
+                    hasValueChanged = ImGui::Combo("##DrivingTabViewport", mode, listModes, sizeListModes);
+                    ImGui::PopStyleColor(3);
                     ImGui::PopItemWidth();
                     ImGui::SetItemTooltip("Choose a tab to drive the TCP target");
 
@@ -191,12 +215,13 @@ bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], cons
 void ViewportWindow::addSimulationTimeAndFPS(sofa::simulation::Node* groot)
 {
     const ImGuiIO& io = ImGui::GetIO();
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
 
     // Time
     auto position = ImGui::GetWindowWidth() - ImGui::CalcTextSize("Time: 000.000").x - ImGui::GetStyle().ItemSpacing.x;
     ImGui::SetCursorPosX(position);
     ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing());
-    ImGui::TextDisabled("Time: %.3f", groot->getTime());
+    ImGui::Text("Time: %.3f", groot->getTime());
 
     // FPS
     if (groot->animate_.getValue())
@@ -204,8 +229,10 @@ void ViewportWindow::addSimulationTimeAndFPS(sofa::simulation::Node* groot)
         position -= ImGui::CalcTextSize("100.0 FPS ").x;
         ImGui::SetCursorPosX(position);
         ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing());
-        ImGui::TextDisabled("%.1f FPS", io.Framerate);
+        ImGui::Text("%.1f FPS", io.Framerate);
     }
+
+    ImGui::PopStyleColor();
 }
 
 }

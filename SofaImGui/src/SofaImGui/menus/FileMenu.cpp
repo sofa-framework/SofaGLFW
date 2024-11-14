@@ -48,8 +48,10 @@ bool FileMenu::addMenu()
 
     bool loadSimulation = false;
 
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
     if (ImGui::BeginMenu("File"))
     {
+        ImGui::PopStyleColor();
         if(addOpenSimulation())
             loadSimulation = true;
         if(addReloadSimulation())
@@ -60,6 +62,10 @@ bool FileMenu::addMenu()
         addExit();
 
         ImGui::EndMenu();
+    }
+    else
+    {
+        ImGui::PopStyleColor();
     }
 
     return loadSimulation;

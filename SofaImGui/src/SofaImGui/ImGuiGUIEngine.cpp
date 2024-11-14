@@ -468,8 +468,10 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         menus::ViewMenu(baseGUI).addMenu(m_currentFBOSize, m_fbo->getColorTexture());
 
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
         if (ImGui::BeginMenu("Windows"))
         {
+            ImGui::PopStyleColor();
             if (!m_IOWindow.enabled())
                 ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_IOWindow.getName().c_str(), &m_IOWindow.isOpen());
@@ -522,21 +524,38 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::EndMenu();
         }
+        else
+        {
+            ImGui::PopStyleColor();
+        }
 
         static bool isAboutOpen = false;
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
         if (ImGui::BeginMenu("Help"))
         {
+            ImGui::PopStyleColor();
             ImGui::Separator();
             if (ImGui::MenuItem("About", nullptr, false, true))
                 isAboutOpen = true;
             ImGui::EndMenu();
         }
+        else
+        {
+            ImGui::PopStyleColor();
+        }
+
         if (isAboutOpen)
         {
             ImGui::Begin("About##SofaComplianceRobotics", &isAboutOpen, ImGuiWindowFlags_NoDocking);
 
             auto windowWidth = ImGui::GetWindowSize().x;
-            std::vector<std::string> texts = {"\n", "SOFA", "&", "Compliance Robotics", "\n", "1.0.0", "LGPL-3.0 license"};
+            std::vector<std::string> texts = {"\n", "SOFA, Simulation Open-Framework Architecture \n (c) 2006 INRIA, USTL, UJF, CNRS, MGH",
+                                              "&", "(c) Compliance Robotics", "\n",
+                                              "v24.06.02",
+                                              "SOFA is an open-source framework for interactive physics simulation, \n"
+                                              "with an emphasis on soft body dynamics. After years of research and \n"
+                                              "development, the project remains open-source under the LGPL v2.1 license, \n"
+                                              "fostering both research and development."};
             for (const auto& text : texts)
             {
                 auto textWidth   = ImGui::CalcTextSize(text.c_str()).x;
@@ -544,13 +563,6 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 ImGui::Text("%s", text.c_str());
             }
             ImGui::End();
-        }
-
-        ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
-
-        { // Simulation / Robot button
-            ImGui::LocalToggleButton("Connection", &m_robotConnection);
-            ImGui::Text(m_robotConnection? "Robot" : "Simulation");
         }
 
         const auto posX = ImGui::GetCursorPosX();
@@ -568,23 +580,46 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonText, ImGui::GetColorU32(ImGuiCol_TextDisabled));
         if (ImGui::ButtonEx(m_darkMode? ICON_FA_SUN: ICON_FA_MOON, buttonSize))
         {
-            ImGui::PopStyleColor(3);
+            ImGui::PopStyleColor(4);
             m_darkMode = !m_darkMode;
             applyDarkMode(m_darkMode, baseGUI);
             saveDarkModeSetting();
         }
         else
         {
-            ImGui::PopStyleColor(3);
+            ImGui::PopStyleColor(4);
         }
         ImGui::SetItemTooltip((m_darkMode)? "Light mode": "Dark mode");
         ImGui::SetCursorPosX(posX);
 
         ImGui::EndMainMenuBar();
     }
+
+    ImGuiViewportP* viewport = (ImGuiViewportP*)(void*)ImGui::GetMainViewport();
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+    float height = ImGui::GetFrameHeight();
+
+    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(0.14f, 0.25f, 0.42f, 1.00f));
+    if (ImGui::BeginViewportSideBar("##MySecondaryMenuBar", viewport, ImGuiDir_Up, height, window_flags)) {
+        if (ImGui::BeginMenuBar()) {
+            ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2.f - ImGui::GetFrameHeight() * 2.f); //approximatively the center of the menu bar
+
+            { // Simulation / Robot button
+                ImGui::LocalToggleButton("Connection", &m_robotConnection);
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
+                ImGui::Text(m_robotConnection? "Robot" : "Simulation");
+                ImGui::PopStyleColor();
+            }
+
+            ImGui::EndMenuBar();
+        }
+        ImGui::End();
+    }
+    ImGui::PopStyleColor();
 }
 
 void ImGuiGUIEngine::applyDarkMode(const bool &darkMode, sofaglfw::SofaGLFWBaseGUI* baseGUI)

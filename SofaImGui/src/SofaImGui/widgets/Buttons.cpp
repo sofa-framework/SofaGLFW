@@ -12,8 +12,10 @@ bool LocalInputDouble(const char* label, double* v, double step, double step_fas
         inputWidth += ImGui::GetFrameHeight() / 2 + ImGui::GetStyle().ItemSpacing.x * 2;
 
     ImGui::PushItemWidth(inputWidth);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
     const char* format = (log10f(abs(*v))>3)? "%0.2e": "%0.2f";
     bool result =  ImGui::InputDouble(label, v, step, step_fast, format, flags);
+    ImGui::PopStyleVar();
     ImGui::PopItemWidth();
 
     return result;
@@ -55,7 +57,7 @@ void LocalToggleButton(const char* str_id, bool* v)
                                            ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered),
                                            t));
     else
-        col_bg = ImGui::GetColorU32(ImLerp(ImGui::GetStyleColorVec4(ImGuiCol_Button),
+        col_bg = ImGui::GetColorU32(ImLerp(ImVec4(0.72f, 0.70f, 0.65f, 1.00f),
                                            ImVec4(0.56f, 0.83f, 0.26f, 1.0f),
                                            t));
 
@@ -151,9 +153,7 @@ bool LocalCheckBoxEx(const char* label, bool* v)
 
 bool LocalBeginCollapsingHeader(const char* label, ImGuiTreeNodeFlags flags)
 {
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
     bool result = CollapsingHeader(label, flags);
-    ImGui::PopStyleColor();
 
     if (result)
     {

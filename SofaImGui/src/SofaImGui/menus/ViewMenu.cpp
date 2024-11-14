@@ -43,8 +43,10 @@ ViewMenu::~ViewMenu()
 void ViewMenu::addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
                        const GLuint& texture)
 {
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
     if (ImGui::BeginMenu("View"))
     {
+        ImGui::PopStyleColor();
         addCenterCamera();
         addSaveCamera();
         addRestoreCamera();
@@ -58,6 +60,10 @@ void ViewMenu::addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
         addFullScreen();
 
         ImGui::EndMenu();
+    }
+    else
+    {
+        ImGui::PopStyleColor();
     }
 }
 
