@@ -214,12 +214,29 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     if (!ImGui::ItemAdd(frame_bb, id))
         return;
 
+    if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        const float borderSize = ImGui::GetWindowWidth() * 1.f / 8.f;
+        const float xMax = ImGui::GetWindowContentRegionMax().x + ImGui::GetScrollX() - borderSize;
+        const float xMin = ImGui::GetWindowContentRegionMin().x + ImGui::GetScrollX() + borderSize;
+
+        if (io.MousePos.x > xMax)
+            ImGui::SetScrollX(ImGui::GetScrollX() + (io.MousePos.x - xMax) * 0.1f);
+
+        if (io.MousePos.x < xMin)
+            ImGui::SetScrollX(ImGui::GetScrollX() - (xMin - io.MousePos.x) * 0.1f);
+    }
+
     ImGuiContext& g = *GImGui;
     const bool hovered = ImGui::ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
     const bool clicked = hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left, ImGuiInputFlags_None, id);
     const bool make_active = (clicked || g.NavActivateId == id);
     if (clicked)
+    {
         ImGui::SetKeyOwner(ImGuiKey_MouseLeft, id);
+    }
 
     if (make_active)
     {
