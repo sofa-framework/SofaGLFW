@@ -23,6 +23,7 @@
 #include <SofaImGui/menus/ViewMenu.h>
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/helper/io/STBImage.h>
+#include <sofa/gui/common/BaseGUI.h>
 
 #include <nfd.h>
 #include <filesystem>
@@ -136,6 +137,7 @@ void ViewMenu::addSaveScreenShot(const std::pair<unsigned int, unsigned int>& fb
 {
     if (ImGui::MenuItem("Save Screenshot"))
     {
+        std::string screenshotPath = sofa::gui::common::BaseGUI::getScreenshotDirectoryPath();
         nfdchar_t *outPath;
         std::array<nfdfilteritem_t, 1> filterItem{ {{"Image", "jpg,png"}} };
         auto sceneFilename = m_baseGUI->getFilename();
@@ -146,8 +148,7 @@ void ViewMenu::addSaveScreenShot(const std::pair<unsigned int, unsigned int>& fb
             sceneFilename = path.filename().string();
         }
 
-        nfdresult_t result = NFD_SaveDialog(&outPath,
-                                            filterItem.data(), filterItem.size(), nullptr, sceneFilename.c_str());
+        nfdresult_t result = NFD_SaveDialog(&outPath, filterItem.data(), filterItem.size(), screenshotPath.c_str(), sceneFilename.c_str());
         if (result == NFD_OKAY)
         {
             sofa::helper::io::STBImage image;
