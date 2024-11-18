@@ -212,7 +212,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     double max = ImGui::GetWindowWidth() + ImGui::GetScrollX();
     ImRect grab_bb(ImVec2(m_trackBeginPos.x + m_cursorPos - widthTri / 2., m_trackBeginPos.y - widthTri),
                    ImVec2(m_trackBeginPos.x + m_cursorPos + widthTri / 2., m_trackBeginPos.y));
-    const ImRect frame_bb(ImVec2(m_trackBeginPos.x, m_trackBeginPos.y - widthTri),
+    const ImRect frame_bb(ImVec2(m_trackBeginPos.x - widthTri / 2., m_trackBeginPos.y - widthTri),
                           ImVec2(m_trackBeginPos.x + max, m_trackBeginPos.y));
 
     ImVec2 p0Rect(grab_bb.Min.x + widthTri / 2., grab_bb.Min.y);
