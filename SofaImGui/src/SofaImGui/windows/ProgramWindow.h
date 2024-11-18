@@ -85,6 +85,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
 
     bool importProgram();
     void exportProgram();
+    void addActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex);
 };
 
 } // namespace
