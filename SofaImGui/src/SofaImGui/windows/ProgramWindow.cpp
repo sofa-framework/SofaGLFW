@@ -192,12 +192,26 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     ImVec4 color(0.95f, 0.f, 0.f, 1.0f);
 
     float thicknessRect = 1.0f;
+    const float borderSize = ImGui::GetWindowWidth() * 1.f / 8.f;
     float widthTri = ImGui::GetStyle().ItemInnerSpacing.x * 2;
 
-    m_cursor = m_time * ProgramSizes().TimelineOneSecondSize;
+    m_cursorPos = m_time * ProgramSizes().TimelineOneSecondSize;
+
+    // On animate, follow the cursor marker
+    if (m_baseGUI->getRootNode()->getAnimate())
+    {
+        float step = m_cursorPos - (ImGui::GetWindowContentRegionMax().x + ImGui::GetScrollX() - borderSize - m_trackBeginPos.x);
+        if (step > 0)
+            ImGui::SetScrollX(ImGui::GetScrollX() + step * 0.1f);
+
+        step = m_cursorPos + (ImGui::GetWindowContentRegionMin().x + borderSize);
+        if (step < 0)
+            ImGui::SetScrollX(ImGui::GetScrollX() + step * 0.1f);
+    }
+
     double max = ImGui::GetWindowWidth() + ImGui::GetScrollX();
-    ImRect grab_bb(ImVec2(m_trackBeginPos.x + m_cursor - widthTri / 2., m_trackBeginPos.y - widthTri),
-                   ImVec2(m_trackBeginPos.x + m_cursor + widthTri / 2., m_trackBeginPos.y));
+    ImRect grab_bb(ImVec2(m_trackBeginPos.x + m_cursorPos - widthTri / 2., m_trackBeginPos.y - widthTri),
+                   ImVec2(m_trackBeginPos.x + m_cursorPos + widthTri / 2., m_trackBeginPos.y));
     const ImRect frame_bb(ImVec2(m_trackBeginPos.x, m_trackBeginPos.y - widthTri),
                           ImVec2(m_trackBeginPos.x + max, m_trackBeginPos.y));
 
@@ -214,11 +228,11 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     if (!ImGui::ItemAdd(frame_bb, id))
         return;
 
+    // On drag, follow the cursor marker
     if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
     {
         ImGuiIO& io = ImGui::GetIO();
 
-        const float borderSize = ImGui::GetWindowWidth() * 1.f / 8.f;
         const float xMax = ImGui::GetWindowContentRegionMax().x + ImGui::GetScrollX() - borderSize;
         const float xMin = ImGui::GetWindowContentRegionMin().x + ImGui::GetScrollX() + borderSize;
 
@@ -248,12 +262,12 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
 
     double min = 0;
     const bool value_changed = ImGui::SliderBehavior(frame_bb, id, ImGuiDataType_Double,
-                                                     &m_cursor, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput, &grab_bb);
+                                                     &m_cursorPos, &min, &max, "%0.2f", ImGuiSliderFlags_NoInput, &grab_bb);
     if (value_changed)
     {
         ImGui::MarkItemEdited(id);
         const auto& groot = m_IPController->getRootNode().get();
-        m_time = m_cursor / ProgramSizes().TimelineOneSecondSize;
+        m_time = m_cursorPos / ProgramSizes().TimelineOneSecondSize;
         groot->setTime(m_time);
         stepProgram();
     }

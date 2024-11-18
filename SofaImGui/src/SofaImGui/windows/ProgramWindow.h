@@ -61,7 +61,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     
     models::IPController::SPtr m_IPController;
 
-    double m_cursor;
+    double m_cursorPos;
     ImVec2 m_trackBeginPos;
     double m_time;
 
