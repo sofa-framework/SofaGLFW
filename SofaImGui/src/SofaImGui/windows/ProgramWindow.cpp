@@ -36,6 +36,7 @@
 #include <GLFW/glfw3.h>
 
 #include <nfd.h>
+#include <filesystem>
 #include <IconsFontAwesome6.h>
 
 #include <ProgramStyle.h>
@@ -667,9 +668,22 @@ void ProgramWindow::exportProgram()
     nfdchar_t *outPath;
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
-    nfdresult_t result = NFD_SaveDialog(&outPath, nfd_filters.data(), nfd_filters.size(), nullptr, "");
+    const std::string extension = ".crprog";
+
+    auto sceneFilename = m_baseGUI->getFilename();
+    if (!sceneFilename.empty())
+    {
+        std::filesystem::path path(sceneFilename);
+        path = path.replace_extension(extension);
+        sceneFilename = path.filename().string();
+    }
+
+    nfdresult_t result = NFD_SaveDialog(&outPath, nfd_filters.data(), nfd_filters.size(), nullptr, sceneFilename.c_str());
     if (result == NFD_OKAY)
-        m_program.exportProgram(outPath);
+    {
+        std::filesystem::path path(outPath);
+        m_program.exportProgram((!path.has_extension())? outPath + extension: outPath);
+    }
 }
 
 void ProgramWindow::stepProgram(const double &dt, const bool &reverse)
