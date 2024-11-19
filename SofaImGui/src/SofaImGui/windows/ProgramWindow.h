@@ -55,7 +55,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     void setIPController(models::IPController::SPtr IPController);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
 
-    void addTrajectoryComponents(sofa::simulation::Node* groot);
+    void addTrajectoryComponents(sofa::simulation::Node* groot); /// Add to the simulation graph components to draw the trajectory in the 3D view.
 
    protected:
     
@@ -71,21 +71,19 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     bool m_repeat = false;
     bool m_reverse = false;
 
-    void showProgramButtons();
-    void showCursorMarker(const int &nbCollaspedTracks);
-    void showTimeline();
-    int showTracks();
-    bool showTrackButtons(const int &trackIndex, const char* const menuLabel);
-    void showBlocks(std::shared_ptr<models::Track> track,
-                    const int &trackID);
-    void showBlockOptionButton(const std::string &menulabel,
-                                const std::string &label);
+    void showProgramButtons(); /// The buttons of the program window (import, export, restart, repeat, etc.).
+    void showCursorMarker(const int &nbCollaspedTracks); /// The red cursor marker.
+    void showTimeline(); /// The simulation timeline, in seconds.
+    int  showTracks(); /// Tracks of actions (move, wait, etc.) and modifiers (repeat section, etc.).
+    bool showTrackButtons(const int &trackIndex, const char* const menuLabel); /// Menu (clear track, add action, etc.) and collapse option.
+    void showBlocks(std::shared_ptr<models::Track> track, const int &trackID); /// Action and modifier blocks.
+    void showBlockOptionButton(const std::string &menulabel, const std::string &label); /// Menu (add before, add after, delete, etc.).
+    void showActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex); /// Menu (add move, wait, pick, etc.).
 
     void stepProgram(const double &dt=0., const bool &reverse=false);
 
     bool importProgram();
     void exportProgram();
-    void addActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex);
 };
 
 } // namespace

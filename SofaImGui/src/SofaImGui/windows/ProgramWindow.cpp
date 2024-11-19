@@ -366,7 +366,7 @@ int ProgramWindow::showTracks()
 
             if (ImGui::BeginMenu(("Add action##" + std::to_string(trackIndex)).c_str()))
             {
-                addActionMenu(track, trackIndex, track->getActions().size());
+                showActionMenu(track, trackIndex, track->getActions().size());
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu(("Add modifier##" + std::to_string(trackIndex)).c_str()))
@@ -563,12 +563,12 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
         {
             if (ImGui::BeginMenu("Add before"))
             {
-                addActionMenu(track, trackIndex, actionIndex);
+                showActionMenu(track, trackIndex, actionIndex);
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Add after"))
             {
-                addActionMenu(track, trackIndex, actionIndex+1);
+                showActionMenu(track, trackIndex, actionIndex+1);
                 ImGui::EndMenu();
             }
 
@@ -643,6 +643,28 @@ void ProgramWindow::showBlockOptionButton(const std::string &menulabel,
     ImGui::PopStyleColor(3);
 
     window->DC.CursorPosPrevLine = backuppos;
+}
+
+void ProgramWindow::showActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex)
+{
+    if (ImGui::MenuItem(("Move##" + std::to_string(trackIndex)).c_str()))
+    {
+        track->insertMove(actionIndex);
+    }
+    if (models::actions::Pick::gripperInstalled && ImGui::MenuItem(("Pick##" + std::to_string(trackIndex)).c_str()))
+    {
+        track->insertAction(actionIndex, std::make_shared<models::actions::Pick>());
+    }
+    if (models::actions::Pick::gripperInstalled && ImGui::MenuItem(("Place##" + std::to_string(trackIndex)).c_str()))
+    {
+        auto pick = std::make_shared<models::actions::Pick>(models::actions::Action::DEFAULTDURATION, true);
+        pick->setComment("Place");
+        track->insertAction(actionIndex, pick);
+    }
+    if (ImGui::MenuItem(("Wait##" + std::to_string(trackIndex)).c_str()))
+    {
+        track->insertAction(actionIndex, std::make_shared<models::actions::Wait>());
+    }
 }
 
 bool ProgramWindow::importProgram()
@@ -810,28 +832,6 @@ void ProgramWindow::addTrajectoryComponents(sofa::simulation::Node* groot)
             if(move)
                 move->addTrajectoryComponent(groot);
         }
-    }
-}
-
-void ProgramWindow::addActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex)
-{
-    if (ImGui::MenuItem(("Move##" + std::to_string(trackIndex)).c_str()))
-    {
-        track->insertMove(actionIndex);
-    }
-    if (models::actions::Pick::gripperInstalled && ImGui::MenuItem(("Pick##" + std::to_string(trackIndex)).c_str()))
-    {
-        track->insertAction(actionIndex, std::make_shared<models::actions::Pick>());
-    }
-    if (models::actions::Pick::gripperInstalled && ImGui::MenuItem(("Place##" + std::to_string(trackIndex)).c_str()))
-    {
-        auto pick = std::make_shared<models::actions::Pick>(models::actions::Action::DEFAULTDURATION, true);
-        pick->setComment("Place");
-        track->insertAction(actionIndex, pick);
-    }
-    if (ImGui::MenuItem(("Wait##" + std::to_string(trackIndex)).c_str()))
-    {
-        track->insertAction(actionIndex, std::make_shared<models::actions::Wait>());
     }
 }
 
