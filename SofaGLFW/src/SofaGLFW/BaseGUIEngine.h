@@ -43,6 +43,8 @@ public:
     virtual void terminate() = 0;
     virtual bool dispatchMouseEvents() = 0;
 
+    virtual void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {SOFA_UNUSED(window); SOFA_UNUSED(key); SOFA_UNUSED(scancode); SOFA_UNUSED(action); SOFA_UNUSED(mods);}
+
     virtual void animateBeginEvent(sofa::simulation::Node* groot){SOFA_UNUSED(groot);}
     virtual void animateEndEvent(sofa::simulation::Node* groot){SOFA_UNUSED(groot);}
 };

@@ -221,6 +221,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     initDockSpace();
     showMainMenuBar(baseGUI);
+    showStatusBar();
 
     static bool firstTime = true;
     if (firstTime)
@@ -622,6 +623,22 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui::PopStyleColor();
 }
 
+void ImGuiGUIEngine::showStatusBar()
+{
+    // TODO: make a generalized tool (class)
+    // center: temporary info
+    // right: robot info (download/upload)
+    ImGuiViewportP* viewport = (ImGuiViewportP*)(void*)ImGui::GetMainViewport();
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+    float height = ImGui::GetFrameHeight();
+
+    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImGui::GetColorU32(ImGuiCol_Header));
+    if (ImGui::BeginViewportSideBar("##FooterStatusBar", viewport, ImGuiDir_Down, height, window_flags)) {
+        ImGui::End();
+    }
+    ImGui::PopStyleColor();
+}
+
 void ImGuiGUIEngine::applyDarkMode(const bool &darkMode, sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     if (darkMode)
@@ -671,6 +688,31 @@ void ImGuiGUIEngine::animateEndEvent(sofa::simulation::Node* groot)
 {
     m_IOWindow.animateEndEvent(groot);
     m_programWindow.animateEndEvent(groot);
+}
+
+void ImGuiGUIEngine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    SOFA_UNUSED(scancode);
+    SOFA_UNUSED(mods);
+
+    const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+    const bool isShiftKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+
+    switch (key)
+    {
+    case GLFW_KEY_I:
+        if (action == GLFW_PRESS && isCtrlKeyPressed && isShiftKeyPressed)
+        {
+            m_programWindow.importProgram();
+        }
+        break;
+    case GLFW_KEY_E:
+        if (action == GLFW_PRESS && isCtrlKeyPressed && isShiftKeyPressed)
+        {
+            m_programWindow.exportProgram(false);
+        }
+        break;
+    }
 }
 
 } //namespace sofaimgui

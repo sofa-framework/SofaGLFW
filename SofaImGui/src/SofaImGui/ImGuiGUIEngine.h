@@ -72,6 +72,8 @@ public:
     void animateBeginEvent(sofa::simulation::Node* groot) override;
     void animateEndEvent(sofa::simulation::Node* groot) override;
 
+    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+
     void setIPController(sofa::simulation::Node::SPtr groot,
                          softrobotsinverse::solver::QPInverseProblemSolver::SPtr solver,
                          sofa::core::behavior::BaseMechanicalState::SPtr TCPTargetMechanical,
@@ -104,6 +106,7 @@ protected:
     void showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+    void showStatusBar();
     void applyDarkMode(const bool &darkMode, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
     void saveDarkModeSetting();
 

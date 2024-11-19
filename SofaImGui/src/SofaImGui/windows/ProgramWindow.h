@@ -55,6 +55,9 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     void setIPController(models::IPController::SPtr IPController);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
 
+    bool importProgram();
+    void exportProgram(const bool &exportAs = true);
+
     void addTrajectoryComponents(sofa::simulation::Node* groot); /// Add to the simulation graph components to draw the trajectory in the 3D view.
 
    protected:
@@ -71,6 +74,12 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     bool m_repeat = false;
     bool m_reverse = false;
 
+    std::string m_programFilename;
+    std::string m_programDirPath;
+
+    std::string m_info;
+    bool m_refreshInfo = false;
+
     void showProgramButtons(); /// The buttons of the program window (import, export, restart, repeat, etc.).
     void showCursorMarker(const int &nbCollaspedTracks); /// The red cursor marker.
     void showTimeline(); /// The simulation timeline, in seconds.
@@ -79,11 +88,11 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     void showBlocks(std::shared_ptr<models::Track> track, const int &trackID); /// Action and modifier blocks.
     void showBlockOptionButton(const std::string &menulabel, const std::string &label); /// Menu (add before, add after, delete, etc.).
     void showActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex); /// Menu (add move, wait, pick, etc.).
+    void showInfoOnStatusBar();
 
     void stepProgram(const double &dt=0., const bool &reverse=false);
 
-    bool importProgram();
-    void exportProgram();
+    void setInfo(const std::string &info);
 };
 
 } // namespace

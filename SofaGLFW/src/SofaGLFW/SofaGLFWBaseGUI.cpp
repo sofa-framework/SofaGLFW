@@ -518,6 +518,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     {
         return;
     }
+    currentGUI->second->getGUIEngine()->key_callback(window, key, scancode, action, mods);
 
     auto rootNode = currentGUI->second->getRootNode();
     if (!rootNode)

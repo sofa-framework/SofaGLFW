@@ -42,6 +42,7 @@ class FileMenu
 
     bool addOpenSimulation();
     bool addReloadSimulation();
+    bool addImportExportProgram();
     void addExit();
 
     void saveProject();

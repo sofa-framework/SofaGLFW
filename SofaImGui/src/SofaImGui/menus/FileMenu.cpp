@@ -26,6 +26,8 @@
 #include <sofa/component/playback/ReadState.h>
 
 #include <SofaImGui/menus/FileMenu.h>
+#include <SofaImGui/ImGuiGUI.h>
+#include <SofaImGui/ImGuiGUIEngine.h>
 #include <SofaImGui/Utils.h>
 #include <imgui.h>
 
@@ -56,6 +58,10 @@ bool FileMenu::addMenu()
             loadSimulation = true;
         if(addReloadSimulation())
             loadSimulation = true;
+
+        ImGui::Separator();
+
+        addImportExportProgram();
 
         ImGui::Separator();
 
@@ -144,11 +150,49 @@ bool FileMenu::addReloadSimulation()
     return clicked;
 }
 
+bool FileMenu::addImportExportProgram()
+{
+    ImGuiGUI* gui = ImGuiGUI::getGUI();
+    std::shared_ptr<ImGuiGUIEngine> engine = gui? gui->getGUIEngine() : nullptr;
+    if (!engine)
+        return false;
+
+    if (!engine->m_programWindow.enabled())
+        ImGui::BeginDisabled();
+
+    if (ImGui::MenuItem("Import Program", "Ctrl+Shift+I"))
+    {
+        engine->m_programWindow.importProgram();
+    }
+
+    if (ImGui::MenuItem("Export Program", "Ctrl+Shift+E"))
+    {
+        engine->m_programWindow.exportProgram(false);
+    }
+    ImGui::SetItemTooltip("Export the current program.");
+
+    if (ImGui::MenuItem("Export Program As..."))
+    {
+        engine->m_programWindow.exportProgram();
+    }
+    ImGui::SetItemTooltip("Export the current program at a desired location.");
+
+    if (!engine->m_programWindow.enabled())
+        ImGui::EndDisabled();
+
+    return true;
+}
+
 void FileMenu::saveProject()
 {
     auto filename = m_baseGUI->getFilename();
     filename += ".crproj";
-    if (ImGui::MenuItem("Save"))
+    if (ImGui::MenuItem("Save", "Ctrl+S"))
+    {
+
+    }
+
+    if (ImGui::MenuItem("Save As", "Ctrl+Shift+S"))
     {
 
     }

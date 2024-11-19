@@ -31,6 +31,7 @@
 #include <SofaImGui/models/modifiers/Repeat.h>
 
 #include <sofa/helper/system/FileSystem.h>
+#include <sofa/helper/Utils.h>
 
 #include <imgui_internal.h>
 #include <GLFW/glfw3.h>
@@ -79,6 +80,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                          windowFlags | ImGuiWindowFlags_AlwaysAutoResize
                          ))
         {
+            showInfoOnStatusBar();
             showProgramButtons();
 
             float width = ImGui::GetWindowWidth();
@@ -668,45 +670,126 @@ void ProgramWindow::showActionMenu(std::shared_ptr<models::Track> track, const i
     }
 }
 
+void ProgramWindow::showInfoOnStatusBar()
+{
+    static float infoRefreshTime = 0.;
+
+    // TODO: make a generalized tool (class)
+    if (!m_info.empty())
+    {
+        if (m_refreshInfo)
+        {
+            infoRefreshTime = (float)ImGui::GetTime();
+            m_refreshInfo = false;
+        }
+
+        if((float)ImGui::GetTime() - infoRefreshTime > 6.f)
+        {
+            m_info.clear();
+            return;
+        }
+
+        if (ImGui::Begin("##FooterStatusBar")) {
+            if (ImGui::BeginMenuBar()) {
+                ImGui::Text(ICON_FA_CIRCLE_INFO" %s", m_info.c_str());
+                ImGui::EndMenuBar();
+            }
+            ImGui::End();
+        }
+    }
+}
+
+void ProgramWindow::setInfo(const std::string &info)
+{
+    m_refreshInfo = true;
+    m_info = info;
+}
+
 bool ProgramWindow::importProgram()
 {
     bool successfulImport = false;
     nfdchar_t *outPath;
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
-    nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), nullptr);
+    std::filesystem::path path;
+
+    nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), (m_programDirPath.empty())? nullptr: m_programDirPath.c_str());
     if (result == NFD_OKAY)
     {
         if (sofa::helper::system::FileSystem::exists(outPath))
         {
             successfulImport = m_program.importProgram(outPath);
+            path = outPath;
         }
         NFD_FreePath(outPath);
+    }
+
+    if (successfulImport)
+    {
+        m_programDirPath = path.parent_path().string(); // store chosen dir path
+        m_programFilename = path.filename().string(); // store chosen filename
+        setInfo("Imported program [" + path.string() + "]");
     }
 
     return successfulImport;
 }
 
-void ProgramWindow::exportProgram()
+void ProgramWindow::exportProgram(const bool &exportAs)
 {
     nfdchar_t *outPath;
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
-    const std::string extension = ".crprog";
 
-    auto sceneFilename = m_baseGUI->getFilename();
-    if (!sceneFilename.empty())
+    const std::string extension = ".crprog";
+    const auto sceneFilename = std::filesystem::path(m_baseGUI->getFilename());
+
+    if (m_programDirPath.empty())
     {
-        std::filesystem::path path(sceneFilename);
-        path = path.replace_extension(extension);
-        sceneFilename = path.filename().string();
+        m_programDirPath = (!sceneFilename.empty())? sceneFilename.parent_path().string(): sofa::helper::Utils::getSofaUserLocalDirectory();
     }
 
-    nfdresult_t result = NFD_SaveDialog(&outPath, nfd_filters.data(), nfd_filters.size(), nullptr, sceneFilename.c_str());
-    if (result == NFD_OKAY)
+    if (m_programFilename.empty())
     {
-        std::filesystem::path path(outPath);
-        m_program.exportProgram((!path.has_extension())? outPath + extension: outPath);
+        if (!sceneFilename.empty())
+        {
+            std::filesystem::path path(sceneFilename);
+            path = path.replace_extension(extension);
+            m_programFilename = path.filename().string();
+        }
+        else
+        {
+            m_programFilename = "output" + extension;
+        }
+    }
+
+    std::filesystem::path path;
+    path = m_programDirPath;
+    path.append(m_programFilename);
+    bool doExport = true;
+
+    if (exportAs)
+    {
+        nfdresult_t result = NFD_SaveDialog(&outPath, nfd_filters.data(), nfd_filters.size(), m_programDirPath.c_str(), m_programFilename.c_str());
+        if (result == NFD_OKAY)
+        {
+            path = outPath;
+            path = (!path.has_extension())? outPath + extension: outPath;
+
+            m_programDirPath = path.parent_path().string(); // store chosen dir path
+            m_programFilename = path.filename().string(); // store chosen filename
+
+            NFD_FreePath(outPath);
+        }
+        else
+        {
+            doExport = false;
+        }
+    }
+
+    if (doExport)
+    {
+        m_program.exportProgram(path.string());
+        setInfo("Exported program [" + path.string() + "]");
     }
 }
 
