@@ -501,12 +501,23 @@ bool ProgramWindow::showTrackButtons(const int &trackIndex, const char* const me
 void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
                                const int& trackIndex)
 {
-    float x = ImGui::GetCurrentWindow()->DC.CursorPos.x ;
-    float y = ImGui::GetCurrentWindow()->DC.CursorPos.y ;
     float blockHeight = ProgramSizes().TrackHeight;
 
+    // StartMove block
+    {
+        std::shared_ptr<models::actions::StartMove> startmove = track->getStartMove();
+        std::string blockLabel = "##StartMove" + std::to_string(trackIndex);
+        if (startmove->getView()->showBlock(blockLabel, ImVec2(ProgramSizes().StartMoveBlockSize, blockHeight)))
+        {
+            track->updateNextMoveInitialPoint(-1, startmove->getWaypoint());
+        }
+    }
+
     // Modifiers blocks
+    float x = ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.x ;
+    float y = ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.y ;
     const std::vector<std::shared_ptr<models::modifiers::Modifier>> &modifiers = track->getModifiers();
+
     sofa::Index modifierIndex = 0;
     while(modifierIndex < modifiers.size())
     {
@@ -537,16 +548,6 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
 
     ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.x = x;
     ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.y = y;
-
-    // StartMove block
-    {
-        std::shared_ptr<models::actions::StartMove> startmove = track->getStartMove();
-        std::string blockLabel = "##StartMove" + std::to_string(trackIndex);
-        if (startmove->getView()->showBlock(blockLabel, ImVec2(ProgramSizes().StartMoveBlockSize, blockHeight)))
-        {
-            track->updateNextMoveInitialPoint(-1, startmove->getWaypoint());
-        }
-    }
 
     // Action blocks
     const std::vector<std::shared_ptr<models::actions::Action>> &actions = track->getActions();
