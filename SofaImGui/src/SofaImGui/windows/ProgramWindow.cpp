@@ -373,13 +373,14 @@ int ProgramWindow::showTracks()
             {
                 if (track->getActions().empty() || !track->getModifiers().empty()) // TODO: handle showing multiple modifiers
                     ImGui::BeginDisabled();
+
                 if (ImGui::MenuItem(("Repeat##" + std::to_string(trackIndex)).c_str()))
-                {
                     track->pushRepeat();
-                }
-                ImGui::EndMenu();
+
                 if (track->getActions().empty() || !track->getModifiers().empty())
                     ImGui::EndDisabled();
+
+                ImGui::EndMenu();
             }
             ImGui::EndPopup();
         }
