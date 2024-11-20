@@ -201,7 +201,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     m_cursorPos = m_time * ProgramSizes().TimelineOneSecondSize;
 
     // On animate, follow the cursor marker
-    if (m_baseGUI->getRootNode()->getAnimate())
+    if (m_baseGUI->getRootNode()->getAnimate() && m_isDrivingSimulation)
     {
         float step = m_cursorPos - (ImGui::GetWindowContentRegionMax().x + ImGui::GetScrollX() - borderSize - m_trackBeginPos.x);
         if (step > 0)

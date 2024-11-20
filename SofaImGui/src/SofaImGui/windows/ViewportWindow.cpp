@@ -59,8 +59,9 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
             addSimulationTimeAndFPS(groot);
 
             // Panel backgroung
+            double maxItemWidth = ImGui::CalcTextSize("Input/Output").x;
             ImDrawList* drawList = ImGui::GetWindowDrawList();
-            ImVec2 size(ImGui::GetFrameHeight() * 7 + ImGui::GetStyle().FramePadding.x * 2, ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2);
+            ImVec2 size(ImGui::GetFrameHeight() * 3 + ImGui::GetStyle().FramePadding.x * 8 + maxItemWidth, ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2);
 
             float x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth() / 2.f - ImGui::GetFrameHeight() * 4.f + ImGui::GetStyle().FramePadding.x;
             float y = ImGui::GetWindowPos().y + ImGui::GetStyle().FramePadding.y;
