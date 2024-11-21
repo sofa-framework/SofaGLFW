@@ -520,10 +520,26 @@ void DataWidget<helper::BaseSelectableItem>::showWidget(
 
     int selectedId = selectableItems->getSelectedId();
 
+    sofa::type::vector<std::string> descriptiveItems;
+    descriptiveItems.reserve(selectableItems->getNumberOfItems());
+    for (unsigned int i = 0; i < selectableItems->getNumberOfItems(); ++i)
+    {
+        const auto& [key, description] = selectableItems->getItemsData()[i];
+
+        std::stringstream ss;
+        ss << key;
+        if (!description.empty())
+        {
+            ss << " (" << description << ")";
+        }
+
+        descriptiveItems.push_back(ss.str());
+    }
+
     std::unique_ptr<const char*[]> charArray(new const char*[selectableItems->getNumberOfItems()]);
     for (unsigned int i = 0; i < selectableItems->getNumberOfItems(); ++i)
     {
-        charArray[i] = selectableItems->getItemsData()[i].key.data();
+        charArray[i] = descriptiveItems[i].data();
     }
 
     if (ImGui::Combo((label + "##" + id).c_str(), &selectedId, charArray.get(),
