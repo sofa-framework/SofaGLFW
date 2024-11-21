@@ -26,6 +26,7 @@
 #include <implot.h>
 #include <sofa/helper/map.h>
 #include <sofa/helper/OptionsGroup.h>
+#include <sofa/helper/SelectableItem.h>
 
 
 namespace sofaimgui
@@ -508,6 +509,31 @@ void DataWidget<helper::OptionsGroup>::showWidget(MyData& data)
 }
 
 /***********************************************************************************************************************
+ * SelectableItems
+ **********************************************************************************************************************/
+template<>
+void DataWidget<helper::BaseSelectableItem>::showWidget(
+    sofa::core::objectmodel::BaseData& data, const helper::BaseSelectableItem* selectableItems)
+{
+    const auto& label = data.getName();
+    const auto id = data.getName() + data.getOwner()->getPathName();
+
+    int selectedId = selectableItems->getSelectedId();
+
+    std::unique_ptr<const char*[]> charArray(new const char*[selectableItems->getNumberOfItems()]);
+    for (unsigned int i = 0; i < selectableItems->getNumberOfItems(); ++i)
+    {
+        charArray[i] = selectableItems->getItemsData()[i].key.data();
+    }
+
+    if (ImGui::Combo((label + "##" + id).c_str(), &selectedId, charArray.get(),
+        static_cast<int>(selectableItems->getNumberOfItems())))
+    {
+        const_cast<helper::BaseSelectableItem*>(selectableItems)->setSelectedId(selectedId);
+    }
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -567,5 +593,8 @@ const bool dw_map_vectorf = DataWidgetFactory::Add<std::map<std::string, type::v
 const bool dw_map_vectord = DataWidgetFactory::Add<std::map<std::string, type::vector<double> > >();
 
 const bool dw_optionsGroup = DataWidgetFactory::Add<helper::OptionsGroup>();
+
+
+const bool dw_selectable_items = DataWidgetFactory::Add<helper::BaseSelectableItem>();
 
 }
