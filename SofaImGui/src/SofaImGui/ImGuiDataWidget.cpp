@@ -48,6 +48,40 @@ void DataWidget<bool>::showWidget(MyData& data)
     }
 }
 
+bool showScalarWidget(const std::string& label, const std::string& id, float& value)
+{
+    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+}
+
+bool showScalarWidget(const std::string& label, const std::string& id, double& value)
+{
+    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+}
+
+template<typename Scalar>
+void showScalarWidget(Data<Scalar>& data)
+{
+    Scalar initialValue = data.getValue();
+    const auto& label = data.getName();
+    const auto id = data.getName() + data.getOwner()->getPathName();
+    if (showScalarWidget(label, id, initialValue))
+    {
+        data.setValue(initialValue);
+    }
+}
+
+template<>
+void DataWidget<float>::showWidget(MyData& data)
+{
+    showScalarWidget(data);
+}
+
+template<>
+void DataWidget<double>::showWidget(MyData& data)
+{
+    showScalarWidget(data);
+}
+
 /***********************************************************************************************************************
  * Vec
  **********************************************************************************************************************/
@@ -168,6 +202,13 @@ void showVecTableHeader(Data<type::vector<type::Vec<N, ValueType> > >&)
 }
 
 template<typename ValueType>
+void showVecTableHeader(Data<type::vector<ValueType> >&)
+{
+    ImGui::TableSetupColumn("");
+    ImGui::TableSetupColumn("Value");
+}
+
+template<typename ValueType>
 void showVecTableHeader(Data<type::vector<type::Vec<1, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
@@ -191,28 +232,54 @@ void showVecTableHeader(Data<type::vector<type::Vec<3, ValueType> > >&)
     ImGui::TableSetupColumn("Z");
 }
 
-template< Size N, typename ValueType>
-void showWidgetT(Data<type::vector<type::Vec<N, ValueType> > >& data)
+template<Size N, typename ValueType>
+bool showLine(unsigned int lineNumber, const std::string& tableLabel, type::Vec<N, ValueType>& vec)
+{
+    for (const auto& v : vec)
+    {
+        ImGui::TableNextColumn();
+        ImGui::Text("%f", v);
+    }
+    return false;
+}
+
+template<typename ValueType>
+bool showLine(unsigned int lineNumber, const std::string& tableLabel, ValueType& value)
+{
+    ImGui::TableNextColumn();
+    return showScalarWidget("", tableLabel + std::to_string(lineNumber), value);
+}
+
+template<class T>
+void showVectorWidget(Data<T>& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
     ImGui::Text("%d elements", data.getValue().size());
-    if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), N + 1, flags))
+    const auto nbColumns = data.getValueTypeInfo()->size() + 1;
+    const auto tableLabel = data.getName() + data.getOwner()->getPathName();
+    if (ImGui::BeginTable(tableLabel.c_str(), nbColumns, flags))
     {
         showVecTableHeader(data);
 
         ImGui::TableHeadersRow();
 
-        unsigned int counter {};
-        for (const auto& vec : *helper::getReadAccessor(data))
+        auto accessor = helper::getWriteAccessor(data);
+        bool anyChange = false;
+        for (std::size_t i = 0; i < accessor.size(); ++i)
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            ImGui::Text("%d", counter++);
-            for (const auto& v : vec)
+            ImGui::Text("%d", i);
+            auto& vec = accessor[i];
+            if (showLine(i, tableLabel, vec))
             {
-                ImGui::TableNextColumn();
-                ImGui::Text("%f", v);
+                anyChange = true;
+                data.setDirtyValue();
             }
+        }
+        if (anyChange)
+        {
+            data.updateIfDirty();
         }
 
         ImGui::EndTable();
@@ -220,51 +287,63 @@ void showWidgetT(Data<type::vector<type::Vec<N, ValueType> > >& data)
 }
 
 template<>
+void DataWidget<type::vector<double> >::showWidget(MyData& data)
+{
+    showVectorWidget(data);
+}
+
+template<>
+void DataWidget<type::vector<float> >::showWidget(MyData& data)
+{
+    showVectorWidget(data);
+}
+
+template<>
 void DataWidget<type::vector<type::Vec<1, double> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 template<>
 void DataWidget<type::vector<type::Vec<1, float> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 template<>
 void DataWidget<type::vector<type::Vec<2, double> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 template<>
 void DataWidget<type::vector<type::Vec<2, float> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 template<>
 void DataWidget<type::vector<type::Vec<3, double> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 template<>
 void DataWidget<type::vector<type::Vec<3, float> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 template<>
 void DataWidget<type::vector<type::Vec<4, double> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 template<>
 void DataWidget<type::vector<type::Vec<4, float> > >::showWidget(MyData& data)
 {
-    showWidgetT(data);
+    showVectorWidget(data);
 }
 
 /***********************************************************************************************************************
@@ -513,6 +592,9 @@ void DataWidget<helper::OptionsGroup>::showWidget(MyData& data)
 
 const bool dw_bool = DataWidgetFactory::Add<bool>();
 
+const bool dw_float = DataWidgetFactory::Add<float>();
+const bool dw_double = DataWidgetFactory::Add<double>();
+
 const bool dw_vec1d = DataWidgetFactory::Add<type::Vec<1, double> >();
 const bool dw_vec1f = DataWidgetFactory::Add<type::Vec<1, float> >();
 
@@ -530,6 +612,9 @@ const bool dw_vec6f = DataWidgetFactory::Add<type::Vec<6, float> >();
 
 const bool dw_vec8d = DataWidgetFactory::Add<type::Vec<8, double> >();
 const bool dw_vec8f = DataWidgetFactory::Add<type::Vec<8, float> >();
+
+const bool dw_vector_double = DataWidgetFactory::Add<type::vector<double> >();
+const bool dw_vector_float = DataWidgetFactory::Add<type::vector<float> >();
 
 const bool dw_vector_vec1d = DataWidgetFactory::Add<type::vector<type::Vec<1, double> > >();
 const bool dw_vector_vec1f = DataWidgetFactory::Add<type::vector<type::Vec<1, float> > >();
