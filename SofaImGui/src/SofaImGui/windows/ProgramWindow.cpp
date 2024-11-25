@@ -247,7 +247,7 @@ void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
     }
 
     ImGuiContext& g = *GImGui;
-    const bool hovered = ImGui::ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
+    const bool hovered = ImGui::ItemHoverable(frame_bb, id, g.LastItemData.ItemFlags);
     const bool clicked = hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left, ImGuiInputFlags_None, id);
     const bool make_active = (clicked || g.NavActivateId == id);
     if (clicked)

@@ -129,7 +129,7 @@ bool LocalCheckBoxEx(const char* label, bool* v)
     RenderNavHighlight(total_bb, id);
     RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding / 2);
     ImU32 check_col = GetColorU32(ImGuiCol_CheckMark);
-    bool mixed_value = (g.LastItemData.InFlags & ImGuiItemFlags_MixedValue) != 0;
+    bool mixed_value = (g.LastItemData.ItemFlags & ImGuiItemFlags_MixedValue) != 0;
     if (mixed_value || *v)
     {
         // Undocumented tristate/mixed/indeterminate checkbox (#2644)
@@ -234,7 +234,7 @@ void Drag(const char* label, const ImRect &bb, double *value)
         return;
 
     ImGuiContext& g = *GImGui;
-    const bool hovered = ImGui::ItemHoverable(bb, id, g.LastItemData.InFlags);
+    const bool hovered = ImGui::ItemHoverable(bb, id, g.LastItemData.ItemFlags);
     const bool clicked = hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left, ImGuiInputFlags_None, id);
     const bool makeActive = (clicked || g.NavActivateId == id);
 
