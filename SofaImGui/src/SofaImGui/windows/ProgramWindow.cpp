@@ -90,8 +90,8 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
             ProgramSizes().TimelineOneSecondSize = zoomCoef * minSize;
             ProgramSizes().StartMoveBlockSize = 6. * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
-            if (ImGui::BeginChildFrame(ImGui::GetID(m_name.c_str()), ImVec2(width, height),
-                                       ImGuiWindowFlags_AlwaysHorizontalScrollbar))
+
+            if (ImGui::BeginChild(ImGui::GetID(m_name.c_str()), ImVec2(width, height), ImGuiChildFlags_FrameStyle, ImGuiWindowFlags_AlwaysHorizontalScrollbar))
             {
                 ImGui::PopStyleColor();
 
@@ -101,7 +101,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                 showCursorMarker(nbCollaspedTracks);
                 ImGui::PopStyleVar();
 
-                ImGui::EndChildFrame();
+                ImGui::EndChild();
             }
             else
             {
