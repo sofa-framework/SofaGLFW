@@ -41,6 +41,11 @@ SofaImGui depends on SofaGLFW, so it must also be activated.
 The GUI relies on the [NFD-extended library](https://github.com/btzy/nativefiledialog-extended).
 Therefore, it comes with its dependencies. See the list on [GitHub](https://github.com/btzy/nativefiledialog-extended#dependencies).
 
+This `robotics` branch offers windows specifically designed for robotics. This GUI requires additional SOFA plugins:
+- [SofaPython3](https://github.com/sofa-framework/SofaPython3) 
+- [SoftRobots](https://github.com/SofaDefrost/SoftRobots) 
+- [SoftRobots.Inverse](https://github.com/SofaDefrost/SoftRobots.Inverse)
+
 ## Compilation
 
 As any plugin, to compile SofaImGui, follow the instructions on the [SOFA documentation website](https://www.sofa-framework.org/community/doc/plugins/build-a-plugin-from-sources/).
@@ -56,7 +61,9 @@ runSofa -l SofaImGui -g imgui
 - `-l SofaImGui`: loads the plugin in order to be able to use the GUI (see the [documentation](https://www.sofa-framework.org/community/doc/plugins/what-is-a-plugin/))
 - `-g imgui`: selects the `runSofa` GUI to be the one from SofaImGui
 
-It is possible to run the Dear ImGui-based GUI by default when running the command `./runSofa` (without the `-l` and `-g` arguments). To do so, add the SofaImGui plugin into the list of loaded plugin in the `plugin_list.conf` file (see the [documentation](https://www.sofa-framework.org/community/doc/plugins/what-is-a-plugin/)). Then, run `runSofa -g imgui` at least once so that `runSofa` save the last used GUI. After that, `./runSofa` will load the imgui GUI.
+It is possible to run the Dear ImGui-based GUI by default when running the command `./runSofa` (without the `-l` and `-g` arguments). 
+To do so, add the SofaImGui plugin into the list of loaded plugin in the `plugin_list.conf` file (see the [documentation](https://www.sofa-framework.org/community/doc/plugins/what-is-a-plugin/)). 
+Then, run `runSofa -g imgui` at least once so that `runSofa` save the last used GUI. After that, `./runSofa` will load the imgui GUI.
 
 ## Windows
 
@@ -64,14 +71,15 @@ The GUI is based on dockable windows.
 Each window gathers related features. 
 Here are all the available windows:
 
-| Window             | Description                             |
-|--------------------|-----------------------------------------|
-| __Move__           | Direct control of the TCP target        |
-| __Input / Output__ | ROS                                     |
-| __Program__        | A tool to program the robot             |
-| __My Robot__       | Robot's information and settings        |
-| __Plotting__       | A tool to plot data from the simulation |
+| Window             | Description                                  |
+|--------------------|----------------------------------------------|
+| __Move__           | Direct control of your robot                 |
+| __Input / Output__ | ROS                                          |
+| __Program__        | A tool to program your robot                 |
+| __My Robot__       | A tool to display information and settings   |
+| __Plotting__       | A tool to plot data from the simulation      |
 
+We use python bindings to configure the GUI. Please refer to this [example](SofaImGui/example/mygui.py).
 
 ## Screenshots
 
