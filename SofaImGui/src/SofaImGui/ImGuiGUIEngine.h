@@ -43,6 +43,7 @@
 #include <SofaImGui/models/SimulationState.h>
 #include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
 #include <SoftRobots.Inverse/component/constraint/PositionEffector.h>
+#include <SofaImGui/FooterStatusBar.h>
 
 
 struct GLFWwindow;

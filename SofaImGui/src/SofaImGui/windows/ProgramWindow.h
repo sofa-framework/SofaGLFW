@@ -88,11 +88,8 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     void showBlocks(std::shared_ptr<models::Track> track, const int &trackID); /// Action and modifier blocks.
     void showBlockOptionButton(const std::string &menulabel, const std::string &label); /// Menu (add before, add after, delete, etc.).
     void showActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex); /// Menu (add move, wait, pick, etc.).
-    void showInfoOnStatusBar();
 
     void stepProgram(const double &dt=0., const bool &reverse=false);
-
-    void setInfo(const std::string &info);
 };
 
 } // namespace

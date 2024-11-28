@@ -97,6 +97,7 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/simulation/graph/DAGNode.h>
+#include <sofa/version.h>
 
 using namespace sofa;
 
@@ -221,7 +222,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     initDockSpace();
     showMainMenuBar(baseGUI);
-    showStatusBar();
+    FooterStatusBar::getInstance().showFooterStatusBar();
+    FooterStatusBar::getInstance().showTempInfoOnStatusBar();
 
     static bool firstTime = true;
     if (firstTime)
@@ -550,9 +552,10 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Begin("About##SofaComplianceRobotics", &isAboutOpen, ImGuiWindowFlags_NoDocking);
 
             auto windowWidth = ImGui::GetWindowSize().x;
+            std::string version = "v" + std::string(SOFA_VERSION_STR);
             std::vector<std::string> texts = {"\n", "SOFA, Simulation Open-Framework Architecture \n (c) 2006 INRIA, USTL, UJF, CNRS, MGH",
                                               "&", "(c) Compliance Robotics", "\n",
-                                              "v24.06.02",
+                                              version,
                                               "SOFA is an open-source framework for interactive physics simulation, \n"
                                               "with an emphasis on soft body dynamics. After years of research and \n"
                                               "development, the project remains open-source under the LGPL v2.1 license, \n"
@@ -618,22 +621,6 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::EndMenuBar();
         }
-        ImGui::End();
-    }
-    ImGui::PopStyleColor();
-}
-
-void ImGuiGUIEngine::showStatusBar()
-{
-    // TODO: make a generalized tool (class)
-    // center: temporary info
-    // right: robot info (download/upload)
-    ImGuiViewportP* viewport = (ImGuiViewportP*)(void*)ImGui::GetMainViewport();
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
-    float height = ImGui::GetFrameHeight();
-
-    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImGui::GetColorU32(ImGuiCol_Header));
-    if (ImGui::BeginViewportSideBar("##FooterStatusBar", viewport, ImGuiDir_Down, height, window_flags)) {
         ImGui::End();
     }
     ImGui::PopStyleColor();

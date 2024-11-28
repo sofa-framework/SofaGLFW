@@ -41,6 +41,7 @@
 #include <IconsFontAwesome6.h>
 
 #include <ProgramStyle.h>
+#include <SofaImGui/FooterStatusBar.h>
 
 
 namespace sofaimgui::windows {
@@ -80,7 +81,6 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                          windowFlags | ImGuiWindowFlags_AlwaysAutoResize
                          ))
         {
-            showInfoOnStatusBar();
             showProgramButtons();
 
             float width = ImGui::GetWindowWidth();
@@ -670,41 +670,6 @@ void ProgramWindow::showActionMenu(std::shared_ptr<models::Track> track, const i
     }
 }
 
-void ProgramWindow::showInfoOnStatusBar()
-{
-    static float infoRefreshTime = 0.;
-
-    // TODO: make a generalized tool (class)
-    if (!m_info.empty())
-    {
-        if (m_refreshInfo)
-        {
-            infoRefreshTime = (float)ImGui::GetTime();
-            m_refreshInfo = false;
-        }
-
-        if((float)ImGui::GetTime() - infoRefreshTime > 6.f)
-        {
-            m_info.clear();
-            return;
-        }
-
-        if (ImGui::Begin("##FooterStatusBar")) {
-            if (ImGui::BeginMenuBar()) {
-                ImGui::Text(ICON_FA_CIRCLE_INFO" %s", m_info.c_str());
-                ImGui::EndMenuBar();
-            }
-            ImGui::End();
-        }
-    }
-}
-
-void ProgramWindow::setInfo(const std::string &info)
-{
-    m_refreshInfo = true;
-    m_info = info;
-}
-
 bool ProgramWindow::importProgram()
 {
     bool successfulImport = false;
@@ -728,7 +693,8 @@ bool ProgramWindow::importProgram()
     {
         m_programDirPath = path.parent_path().string(); // store chosen dir path
         m_programFilename = path.filename().string(); // store chosen filename
-        setInfo("Imported program [" + path.string() + "]");
+
+        FooterStatusBar::getInstance().setTempInfo("Imported program [" + path.string() + "]");
     }
 
     return successfulImport;
@@ -789,7 +755,7 @@ void ProgramWindow::exportProgram(const bool &exportAs)
     if (doExport)
     {
         m_program.exportProgram(path.string());
-        setInfo("Exported program [" + path.string() + "]");
+        FooterStatusBar::getInstance().setTempInfo("Exported program [" + path.string() + "]");
     }
 }
 
