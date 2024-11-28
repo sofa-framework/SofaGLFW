@@ -51,13 +51,13 @@ void moduleAddProgramWindow(py::module &m)
 
     m_a.def("addGripper",
         [engine](sofa::core::BaseData* data,
-                 const double& closingDistance, const double& openingDistance)
+                 const double& minClosingDistance, const double& maxOpeningDistance)
         {
             if (engine)
             {
                 models::actions::Pick::gripperInstalled = true;
-                models::actions::Pick::closingDistance = closingDistance;
-                models::actions::Pick::openingDistance = openingDistance;
+                models::actions::Pick::minClosingDistance = minClosingDistance;
+                models::actions::Pick::maxOpeningDistance = maxOpeningDistance;
                 models::actions::Pick::distance = data;
             }
         }, "Add the pick action to the program window."

@@ -105,11 +105,19 @@ bool Program::importProgram(const std::string &filename)
                         return false;
                     double duration = e->FindAttribute("duration")->DoubleValue();
 
+                    if (!e->FindAttribute("closing"))
+                        return false;
+                    double closing = e->FindAttribute("closing")->DoubleValue();
+
+                    if (!e->FindAttribute("opening"))
+                        return false;
+                    double opening = e->FindAttribute("opening")->DoubleValue();
+
                     if (!e->FindAttribute("release"))
                         return false;
                     double release = e->FindAttribute("release")->BoolValue();
 
-                    std::shared_ptr<actions::Pick> pick = std::make_shared<actions::Pick>(duration, release);
+                    std::shared_ptr<actions::Pick> pick = std::make_shared<actions::Pick>(duration, closing, opening, release);
                     if (e->FindAttribute("comment"))
                         pick->setComment(e->Attribute("comment"));
                     track->pushAction(pick);
@@ -242,6 +250,8 @@ void Program::exportProgram(const std::string &filename)
                     {
                         xmlPick->SetAttribute("name", "pick");
                         xmlPick->SetAttribute("duration", pick->getDuration());
+                        xmlPick->SetAttribute("closing", pick->getClosingDistance());
+                        xmlPick->SetAttribute("opening", pick->getOpeningDistance());
                         xmlPick->SetAttribute("release", pick->getState());
                         xmlPick->SetAttribute("comment", pick->getComment());
                         xmlPick->InsertEndChild(xmlPick);

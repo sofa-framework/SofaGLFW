@@ -36,7 +36,10 @@ class SOFAIMGUI_API Pick : public Action
 
    public:
 
-    Pick(const double& duration = Action::DEFAULTDURATION, const bool& release = false);
+    Pick(const double& duration = Action::DEFAULTDURATION,
+         const double& closingDistance = minClosingDistance,
+         const double& openingDistance = maxOpeningDistance,
+         const bool& release = false);
     ~Pick() = default;
 
     void setDuration(const double &duration) override;
@@ -44,13 +47,20 @@ class SOFAIMGUI_API Pick : public Action
     bool apply(RigidCoord &position, const double &time) override;
 
     static bool gripperInstalled;
-    static double closingDistance;
-    static double openingDistance;
+    static double minClosingDistance;
+    static double maxOpeningDistance;
     static sofa::core::BaseData* distance;
+
+    double getClosingDistance() {return m_closingDistance;}
+    void setClosingDistance(const double &distance) {m_closingDistance=(distance<minClosingDistance)? minClosingDistance : distance;}
+    double getOpeningDistance() {return m_openingDistance;}
+    void setOpeningDistance(const double &distance) {m_openingDistance=(distance>maxOpeningDistance)? maxOpeningDistance : distance;}
 
    protected:
     double m_minDuration{0.5};
     bool m_release{false};
+    double m_closingDistance;
+    double m_openingDistance;
 
     class PickView : public ActionView
     {

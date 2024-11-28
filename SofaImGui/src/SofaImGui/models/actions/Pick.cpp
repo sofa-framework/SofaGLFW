@@ -25,14 +25,16 @@
 namespace sofaimgui::models::actions {
 
 bool Pick::gripperInstalled = false;
-double Pick::closingDistance = 0;
-double Pick::openingDistance = 0;
+double Pick::minClosingDistance = 0;
+double Pick::maxOpeningDistance = 0;
 sofa::core::BaseData* Pick::distance = nullptr;
 
 
-Pick::Pick(const double &duration, const bool& release)
+Pick::Pick(const double &duration, const double &closingDistance, const double &openingDistance, const bool& release)
     : Action(duration)
     , m_release(release)
+    , m_closingDistance(closingDistance)
+    , m_openingDistance(openingDistance)
     , view(*this)
 {
     setComment("Pick");
@@ -55,12 +57,12 @@ bool Pick::apply(RigidCoord &position, const double &time)
         double alpha = time / m_duration;
         if (m_release)
         {
-            double dist = alpha * openingDistance + (1 - alpha) * closingDistance;
+            double dist = alpha * m_openingDistance + (1 - alpha) * m_closingDistance;
             distance->read(std::to_string(dist));
         }
         else
         {
-            double dist = alpha * closingDistance + (1 - alpha) * openingDistance;
+            double dist = alpha * m_closingDistance + (1 - alpha) * m_openingDistance;
             distance->read(std::to_string(dist));
         }
     }

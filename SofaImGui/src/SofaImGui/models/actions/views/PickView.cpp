@@ -110,6 +110,56 @@ bool Pick::PickView::showBlock(const std::string &label,
         ImGui::PopStyleVar();
     }
 
+    text = "distances";
+    textSize = ImGui::CalcTextSize(text.c_str());
+    y += textSize.y + padding.y * 3;
+
+    { // Closing/opening distances
+        bb.Min = ImVec2(x, y);
+        bb.Max = ImVec2(x + textSize.x + padding.x * 2,
+                        y + textSize.y + padding.y * 2);
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().Text);
+        drawList->AddText(ImVec2(x + padding.x,
+                                 y + padding.y),
+                          ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
+        ImGui::PopStyleColor();
+
+        window->DC.CursorPos.x = x + ProgramSizes().AlignWidth;
+        window->DC.CursorPos.y = y;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
+        ImGui::PushItemWidth(ProgramSizes().InputWidth);
+        std::string idClosing = "##closing" + std::to_string(window->DC.CursorPos.x);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ProgramColors().FrameBg);
+        ImGui::PushStyleColor(ImGuiCol_Text, ProgramColors().FrameText);
+
+        double distance = pick.getClosingDistance();
+        if (ImGui::InputDouble(idClosing.c_str(), &distance, 0, 0, "%0.0f", ImGuiInputTextFlags_CharsNoBlank))
+        {
+            hasValuesChanged = true;
+            pick.setClosingDistance(distance);
+        }
+        ImGui::SetItemTooltip("Closing distance");
+
+        ImGui::SameLine();
+        window->DC.CursorPos.y = y;
+
+        std::string idOpening = "##opening" + std::to_string(window->DC.CursorPos.x);
+        distance = pick.getOpeningDistance();
+        if (ImGui::InputDouble(idOpening.c_str(), &distance, 0, 0, "%0.0f", ImGuiInputTextFlags_CharsNoBlank))
+        {
+            hasValuesChanged = true;
+            pick.setOpeningDistance(distance);
+        }
+        ImGui::SetItemTooltip("Opening distance");
+
+        ImGui::PopStyleColor(2);
+        ImGui::SameLine();
+        ImGui::PopItemWidth();
+        ImGui::PopStyleVar();
+    }
+
     text = "release";
     textSize = ImGui::CalcTextSize(text.c_str());
     y += textSize.y + padding.y * 3;
