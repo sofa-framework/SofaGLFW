@@ -169,7 +169,8 @@ jobs:
         with:
           sofa_root: ${{ github.workspace }}/sofa
           sofa_version: ${{ matrix.sofa_branch }}
-          sofa_scope: 'standard'         
+          sofa_scope: 'standard'      
+          python_version: '3.10'
 
       - name: Install SoftRobots
         shell: bash
