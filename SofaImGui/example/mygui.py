@@ -56,7 +56,7 @@ def createScene(root):
     # In this window you can display information and settings
     # 1. MyGui.MyRobotWindow.addInformation(string description, SofaData (scalar) value)
     #    This will simply display a read only value, with your description
-    MyGui.MyRobotWindow.addInformation('Motors max displacement', effector.PositionEffector.maxSpeed)
+    MyGui.MyRobotWindow.addInformation('Max TCP speed (mm/s)', effector.PositionEffector.maxSpeed)
     # 2. MyGui.MyRobotWindow.addSetting(string description, SofaData (scalar) value, float min, float, max)
     #    This will expose your data as an editable setting
     MyGui.MyRobotWindow.addSetting('Max TCP speed (mm/s)', effector.PositionEffector.maxSpeed, 0, 2000)
