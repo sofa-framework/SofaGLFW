@@ -1,3 +1,4 @@
+#include "IconsFontAwesome6.h"
 #include <SofaImGui/widgets/Buttons.h>
 #include <string>
 

@@ -35,7 +35,7 @@ class Action
    public:
 
     inline static const int COMMENTSIZE = 18;
-    inline static const double DEFAULTDURATION = 3.;
+    inline static const double DEFAULTDURATION = 1.;
 
     Action(const double& duration=DEFAULTDURATION):
                                   m_duration(duration)

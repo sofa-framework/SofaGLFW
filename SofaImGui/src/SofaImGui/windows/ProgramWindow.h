@@ -86,6 +86,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     int  showTracks(); /// Tracks of actions (move, wait, etc.) and modifiers (repeat section, etc.).
     bool showTrackButtons(const int &trackIndex, const char* const menuLabel); /// Menu (clear track, add action, etc.) and collapse option.
     void showBlocks(std::shared_ptr<models::Track> track, const int &trackID); /// Action and modifier blocks.
+    void showAddActionButton(const ImVec2 &position, const unsigned int &actionIndex, std::shared_ptr<models::Track> track, const int& trackIndex); /// Add action (plus) button
     void showBlockOptionButton(const std::string &menulabel, const std::string &label); /// Menu (add before, add after, delete, etc.).
     void showActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex); /// Menu (add move, wait, pick, etc.).
 

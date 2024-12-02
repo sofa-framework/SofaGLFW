@@ -88,7 +88,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
             static float zoomCoef = 6.;
             static float minSize = ImGui::GetFrameHeight() * 1.5;
             ProgramSizes().TimelineOneSecondSize = zoomCoef * minSize;
-            ProgramSizes().StartMoveBlockSize = 6. * minSize;
+            ProgramSizes().StartMoveBlockSize = 7. * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
 
             if (ImGui::BeginChild(ImGui::GetID(m_name.c_str()), ImVec2(width, height), ImGuiChildFlags_FrameStyle, ImGuiWindowFlags_AlwaysHorizontalScrollbar))
@@ -398,6 +398,9 @@ int ProgramWindow::showTracks()
         m_trackBeginPos.x += ProgramSizes().StartMoveBlockSize;
         showBlocks(track, trackIndex);
 
+        float x = ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.x ;
+        float y = ImGui::GetCurrentWindow()->DC.CursorPosPrevLine.y ;
+
         { // Empty track background
             ImGui::SameLine();
             std::string trackLabel = "##Track" + std::to_string(trackIndex) + "Empty";
@@ -416,6 +419,9 @@ int ProgramWindow::showTracks()
                                                           ImDrawFlags_None);
             }
         }
+
+        const std::vector<std::shared_ptr<models::actions::Action>> &actions = track->getActions();
+        showAddActionButton(ImVec2(x + ImGui::GetStyle().ItemSpacing.x, y + ProgramSizes().TrackHeight / 2.f), actions.size(), track, trackIndex);
 
         trackIndex++;
     }
@@ -562,6 +568,11 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
         std::string menuLabel = std::string("##ActionOptionsMenu" + blockLabel);
         ImGui::SameLine();
 
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        float x = window->DC.CursorPos.x ;
+        float y = window->DC.CursorPos.y ;
+        ImVec2 blockSize(blockWidth, blockHeight);
+
         if (ImGui::BeginPopup(menuLabel.c_str()))
         {
             if (ImGui::BeginMenu("Add before"))
@@ -583,7 +594,7 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
         if (move)
         {
             move->setDrawTrajectory(m_drawTrajectory);
-            if(move->getView()->showBlock(blockLabel, ImVec2(blockWidth, blockHeight)))
+            if(move->getView()->showBlock(blockLabel, blockSize))
             {
                 track->updateNextMoveInitialPoint(actionIndex, move->getWaypoint());
             }
@@ -599,7 +610,7 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
                 ImGui::EndPopup();
             }
         } else {
-            action->getView()->showBlock(blockLabel, ImVec2(blockWidth, blockHeight));
+            action->getView()->showBlock(blockLabel, blockSize);
         }
 
         if (ImGui::BeginPopup(menuLabel.c_str()))
@@ -620,7 +631,54 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
 
         if (blockWidth > ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.x * 2.0f)
             showBlockOptionButton(menuLabel, blockLabel);
+
+        showAddActionButton(ImVec2(x, y + blockHeight / 2.f), actionIndex - 1, track, trackIndex);
     }
+}
+
+void ProgramWindow::showAddActionButton(const ImVec2 &position,
+                                        const unsigned int &actionIndex,
+                                        std::shared_ptr<models::Track> track,
+                                        const int& trackIndex)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    auto backuppos = window->DC.CursorPosPrevLine;
+
+    const float buttonSize = ImGui::GetFrameHeight();
+    const float x = position.x - ImGui::GetFrameHeight() - ImGui::GetStyle().ItemSpacing.x / 2.f;
+    const float y = position.y - ImGui::GetFrameHeight();
+
+    window->DC.CursorPos.x = x;
+    window->DC.CursorPos.y = y;
+
+    ImRect bb{ImVec2(x, position.y - buttonSize),
+              ImVec2(x + buttonSize * 2.f, position.y + buttonSize)};
+
+    ImGui::PushID(actionIndex);
+    const ImGuiID id = window->GetID("##InvisibleActionBlockAddButtons");
+    ImGui::ItemAdd(bb, id);
+
+    window->DC.CursorPos.x = position.x - ImGui::GetFrameHeight() / 2.f - ImGui::GetStyle().ItemSpacing.x / 2.f;
+    window->DC.CursorPos.y = position.y - ImGui::GetFrameHeight() / 2.f;
+
+    std::string menulabel = "##ActionBlockAddButtonsMenu";
+    if (ImGui::BeginPopup(menulabel.c_str()))
+    {
+        showActionMenu(track, trackIndex, actionIndex);
+        ImGui::EndPopup();
+    }
+    if (ImGui::IsItemHovered() || ImGui::IsPopupOpen(menulabel.c_str()))
+    {
+        const std::string buttonlabel = ICON_FA_PLUS"##ActionBlockAddButtons";
+        ImGui::Button(buttonlabel.c_str(), ImVec2(buttonSize, buttonSize));
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+        {
+            ImGui::OpenPopup(menulabel.c_str());
+        }
+    }
+    ImGui::PopID();
+
+    window->DC.CursorPosPrevLine = backuppos;
 }
 
 void ProgramWindow::showBlockOptionButton(const std::string &menulabel,
