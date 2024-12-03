@@ -73,12 +73,23 @@ void LocalPushButton(const char* str_id, bool* v, const ImVec2 &buttonSize)
     ImVec4 colorActive{0.25f, 0.25f, 0.25f, 1.00f};
     ImGui::PushStyleColor(ImGuiCol_Button, *v? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, *v? colorActive : ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+    ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg]);
+    ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.f, 0.f, 0.f, 0.f));
+
+    const bool active = *v;
+    if (active)
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize,  ImGui::GetStyle().TabBarBorderSize * 3);
+
     if(ImGui::Button(str_id, buttonSize))
     {
         *v = !*v;
     }
-    ImGui::PopStyleColor(3);
+
+    if (active)
+        ImGui::PopStyleVar();
+
+    ImGui::PopStyleColor(5);
 }
 
 bool LocalCheckBox(const char* label, bool* v)

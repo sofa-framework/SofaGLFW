@@ -153,7 +153,7 @@ void setLightStyle()
     colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TitleBgActive]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_MenuBarBg]              = ImVec4(0.09f, 0.17f, 0.33f, 1.00f);
-    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
+    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
     colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
