@@ -68,7 +68,6 @@ class StartMove : public Action
     RigidCoord m_initialPoint;
     RigidCoord m_waypoint;
 
-    double m_minDuration{0.5};
     double m_minSpeed{10};
     double m_maxSpeed; // TODO: set
 
@@ -76,7 +75,6 @@ class StartMove : public Action
 
     bool m_freeInRotation;
 
-    void checkDuration();
     void checkSpeed();
 
     class StartMoveView : public ActionView

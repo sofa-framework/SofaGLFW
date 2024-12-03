@@ -40,7 +40,6 @@ class Wait : public Action
     void setDuration(const double &duration) override;
 
    protected:
-    double m_minDuration = 0.5;
 
     class WaitView : public ActionView
     {

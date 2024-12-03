@@ -117,7 +117,7 @@ bool Program::importProgram(const std::string &filename)
                         return false;
                     double release = e->FindAttribute("release")->BoolValue();
 
-                    std::shared_ptr<actions::Pick> pick = std::make_shared<actions::Pick>(duration, closing, opening, release);
+                    std::shared_ptr<actions::Pick> pick = std::make_shared<actions::Pick>(duration, release, closing, opening);
                     if (e->FindAttribute("comment"))
                         pick->setComment(e->Attribute("comment"));
                     track->pushAction(pick);

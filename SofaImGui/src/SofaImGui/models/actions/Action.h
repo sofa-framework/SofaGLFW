@@ -40,6 +40,7 @@ class Action
     Action(const double& duration=DEFAULTDURATION):
                                   m_duration(duration)
     {
+       checkDuration();
     }
 
     virtual ~Action() = default;
@@ -52,6 +53,7 @@ class Action
     virtual void setDuration(const double& duration)
     {
         m_duration = duration;
+        checkDuration();
         computeSpeed();
     }
 
@@ -70,8 +72,15 @@ class Action
    protected:
 
     double m_duration;
+    double m_minDuration{0.5};
     double m_speed;
     char m_comment[COMMENTSIZE];
+
+    void checkDuration()
+    {
+        if (m_duration < m_minDuration)
+            m_duration = m_minDuration;
+    }
 
     class ActionView
     {

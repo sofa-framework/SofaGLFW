@@ -37,9 +37,9 @@ class SOFAIMGUI_API Pick : public Action
    public:
 
     Pick(const double& duration = Action::DEFAULTDURATION,
+         const bool& release = false,
          const double& closingDistance = minClosingDistance,
-         const double& openingDistance = maxOpeningDistance,
-         const bool& release = false);
+         const double& openingDistance = maxOpeningDistance);
     ~Pick() = default;
 
     void setDuration(const double &duration) override;
@@ -57,7 +57,6 @@ class SOFAIMGUI_API Pick : public Action
     void setOpeningDistance(const double &distance) {m_openingDistance=(distance>maxOpeningDistance)? maxOpeningDistance : distance;}
 
    protected:
-    double m_minDuration{0.5};
     bool m_release{false};
     double m_closingDistance;
     double m_openingDistance;

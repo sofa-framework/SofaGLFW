@@ -33,8 +33,7 @@ Wait::Wait(const double &duration): Action(duration),
 void Wait::setDuration(const double& duration)
 {
     m_duration = duration;
-    if (m_duration < m_minDuration)
-        m_duration = m_minDuration;
+    checkDuration();
 }
 
 } // namespace

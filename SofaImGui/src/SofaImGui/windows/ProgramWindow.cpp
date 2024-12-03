@@ -729,6 +729,31 @@ void ProgramWindow::showActionMenu(std::shared_ptr<models::Track> track, const i
     }
 }
 
+void ProgramWindow::initFilePath()
+{
+    const auto sceneFilename = std::filesystem::path(m_baseGUI->getFilename());
+    const std::string extension = ".crprog";
+
+    if (m_programDirPath.empty())
+    {
+        m_programDirPath = (!sceneFilename.empty())? sceneFilename.parent_path().string(): sofa::helper::Utils::getSofaUserLocalDirectory();
+    }
+
+    if (m_programFilename.empty())
+    {
+        if (!sceneFilename.empty())
+        {
+            std::filesystem::path path(sceneFilename);
+            path = path.replace_extension(extension);
+            m_programFilename = path.filename().string();
+        }
+        else
+        {
+            m_programFilename = "output" + extension;
+        }
+    }
+}
+
 bool ProgramWindow::importProgram()
 {
     bool successfulImport = false;
@@ -736,6 +761,7 @@ bool ProgramWindow::importProgram()
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
     std::filesystem::path path;
+    initFilePath();
 
     nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), (m_programDirPath.empty())? nullptr: m_programDirPath.c_str());
     if (result == NFD_OKAY)
@@ -764,28 +790,8 @@ void ProgramWindow::exportProgram(const bool &exportAs)
     nfdchar_t *outPath;
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
-
     const std::string extension = ".crprog";
-    const auto sceneFilename = std::filesystem::path(m_baseGUI->getFilename());
-
-    if (m_programDirPath.empty())
-    {
-        m_programDirPath = (!sceneFilename.empty())? sceneFilename.parent_path().string(): sofa::helper::Utils::getSofaUserLocalDirectory();
-    }
-
-    if (m_programFilename.empty())
-    {
-        if (!sceneFilename.empty())
-        {
-            std::filesystem::path path(sceneFilename);
-            path = path.replace_extension(extension);
-            m_programFilename = path.filename().string();
-        }
-        else
-        {
-            m_programFilename = "output" + extension;
-        }
-    }
+    initFilePath();
 
     std::filesystem::path path;
     path = m_programDirPath;

@@ -66,12 +66,6 @@ bool StartMove::apply(RigidCoord &position, const double &time)
     return hasChanged;
 }
 
-void StartMove::checkDuration()
-{
-    if (m_duration < m_minDuration)
-        m_duration = m_minDuration;
-}
-
 void StartMove::checkSpeed()
 {
     if (m_speed < m_minSpeed)

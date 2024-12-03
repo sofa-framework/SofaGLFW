@@ -30,7 +30,7 @@ double Pick::maxOpeningDistance = 0;
 sofa::core::BaseData* Pick::distance = nullptr;
 
 
-Pick::Pick(const double &duration, const double &closingDistance, const double &openingDistance, const bool& release)
+Pick::Pick(const double &duration, const bool& release, const double &closingDistance, const double &openingDistance)
     : Action(duration)
     , m_release(release)
     , m_closingDistance(closingDistance)
@@ -43,8 +43,7 @@ Pick::Pick(const double &duration, const double &closingDistance, const double &
 void Pick::setDuration(const double& duration)
 {
     m_duration = duration;
-    if (m_duration < m_minDuration)
-        m_duration = m_minDuration;
+    checkDuration();
 }
 
 bool Pick::apply(RigidCoord &position, const double &time)

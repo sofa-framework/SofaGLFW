@@ -91,6 +91,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     void showActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex); /// Menu (add move, wait, pick, etc.).
 
     void stepProgram(const double &dt=0., const bool &reverse=false);
+    void initFilePath();
 };
 
 } // namespace
