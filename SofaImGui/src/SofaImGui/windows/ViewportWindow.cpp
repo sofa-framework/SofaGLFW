@@ -195,10 +195,10 @@ bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], cons
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
-                    hasValueChanged = ImGui::Combo("##DrivingTabViewport", mode, listModes, sizeListModes);
+                    hasValueChanged = ImGui::Combo("##DrivingWindowViewport", mode, listModes, sizeListModes);
                     ImGui::PopStyleColor(3);
                     ImGui::PopItemWidth();
-                    ImGui::SetItemTooltip("Choose a tab to drive the TCP target");
+                    ImGui::SetItemTooltip("Choose a window to drive the TCP target");
 
                     ImGui::End();
                 }

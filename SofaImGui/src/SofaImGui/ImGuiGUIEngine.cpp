@@ -400,37 +400,41 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 
     // Driving Tab combo
-    if (m_IPController)
-    {
-        static const char* listTabs[]{"Move", "Program", "Input/Output"};
-        double maxItemWidth = ImGui::CalcTextSize("Input/Output").x;
-        if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs), maxItemWidth))
-        {
-            const auto filename = baseGUI->getFilename();
+    static const char* listTabs[]{"Move", "Program", "Input/Output"};
+    double maxItemWidth = ImGui::CalcTextSize("Input/Output").x;
 
-            m_moveWindow.setDrivingTCPTarget(false);
-            m_programWindow.setDrivingTCPTarget(false);
-            m_IOWindow.setDrivingTCPTarget(false);
-            switch (m_mode) {
-                case 1:
-                {
-                    m_programWindow.setTime(groot->getTime());
-                    m_programWindow.setDrivingTCPTarget(true);
-                    break;
-                }
-                case 2:
-                {
-                    m_IOWindow.setDrivingTCPTarget(true);
-                    break;
-                }
-                default:
-                {
-                    m_moveWindow.setDrivingTCPTarget(true);
-                    break;
-                }
+    if(!m_IPController)
+        ImGui::BeginDisabled();
+
+    if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs), maxItemWidth))
+    {
+        const auto filename = baseGUI->getFilename();
+
+        m_moveWindow.setDrivingTCPTarget(false);
+        m_programWindow.setDrivingTCPTarget(false);
+        m_IOWindow.setDrivingTCPTarget(false);
+        switch (m_mode) {
+            case 1:
+            {
+                m_programWindow.setTime(groot->getTime());
+                m_programWindow.setDrivingTCPTarget(true);
+                break;
+            }
+            case 2:
+            {
+                m_IOWindow.setDrivingTCPTarget(true);
+                break;
+            }
+            default:
+            {
+                m_moveWindow.setDrivingTCPTarget(true);
+                break;
             }
         }
     }
+
+    if(!m_IPController)
+        ImGui::EndDisabled();
 }
 
 void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)

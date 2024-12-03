@@ -661,7 +661,8 @@ void ProgramWindow::showAddActionButton(const ImVec2 &position,
     window->DC.CursorPos.x = position.x - ImGui::GetFrameHeight() / 2.f - ImGui::GetStyle().ItemSpacing.x / 2.f;
     window->DC.CursorPos.y = position.y - ImGui::GetFrameHeight() / 2.f;
 
-    std::string menulabel = "##ActionBlockAddButtonsMenu";
+    const std::string menulabel = "##ActionBlockAddButtonsMenu";
+    const std::string buttonlabel = ICON_FA_PLUS"##ActionBlockAddButtons";
     if (ImGui::BeginPopup(menulabel.c_str()))
     {
         showActionMenu(track, trackIndex, actionIndex);
@@ -669,13 +670,13 @@ void ProgramWindow::showAddActionButton(const ImVec2 &position,
     }
     if (ImGui::IsItemHovered() || ImGui::IsPopupOpen(menulabel.c_str()))
     {
-        const std::string buttonlabel = ICON_FA_PLUS"##ActionBlockAddButtons";
         ImGui::Button(buttonlabel.c_str(), ImVec2(buttonSize, buttonSize));
         if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
         {
             ImGui::OpenPopup(menulabel.c_str());
         }
     }
+
     ImGui::PopID();
 
     window->DC.CursorPosPrevLine = backuppos;
