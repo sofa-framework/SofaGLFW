@@ -88,7 +88,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
             static float zoomCoef = 6.;
             static float minSize = ImGui::GetFrameHeight() * 1.5;
             ProgramSizes().TimelineOneSecondSize = zoomCoef * minSize;
-            ProgramSizes().StartMoveBlockSize = 7. * minSize;
+            ProgramSizes().StartMoveBlockSize = 6.5 * minSize;
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_WindowBg));
 
             if (ImGui::BeginChild(ImGui::GetID(m_name.c_str()), ImVec2(width, height), ImGuiChildFlags_FrameStyle, ImGuiWindowFlags_AlwaysHorizontalScrollbar))
@@ -96,22 +96,29 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                 ImGui::PopStyleColor();
 
                 ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
-                showTimeline();
+                if (m_timeBasedDisplay)
+                    showTimeline();
                 int nbCollaspedTracks = showTracks();
-                showCursorMarker(nbCollaspedTracks);
+                if (m_timeBasedDisplay)
+                    showCursorMarker(nbCollaspedTracks);
                 ImGui::PopStyleVar();
-
-                ImGui::EndChild();
             }
             else
             {
                 ImGui::PopStyleColor();
             }
-            if (ImGui::IsItemHovered() && ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-                zoomCoef += ImGui::GetIO().MouseWheel * 0.4f;
-            float coefMax = 20.f;
-            zoomCoef = (zoomCoef < 1)? 1 : zoomCoef;
-            zoomCoef = (zoomCoef > coefMax)? coefMax : zoomCoef;
+            ImGui::EndChild();
+
+            if (m_timeBasedDisplay)
+            {
+                if (ImGui::IsItemHovered() && ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+                    zoomCoef += ImGui::GetIO().MouseWheel * 0.4f;
+                float coefMax = 20.f;
+                zoomCoef = (zoomCoef < 1)? 1 : zoomCoef;
+                zoomCoef = (zoomCoef > coefMax)? coefMax : zoomCoef;
+            }
+            else
+                zoomCoef = 6.;
         }
         ImGui::End();
     }
@@ -120,7 +127,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
 void ProgramWindow::showProgramButtons()
 {
     ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
-    auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 3 - ImGui::GetStyle().ItemSpacing.y * 3; // Get position for right buttons
+    auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 4 - ImGui::GetStyle().ItemSpacing.y * 4; // Get position for right buttons
     auto positionMiddle = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x / 2.f; // Get position for middle button
 
             // Left buttons
@@ -167,6 +174,11 @@ void ProgramWindow::showProgramButtons()
             // Right pushed buttons
     ImGui::SameLine();
     ImGui::SetCursorPosX(positionRight); // Set position to right of the header
+
+    ImGui::LocalPushButton(ICON_FA_RULER_HORIZONTAL"##TimeBasedDisplay", &m_timeBasedDisplay, buttonSize);
+    ImGui::SetItemTooltip("Display blocks based on simulation time");
+
+    ImGui::SameLine();
 
     ImGui::LocalPushButton(ICON_FA_DRAW_POLYGON"##Draw", &m_drawTrajectory, buttonSize);
     ImGui::SetItemTooltip("Draw trajectory");
@@ -563,7 +575,7 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
     while(actionIndex < actions.size())
     {
         std::shared_ptr<models::actions::Action> action = actions[actionIndex];
-        float blockWidth = action->getDuration() * ProgramSizes().TimelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
+        float blockWidth = (m_timeBasedDisplay? action->getDuration(): 1.f) * ProgramSizes().TimelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
         std::string blockLabel = "##Action" + std::to_string(trackIndex) + std::to_string(actionIndex);
         std::string menuLabel = std::string("##ActionOptionsMenu" + blockLabel);
         ImGui::SameLine();

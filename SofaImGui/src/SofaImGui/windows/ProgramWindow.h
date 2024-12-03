@@ -70,6 +70,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
 
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
+    bool m_timeBasedDisplay = true;
     bool m_drawTrajectory = true;
     bool m_repeat = false;
     bool m_reverse = false;
