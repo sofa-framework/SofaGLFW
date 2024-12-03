@@ -190,11 +190,14 @@ void Block(const char* label, const ImRect &bb, const ImVec4 &color, const float
 
     { // Title background
         ImVec2 padding(ImGui::GetStyle().FramePadding);
-        drawList->AddRectFilled(ImVec2(bb.Min.x + padding.x, bb.Min.y + padding.y),
-                                ImVec2(bb.Min.x + size.x - padding.x, bb.Min.y + padding.y + GetFrameHeight()),
-                                ImGui::GetColorU32(color),
-                                ImGui::GetStyle().FrameRounding,
-                                ImDrawFlags_None);
+        if (bb.Min.x + padding.x < bb.Max.x - padding.x)
+        {
+            drawList->AddRectFilled(ImVec2(bb.Min.x + padding.x, bb.Min.y + padding.y),
+                                    ImVec2(bb.Max.x - padding.x, bb.Min.y + padding.y + GetFrameHeight()),
+                                    ImGui::GetColorU32(color),
+                                    ImGui::GetStyle().FrameRounding,
+                                    ImDrawFlags_None);
+        }
     }
 }
 

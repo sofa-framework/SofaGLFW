@@ -72,7 +72,7 @@ class Action
    protected:
 
     double m_duration;
-    double m_minDuration{0.5};
+    double m_minDuration{0.2};
     double m_speed;
     char m_comment[COMMENTSIZE];
 
