@@ -653,13 +653,8 @@ void ImGuiGUIEngine::showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if (!sceneFrame)
     {
         auto newSceneFrame = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglSceneFrame>();
-        sofa::helper::OptionsGroup styleOptions{"Arrows", "Cylinders", "CubeCones"};
-        styleOptions.setSelectedItem(2);
-        newSceneFrame->d_style.setValue(styleOptions);
-
-        sofa::helper::OptionsGroup alignmentOptions{"BottomLeft", "BottomRight", "TopRight", "TopLeft"};
-        alignmentOptions.setSelectedItem(2);
-        newSceneFrame->d_alignment.setValue(alignmentOptions);
+        newSceneFrame->d_style.setValue(sofa::gl::component::rendering3d::OglSceneFrame::Style("CubeCones"));
+        newSceneFrame->d_alignment.setValue(sofa::gl::component::rendering3d::OglSceneFrame::Alignment("TopRight"));
 
         groot->addObject(newSceneFrame);
         newSceneFrame->setName("viewportFrame");
