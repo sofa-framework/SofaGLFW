@@ -173,6 +173,10 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
         io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 16 * yscale, &config, icon_ranges);
         io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 16 * yscale, &config, icon_ranges);
+
+        // restore the global scale stored in the Settings ini file
+        const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
+        io.FontGlobalScale = globalScale;
     }
 }
 
