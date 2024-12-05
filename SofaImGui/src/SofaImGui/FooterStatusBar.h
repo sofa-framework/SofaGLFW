@@ -30,16 +30,11 @@ namespace sofaimgui {
 class FooterStatusBar
 {
 public:
+    enum MessageType { INFO, WARNING, ERROR };
+
     static FooterStatusBar &getInstance();
 
     void showFooterStatusBar();
-
-    enum MessageType{
-        INFO,
-        WARNING,
-        ERROR
-    };
-
     void showTempMessageOnStatusBar(); /// Show temporary info message in the middle of the status bar.
     void setTempMessage(const std::string &message, const MessageType &type=MessageType::INFO); /// Set the temporary info message
 
