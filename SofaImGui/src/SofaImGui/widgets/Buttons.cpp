@@ -1,4 +1,5 @@
 #include "IconsFontAwesome6.h"
+#include <sofa/helper/logging/Messaging.h>
 #include <SofaImGui/widgets/Buttons.h>
 #include <string>
 
@@ -185,7 +186,6 @@ void Block(const char* label, const ImRect &bb, const ImVec4 &color, const float
 {
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-    ImVec2 size = bb.GetSize();
     ImGui::ItemSize(bb.GetSize());
     const ImGuiID id = ImGui::GetID(label);
     if (!ImGui::ItemAdd(bb, id))

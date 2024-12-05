@@ -127,7 +127,7 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
 void ProgramWindow::showProgramButtons()
 {
     ImVec2 buttonSize(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
-    auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 4 - ImGui::GetStyle().ItemSpacing.y * 4; // Get position for right buttons
+    auto positionRight = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x - buttonSize.x * 4 - ImGui::GetStyle().ItemSpacing.y * 5.5; // Get position for right buttons
     auto positionMiddle = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x / 2.f; // Get position for middle button
 
             // Left buttons
@@ -175,7 +175,7 @@ void ProgramWindow::showProgramButtons()
     ImGui::SameLine();
     ImGui::SetCursorPosX(positionRight); // Set position to right of the header
 
-    ImGui::LocalPushButton(ICON_FA_RULER_HORIZONTAL"##TimeBasedDisplay", &m_timeBasedDisplay, buttonSize);
+    ImGui::LocalPushButton(ICON_FA_CLOCK"##TimeBasedDisplay", &m_timeBasedDisplay, buttonSize);
     ImGui::SetItemTooltip("Display blocks based on simulation time");
 
     ImGui::SameLine();
@@ -183,6 +183,8 @@ void ProgramWindow::showProgramButtons()
     ImGui::LocalPushButton(ICON_FA_DRAW_POLYGON"##Draw", &m_drawTrajectory, buttonSize);
     ImGui::SetItemTooltip("Draw trajectory");
 
+    ImGui::SameLine();
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
     ImGui::SameLine();
 
     ImGui::LocalPushButton(ICON_FA_REPEAT"##Repeat", &m_repeat, buttonSize);
