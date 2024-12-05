@@ -68,6 +68,9 @@ class SOFAIMGUI_API Program
 
     bool checkExtension(const std::string &filename);
 
+    // Deprecation, remove after v25.06
+    bool checkDocument(const std::string &filename, tinyxml2::XMLNode *root);
+
 };
 
 } // namespace

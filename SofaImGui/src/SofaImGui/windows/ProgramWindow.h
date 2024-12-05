@@ -55,7 +55,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     void setIPController(models::IPController::SPtr IPController);
     void setDrivingTCPTarget(const bool &isDrivingSimulation) override;
 
-    bool importProgram();
+    void importProgram();
     void exportProgram(const bool &exportAs = true);
 
     void addTrajectoryComponents(sofa::simulation::Node* groot); /// Add to the simulation graph components to draw the trajectory in the 3D view.

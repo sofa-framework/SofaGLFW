@@ -20,10 +20,13 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
+#include <filesystem>
+#include <sofa/helper/system/Locale.h>
 #include <SofaImGui/models/Program.h>
 #include <SofaImGui/models/modifiers/Repeat.h>
 #include <SofaImGui/models/actions/Pick.h>
 #include <SofaImGui/models/actions/Wait.h>
+#include <SofaImGui/FooterStatusBar.h>
 
 
 namespace sofaimgui::models {
@@ -35,141 +38,175 @@ void Program::clearTracks()
     addTrack(track);
 }
 
+bool Program::checkDocument(const std::string &filename, tinyxml2::XMLNode * root)
+{
+    for(auto* t = root->FirstChildElement("track"); t != nullptr; t = t->NextSiblingElement("track"))
+    {
+        for(const auto* e = t->FirstChildElement("action"); e != nullptr; e = e->NextSiblingElement("action"))
+        {
+            for (const tinyxml2::XMLAttribute* a=e->FirstAttribute(); a!=0; a=a->Next())
+            {
+                std::string name = a->Name();
+                std::string value = a->Value();
+                if (name.find("comment") == std::string::npos && value.find(",") != std::string::npos)
+                {
+                    std::string message = " Import problem with [" + std::filesystem::path(filename).filename().string() + "], the decimal separator should be a dot '.' ";
+                    FooterStatusBar::getInstance().setTempMessage(message, FooterStatusBar::MessageType::ERROR);
+                    msg_error("Program") << message;
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 bool Program::importProgram(const std::string &filename)
 {
     if (checkExtension(filename))
     {
+        // Temporarily set the numeric formatting locale to ensure that
+        // floating-point values are interpreted correctly by tinyXML. (I.e. the
+        // decimal separator is a dot '.').
+        sofa::helper::system::TemporaryLocale locale(LC_NUMERIC, "C");
         tinyxml2::XMLDocument document;
         document.LoadFile(filename.c_str());
 
         tinyxml2::XMLNode * root = document.RootElement();
-
-        std::vector<std::shared_ptr<Track>> tracks;
-        for(auto* t = root->FirstChildElement("track"); t != nullptr; t = t->NextSiblingElement("track"))
+        if (checkDocument(filename, root))
         {
-            std::shared_ptr<Track> track = std::make_shared<Track>(m_IPController);
-
-            for(const auto* e = t->FirstChildElement("action"); e != nullptr; e = e->NextSiblingElement("action"))
+            std::vector<std::shared_ptr<Track>> tracks;
+            for(auto* t = root->FirstChildElement("track"); t != nullptr; t = t->NextSiblingElement("track"))
             {
-                if (strcmp(e->FirstAttribute()->Value(), "move") == 0 || strcmp(e->FirstAttribute()->Value(), "startmove") == 0)
+                std::shared_ptr<Track> track = std::make_shared<Track>(m_IPController);
+
+                for(const auto* e = t->FirstChildElement("action"); e != nullptr; e = e->NextSiblingElement("action"))
                 {
-                    if (!e->FindAttribute("wp"))
-                        return false;
-                    RigidCoord wp;
-                    std::stringstream strWP(e->Attribute("wp"));
-                    std::string valueWP;
-                    int indexWP = 0;
-                    while (strWP >> valueWP)
-                        wp[indexWP++] = std::stof(valueWP);
-
-                    if (!e->FindAttribute("duration"))
-                        return false;
-                    double duration = e->FindAttribute("duration")->DoubleValue();
-
-                    if (!e->FindAttribute("freeInRotation"))
-                        return false;
-                    bool freeInRotation = e->FindAttribute("freeInRotation")->BoolValue();
-
-                    if (strcmp(e->FirstAttribute()->Value(), "startmove") == 0)
+                    if (strcmp(e->FirstAttribute()->Value(), "move") == 0 || strcmp(e->FirstAttribute()->Value(), "startmove") == 0)
                     {
-                        auto startmove = track->getStartMove();
-                        startmove->setWaypoint(wp);
-                        startmove->setDuration(duration);
-                        startmove->setFreeInRotation(freeInRotation);
-                        if (e->FindAttribute("comment"))
-                            startmove->setComment(e->Attribute("comment"));
+                        if (!e->FindAttribute("wp"))
+                            return false;
+                        RigidCoord wp;
+                        std::stringstream strWP(e->Attribute("wp"));
+                        std::string valueWP;
+                        int indexWP = 0;
+                        while (strWP >> valueWP)
+                            wp[indexWP++] = std::stof(valueWP);
+
+                        if (!e->FindAttribute("duration"))
+                            return false;
+                        double duration = e->FindAttribute("duration")->DoubleValue();
+
+                        if (!e->FindAttribute("freeInRotation"))
+                            return false;
+                        bool freeInRotation = e->FindAttribute("freeInRotation")->BoolValue();
+
+                        if (strcmp(e->FirstAttribute()->Value(), "startmove") == 0)
+                        {
+                            auto startmove = track->getStartMove();
+                            startmove->setWaypoint(wp);
+                            startmove->setDuration(duration);
+                            startmove->setFreeInRotation(freeInRotation);
+                            if (e->FindAttribute("comment"))
+                                startmove->setComment(e->Attribute("comment"));
+                        }
+                        else
+                        {
+                            std::shared_ptr<actions::Move> move;
+                            if (!e->FindAttribute("type"))
+                                return false;
+                            actions::Move::Type type = static_cast<actions::Move::Type>(e->FindAttribute("type")->IntValue());
+
+                            // Create the move
+                            move = std::make_shared<actions::Move>(RigidCoord(),
+                                                                   wp,
+                                                                   duration,
+                                                                   m_IPController,
+                                                                   freeInRotation,
+                                                                   type);
+
+                            if (e->FindAttribute("comment"))
+                                move->setComment(e->Attribute("comment"));
+                            track->pushMove(move);
+                        }
                     }
-                    else
+                    else if (strcmp(e->FirstAttribute()->Value(), "pick") == 0)
                     {
-                        std::shared_ptr<actions::Move> move;
+                        if (!e->FindAttribute("duration"))
+                            return false;
+                        double duration = e->FindAttribute("duration")->DoubleValue();
+
+                        if (!e->FindAttribute("closing"))
+                            return false;
+                        double closing = e->FindAttribute("closing")->DoubleValue();
+
+                        if (!e->FindAttribute("opening"))
+                            return false;
+                        double opening = e->FindAttribute("opening")->DoubleValue();
+
+                        if (!e->FindAttribute("release"))
+                            return false;
+                        double release = e->FindAttribute("release")->BoolValue();
+
+                        std::shared_ptr<actions::Pick> pick = std::make_shared<actions::Pick>(duration, release, closing, opening);
+                        if (e->FindAttribute("comment"))
+                            pick->setComment(e->Attribute("comment"));
+                        track->pushAction(pick);
+                    }
+                    else if (strcmp(e->FirstAttribute()->Value(), "wait") == 0)
+                    {
+                        if (!e->FindAttribute("duration"))
+                            return false;
+                        double duration = e->FindAttribute("duration")->DoubleValue();
+
+                        std::shared_ptr<actions::Wait> wait = std::make_shared<actions::Wait>(duration);
+                        if (e->FindAttribute("comment"))
+                            wait->setComment(e->Attribute("comment"));
+                        track->pushAction(wait);
+                    }
+                }
+
+                for(const auto* e = t->FirstChildElement("modifier"); e != nullptr; e = e->NextSiblingElement("modifier"))
+                {
+                    if (strcmp(e->FirstAttribute()->Value(), "repeat") == 0)
+                    {
+                        if (!e->FindAttribute("iterations"))
+                            return false;
+                        int iterations = e->FindAttribute("iterations")->IntValue();
+
+                        if (!e->FindAttribute("endTime"))
+                            return false;
+                        double endTime = e->FindAttribute("endTime")->DoubleValue();
+
+                        if (!e->FindAttribute("startTime"))
+                            return false;
+                        double startTime = e->FindAttribute("startTime")->DoubleValue();
+
                         if (!e->FindAttribute("type"))
                             return false;
-                        actions::Move::Type type = static_cast<actions::Move::Type>(e->FindAttribute("type")->IntValue());
+                        modifiers::Repeat::Type type = static_cast<modifiers::Repeat::Type>(e->FindAttribute("type")->IntValue());
 
-                        // Create the move
-                        move = std::make_shared<actions::Move>(RigidCoord(),
-                                                               wp,
-                                                               duration,
-                                                               m_IPController,
-                                                               freeInRotation,
-                                                               type);
-
+                        std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(iterations, endTime, startTime, type);
                         if (e->FindAttribute("comment"))
-                            move->setComment(e->Attribute("comment"));
-                        track->pushMove(move);
+                            repeat->setComment(e->Attribute("comment"));
+
+                        track->pushModifier(repeat);
                     }
                 }
-                else if (strcmp(e->FirstAttribute()->Value(), "pick") == 0)
-                {
-                    if (!e->FindAttribute("duration"))
-                        return false;
-                    double duration = e->FindAttribute("duration")->DoubleValue();
 
-                    if (!e->FindAttribute("closing"))
-                        return false;
-                    double closing = e->FindAttribute("closing")->DoubleValue();
-
-                    if (!e->FindAttribute("opening"))
-                        return false;
-                    double opening = e->FindAttribute("opening")->DoubleValue();
-
-                    if (!e->FindAttribute("release"))
-                        return false;
-                    double release = e->FindAttribute("release")->BoolValue();
-
-                    std::shared_ptr<actions::Pick> pick = std::make_shared<actions::Pick>(duration, release, closing, opening);
-                    if (e->FindAttribute("comment"))
-                        pick->setComment(e->Attribute("comment"));
-                    track->pushAction(pick);
-                }
-                else if (strcmp(e->FirstAttribute()->Value(), "wait") == 0)
-                {
-                    if (!e->FindAttribute("duration"))
-                        return false;
-                    double duration = e->FindAttribute("duration")->DoubleValue();
-
-                    std::shared_ptr<actions::Wait> wait = std::make_shared<actions::Wait>(duration);
-                    if (e->FindAttribute("comment"))
-                        wait->setComment(e->Attribute("comment"));
-                    track->pushAction(wait);
-                }
+                tracks.push_back(track);
             }
 
-            for(const auto* e = t->FirstChildElement("modifier"); e != nullptr; e = e->NextSiblingElement("modifier"))
-            {
-                if (strcmp(e->FirstAttribute()->Value(), "repeat") == 0)
-                {
-                    if (!e->FindAttribute("iterations"))
-                        return false;
-                    int iterations = e->FindAttribute("iterations")->IntValue();
-
-                    if (!e->FindAttribute("endTime"))
-                        return false;
-                    double endTime = e->FindAttribute("endTime")->DoubleValue();
-
-                    if (!e->FindAttribute("startTime"))
-                        return false;
-                    double startTime = e->FindAttribute("startTime")->DoubleValue();
-
-                    if (!e->FindAttribute("type"))
-                        return false;
-                    modifiers::Repeat::Type type = static_cast<modifiers::Repeat::Type>(e->FindAttribute("type")->IntValue());
-
-                    std::shared_ptr<modifiers::Repeat> repeat = std::make_shared<modifiers::Repeat>(iterations, endTime, startTime, type);
-                    if (e->FindAttribute("comment"))
-                        repeat->setComment(e->Attribute("comment"));
-
-                    track->pushModifier(repeat);
-                }
-            }
-
-            tracks.push_back(track);
+            m_tracks.clear();
+            m_tracks.reserve(tracks.size());
+            for (const auto &track : tracks)
+                m_tracks.push_back(track);
         }
-
-        m_tracks.clear();
-        m_tracks.reserve(tracks.size());
-        for (const auto &track : tracks)
-            m_tracks.push_back(track);
+        else
+        {
+            return false;
+        }
     }
 
     return true;
@@ -179,6 +216,11 @@ void Program::exportProgram(const std::string &filename)
 {
     if (checkExtension(filename))
     {
+        // Temporarily set the numeric formatting locale to ensure that
+        // floating-point values are interpreted correctly by tinyXML. (I.e. the
+        // decimal separator is a dot '.').
+        sofa::helper::system::TemporaryLocale locale(LC_NUMERIC, "C");
+
         tinyxml2::XMLDocument document;
 
         document.InsertEndChild(document.NewDeclaration("xml version='1.0'"));

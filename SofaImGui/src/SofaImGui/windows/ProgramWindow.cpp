@@ -131,10 +131,9 @@ void ProgramWindow::showProgramButtons()
     auto positionMiddle = ImGui::GetCursorPosX() + ImGui::GetWindowSize().x / 2.f; // Get position for middle button
 
             // Left buttons
-    static bool successfulImport = true; // TODO: notify user on failure
     if (ImGui::Button(ICON_FA_FOLDER_OPEN, buttonSize))
     {
-        successfulImport = importProgram();
+        importProgram();
     }
     ImGui::SetItemTooltip("Import program");
 
@@ -768,7 +767,7 @@ void ProgramWindow::initFilePath()
     }
 }
 
-bool ProgramWindow::importProgram()
+void ProgramWindow::importProgram()
 {
     bool successfulImport = false;
     nfdchar_t *outPath;
@@ -793,10 +792,8 @@ bool ProgramWindow::importProgram()
         m_programDirPath = path.parent_path().string(); // store chosen dir path
         m_programFilename = path.filename().string(); // store chosen filename
 
-        FooterStatusBar::getInstance().setTempInfo("Imported program [" + path.string() + "]");
+        FooterStatusBar::getInstance().setTempMessage("Imported program [" + path.string() + "]");
     }
-
-    return successfulImport;
 }
 
 void ProgramWindow::exportProgram(const bool &exportAs)
@@ -834,7 +831,7 @@ void ProgramWindow::exportProgram(const bool &exportAs)
     if (doExport)
     {
         m_program.exportProgram(path.string());
-        FooterStatusBar::getInstance().setTempInfo("Exported program [" + path.string() + "]");
+        FooterStatusBar::getInstance().setTempMessage("Exported program [" + path.string() + "]");
     }
 }
 

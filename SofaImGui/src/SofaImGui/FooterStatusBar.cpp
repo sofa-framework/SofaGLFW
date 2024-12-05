@@ -58,21 +58,21 @@ void FooterStatusBar::showFooterStatusBar()
     ImGui::PopStyleColor();
 }
 
-void FooterStatusBar::showTempInfoOnStatusBar()
+void FooterStatusBar::showTempMessageOnStatusBar()
 {
     static float infoRefreshTime = 0.;
 
-    if (!m_tempInfo.empty())
+    if (!m_tempMessage.empty())
     {
-        if (m_refreshTempInfo)
+        if (m_refreshTempMessage)
         {
             infoRefreshTime = (float)ImGui::GetTime();
-            m_refreshTempInfo = false;
+            m_refreshTempMessage = false;
         }
         
-        if((float)ImGui::GetTime() - infoRefreshTime > m_tempInfoLifeSpan)
+        if((float)ImGui::GetTime() - infoRefreshTime > m_tempMessageLifeSpan)
         {
-            m_tempInfo.clear();
+            m_tempMessage.clear();
             return;
         }
 
@@ -80,10 +80,27 @@ void FooterStatusBar::showTempInfoOnStatusBar()
         {
             if (ImGui::BeginMenuBar())
             {
-                float length = ImGui::CalcTextSize(m_tempInfo.c_str()).x;
+                float length = ImGui::CalcTextSize(m_tempMessage.c_str()).x;
                 float center = ImGui::GetWindowPos().x + ImGui::GetWindowSize().x / 2.f - length / 2.f;
                 ImGui::SetCursorPosX(center); // Set the position to the middle of the status bar
-                ImGui::Text(ICON_FA_CIRCLE_INFO" %s", m_tempInfo.c_str());
+
+                std::string icon;
+                switch (m_tempMessageType) {
+                case MessageType::WARNING:
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.4f, 0.f, 1.f));
+                    icon = ICON_FA_CIRCLE_EXCLAMATION;
+                    break;
+                case MessageType::ERROR:
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.f, 0.f, 1.f));
+                    icon = ICON_FA_CIRCLE_EXCLAMATION;
+                    break;
+                default:
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Text));
+                    icon = ICON_FA_CIRCLE_INFO;
+                    break;
+                }
+                ImGui::Text("%s", (icon + " " + m_tempMessage).c_str());
+                ImGui::PopStyleColor();
 
                 ImGui::EndMenuBar();
             }
@@ -92,10 +109,11 @@ void FooterStatusBar::showTempInfoOnStatusBar()
     }
 }
 
-void FooterStatusBar::setTempInfo(const std::string &info)
+void FooterStatusBar::setTempMessage(const std::string &message, const MessageType& type)
 {
-    m_refreshTempInfo = true;
-    m_tempInfo = info;
+    m_refreshTempMessage = true;
+    m_tempMessageType = type;
+    m_tempMessage = message;
 }
 
 }

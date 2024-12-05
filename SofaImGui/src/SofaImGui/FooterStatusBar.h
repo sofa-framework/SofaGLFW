@@ -34,13 +34,22 @@ public:
 
     void showFooterStatusBar();
 
-    void showTempInfoOnStatusBar(); /// Show temporary info message in the middle of the status bar.
-    void setTempInfo(const std::string &info); /// Set the temporary info message
+    enum MessageType{
+        INFO,
+        WARNING,
+        ERROR
+    };
+
+    void showTempMessageOnStatusBar(); /// Show temporary info message in the middle of the status bar.
+    void setTempMessage(const std::string &message, const MessageType &type=MessageType::INFO); /// Set the temporary info message
 
 protected:
-    std::string m_tempInfo;
-    bool m_refreshTempInfo;
-    float m_tempInfoLifeSpan{6.}; /// Life span of the temporary info message, in seconds
+
+    std::string m_tempMessage;
+    MessageType m_tempMessageType;
+    bool m_refreshTempMessage;
+    float m_tempMessageLifeSpan{6.}; /// Life span of the temporary message, in seconds
+
 };
 
 }

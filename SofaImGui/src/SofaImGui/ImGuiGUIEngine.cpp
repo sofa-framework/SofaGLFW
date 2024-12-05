@@ -223,7 +223,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     initDockSpace();
     showMainMenuBar(baseGUI);
     FooterStatusBar::getInstance().showFooterStatusBar();
-    FooterStatusBar::getInstance().showTempInfoOnStatusBar();
+    FooterStatusBar::getInstance().showTempMessageOnStatusBar();
 
     static bool firstTime = true;
     if (firstTime)
