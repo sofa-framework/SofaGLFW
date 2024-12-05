@@ -96,11 +96,22 @@ void ProgramWindow::showWindow(sofaglfw::SofaGLFWBaseGUI *baseGUI,
                 ImGui::PopStyleColor();
 
                 ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6, 6));
+
                 if (m_timeBasedDisplay)
                     showTimeline();
+                else // Keep the space the timeline would have taken, empty
+                {
+                    ImGui::NewLine();
+                    ImGui::NewLine();
+                }
+
                 int nbCollaspedTracks = showTracks();
+
                 if (m_timeBasedDisplay)
                     showCursorMarker(nbCollaspedTracks);
+                else // Keep the space the cursor marker would have taken, empty
+                    ImGui::NewLine();
+
                 ImGui::PopStyleVar();
             }
             else
@@ -323,8 +334,8 @@ void ProgramWindow::showTimeline()
 
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-    ImGui::NewLine();
     ImGui::BeginGroup(); // Timeline's lines
+    ImGui::NewLine();
     ImGui::SameLine();
     window->DC.CursorPos.x = m_trackBeginPos.x;
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ProgramSizes().TimelineOneSecondSize / 10, 0.f));
