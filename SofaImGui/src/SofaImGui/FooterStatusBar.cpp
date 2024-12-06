@@ -86,11 +86,11 @@ void FooterStatusBar::showTempMessageOnStatusBar()
 
                 std::string icon;
                 switch (m_tempMessageType) {
-                case MessageType::WARNING:
+                case MessageType::MWARNING:
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.4f, 0.f, 1.f));
                     icon = ICON_FA_CIRCLE_EXCLAMATION;
                     break;
-                case MessageType::ERROR:
+                case MessageType::MERROR:
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.f, 0.f, 1.f));
                     icon = ICON_FA_CIRCLE_EXCLAMATION;
                     break;

@@ -51,7 +51,7 @@ bool Program::checkDocument(const std::string &filename, tinyxml2::XMLNode * roo
                 if (name.find("comment") == std::string::npos && value.find(",") != std::string::npos)
                 {
                     std::string message = " Import problem with [" + std::filesystem::path(filename).filename().string() + "], the decimal separator should be a dot '.' ";
-                    FooterStatusBar::getInstance().setTempMessage(message, FooterStatusBar::MessageType::ERROR);
+                    FooterStatusBar::getInstance().setTempMessage(message, FooterStatusBar::MessageType::MERROR);
                     msg_error("Program") << message;
                     return false;
                 }
