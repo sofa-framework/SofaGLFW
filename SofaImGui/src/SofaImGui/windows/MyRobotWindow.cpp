@@ -31,6 +31,8 @@
 
 namespace sofaimgui::windows {
 
+std::string MyRobotWindow::DEFAULTGROUP = "empty";
+
 MyRobotWindow::MyRobotWindow(const std::string& name,
                          const bool& isWindowOpen)
 {
@@ -41,8 +43,65 @@ MyRobotWindow::MyRobotWindow(const std::string& name,
 
 void MyRobotWindow::clearData()
 {
-    m_information.clear();
-    m_settings.clear();
+    m_informationGroups.clear();
+    m_settingGroups.clear();
+}
+
+bool MyRobotWindow::isInEmptyGroup(const std::string &group)
+{
+    return DEFAULTGROUP.find(group) != std::string::npos;
+}
+
+void MyRobotWindow::addInformation(const Information &info, const std::string &group)
+{
+    bool found=false;
+    for (auto &g: m_informationGroups)
+    {
+        if (g.description.find(group) != std::string::npos)
+        {
+            found=true;
+            g.information.push_back(info);
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        InformationGroup g;
+        g.description = group;
+        g.information.push_back(info);
+
+        if (isInEmptyGroup(group))
+            m_informationGroups.insert(m_informationGroups.begin(), g);
+        else
+            m_informationGroups.push_back(g);
+    }
+}
+
+void MyRobotWindow::addSetting(const Setting &setting, const std::string &group)
+{
+    bool found=false;
+    for (auto &s: m_settingGroups)
+    {
+        if (s.description.find(group) != std::string::npos)
+        {
+            found=true;
+            s.settings.push_back(setting);
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        SettingGroup s;
+        s.description = group;
+        s.settings.push_back(setting);
+
+        if (isInEmptyGroup(group))
+            m_settingGroups.insert(m_settingGroups.begin(), s);
+        else
+            m_settingGroups.push_back(s);
+    }
 }
 
 void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
@@ -53,57 +112,93 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
         {
             ImGui::Spacing();
 
-            if (!m_information.empty())
+            if (!m_informationGroups.empty())
             {
                 if (ImGui::LocalBeginCollapsingHeader("Information", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    for (auto &information: m_information)
+                    std::string groups;
+                    int k=0;
+                    for (auto &group: m_informationGroups)
                     {
-                        ImGui::AlignTextToFramePadding();
-                        ImGui::Text("%s: ", information.description.c_str());
-                        ImGui::SameLine();
-
-                        auto* typeinfo = information.data->getValueTypeInfo();
-                        auto* values = information.data->getValueVoidPtr();
-
-                        ImGui::BeginDisabled();
-                        for (size_t i=0; i<typeinfo->size(); i++)
+                        ImGui::PushID(k++);
+                        if (!isInEmptyGroup(group.description))
                         {
-                            double buffer = typeinfo->getScalarValue(values, i);
-                            ImGui::LocalInputDouble(("##information" + information.description).c_str(), &buffer, 0, 0);
+                            ImGui::TextDisabled("%s", group.description.c_str());
+                            ImGui::Indent();
                         }
-                        ImGui::EndDisabled();
+
+                        int i=0;
+                        for (auto &information: group.information)
+                        {
+                            ImGui::PushID(i++);
+                            ImGui::AlignTextToFramePadding();
+                            ImGui::Text("%s", information.description.c_str());
+                            ImGui::SameLine();
+
+                            auto* typeinfo = information.data->getValueTypeInfo();
+                            auto* values = information.data->getValueVoidPtr();
+
+                            ImGui::BeginDisabled();
+                            for (size_t i=0; i<typeinfo->size(); i++)
+                            {
+                                double buffer = typeinfo->getScalarValue(values, i);
+                                ImGui::LocalInputDouble(("##information" + information.description).c_str(), &buffer, 0, 0);
+                            }
+                            ImGui::EndDisabled();
+                            ImGui::PopID();
+                        }
+
+                        if (!isInEmptyGroup(group.description))
+                            ImGui::Unindent();
+
+                        ImGui::PopID();
                     }
 
                     ImGui::LocalEndCollapsingHeader();
                 }
             }
 
-            if (!m_settings.empty())
+            if (!m_settingGroups.empty())
             {
                 if (ImGui::LocalBeginCollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    for (auto &setting: m_settings)
+                    std::string groups;
+                    int k=0;
+                    for (auto &group: m_settingGroups)
                     {
-                        ImGui::AlignTextToFramePadding();
-                        ImGui::Text("%s", setting.description.c_str());
-                        ImGui::SameLine();
-
-                        auto* typeinfo = setting.data->getValueTypeInfo();
-                        auto* values = setting.data->getValueVoidPtr();
-
-                        std::string uiValue;
-                        for (size_t i=0; i<typeinfo->size(); i++)
+                        ImGui::PushID(k++);
+                        if (!isInEmptyGroup(group.description))
                         {
-                            setting.buffer = typeinfo->getScalarValue(values, i);
-                            showSliderDouble(setting.description, &setting.buffer, setting.min, setting.max);
-                            setting.buffer = std::clamp(setting.buffer, setting.min, setting.max);
-                            uiValue += std::to_string(setting.buffer) + " ";
+                            ImGui::TextDisabled("%s", group.description.c_str());
+                            ImGui::Indent();
                         }
-                        std::replace(uiValue.begin(), uiValue.end(), ',', '.');
-                        setting.data->read(uiValue);
-                    }
 
+                        for (auto &setting: group.settings)
+                        {
+                            ImGui::AlignTextToFramePadding();
+                            ImGui::Text("%s", setting.description.c_str());
+                            ImGui::SameLine();
+
+                            auto* typeinfo = setting.data->getValueTypeInfo();
+                            auto* values = setting.data->getValueVoidPtr();
+
+                            std::string uiValue;
+                            for (size_t i=0; i<typeinfo->size(); i++)
+                            {
+                                setting.buffer = typeinfo->getScalarValue(values, i);
+                                showSliderDouble(setting.description, &setting.buffer, setting.min, setting.max, (isInEmptyGroup(group.description))? 1: 2);
+                                setting.buffer = std::clamp(setting.buffer, setting.min, setting.max);
+                                uiValue += std::to_string(setting.buffer) + " ";
+                            }
+                            std::replace(uiValue.begin(), uiValue.end(), ',', '.');
+                            setting.data->read(uiValue);
+                        }
+
+                        if (!isInEmptyGroup(group.description))
+                            ImGui::Unindent();
+
+                        ImGui::PopID();
+                    }
                     ImGui::LocalEndCollapsingHeader();
                 }
             }
@@ -112,11 +207,11 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
     }
 }
 
-bool MyRobotWindow::showSliderDouble(const std::string& name, double* v, const double& min, const double& max)
+bool MyRobotWindow::showSliderDouble(const std::string& name, double* v, const double& min, const double& max, const int nbIndents)
 {
     bool hasValueChanged = false;
     float inputWidth = ImGui::CalcTextSize("-100000,00").x + ImGui::GetFrameHeight() / 2 + ImGui::GetStyle().ItemSpacing.x * 2;
-    float sliderWidth = ImGui::GetWindowWidth() - inputWidth - ImGui::CalcTextSize(name.c_str()).x - ImGui::GetStyle().FramePadding.x - ImGui::GetStyle().IndentSpacing - ImGui::GetStyle().ScrollbarSize;
+    float sliderWidth = ImGui::GetWindowWidth() - inputWidth - ImGui::CalcTextSize(name.c_str()).x - ImGui::GetStyle().FramePadding.x - ImGui::GetStyle().IndentSpacing * nbIndents - ImGui::GetStyle().ScrollbarSize;
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
     ImGui::PushItemWidth(sliderWidth);

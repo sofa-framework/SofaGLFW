@@ -30,7 +30,6 @@
 #include <sofa/gui/common/GUIManager.h>
 
 #include <SofaImGui/ImGuiGUI.h>
-#include <SofaImGui/ImGuiGUIEngine.h>
 
 SOFAPYTHON3_BIND_ATTRIBUTE_ERROR()
 
@@ -39,6 +38,30 @@ namespace py { using namespace pybind11; }
 
 namespace sofaimgui::python3
 {
+
+void addInformation(std::shared_ptr<ImGuiGUIEngine> engine, const std::string &description, sofa::core::BaseData* data, const std::string &group)
+{
+    if (engine)
+    {
+        windows::MyRobotWindow::Information info;
+        info.description = description;
+        info.data = data;
+        engine->m_myRobotWindow.addInformation(info, group);
+    }
+}
+
+void addSetting(std::shared_ptr<ImGuiGUIEngine> engine, const std::string &description, sofa::core::BaseData* data, double min, double max, const std::string &group)
+{
+    if (engine)
+    {
+        windows::MyRobotWindow::Setting setting;
+        setting.description = description;
+        setting.data = data;
+        setting.min = min;
+        setting.max = max;
+        engine->m_myRobotWindow.addSetting(setting, group);
+    }
+}
 
 void moduleAddMyRobotWindow(py::module &m)
 {
@@ -49,32 +72,28 @@ void moduleAddMyRobotWindow(py::module &m)
     m_a.def("addInformation",
         [engine](const std::string &description, sofa::core::BaseData* data)
         {
-            if (engine)
-            {
-                windows::MyRobotWindow::Information info;
-                info.description = description;
-                info.data = data;
-                engine->m_myRobotWindow.addInformation(info);
-            }
+        addInformation(engine, description, data);
+        }, "Add an information to the window."
+        );
+    m_a.def("addInformationInGroup",
+        [engine](const std::string &description, sofa::core::BaseData* data, const std::string &group)
+        {
+            addInformation(engine, description, data, group);
         }, "Add an information to the window."
         );
 
     m_a.def("addSetting",
         [engine](const std::string &description, sofa::core::BaseData* data, double min, double max)
         {
-            if (engine)
-            {
-                windows::MyRobotWindow::Setting setting;
-                setting.description = description;
-                setting.data = data;
-                setting.min = min;
-                setting.max = max;
-                engine->m_myRobotWindow.addSetting(setting);
-            }
+        addSetting(engine, description, data, min, max);
         }, "Add a setting to the window."
         );
-
+    m_a.def("addSettingInGroup",
+        [engine](const std::string &description, sofa::core::BaseData* data, double min, double max, const std::string &group)
+        {
+            addSetting(engine, description, data, min, max, group);
+        }, "Add a setting to the window."
+        );
 }
-
 
 }

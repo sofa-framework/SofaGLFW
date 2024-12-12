@@ -33,7 +33,7 @@ class SOFAIMGUI_API MyRobotWindow : public BaseWindow
     ~MyRobotWindow() = default;
 
     void showWindow(const ImGuiWindowFlags &windowFlags);
-    bool enabled() override {return (!m_information.empty() || !m_settings.empty());}
+    bool enabled() override {return (!m_informationGroups.empty() || !m_settingGroups.empty());}
 
     struct Information{
         std::string description;
@@ -48,16 +48,29 @@ class SOFAIMGUI_API MyRobotWindow : public BaseWindow
         double max;
     };
 
+    static std::string DEFAULTGROUP;
+
+    struct InformationGroup{
+        std::string description;
+        std::vector<Information> information;
+    };
+
+    struct SettingGroup{
+        std::string description;
+        std::vector<Setting> settings;
+    };
+
     void clearData();
-    void addInformation(const Information &info) {m_information.push_back(info);}
-    void addSetting(const Setting &setting) {m_settings.push_back(setting);}
+    void addInformation(const Information &info, const std::string &group);
+    void addSetting(const Setting &setting, const std::string &group);
 
    protected:
 
-    std::vector<Information> m_information;
-    std::vector<Setting> m_settings;
+    std::vector<InformationGroup> m_informationGroups;
+    std::vector<SettingGroup> m_settingGroups;
 
-    bool showSliderDouble(const std::string &name, double* v, const double& min, const double& max);
+    bool isInEmptyGroup(const std::string &group);
+    bool showSliderDouble(const std::string &name, double* v, const double& min, const double& max, const int nbIndents);
 };
 
 }
