@@ -53,8 +53,10 @@ void StateWindow::showWindow()
                 if (ImGui::BeginTable("StateColumns", 2, ImGuiTableFlags_None))
                 {
                     std::string groups;
+                    int k=0;
                     for (const auto& d: m_simulationStateData)
                     {
+                        ImGui::PushID(k++);
                         auto* typeinfo = d.data->getValueTypeInfo();
                         auto* values = d.data->getValueVoidPtr();
                         const std::string& description = d.description;
@@ -82,13 +84,16 @@ void StateWindow::showWindow()
                             ImGui::BeginDisabled();
                             for (size_t i=0; i<typeinfo->size(); i++) // Values
                             {
+                                ImGui::PushID(i);
                                 double buffer = typeinfo->getScalarValue(values, i);
                                 ImGui::LocalInputDouble("##0", &buffer, 0, 0);
                                 ImGui::SameLine();
+                                ImGui::PopID();
                             }
                             ImGui::EndDisabled();
                         }
                         ImGui::EndGroup();
+                        ImGui::PopID();
                     }
                     ImGui::EndTable();
                 }
