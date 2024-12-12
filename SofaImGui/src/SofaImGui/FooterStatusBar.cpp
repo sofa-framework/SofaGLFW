@@ -87,17 +87,23 @@ void FooterStatusBar::showTempMessageOnStatusBar()
                 std::string icon;
                 switch (m_tempMessageType) {
                 case MessageType::MWARNING:
+                {
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.4f, 0.f, 1.f));
                     icon = ICON_FA_CIRCLE_EXCLAMATION;
                     break;
+                }
                 case MessageType::MERROR:
+                {
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.f, 0.f, 1.f));
                     icon = ICON_FA_CIRCLE_EXCLAMATION;
                     break;
+                }
                 default:
+                {
                     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Text));
                     icon = ICON_FA_CIRCLE_INFO;
                     break;
+                }
                 }
                 ImGui::Text("%s", (icon + " " + m_tempMessage).c_str());
                 ImGui::PopStyleColor();
@@ -114,6 +120,25 @@ void FooterStatusBar::setTempMessage(const std::string &message, const MessageTy
     m_refreshTempMessage = true;
     m_tempMessageType = type;
     m_tempMessage = message;
+    std::string from = "FooterStatusBar";
+
+    switch (type) {
+    case MessageType::MWARNING:
+    {
+        msg_warning(from) << m_tempMessage;
+        break;
+    }
+    case MessageType::MERROR:
+    {
+        msg_error(from) << m_tempMessage;
+        break;
+    }
+    default:
+    {
+        msg_info(from) << m_tempMessage;
+        break;
+    }
+    }
 }
 
 }
