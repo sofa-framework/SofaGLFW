@@ -56,14 +56,42 @@ struct DataWidget : BaseDataWidget
         {
             showWidget(*d);
         }
+        else
+        {
+            const void* rawPtr = data.getValueVoidPtr();
+            if (const T* castedPtr = static_cast<const T*>(rawPtr))
+            {
+                showWidget(data, castedPtr);
+            }
+            else
+            {
+                showWidgetAsText(data);
+            }
+        }
     }
 
     void showWidget(MyData& data)
     {
-        ImGui::TextWrapped(data.getValueString().c_str());
+        showWidgetAsText(data);
     }
 
     ~DataWidget() override = default;
+
+protected:
+    /**
+     * This method is called when the Data cannot be dynamic_cast from a BaseData.
+     * Instead, the BaseData is provided, as well as the object.
+     */
+    void showWidget(sofa::core::objectmodel::BaseData& data, const T* object)
+    {
+        SOFA_UNUSED(object);
+        showWidgetAsText(data);
+    }
+
+    void showWidgetAsText(sofa::core::objectmodel::BaseData& data)
+    {
+        ImGui::TextWrapped(data.getValueString().c_str());
+    }
 };
 
 struct DataWidgetFactory
