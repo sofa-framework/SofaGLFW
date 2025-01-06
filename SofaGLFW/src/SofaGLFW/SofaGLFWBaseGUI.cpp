@@ -26,28 +26,27 @@
 
 #include <SofaGLFW/SofaGLFWWindow.h>
 
-#include <sofa/helper/logging/Messaging.h>
-#include <sofa/helper/AdvancedTimer.h>
-#include <sofa/simulation/Node.h>
-#include <sofa/simulation/Simulation.h>
-#include <sofa/core/visual/VisualParams.h>
 #include <SofaGLFW/SofaGLFWMouseManager.h>
 
-#include <sofa/component/visual/InteractiveCamera.h>
-#include <sofa/component/visual/VisualStyle.h>
-
+#include <sofa/helper/logging/Messaging.h>
+#include <sofa/helper/AdvancedTimer.h>
 #include <sofa/helper/io/STBImage.h>
-
-#include <algorithm>
 #include <sofa/helper/system/FileRepository.h>
-#include <sofa/simulation/SimulationLoop.h>
-
+#include <sofa/helper/system/FileSystem.h>
+#include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/objectmodel/KeyreleasedEvent.h>
+#include <sofa/simulation/Node.h>
+#include <sofa/simulation/Simulation.h>
+#include <sofa/simulation/SimulationLoop.h>
+#include <sofa/component/visual/InteractiveCamera.h>
+#include <sofa/component/visual/VisualStyle.h>
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
-#include <sofa/helper/system/FileSystem.h>
+
+#include <algorithm>
+
 using namespace sofa;
 using namespace sofa::gui::common;
 
@@ -275,6 +274,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     {
         glfwWindow = glfwCreateWindow(width > 0 ? width : 100, height > 0 ? height : 100, title, nullptr, m_firstWindow);
     }
+    s_numberOfActiveWindows++;
 
     setWindowIcon(glfwWindow);
 
@@ -458,22 +458,22 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
     bool running = true;
     std::size_t currentNbIterations = 0;
     std::stringstream tmpStr;
-    while (!s_mapWindows.empty() && running)
+    while (s_numberOfActiveWindows > 0 && running)
     {
         SIMULATION_LOOP_SCOPE
 
         // Keep running
         runStep();
-
+        
         for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
         {
-            if (sofaGlfwWindow)
+            if (glfwWindow && sofaGlfwWindow)
             {
                 // while user did not request to close this window (i.e press escape), draw
                 if (!glfwWindowShouldClose(glfwWindow))
                 {
                     makeCurrentContext(glfwWindow);
-
+                    
                     m_guiEngine->beforeDraw(glfwWindow);
                     sofaGlfwWindow->draw(m_groot, m_vparams);
                     m_guiEngine->afterDraw();
@@ -486,7 +486,6 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
                     m_viewPortHeight = m_vparams->viewport()[3];
                     m_viewPortWidth = m_vparams->viewport()[2];
-
                 }
                 else
                 {
@@ -861,8 +860,9 @@ void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
         {
             glfwWindow->close();
             delete glfwWindow;
+            glfwWindow = nullptr;
+            s_numberOfActiveWindows--;
         }
-        s_mapWindows.erase(window);
     }
 }
 
