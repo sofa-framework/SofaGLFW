@@ -188,7 +188,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
     baseGUI->setSimulation(groot, filePathName);
-
+    
     sofa::simulation::node::initRoot(groot.get());
     auto camera = baseGUI->findCamera(groot);
     if (camera)
@@ -361,8 +361,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Separator();
             if (ImGui::MenuItem("Exit"))
             {
-                //TODO: brutal exit, need to clean up everything (simulation, window, opengl, imgui etc)
-                exit(EXIT_SUCCESS);
+                this->terminate();
+                return;
             }
             ImGui::EndMenu();
         }
