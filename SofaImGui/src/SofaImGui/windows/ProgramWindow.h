@@ -39,6 +39,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     typedef sofa::defaulttype::RigidCoord<3, double> RigidCoord;
 
    public:
+    ProgramWindow(){}
     ProgramWindow(const std::string& name, const bool& isWindowOpen);
     ~ProgramWindow() = default;
 
@@ -64,11 +65,11 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     
     models::IPController::SPtr m_IPController;
 
-    double m_cursorPos;
-    ImVec2 m_trackBeginPos;
-    double m_time;
+    double m_cursorPos = 0;
+    ImVec2 m_trackBeginPos = ImVec2(0, 0);
+    double m_time = 0;
 
-    sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
+    sofaglfw::SofaGLFWBaseGUI * m_baseGUI = nullptr;
 
     bool m_timeBasedDisplay = true;
     bool m_drawTrajectory = true;
@@ -92,7 +93,7 @@ class SOFAIMGUI_API ProgramWindow : public BaseWindow
     void showActionMenu(std::shared_ptr<models::Track> track, const int &trackIndex, const int &actionIndex); /// Menu (add move, wait, pick, etc.).
 
     void stepProgram(const double &dt=0., const bool &reverse=false);
-    void initFilePath();
+    void initFilePath(const std::string& filename);
 };
 
 } // namespace

@@ -753,21 +753,24 @@ void ProgramWindow::showActionMenu(std::shared_ptr<models::Track> track, const i
     }
 }
 
-void ProgramWindow::initFilePath()
+void ProgramWindow::initFilePath(const std::string& filename)
 {
-    const auto sceneFilename = std::filesystem::path(m_baseGUI->getFilename());
+    const auto absFilename = std::filesystem::absolute(filename);
     const std::string extension = ".crprog";
 
     if (m_programDirPath.empty())
     {
-        m_programDirPath = (!sceneFilename.empty())? sceneFilename.parent_path().string(): sofa::helper::Utils::getSofaUserLocalDirectory();
+        if (!absFilename.empty() && sofa::helper::system::FileSystem::exists(absFilename.parent_path().string()))
+            m_programDirPath = absFilename.parent_path().string();
+        else
+            m_programDirPath = sofa::helper::Utils::getSofaUserLocalDirectory();
     }
 
     if (m_programFilename.empty())
     {
-        if (!sceneFilename.empty())
+        if (!absFilename.empty())
         {
-            std::filesystem::path path(sceneFilename);
+            std::filesystem::path path(absFilename);
             path = path.replace_extension(extension);
             m_programFilename = path.filename().string();
         }
@@ -785,9 +788,9 @@ void ProgramWindow::importProgram()
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
     std::filesystem::path path;
-    initFilePath();
+    initFilePath(m_baseGUI->getFilename());
 
-    nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), (m_programDirPath.empty())? nullptr: m_programDirPath.c_str());
+    nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), (m_programDirPath.empty()) ? nullptr : m_programDirPath.c_str());
     if (result == NFD_OKAY)
     {
         if (sofa::helper::system::FileSystem::exists(outPath))
@@ -796,6 +799,9 @@ void ProgramWindow::importProgram()
             path = outPath;
         }
         NFD_FreePath(outPath);
+    }
+    else if (result == NFD_ERROR) {
+        FooterStatusBar::getInstance().setTempMessage("Import failed to proceed.", FooterStatusBar::MERROR);
     }
 
     if (successfulImport)
@@ -813,7 +819,7 @@ void ProgramWindow::exportProgram(const bool &exportAs)
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
     const std::string extension = ".crprog";
-    initFilePath();
+    initFilePath(m_baseGUI->getFilename());
 
     std::filesystem::path path;
     path = m_programDirPath;
@@ -836,6 +842,9 @@ void ProgramWindow::exportProgram(const bool &exportAs)
         else
         {
             doExport = false;
+            if (result == NFD_ERROR) {
+                FooterStatusBar::getInstance().setTempMessage("Export failed to proceed.", FooterStatusBar::MERROR);
+            }
         }
     }
 
