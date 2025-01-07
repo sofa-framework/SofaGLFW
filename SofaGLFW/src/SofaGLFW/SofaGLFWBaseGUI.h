@@ -127,6 +127,7 @@ private:
 
     inline static std::map<GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
     inline static std::map<GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
+    inline static std::size_t s_numberOfActiveWindows = 0;
 
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
