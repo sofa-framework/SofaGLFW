@@ -40,38 +40,46 @@ public:
 
 void TestProgramWindow::testInitFilePath_noFile()
 {
+    m_programDirPath.clear();
+    m_programFilename.clear();
     initFilePath("");
     EXPECT_EQ(m_programDirPath.empty(), false);
     EXPECT_EQ(m_programDirPath, sofa::helper::Utils::getSofaUserLocalDirectory());
     EXPECT_EQ(m_programFilename.empty(), false);
-    EXPECT_EQ(m_programFilename, "output.crprog");
+    EXPECT_EQ(m_programFilename, "output" + m_program.getExtension());
 }
 
 void TestProgramWindow::testInitFilePath_pathDoesNotExist()
 {
+    m_programDirPath.clear();
+    m_programFilename.clear();
     initFilePath("./pathDoesNotExists/file.py");
     EXPECT_EQ(m_programDirPath.empty(), false);
     EXPECT_EQ(m_programDirPath, sofa::helper::Utils::getSofaUserLocalDirectory());
     EXPECT_EQ(m_programFilename.empty(), false);
-    EXPECT_EQ(m_programFilename, "file.crprog");
+    EXPECT_EQ(m_programFilename, "file" + m_program.getExtension());
 }
 
 void TestProgramWindow::testInitFilePath_file()
 {
+    m_programDirPath.clear();
+    m_programFilename.clear();
     initFilePath("./file.py");
     EXPECT_EQ(m_programDirPath.empty(), false);
     EXPECT_NE(m_programDirPath, sofa::helper::Utils::getSofaUserLocalDirectory());
     EXPECT_EQ(m_programFilename.empty(), false);
-    EXPECT_EQ(m_programFilename, "file.crprog");
+    EXPECT_EQ(m_programFilename, "file" + m_program.getExtension());
 }
 
 void TestProgramWindow::testInitFilePath_fileNoExtension()
 {
+    m_programDirPath.clear();
+    m_programFilename.clear();
     initFilePath("file");
     EXPECT_EQ(m_programDirPath.empty(), false);
     EXPECT_NE(m_programDirPath, sofa::helper::Utils::getSofaUserLocalDirectory());
     EXPECT_EQ(m_programFilename.empty(), false);
-    EXPECT_EQ(m_programFilename, "file.crprog");
+    EXPECT_EQ(m_programFilename, "file" + m_program.getExtension());
 }
 
 TEST_F(TestProgramWindow, testEmptyProgramDirPath) { EXPECT_EQ(m_programDirPath.empty(), true); }

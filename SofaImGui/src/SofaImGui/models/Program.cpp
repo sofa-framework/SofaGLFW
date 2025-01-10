@@ -366,7 +366,7 @@ bool Program::checkExtension(const std::string &filename)
 {
     bool isExtensionKnown = false;
 
-    if (filename.size() >= 7 && filename.substr(filename.size()-7)==".crprog")
+    if (filename.size() >= 7 && filename.substr(filename.size()-7)==getExtension())
         isExtensionKnown = true;
 
     return isExtensionKnown;

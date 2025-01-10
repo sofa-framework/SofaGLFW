@@ -755,15 +755,22 @@ void ProgramWindow::showActionMenu(std::shared_ptr<models::Track> track, const i
 
 void ProgramWindow::initFilePath(const std::string& filename)
 {
-    const auto absFilename = std::filesystem::absolute(filename);
-    const std::string extension = ".crprog";
+    const std::string extension = m_program.getExtension();
+
+    std::filesystem::path absFilename;
+    if (!filename.empty())
+        absFilename = std::filesystem::absolute(filename);
 
     if (m_programDirPath.empty())
     {
         if (!absFilename.empty() && sofa::helper::system::FileSystem::exists(absFilename.parent_path().string()))
+        {
             m_programDirPath = absFilename.parent_path().string();
+        }
         else
+        {
             m_programDirPath = sofa::helper::Utils::getSofaUserLocalDirectory();
+        }
     }
 
     if (m_programFilename.empty())
@@ -818,7 +825,7 @@ void ProgramWindow::exportProgram(const bool &exportAs)
     nfdchar_t *outPath;
     std::vector<nfdfilteritem_t> nfd_filters;
     nfd_filters.push_back({"program file", "crprog"});
-    const std::string extension = ".crprog";
+    const std::string extension = m_program.getExtension();
     initFilePath(m_baseGUI->getFilename());
 
     std::filesystem::path path;

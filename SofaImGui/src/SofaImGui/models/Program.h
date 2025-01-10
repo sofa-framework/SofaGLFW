@@ -61,6 +61,8 @@ class SOFAIMGUI_API Program
     double getDuration();
     bool isEmpty();
 
+    std::string getExtension() {return ".crprog";}
+
    protected:
     
     models::IPController::SPtr m_IPController;
