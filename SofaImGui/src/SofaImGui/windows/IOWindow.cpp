@@ -79,7 +79,7 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
             ImGui::Indent();
             ImGui::Text("Method:");
             ImGui::PushItemWidth(m_itemWidth);
-            ImGui::Combo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
+            ImGui::LocalCombo("##ComboMethod", &m_method, items, IM_ARRAYSIZE(items));
             ImGui::PopItemWidth();
             ImGui::Spacing();
             ImGui::Unindent();

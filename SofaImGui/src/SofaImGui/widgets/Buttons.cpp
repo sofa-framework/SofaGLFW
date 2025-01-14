@@ -7,6 +7,14 @@
 namespace ImGui
 {
 
+bool LocalCombo(const char* label, int* current_item, const char* const items[], int items_count, int height_in_items)
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
+    const bool value_changed = ImGui::Combo(label, current_item, items, items_count, height_in_items);
+    ImGui::PopStyleVar();
+    return value_changed;
+}
+
 bool LocalInputDouble(const char* label, double* v, double step, double step_fast, const char*, ImGuiInputTextFlags flags)
 {
     float inputWidth = ImGui::CalcTextSize("-100000,00").x;

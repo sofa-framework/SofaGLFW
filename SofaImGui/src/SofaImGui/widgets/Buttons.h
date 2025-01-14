@@ -5,6 +5,8 @@
 namespace ImGui
 {
 
+bool LocalCombo(const char* label, int* current_item, const char* const items[], int items_count, int height_in_items = -1);
+
 bool LocalInputDouble(const char* label, double* v, double step = 0.0, double step_fast = 0.0, const char* format = "%.6f", ImGuiInputTextFlags flags = 0);
 
 bool LocalSliderFloatWithSteps(const char* label, float* v, float v_min, float v_max, const char* display_format, ImGuiSliderFlags flags=ImGuiSliderFlags_None);
