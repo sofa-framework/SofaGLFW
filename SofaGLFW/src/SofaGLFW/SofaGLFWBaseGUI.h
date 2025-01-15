@@ -81,8 +81,16 @@ public:
 
     bool isFullScreen(GLFWwindow* glfwWindow = nullptr) const;
     void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int screenID = 0);
-    void setBackgroundColor(const RGBAColor& newColor, unsigned int windowID = 0);
-    virtual void setBackgroundImage(const std::string& imageFileName = "textures/SOFA_logo.bmp", unsigned int windowID = 0);
+    void setWindowBackgroundColor(const RGBAColor& newColor, unsigned int windowID = 0);
+    void setWindowBackgroundImage(const std::string& imageFileName, unsigned int windowID = 0);
+    virtual void setBackgroundColour(float r, float g, float b) override
+    {
+        setWindowBackgroundColor(RGBAColor{r, g, b, 1.0f}, 0);
+    }
+    virtual void setBackgroundImage(std::string imageFileName) override
+    {
+        setWindowBackgroundImage(imageFileName, 0);
+    }
 
     sofa::core::sptr<Node> getRootNode() const;
     bool hasWindow() const { return m_firstWindow != nullptr; }
@@ -149,6 +157,7 @@ private:
     Vec2d m_translatedCursorPos;
     Vec2f m_viewPortPosition;
     Vec2f m_windowPosition;
+    std::size_t m_backgroundID{0};
 
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
 };
