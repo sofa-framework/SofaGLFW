@@ -36,6 +36,8 @@
 #include <sofa/gl/gl.h>
 #include <sofa/gl/Texture.h>
 
+#include <format>
+
 using namespace sofa;
 namespace sofaglfw
 {
