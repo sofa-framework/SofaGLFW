@@ -122,6 +122,7 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     vparams->setModelViewMatrix(lastModelviewMatrix);
 
     simulation::node::draw(vparams, groot.get());
+    
 }
 
 void SofaGLFWWindow::setBackgroundColor(const RGBAColor& newColor)
@@ -170,6 +171,10 @@ void SofaGLFWWindow::drawBackgroundImage()
     if(!m_backgrounds.contains(m_currentBackgroundFilename))
         return;
 
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    
+    glDisable(GL_LIGHTING);
+    
     const auto& background = m_backgrounds[m_currentBackgroundFilename];
 
     if(!background.image)
@@ -214,6 +219,8 @@ void SofaGLFWWindow::drawBackgroundImage()
     glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
+    
+    glPopAttrib();
 }
 
 void SofaGLFWWindow::setCamera(component::visual::BaseCamera::SPtr newCamera)
