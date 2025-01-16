@@ -96,20 +96,7 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
 
 void IOWindow::setSimulationState(const models::SimulationState &simulationState)
 {
-    m_simulationState.clear();
-    const auto &stateData = simulationState.getStateData();
-    for(const models::SimulationState::StateData& d: stateData)
-    {
-        auto* typeinfo = d.data->getValueTypeInfo();
-        auto* values = d.data->getValueVoidPtr();
-        size_t nbValue = typeinfo->size();
-        std::vector<float> vector(nbValue);
-
-        for (size_t i=0; i<nbValue; i++) // Values
-            vector[i]=typeinfo->getScalarValue(values, i);
-
-        m_simulationState[d.group + "/" + d.description] = vector;
-    }
+    m_simulationStateData = simulationState.getStateData();
 }
 
 void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
@@ -132,6 +119,20 @@ void IOWindow::animateEndEvent(sofa::simulation::Node *groot)
 
 void IOWindow::showROSWindow()
 {
+    m_simulationState.clear();
+    for(const models::SimulationState::StateData& d: m_simulationStateData)
+    {
+        auto* typeinfo = d.data->getValueTypeInfo();
+        auto* values = d.data->getValueVoidPtr();
+        size_t nbValue = typeinfo->size();
+        std::vector<float> vector(nbValue);
+
+        for (size_t i=0; i<nbValue; i++) // Values
+            vector[i]=typeinfo->getScalarValue(values, i);
+
+        m_simulationState[d.group + "/" + d.description] = vector;
+    }
+
     static float pulseDuration = 0;
     pulseDuration += ImGui::GetIO().DeltaTime;
     float pulse = pulseDuration / 2.0f;
@@ -161,7 +162,6 @@ void IOWindow::showROSWindow()
     {
         ImGui::PopStyleColor();
     }
-
 }
 
 void IOWindow::showOutput()
@@ -176,7 +176,9 @@ void IOWindow::showOutput()
     static char nodeBuf[30];
 
     ImGui::PushItemWidth(m_itemWidth);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
     bool hasNodeNameChanged = ImGui::InputTextWithHint("##NodePublishers", "Enter a node name", nodeBuf, 30, ImGuiInputTextFlags_CharsNoBlank);
+    ImGui::PopStyleVar();
     ImGui::PopItemWidth();
     ImGui::SetItemTooltip("Default is %s", m_defaultNodeName.c_str());
 
@@ -213,6 +215,7 @@ void IOWindow::showOutput()
         static bool publishFirstTime = true;
         static std::map<std::string, bool> publishListboxItems;
         ImGui::Text("Select what to publish:");
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
         if (ImGui::BeginListBox("##StatePublish", ImVec2(m_itemWidth, 0)))
         {
             // State
@@ -262,6 +265,7 @@ void IOWindow::showOutput()
         }
         publishFirstTime = false;
     }
+    ImGui::PopStyleVar();
 
     if (m_isPublishing)
     {
@@ -326,7 +330,7 @@ void IOWindow::showInput()
 
     ImGui::Text("Select a node:");
     ImGui::PushItemWidth(m_itemWidth);
-    ImGui::Combo("##NodeSubscription", &nodeID, nodes, IM_ARRAYSIZE(nodes));
+    ImGui::LocalCombo("##NodeSubscription", &nodeID, nodes, IM_ARRAYSIZE(nodes));
     ImGui::PopItemWidth();
 
     // List of found topics
@@ -357,6 +361,7 @@ void IOWindow::showInput()
 
     { // List box subcriptions
         ImGui::Text("Select simulation states to overwrite or digital input to listen to:");
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
         if (ImGui::BeginListBox("##StateSubscription", ImVec2(m_itemWidth, 0)))
         {
             // TCP target
@@ -426,6 +431,7 @@ void IOWindow::showInput()
 
             ImGui::EndListBox();
         }
+        ImGui::PopStyleVar();
         subscribeFirstTime = false;
     }
 

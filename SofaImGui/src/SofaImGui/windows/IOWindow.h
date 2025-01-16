@@ -63,7 +63,7 @@ class SOFAIMGUI_API ROSNode: public rclcpp::Node
 
     void createTopics()
     {
-        if (!m_selectedStateToPublish.empty() && !m_selectedDigitalOutputToPublish.empty())
+        if (!m_selectedStateToPublish.empty() || !m_selectedDigitalOutputToPublish.empty())
         {
             m_publishers.reserve(m_selectedStateToPublish.size() + m_selectedDigitalOutputToPublish.size());
             for (const auto& [key, value] : m_selectedStateToPublish)
@@ -82,7 +82,7 @@ class SOFAIMGUI_API ROSNode: public rclcpp::Node
 
     void createSubscriptions()
     {
-        if (!m_selectedStateToOverwrite.empty() && !m_selectedDigitalInput.empty())
+        if (!m_selectedStateToOverwrite.empty() || !m_selectedDigitalInput.empty())
         {
             m_subscriptions.reserve(m_selectedStateToOverwrite.size() + m_selectedDigitalInput.size());
             for (const auto& [key, value] : m_selectedStateToOverwrite)
@@ -144,6 +144,7 @@ class SOFAIMGUI_API IOWindow : public BaseWindow
     void showOutput();
     void showInput();
 
+    std::vector<models::SimulationState::StateData> m_simulationStateData;
     std::map<std::string, std::vector<float> > m_simulationState;
     float m_itemWidth;
 
