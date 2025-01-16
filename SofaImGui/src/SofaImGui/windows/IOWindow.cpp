@@ -27,7 +27,8 @@
 
 #include <sofa/core/behavior/BaseMechanicalState.h>
 
-#if SOFAIMGUI_WITH_ROS == 1
+
+#if SOFAIMGUI_WITH_ROS
 #include <rclcpp/node.hpp>
 #include <rmw/validate_node_name.h>
 #endif
@@ -40,7 +41,7 @@ IOWindow::IOWindow(const std::string& name, const bool& isWindowOpen)
     m_name = name;
     m_isOpen = isWindowOpen;
 
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
     rclcpp::init(0, nullptr);
     m_rosnode = std::make_shared<ROSNode>(m_defaultNodeName);
 #endif
@@ -48,7 +49,7 @@ IOWindow::IOWindow(const std::string& name, const bool& isWindowOpen)
 
 IOWindow::~IOWindow()
 {
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
     rclcpp::shutdown();
 #endif
 }
@@ -69,7 +70,7 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
             m_itemWidth = ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x * 4;
 
             static const char* items[]{
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
                                        "ROS",
 #endif
                                        "None"
@@ -84,7 +85,7 @@ void IOWindow::showWindow(sofa::simulation::Node *groot,
             ImGui::Spacing();
             ImGui::Unindent();
 
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
             if (m_method == 0) // ROS
                 showROSWindow();
 #endif
@@ -113,7 +114,7 @@ void IOWindow::setSimulationState(const models::SimulationState &simulationState
 
 void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
 {
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
     if (m_method == 0) // ROS
         animateBeginEventROS(groot);
 #endif
@@ -121,13 +122,13 @@ void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
 
 void IOWindow::animateEndEvent(sofa::simulation::Node *groot)
 {
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
     if (m_method == 0) // ROS
         animateEndEventROS(groot);
 #endif
 }
 
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
 
 void IOWindow::showROSWindow()
 {

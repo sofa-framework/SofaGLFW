@@ -29,7 +29,7 @@
 #include <SofaImGui/models/SimulationState.h>
 #include <imgui.h>
 
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float32_multi_array.hpp>
 using namespace std::chrono_literals;
@@ -38,7 +38,7 @@ using namespace std::chrono_literals;
 
 namespace sofaimgui::windows {
 
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
 class SOFAIMGUI_API ROSNode: public rclcpp::Node
 {
    public:
@@ -147,7 +147,7 @@ class SOFAIMGUI_API IOWindow : public BaseWindow
     std::map<std::string, std::vector<float> > m_simulationState;
     float m_itemWidth;
 
-#if SOFAIMGUI_WITH_ROS == 1
+#if SOFAIMGUI_WITH_ROS
     std::shared_ptr<ROSNode> m_rosnode;
 
     void showROSWindow();
