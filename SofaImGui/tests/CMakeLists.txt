@@ -10,7 +10,12 @@ set(SOURCE_FILES
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${imgui_SOURCE_DIR} ${QPOASES_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} Sofa.Testing SofaImGui Sofa.SimpleApi)
+if(ROS_FOUND AND SOFAIMGUI_WITH_ROS)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${ROS_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${ROS_LIBRARIES})
+endif(ROS_FOUND AND SOFAIMGUI_WITH_ROS)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Testing SofaImGui Sofa.SimpleApi)
 add_definitions("-DSOFAIMGUI_TEST_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/\"")
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
