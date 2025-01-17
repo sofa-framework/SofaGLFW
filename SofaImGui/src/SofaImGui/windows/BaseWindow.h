@@ -56,7 +56,7 @@ class SOFAIMGUI_API BaseWindow
    protected:
 
     bool m_isOpen{false}; /// The user choice to open the window or not
-    std::string m_name = "Program"; /// The name of the window
+    std::string m_name = "Window"; /// The name of the window
     bool m_isDrivingSimulation{false}; /// Does the window have tools to drive the robot in simulation
 };
 

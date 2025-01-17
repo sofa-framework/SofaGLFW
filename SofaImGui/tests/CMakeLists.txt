@@ -5,6 +5,7 @@ sofa_find_package(Sofa.SimpleApi REQUIRED)
 
 set(SOURCE_FILES
     windows/ProgramWindow_test.cpp
+    windows/IOWindow_test.cpp
     )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

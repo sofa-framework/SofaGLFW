@@ -114,6 +114,7 @@ class SOFAIMGUI_API ROSNode: public rclcpp::Node
 class SOFAIMGUI_API IOWindow : public BaseWindow
 {
    public:
+    IOWindow(){}
     IOWindow(const std::string& name, const bool& isWindowOpen);
     ~IOWindow();
 
@@ -140,9 +141,7 @@ class SOFAIMGUI_API IOWindow : public BaseWindow
     bool m_digitalOutput[3];
 
     void init();
-
-    void showOutput();
-    void showInput();
+    bool sanitizeName(std::string &name);
 
     std::vector<models::SimulationState::StateData> m_simulationStateData;
     std::map<std::string, std::vector<float> > m_simulationState;
@@ -152,6 +151,8 @@ class SOFAIMGUI_API IOWindow : public BaseWindow
     std::shared_ptr<ROSNode> m_rosnode;
 
     void showROSWindow();
+    void showROSOutput();
+    void showROSInput();
     void animateBeginEventROS(sofa::simulation::Node *groot);
     void animateEndEventROS(sofa::simulation::Node *groot);
 #endif

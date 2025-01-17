@@ -26,7 +26,9 @@
 #include <IconsFontAwesome6.h>
 
 #include <sofa/core/behavior/BaseMechanicalState.h>
+#include <SofaImGui/FooterStatusBar.h>
 
+#include <regex>
 
 #if SOFAIMGUI_WITH_ROS
 #include <rclcpp/node.hpp>
@@ -56,6 +58,39 @@ IOWindow::~IOWindow()
 
 void IOWindow::init()
 {
+}
+
+bool IOWindow::sanitizeName(std::string &name)
+{
+    const std::string input = name;
+
+    // Sanitize the input string to match ROS requirements for topic and node name
+    // https://design.ros2.org/articles/topic_and_service_names.html
+    // Name must not contain characters other than alphanumerics, '_', '~', '{', or '}'
+    // Comment: no sanitizer function provided by ROS for the moment 2025
+
+    if (name.empty())
+        name = "noname";
+
+    name = std::regex_replace(name, std::regex("[^a-zA-Z0-9_~{}/]+"), "");
+
+    // may start with a tilde (~), the private namespace substitution character
+    // must separate a tilde (~) from the rest of the name with a forward slash (/), i.e. ~/foo not ~foo
+    name = std::regex_replace(name, std::regex("(?!^~\/)~"), "");
+
+    // must not start with a numeric character ([0-9])
+    name = std::regex_replace(name, std::regex("^[0-9]*"), "");
+
+    // must not end with a forward slash (/)
+    name = std::regex_replace(name, std::regex("\/$"), "");
+
+    // must not contain any number of repeated forward slashes (/)
+    name = std::regex_replace(name, std::regex("\/{2,}"), "");
+
+    // must not contain any number of repeated underscore (_)
+    name = std::regex_replace(name, std::regex("_{2,}"), "");
+
+    return input != name;
 }
 
 void IOWindow::showWindow(sofa::simulation::Node *groot,
@@ -119,6 +154,8 @@ void IOWindow::animateEndEvent(sofa::simulation::Node *groot)
 
 void IOWindow::showROSWindow()
 {
+    // TODO: do this only once at start, and update the value at each frame (use two maps)
+    static bool firstTime = true;
     m_simulationState.clear();
     for(const models::SimulationState::StateData& d: m_simulationStateData)
     {
@@ -130,8 +167,16 @@ void IOWindow::showROSWindow()
         for (size_t i=0; i<nbValue; i++) // Values
             vector[i]=typeinfo->getScalarValue(values, i);
 
-        m_simulationState[d.group + "/" + d.description] = vector;
+        const std::string input = d.group + "/" + d.description;
+        std::string name = input;
+        if (sanitizeName(name) && firstTime)
+        {
+            firstTime = false;
+            FooterStatusBar::getInstance().setTempMessage("Invalid name for topic " + input + ". Sanitized: " + name, FooterStatusBar::MWARNING);
+        }
+        m_simulationState[name] = vector;
     }
+
 
     static float pulseDuration = 0;
     pulseDuration += ImGui::GetIO().DeltaTime;
@@ -143,7 +188,7 @@ void IOWindow::showROSWindow()
     if (ImGui::LocalBeginCollapsingHeader("Output", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
-        showOutput();
+        showROSOutput();
         ImGui::LocalEndCollapsingHeader();
     }
     else
@@ -155,7 +200,7 @@ void IOWindow::showROSWindow()
     if (ImGui::LocalBeginCollapsingHeader("Input", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::PopStyleColor();
-        showInput();
+        showROSInput();
         ImGui::LocalEndCollapsingHeader();
     }
     else
@@ -164,7 +209,7 @@ void IOWindow::showROSWindow()
     }
 }
 
-void IOWindow::showOutput()
+void IOWindow::showROSOutput()
 {
     if (m_isPublishing)
     {
@@ -305,7 +350,7 @@ void IOWindow::showOutput()
     m_isReadyToPublish = validNodeName;
 }
 
-void IOWindow::showInput()
+void IOWindow::showROSInput()
 {
     if (m_isListening)
     {
@@ -317,9 +362,9 @@ void IOWindow::showInput()
 
     // List of found nodes
     const std::vector<std::string>& nodelist = m_rosnode->get_node_names();
-    int nbNodes = nodelist.size();
+    size_t nbNodes = nodelist.size();
     const char* nodes[nbNodes];
-    for (int i=0; i<nbNodes; i++)
+    for (size_t i=0; i<nbNodes; i++)
     {
         nodes[i] = nodelist[i].c_str();
     }
@@ -473,6 +518,7 @@ void IOWindow::showInput()
 
 void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 {
+    SOFA_UNUSED(groot);
     if (m_isReadyToPublish && m_isDrivingSimulation && m_IPController)
     {
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
