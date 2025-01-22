@@ -58,13 +58,10 @@ void SofaGLFWWindow::close()
         m_currentBackgroundTexture = nullptr;
     }
     
-    for(auto& [_, background] : m_backgrounds)
+    for(auto& background : m_backgrounds | std::views::values)
     {
         if(background.texture)
             delete background.texture;
-        // looks like the texture already deleted it..
-//        if(background.image)
-//            delete background.image;
     }
     
     m_backgrounds.clear();
@@ -145,7 +142,7 @@ void SofaGLFWWindow::setBackgroundImage(const std::string& filename)
             const auto backgroundImageFilename = sofa::helper::system::DataRepository.getFile(tempFilename);
             
             std::string extension = sofa::helper::system::SetDirectory::GetExtension(filename.c_str());
-            std::transform(extension.begin(),extension.end(),extension.begin(),::tolower );
+            std::ranges::transform(extension, extension.begin(), ::tolower );
             
             auto* backgroundImage = helper::io::Image::FactoryImage::getInstance()->createObject(extension, backgroundImageFilename);
             if( !backgroundImage )
