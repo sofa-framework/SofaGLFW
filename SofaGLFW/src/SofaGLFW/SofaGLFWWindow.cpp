@@ -36,7 +36,6 @@
 #include <sofa/gl/gl.h>
 #include <sofa/gl/Texture.h>
 
-#include <format>
 #include <ranges>
 
 using namespace sofa;
@@ -147,7 +146,7 @@ void SofaGLFWWindow::setBackgroundImage(const std::string& filename)
             auto* backgroundImage = helper::io::Image::FactoryImage::getInstance()->createObject(extension, backgroundImageFilename);
             if( !backgroundImage )
             {
-                msg_warning("GUI") << std::format("Could not load the file {}", filename);
+                msg_warning("GUI") << "Could not load the file " << filename;
                 return;
             }
             else
