@@ -492,6 +492,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
         }
+        ImGui::PushButtonRepeat(true);
         if (ImGui::Button(ICON_FA_FORWARD_STEP))
         {
             if (!animate)
@@ -504,6 +505,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 sofa::helper::AdvancedTimer::end("Animate");
             }
         }
+        ImGui::PopButtonRepeat();
         if (animate)
         {
             ImGui::PopItemFlag();
