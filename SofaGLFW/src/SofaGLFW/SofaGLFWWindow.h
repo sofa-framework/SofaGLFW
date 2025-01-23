@@ -28,6 +28,16 @@
 
 struct GLFWwindow;
 
+namespace sofa::helper::io
+{
+class Image;
+}
+
+namespace sofa::gl
+{
+class Texture;
+}
+
 namespace sofaglfw
 {
 
@@ -44,6 +54,8 @@ public:
     void mouseButtonEvent(int button, int action, int mods);
     void scrollEvent(double xoffset, double yoffset);
     void setBackgroundColor(const RGBAColor& newColor);
+    void setBackgroundImage(const std::string& filename);
+    void drawBackgroundImage();
 
     void setCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
     void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
@@ -58,6 +70,16 @@ private:
     int m_currentXPos{ -1 };
     int m_currentYPos{ -1 };
     RGBAColor m_backgroundColor{ RGBAColor::black() };
+    sofa::gl::Texture* m_currentBackgroundTexture { nullptr };
+    
+    struct Background
+    {
+        sofa::helper::io::Image* image {nullptr};
+        sofa::gl::Texture* texture {nullptr};
+    };
+    
+    std::map<std::string, Background> m_backgrounds;
+    std::string m_currentBackgroundFilename{};
 };
 
 } // namespace sofaglfw

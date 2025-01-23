@@ -137,10 +137,10 @@ int main(int argc, char** argv)
     groot->get(background, sofa::core::objectmodel::BaseContext::SearchRoot);
     if (background)
     {
-        if (background->image.getValue().empty())
-            glfwGUI.setBackgroundColor(background->color.getValue());
+        if (background->d_image.getValue().empty())
+            glfwGUI.setWindowBackgroundColor(background->d_color.getValue());
         else
-            glfwGUI.setBackgroundImage(background->image.getFullPath());
+            glfwGUI.setWindowBackgroundImage(background->d_image.getFullPath());
     }
 
     // Run the main loop

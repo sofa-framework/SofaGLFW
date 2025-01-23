@@ -114,7 +114,7 @@ void SofaGLFWGUI::setFullScreen()
 
 void SofaGLFWGUI::setBackgroundColor(const sofa::type::RGBAColor& color)
 {
-    m_baseGUI.setBackgroundColor(color);
+    m_baseGUI.setWindowBackgroundColor(color);
 }
 
 void SofaGLFWGUI::setBackgroundImage(const std::string& image)
