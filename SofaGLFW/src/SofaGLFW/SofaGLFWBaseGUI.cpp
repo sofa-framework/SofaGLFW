@@ -517,7 +517,7 @@ void SofaGLFWBaseGUI::initVisual()
 
         DisplayFlags* displayFlags = visualStyle->d_displayFlags.beginEdit();
         displayFlags->setShowVisualModels(tristate::true_value);
-        visualStyle->displayFlags.endEdit();
+        visualStyle->d_displayFlags.endEdit();
 
         m_groot->addObject(visualStyle);
         visualStyle->init();

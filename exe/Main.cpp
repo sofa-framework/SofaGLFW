@@ -105,13 +105,13 @@ int main(int argc, char** argv)
     groot->get(viewerConf, sofa::core::objectmodel::BaseContext::SearchRoot);
     if (viewerConf)
     {
-        if (viewerConf->fullscreen.getValue())
+        if (viewerConf->d_fullscreen.getValue())
         {
             isFullScreen = true;
         }
         else
         {
-            resolution = viewerConf->resolution.getValue();
+            resolution = viewerConf->d_resolution.getValue();
         }
     }
 
@@ -137,10 +137,10 @@ int main(int argc, char** argv)
     groot->get(background, sofa::core::objectmodel::BaseContext::SearchRoot);
     if (background)
     {
-        if (background->image.getValue().empty())
-            glfwGUI.setBackgroundColor(background->color.getValue());
+        if (background->d_image.getValue().empty())
+            glfwGUI.setBackgroundColor(background->d_color.getValue());
         else
-            glfwGUI.setBackgroundImage(background->image.getFullPath());
+            glfwGUI.setBackgroundImage(background->d_image.getFullPath());
     }
 
     // Run the main loop
