@@ -141,6 +141,7 @@ class SOFAIMGUI_API IOWindow : public BaseWindow
     bool m_digitalOutput[3];
 
     void init();
+    /// Sanitize the input string to match ROS requirements for topic and node name (no spaces, no special characters)
     bool sanitizeName(std::string &name);
 
     std::vector<models::SimulationState::StateData> m_simulationStateData;
