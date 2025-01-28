@@ -109,12 +109,11 @@ bool ViewportWindow::addStepButton()
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();
-                    ImGui::Button(ICON_FA_FORWARD_STEP, buttonSize);
-                    ImGui::SetItemTooltip("One step of simulation");
-
-                    if (ImGui::IsItemClicked())
+                    ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
+                    if (ImGui::Button(ICON_FA_FORWARD_STEP, buttonSize))
                         isItemClicked = true;
-
+                    ImGui::PopItemFlag();
+                    ImGui::SetItemTooltip("One step of simulation");
                     ImGui::End();
                 }
                 ImGui::PopStyleColor();
