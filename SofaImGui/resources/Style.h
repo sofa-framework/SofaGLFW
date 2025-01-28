@@ -22,15 +22,11 @@
 #pragma once
 
 #include <string>
-#include <array>
 #include <imgui.h>
 
 namespace sofaimgui
 {
 
 void setStyle(const std::string& style);
-
-inline const std::array<const char*, 7> listStyles = {"deep_dark", "default_dark", "default_light", "classic", "light_green", "yet_another_dark", "cherry"};
-inline const std::string defaultStyle = listStyles[0];
 
 }
