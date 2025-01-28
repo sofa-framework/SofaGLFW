@@ -104,16 +104,10 @@ using namespace sofa;
 namespace sofaimgui
 {
 
-const std::string& ImGuiGUIEngine::getAppIniFile()
-{
-    static const std::string appIniFile(sofa::helper::Utils::getExecutableDirectory() + "/settings.ini");
-    return appIniFile;
-}
-
 void ImGuiGUIEngine::saveDarkModeSetting()
 {
     ini.SetValue("Style", "darkMode", (m_darkMode)? "on": "off");
-    const std::string settingsFile = sofaimgui::AppIniFile::getAppIniFile();
+    const std::string settingsFile = sofaimgui::AppIniFile::getSettingsIniFile();
     msg_info("") << "Saving dark mode setting in " << settingsFile;
     ini.SaveFile(settingsFile.c_str());
 }
@@ -145,16 +139,16 @@ void ImGuiGUIEngine::init()
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    static const std::string imguiIniFile(sofa::helper::Utils::getExecutableDirectory() + "/imgui.ini");
-    io.IniFilename = imguiIniFile.c_str();
+    static const std::string windowsIniFile(sofaimgui::AppIniFile::getWindowsIniFile());
+    io.IniFilename = windowsIniFile.c_str();
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     ini.SetUnicode();
-    if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getAppIniFile()))
+    if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getSettingsIniFile()))
     {
-        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getSettingsIniFile().c_str());
         assert(rc == SI_OK);
     }
 
@@ -170,8 +164,7 @@ void ImGuiGUIEngine::init()
     }
     applyDarkMode(m_darkMode);
 
-    sofa::helper::system::PluginManager::getInstance().readFromIniFile(
-        sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
+    sofa::helper::system::PluginManager::getInstance().readFromIniFile(sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
@@ -365,8 +358,7 @@ void ImGuiGUIEngine::initDockSpace()
 
 void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
-    if(ini.GetBoolValue("Visualization", "alwaysShowFrame", true))
-        showFrameOnViewport(baseGUI);
+    showFrameOnViewport(baseGUI);
     auto groot = baseGUI->getRootNode();
     m_animate = groot->animate_.getValue();
 

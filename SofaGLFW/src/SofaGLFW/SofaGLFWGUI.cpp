@@ -93,9 +93,9 @@ void SofaGLFWGUI::centerWindow()
 
 void SofaGLFWGUI::setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf)
 {
-    const type::Vec<2, int>& res = viewerConf->resolution.getValue();
+    const type::Vec<2, int>& res = viewerConf->d_resolution.getValue();
 
-    if (viewerConf->fullscreen.getValue())
+    if (viewerConf->d_fullscreen.getValue())
     {
         m_bCreateWithFullScreen = true;
     }

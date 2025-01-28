@@ -21,15 +21,27 @@
 ******************************************************************************/
 #include <SofaImGui/ImGuiGUIEngine.h>
 #include <sofa/helper/Utils.h>
-#include "AppIniFile.h"
+#include <SofaImGui/AppIniFile.h>
 
 using namespace sofa;
 
 namespace sofaimgui
 {
-    const std::string& AppIniFile::getAppIniFile()
+    const std::string& AppIniFile::getWindowsIniFile()
     {
-        static const std::string appIniFile(sofa::helper::Utils::getSofaUserLocalDirectory() + "/settings.ini");
+        static const std::string windowsIniFile = getIniFile("windows.ini");
+        return windowsIniFile;
+    }
+
+    const std::string& AppIniFile::getSettingsIniFile()
+    {
+        static const std::string settingsIniFile = getIniFile("settings.ini");
+        return settingsIniFile;
+    }
+
+    std::string AppIniFile::getIniFile(const std::string filename)
+    {
+        std::string appIniFile(sofa::helper::Utils::getSofaUserLocalDirectory() + "/" + filename);
         return appIniFile;
     }
 }

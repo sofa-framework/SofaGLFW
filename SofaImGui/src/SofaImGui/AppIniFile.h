@@ -30,8 +30,11 @@ namespace sofaimgui
     class AppIniFile
     {
     public:
-        static const std::string& getAppIniFile();
+        static const std::string& getWindowsIniFile();
+        static const std::string& getSettingsIniFile();
 
+    private:
+        static std::string getIniFile(const std::string filename);
     };
 
 } // namespace sofaimgui

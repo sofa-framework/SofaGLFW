@@ -101,7 +101,6 @@ protected:
 
     CSimpleIniA ini;
 
-    static const std::string& getAppIniFile();
     void showFrameOnViewport(sofaglfw::SofaGLFWBaseGUI *baseGUI);
     void initDockSpace();
     void showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI);
