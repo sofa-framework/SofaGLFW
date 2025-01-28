@@ -25,7 +25,10 @@
 #include <sofa/simulation/Simulation.h>
 
 #include <SofaImGui/ImGuiGUIEngine.h>
+#include <SofaGLFW/SofaGLFWGUI.h>
 #include <sofa/gui/common/BaseGUI.h>
+#include <sofa/helper/system/FileSystem.h>
+#include <SofaImGui/AppIniFile.h>
 
 #include <memory>
 
@@ -58,6 +61,27 @@ sofa::gui::common::BaseGUI* ImGuiGUI::CreateGUI(const char* name, sofa::simulati
     }
 
     return currentGUI;
+}
+
+void ImGuiGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filename, bool temporaryFile)
+{
+    // Load the size window from the .ini file, before creating the window
+    currentGUI->setViewerResolution(m_windowDefaultSize.x, m_windowDefaultSize.y);
+    if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getSettingsIniFile()))
+    {
+        CSimpleIniA ini;
+        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getSettingsIniFile().c_str());
+        if (rc == SI_OK)
+        {
+            size_t width = ini.GetDoubleValue("Window", "width");
+            size_t height = ini.GetDoubleValue("Window", "height");
+            if (width > m_windowMinSize.x && height > m_windowMinSize.y) // Default size in main.cpp
+                currentGUI->setViewerResolution(width, height);
+        }
+    }
+
+    // Set the simulation and create the window
+    sofaglfw::SofaGLFWGUI::setScene(groot, filename, temporaryFile);
 }
 
 ImGuiGUI* ImGuiGUI::getGUI()

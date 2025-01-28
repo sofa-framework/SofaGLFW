@@ -36,6 +36,7 @@ public:
     ~ImGuiGUI() override = default;
 
     static sofa::gui::common::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+    void setScene(sofa::simulation::NodeSPtr groot, const char* filename = nullptr, bool temporaryFile = false) override;
     std::shared_ptr<sofaimgui::ImGuiGUIEngine> getGUIEngine();
     static ImGuiGUI* getGUI();
 
@@ -44,6 +45,8 @@ protected:
     static ImGuiGUI* currentGUI;
     std::shared_ptr<sofaimgui::ImGuiGUIEngine> m_guiEngine;
 
+    ImVec2 m_windowDefaultSize{1920, 1080};
+    ImVec2 m_windowMinSize{800, 600};
 };
 
 } // namespace sofaimgui

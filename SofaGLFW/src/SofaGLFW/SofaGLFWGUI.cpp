@@ -62,11 +62,9 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
         strFilename = filename;
     m_baseGUI.setSimulation(groot, strFilename);
 
-    // needs to be done after for background
-    // (eulalie) workaround: the resize call is not working, so to allow ViewerSetting to work, we need to do this before the creation of the window
-    this->configureGUI(groot);
-
     m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SofaGLFW - " + strFilename).c_str(), m_bCreateWithFullScreen);
+    // needs to be done after for background
+    this->configureGUI(groot);
 
     m_baseGUI.initVisual();
 }

@@ -108,7 +108,8 @@ protected:
     void showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI);
     void showStatusBar();
     void applyDarkMode(const bool &darkMode, sofaglfw::SofaGLFWBaseGUI* baseGUI=nullptr);
-    void saveDarkModeSetting();
+
+    void saveSettings();
 
     models::IPController::SPtr m_IPController;
     models::SimulationState m_simulationState;

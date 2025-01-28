@@ -104,11 +104,10 @@ using namespace sofa;
 namespace sofaimgui
 {
 
-void ImGuiGUIEngine::saveDarkModeSetting()
+void ImGuiGUIEngine::saveSettings()
 {
-    ini.SetValue("Style", "darkMode", (m_darkMode)? "on": "off");
     const std::string settingsFile = sofaimgui::AppIniFile::getSettingsIniFile();
-    msg_info("") << "Saving dark mode setting in " << settingsFile;
+    msg_info("") << "Saving application settings in " << settingsFile;
     ini.SaveFile(settingsFile.c_str());
 }
 
@@ -160,7 +159,7 @@ void ImGuiGUIEngine::init()
     }
     else
     {
-        saveDarkModeSetting(); // dark mode is off by default
+        ini.SetValue("Style", "darkMode", (m_darkMode)? "on": "off");
     }
     applyDarkMode(m_darkMode);
 
@@ -291,6 +290,11 @@ void ImGuiGUIEngine::afterDraw()
 
 void ImGuiGUIEngine::terminate()
 {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ini.SetDoubleValue("Window", "width", viewport->Size.x);
+    ini.SetDoubleValue("Window", "height", viewport->Size.y);
+    saveSettings();
+
     NFD_Quit();
 
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
@@ -587,7 +591,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::PopStyleColor(4);
             m_darkMode = !m_darkMode;
             applyDarkMode(m_darkMode, baseGUI);
-            saveDarkModeSetting();
+            ini.SetValue("Style", "darkMode", (m_darkMode)? "on": "off");
         }
         else
         {
