@@ -81,6 +81,45 @@ void reloadSimulation(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string file
     resetSimulationView(baseGUI);
 }
 
+void alignCamera(sofaglfw::SofaGLFWBaseGUI *baseGUI, const CameraAlignement& align)
+{
+    sofa::component::visual::BaseCamera::SPtr camera;
+    const auto& groot = baseGUI->getRootNode();
+    groot->get(camera);
+
+    if (camera)
+    {
+        sofa::type::Quat<float> orientation;
+
+        switch(align)
+        {
+        case TOP:
+            orientation = sofa::type::Quat(-0.707, 0., 0., 0.707);
+            break;
+        case BOTTOM:
+            orientation = sofa::type::Quat(0.707, 0., 0., 0.707);
+            break;
+        case FRONT:
+            orientation = sofa::type::Quat(0., 0., 0., 1.);
+            break;
+        case BACK:
+            orientation = sofa::type::Quat(0., 1., 0., 0.);
+            break;
+        case LEFT:
+            orientation = sofa::type::Quat(0., 0.707, 0., 0.707);
+            break;
+        case RIGHT:
+            orientation = sofa::type::Quat(0., -0.707, 0., 0.707);
+            break;
+        }
+
+        auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
+        auto bbCenter = (groot->f_bbox.getValue().maxBBox() + groot->f_bbox.getValue().minBBox()) * 0.5f;
+        auto distance = *std::max_element(box.begin(), box.end());
+        const auto& position = camera->getPositionFromOrientation(sofa::type::Vec3(0., 0., 0.), -distance*2.f, orientation);
+        camera->setView(position + bbCenter, orientation);
+    }
+}
 } // namespace
 
 

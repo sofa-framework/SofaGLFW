@@ -33,6 +33,7 @@
 #include <filesystem>
 #include <SofaImGui/Utils.h>
 #include <SofaImGui/widgets/Buttons.h>
+#include <SofaImGui/Utils.h>
 #include <tinyxml2.h>
 
 namespace sofaimgui::menus {
@@ -54,6 +55,10 @@ void ViewMenu::addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
         ImGui::PopStyleColor();
 
         addViewport();
+
+        ImGui::Separator();
+
+        addAlignCamera();
         addCenterCamera();
         addSaveCamera();
         addRestoreCamera();
@@ -226,6 +231,42 @@ void ViewMenu::addViewport()
             }
         }
 
+        ImGui::EndMenu();
+    }
+}
+
+void ViewMenu::addAlignCamera()
+{
+    if (ImGui::BeginMenu("Align Camera"))
+    {
+        sofa::component::visual::BaseCamera::SPtr camera;
+        const auto& groot = m_baseGUI->getRootNode();
+        groot->get(camera);
+
+        if (camera)
+        {
+            if (ImGui::MenuItem("Top", "1"))
+                sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::TOP);
+
+            if (ImGui::MenuItem("Bottom", "2"))
+                sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BOTTOM);
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Front", "3"))
+                sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::FRONT);
+
+            if (ImGui::MenuItem("Back", "4"))
+                sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BACK);
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Left", "5"))
+                sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::LEFT);
+
+            if (ImGui::MenuItem("Right", "6"))
+                sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::RIGHT);
+        }
         ImGui::EndMenu();
     }
 }

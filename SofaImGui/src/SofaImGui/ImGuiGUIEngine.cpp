@@ -223,6 +223,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     {
         firstTime = false;
 
+        m_baseGUI = baseGUI;
         m_IOWindow.setSimulationState(m_simulationState);
         m_stateWindow->setSimulationState(m_simulationState);
 
@@ -468,6 +469,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             m_IOWindow.setSimulationState(m_simulationState);
             m_stateWindow->setSimulationState(m_simulationState);
         }
+
         menus::ViewMenu(baseGUI).addMenu(m_currentFBOSize, m_fbo->getColorTexture());
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
@@ -686,6 +688,24 @@ void ImGuiGUIEngine::key_callback(GLFWwindow* window, int key, int scancode, int
         {
             m_programWindow.exportProgram(false);
         }
+        break;
+    case GLFW_KEY_1:
+        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::TOP);
+        break;
+    case GLFW_KEY_2:
+        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BOTTOM);
+        break;
+    case GLFW_KEY_3:
+        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::FRONT);
+        break;
+    case GLFW_KEY_4:
+        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BACK);
+        break;
+    case GLFW_KEY_5:
+        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::RIGHT);
+        break;
+    case GLFW_KEY_6:
+        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::LEFT);
         break;
     }
 }

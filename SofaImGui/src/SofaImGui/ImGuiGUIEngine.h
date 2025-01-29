@@ -38,6 +38,8 @@
 #include <SofaImGui/windows/PlottingWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
 
+#include <SofaImGui/menus/ViewMenu.h>
+
 #include <SofaImGui/models/IPController.h>
 #include <SofaImGui/models/SimulationState.h>
 #include <SoftRobots.Inverse/component/solver/QPInverseProblemSolver.h>
@@ -115,6 +117,7 @@ protected:
     int m_mode{0};
     bool m_darkMode{false};
     bool m_robotConnection{false};
+    sofaglfw::SofaGLFWBaseGUI* m_baseGUI{nullptr};
 
 };
 

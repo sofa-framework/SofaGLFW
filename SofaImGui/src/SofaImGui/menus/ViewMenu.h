@@ -39,13 +39,17 @@ class ViewMenu
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
    protected:
+
     void addViewport();
-    void addFullScreen();
+    void addAlignCamera();
+
     void addCenterCamera();
     void addSaveCamera();
     void addRestoreCamera();
     void addSaveScreenShot(const std::pair<unsigned int, unsigned int>& fboSize,
                            const GLuint& texture);
+
+    void addFullScreen();
 };
 
 }
