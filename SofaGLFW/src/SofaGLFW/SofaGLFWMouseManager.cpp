@@ -19,17 +19,50 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <SofaGLFW/SofaGLFWWindow.h>
+#include <sofa/helper/AdvancedTimer.h>
+#include <sofa/simulation/Simulation.h>
+#include <sofa/gui/common/PickHandler.h>
+#include <sofa/gui/common/MouseOperations.h>
+#include <sofa/gui/common/OperationFactory.h>
+#include <SofaGLFW/SofaGLFWMouseManager.h>
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+using namespace sofa;
+using namespace sofa::type;
+using namespace sofa::defaulttype;
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+namespace sofaglfw
+{
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+    SofaGLFWMouseManager::SofaGLFWMouseManager()
+    {
+        RegisterOperation("Attach").add< AttachOperation >();
+        RegisterOperation("AddFrame").add< AddFrameOperation >();
+        RegisterOperation("SaveCameraViewPoint").add< AddRecordedCameraOperation >();
+        RegisterOperation("StartNavigation").add< StartNavigationOperation >();
+        RegisterOperation("Fix").add< FixOperation  >();
+        RegisterOperation("Incise").add< InciseOperation  >();
+        RegisterOperation("Remove").add< TopologyOperation  >();
+        RegisterOperation("Suture").add< AddSutureOperation >();
+        RegisterOperation("ConstraintAttach").add< ConstraintAttachOperation >();
+    }
+
+    void SofaGLFWMouseManager::setPickHandler(PickHandler *picker)
+    {
+        pickHandler=picker;
+
+        updateOperation(LEFT,   "Attach");
+        updateOperation(MIDDLE, "Incise");
+        updateOperation(RIGHT,  "Remove");
+    }
+
+    void SofaGLFWMouseManager::updateOperation(MOUSE_BUTTON button, const std::string &id)
+    {
+        if (pickHandler)
+        {
+            pickHandler->changeOperation(button, id);
+        }
+    }
+
+}// namespace sofaglfw

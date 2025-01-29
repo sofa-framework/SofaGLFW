@@ -20,6 +20,8 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+
+#include <sofa/simulation/Node.h>
 #include <SofaImGui/config.h>
 
 #include <memory>
@@ -29,58 +31,23 @@
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
-#include "windows/WindowState.h"
+#include "WindowState.h"
 
-using windows::WindowState;
 
-struct GLFWwindow;
-namespace sofa::glfw
-{
-    class SofaGLFWBaseGUI;
-}
-
-namespace sofaimgui
+namespace windows
 {
 
-class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
-{
-public:
-
-    ImGuiGUIEngine() ;
-    ~ImGuiGUIEngine() = default;
-
-    void init() override;
-    void initBackend(GLFWwindow*) override;
-    void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
-    void beforeDraw(GLFWwindow* window) override;
-    void afterDraw() override;
-    void terminate() override;
-    bool dispatchMouseEvents() override;
-
-protected:
-    std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
-    std::pair<unsigned int, unsigned int> m_currentFBOSize;
-    std::pair<float, float> m_viewportWindowSize;
-    bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName);
-    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport) ;
-
-    // WindowState members
-    windows::WindowState winManagerProfiler;
-    windows::WindowState winManagerSceneGraph;
-    windows::WindowState winManagerPerformances;
-    windows::WindowState winManagerDisplayFlags;
-    windows::WindowState winManagerPlugins;
-    windows::WindowState winManagerComponents;
-    windows::WindowState winManagerLog;
-    windows::WindowState winManagerSettings;
-    windows::WindowState winManagerViewPort;
-    windows::WindowState firstRunState;
-
-    bool isViewportDisplayedForTheFirstTime{true};
-    sofa::type::Vec2f lastViewPortPos;
-};
+    /**
+     * @brief Shows the Profiler window.
+     *
+     * This function displays profiling information, including frame durations, timer percentages, and timer durations.
+     *
+     * @param groot The root node of the simulation.
+     * @param windowNameProfiler The name of the Profiler window.
+     * @param isProfilerOpen A reference to a boolean flag indicating if the Profiler window is open.
+     */
+    void showProfiler(sofa::core::sptr<sofa::simulation::Node> groot,
+                      const char* const& windowNameProfiler,
+                      WindowState& winManagerProfiler);
 
 } // namespace sofaimgui

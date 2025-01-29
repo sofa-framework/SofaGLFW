@@ -19,17 +19,64 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <string>
+#include <fstream>
+#include "WindowState.h"
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+#include <sofa/helper/system/FileSystem.h>
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+namespace windows {
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+    WindowState::WindowState(const std::string& path) : m_path(path)
+    {
+        m_isOpen = readState();
+    }
+
+    WindowState::~WindowState()
+    {
+        writeState();
+    }
+
+    bool *WindowState::getStatePtr()
+    {
+        return &m_isOpen;
+    }
+
+    void WindowState::setState(bool isOpen)
+    {
+        if (m_isOpen != isOpen)
+        {
+            m_isOpen = isOpen;
+            writeState();  // Write state only if it's value changes
+        }
+    }
+
+    bool WindowState::readState()
+    {
+        std::ifstream file(m_path);
+        if (!file.is_open())
+        {
+            return false; // Default to "CLOSED" if file not found
+        }
+
+        std::string stateStr;
+        std::getline(file, stateStr);
+
+        return stateStr == "OPEN";
+    }
+
+    void WindowState::writeState()
+    {
+        m_path = sofa::helper::system::FileSystem::findOrCreateAValidPath(m_path);
+
+        std::ofstream file(m_path);
+        if (!file.is_open())
+        {
+            return;
+        }
+
+        file << (m_isOpen ? "OPEN" : "CLOSED");
+    }
+
+} // namespace windows

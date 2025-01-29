@@ -10,7 +10,7 @@ sofa_find_package(Sofa.GL.Component.Rendering3D REQUIRED)
 
 option(SOFAIMGUI_FORCE_OPENGL2 "Force OpenGL2 mode (mandatory for MacOS). If false, OpenGL3 mode is activated (default)." OFF)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(SOFAGLFWIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
+    set(SOFAIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
 endif()
 
 include(FetchContent)
@@ -26,6 +26,7 @@ FetchContent_Declare(nfd
         GIT_TAG        d4df2b6ad5420f5300c00f418bf28d86291fa675                # v1.0.0
 )
 FetchContent_MakeAvailable(nfd)
+set_property(TARGET nfd  PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 FetchContent_Declare(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
@@ -35,7 +36,7 @@ FetchContent_MakeAvailable(ImPlot)
 
 FetchContent_Declare(IconFontCppHeaders
         GIT_REPOSITORY https://github.com/juliettef/IconFontCppHeaders
-        GIT_TAG        1856754666dff0db6c1af489a977f0ea2269f520
+        GIT_TAG        bf610efb2e5d4361df799d0dfb5ae3977d7bba2e
 )
 FetchContent_MakeAvailable(IconFontCppHeaders)
 
@@ -54,7 +55,8 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imgui_internal.h
     ${implot_SOURCE_DIR}/implot.h
     ${implot_SOURCE_DIR}/implot_internal.h
-    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome5.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome4.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome6.h
     ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h
@@ -84,6 +86,22 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.h
+    ${SOFAIMGUI_SOURCE_DIR}/UIStrings.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
+    ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.h
+
+
+
+
 )
 
 set(SOURCE_FILES
@@ -92,7 +110,20 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.cpp
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.cpp
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Components.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.cpp
+
 )
+
 
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})

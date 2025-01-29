@@ -19,17 +19,26 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
+#include <sofa/gui/common/PickHandler.h>
+#include <sofa/gui/common/BaseViewer.h>
+#include <sofa/gui/common/MouseOperations.h>
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+using namespace sofa::gui::common;
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+namespace sofaglfw
+{
+class SOFAGLFW_API SofaGLFWMouseManager
+{
+public:
+    SofaGLFWMouseManager();
+    void setPickHandler(PickHandler* picker);
+    bool m_isMouseInteractionEnabled{ false };
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+private:
+    void updateOperation(MOUSE_BUTTON button, const std::string& id);
+    PickHandler* pickHandler;
+};
+
+} // namespace sofaglfw

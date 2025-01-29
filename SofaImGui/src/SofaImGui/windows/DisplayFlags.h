@@ -19,17 +19,26 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <sofa/simulation/Node.h>
+#include "WindowState.h"
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+namespace windows
+{
+        /**
+         * @brief Shows the Display Flags window.
+         *
+         * This function displays a window allowing users to toggle various display flags for visualizing different components in the scene. It provides checkboxes to control the visibility of visual models, behavior models, force fields, collision models, bounding collision models, mappings, mechanical mappings, wireframe, and normals.
+         *
+         * @param groot The root node of the simulation scene.
+         * @param windowNameDisplayFlags The name of the Display Flags window.
+         * @param isDisplayFlagsWindowOpen A reference to a boolean flag indicating if the Display Flags window is open.
+         */
+         void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
+                               const char* const& windowNameDisplayFlags,
+                               WindowState& winManagerDisplayFlags);
+
+} // namespace sofaimgui
