@@ -148,6 +148,7 @@ void ImGuiGUIEngine::init()
     if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getSettingsIniFile()))
     {
         SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getSettingsIniFile().c_str());
+        SOFA_UNUSED(rc);
         assert(rc == SI_OK);
     }
 
@@ -340,7 +341,6 @@ void ImGuiGUIEngine::initDockSpace()
         auto dock_id_right = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.25f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_IOWindow.getName().c_str(), dock_id_right);
         ImGui::DockBuilderDockWindow(m_myRobotWindow.getName().c_str(), dock_id_right);
-        ImGui::DockBuilderDockWindow(m_displayFlagsWindow.getName().c_str(), dock_id_right);
 
         auto dock_id_right_up = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Up, 0.55f, nullptr, &dock_id_right);
         ImGui::DockBuilderDockWindow(m_moveWindow.getName().c_str(), dock_id_right_up);
@@ -446,7 +446,6 @@ void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_myRobotWindow.showWindow(windowFlags);
     m_moveWindow.showWindow(windowFlags);
     m_sceneGraphWindow.showWindow(groot, windowFlags);
-    m_displayFlagsWindow.showWindow(groot, windowFlags);
 
 }
 
@@ -517,12 +516,6 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isOpen());
             if (!m_sceneGraphWindow.enabled())
-                ImGui::EndDisabled();
-
-            if (!m_displayFlagsWindow.enabled())
-                ImGui::BeginDisabled();
-            ImGui::LocalCheckBox(m_displayFlagsWindow.getName().c_str(), &m_displayFlagsWindow.isOpen());
-            if (!m_displayFlagsWindow.enabled())
                 ImGui::EndDisabled();
 
             ImGui::EndMenu();

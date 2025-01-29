@@ -37,7 +37,6 @@
 #include <SofaImGui/windows/MoveWindow.h>
 #include <SofaImGui/windows/PlottingWindow.h>
 #include <SofaImGui/windows/ProgramWindow.h>
-#include <SofaImGui/windows/DisplayFlags.h>
 
 #include <SofaImGui/models/IPController.h>
 #include <SofaImGui/models/SimulationState.h>
@@ -93,7 +92,6 @@ public:
     windows::PlottingWindow     m_plottingWindow     = windows::PlottingWindow("       Plotting", true);
     windows::MyRobotWindow      m_myRobotWindow      = windows::MyRobotWindow("       My Robot", true);
     windows::MoveWindow         m_moveWindow         = windows::MoveWindow("       Move", true);
-    windows::DisplayFlagsWindow m_displayFlagsWindow = windows::DisplayFlagsWindow("       Display Options", false);
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;

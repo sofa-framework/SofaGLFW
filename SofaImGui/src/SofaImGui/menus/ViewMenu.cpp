@@ -20,6 +20,10 @@
  * Contact information: contact@sofa-framework.org                             *
  ******************************************************************************/
 
+#include <sofa/component/visual/LineAxis.h>
+#include <sofa/component/visual/VisualStyle.h>
+#include <sofa/core/visual/VisualParams.h>
+
 #include <SofaImGui/menus/ViewMenu.h>
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/helper/io/STBImage.h>
@@ -48,6 +52,8 @@ void ViewMenu::addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
     if (ImGui::BeginMenu("View"))
     {
         ImGui::PopStyleColor();
+
+        addViewport();
         addCenterCamera();
         addSaveCamera();
         addRestoreCamera();
@@ -65,6 +71,162 @@ void ViewMenu::addMenu(const std::pair<unsigned int, unsigned int>& fboSize,
     else
     {
         ImGui::PopStyleColor();
+    }
+}
+
+void ViewMenu::addViewport()
+{
+    if (ImGui::BeginMenu("Viewport"))
+    {
+        const auto& groot = m_baseGUI->getRootNode();
+
+        static bool showOriginFrame = false;
+        if (ImGui::LocalCheckBox("Origin Frame", &showOriginFrame))
+        {
+            auto origin = groot->get<sofa::component::visual::LineAxis>();
+            if (!origin)
+            {
+                auto newOrigin = sofa::core::objectmodel::New<sofa::component::visual::LineAxis>();
+                groot->addObject(newOrigin);
+                newOrigin->setName("ViewportOriginFrame");
+                newOrigin->addTag(sofa::core::objectmodel::Tag("createdByGUI"));
+                newOrigin->d_enable.setValue(true);
+                auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
+                newOrigin->d_size.setValue(*std::max_element(box.begin(), box.end()));
+                newOrigin->d_thickness.setValue(2.f);
+                newOrigin->init();
+            }
+            else
+            {
+                origin->d_enable.setValue(!origin->d_enable.getValue());
+            }
+        }
+        ImGui::SetItemTooltip("Show / hide");
+
+        ImGui::Separator();
+
+        sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
+        groot->get(visualStyle);
+        if (visualStyle)
+        {
+            auto& displayFlags = sofa::helper::getWriteAccessor(visualStyle->d_displayFlags).wref();
+
+            {
+                const bool initialValue = displayFlags.getShowVisualModels();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Visual Models", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowVisualModels(changeableValue);
+                }
+            }
+
+            {
+                const bool initialValue = displayFlags.getShowBehaviorModels();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Behavior Models", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowBehaviorModels(changeableValue);
+                }
+            }
+
+            {
+                const bool initialValue = displayFlags.getShowForceFields();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Force Fields", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowForceFields(changeableValue);
+                }
+            }
+
+            {
+                const bool initialValue = displayFlags.getShowInteractionForceFields();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Interaction Force Fields", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowInteractionForceFields(changeableValue);
+                }
+            }
+
+            {
+                const bool initialValue = displayFlags.getShowCollisionModels();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Collision Models", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowCollisionModels(changeableValue);
+                }
+            }
+
+            {
+                const bool initialValue = displayFlags.getShowBoundingCollisionModels();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Bounding Collision Models", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowBoundingCollisionModels(changeableValue);
+                }
+            }
+
+            ImGui::Separator();
+
+            {
+                const bool initialValue = displayFlags.getShowMappings();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Mappings", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowMappings(changeableValue);
+                }
+            }
+
+            {
+                const bool initialValue = displayFlags.getShowMechanicalMappings();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Mechanical Mappings", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowMechanicalMappings(changeableValue);
+                }
+            }
+
+            ImGui::Separator();
+
+            {
+                const bool initialValue = displayFlags.getShowWireFrame();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Wire Frame", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowWireFrame(changeableValue);
+                }
+            }
+
+            {
+                const bool initialValue = displayFlags.getShowNormals();
+                bool changeableValue = initialValue;
+                ImGui::LocalCheckBox("Normals", &changeableValue);
+                ImGui::SetItemTooltip("Show / hide");
+                if (changeableValue != initialValue)
+                {
+                    displayFlags.setShowNormals(changeableValue);
+                }
+            }
+        }
+
+        ImGui::EndMenu();
     }
 }
 

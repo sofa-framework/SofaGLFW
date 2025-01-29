@@ -39,6 +39,7 @@ class ViewMenu
     sofaglfw::SofaGLFWBaseGUI * m_baseGUI;
 
    protected:
+    void addViewport();
     void addFullScreen();
     void addCenterCamera();
     void addSaveCamera();

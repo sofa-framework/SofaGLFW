@@ -133,7 +133,7 @@ set(HEADER_FILES
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
     # ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
+    # ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
@@ -187,7 +187,7 @@ set(SOURCE_FILES
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.cpp
     # ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.cpp
+    # ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.cpp
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.cpp
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Components.cpp
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.cpp
