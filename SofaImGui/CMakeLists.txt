@@ -46,8 +46,6 @@ FetchContent_Declare(simpleini
 )
 FetchContent_MakeAvailable(simpleini)
 
-set (CMAKE_CXX_STANDARD 20)
-
 set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
