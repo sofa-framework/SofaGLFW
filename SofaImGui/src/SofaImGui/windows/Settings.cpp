@@ -58,7 +58,7 @@ namespace windows
                             sofaimgui::setStyle(sofaimgui::listStyles[styleCurrent]);
                             const auto style = sofaimgui::listStyles[styleCurrent];
                             ini.SetValue("Style", "theme", style, sofaimgui::ini::styleDescription);
-                            SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                            [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                         }
                         if (isSelected)
                             ImGui::SetItemDefaultFocus();

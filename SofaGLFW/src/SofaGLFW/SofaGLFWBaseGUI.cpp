@@ -34,6 +34,7 @@
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <sofa/core/objectmodel/BaseClassNameHelper.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/objectmodel/KeyreleasedEvent.h>
 #include <sofa/simulation/Node.h>
@@ -513,7 +514,7 @@ void SofaGLFWBaseGUI::initVisual()
     if (!visualStyle)
     {
         visualStyle = sofa::core::objectmodel::New<VisualStyle>();
-        visualStyle->setName(helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
+        visualStyle->setName(sofa::core::objectmodel::BaseClassNameHelper::getShortName<decltype(visualStyle.get())>());
 
         DisplayFlags* displayFlags = visualStyle->d_displayFlags.beginEdit();
         displayFlags->setShowVisualModels(tristate::true_value);

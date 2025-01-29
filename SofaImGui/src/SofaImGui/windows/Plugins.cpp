@@ -23,6 +23,7 @@
 #include <SofaImGui/ImGuiGUIEngine.h>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/loader/SceneLoader.h>
+#include <sofa/core/ObjectFactory.h>
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/simulation/Simulation.h>
@@ -98,7 +99,7 @@ namespace windows
                         ImGui::TextWrapped("%s", pluginIt->second.getModuleDescription());
                         ImGui::Spacing();
                         ImGui::TextDisabled("Components:");
-                        ImGui::TextWrapped("%s", pluginIt->second.getModuleComponentList());
+                        ImGui::TextWrapped("%s", sofa::core::ObjectFactory::getInstance()->listClassesFromTarget(pluginIt->second.getModuleName()).c_str());
                         ImGui::Spacing();
                         ImGui::TextDisabled("Path:");
                         ImGui::TextWrapped("%s", selectedPlugin.c_str());
