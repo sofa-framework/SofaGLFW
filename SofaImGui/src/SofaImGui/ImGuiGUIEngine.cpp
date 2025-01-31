@@ -312,7 +312,7 @@ void ImGuiGUIEngine::terminate()
 
 bool ImGuiGUIEngine::dispatchMouseEvents()
 {
-    return !ImGui::GetIO().WantCaptureMouse || m_viewportWindow.m_isMouseOnViewport;
+    return !ImGui::GetIO().WantCaptureMouse || m_viewportWindow.isMouseOnViewport();
 }
 
 void ImGuiGUIEngine::initDockSpace()
@@ -689,24 +689,31 @@ void ImGuiGUIEngine::key_callback(GLFWwindow* window, int key, int scancode, int
             m_programWindow.exportProgram(false);
         }
         break;
-    case GLFW_KEY_1:
-        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::TOP);
-        break;
-    case GLFW_KEY_2:
-        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BOTTOM);
-        break;
-    case GLFW_KEY_3:
-        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::FRONT);
-        break;
-    case GLFW_KEY_4:
-        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BACK);
-        break;
-    case GLFW_KEY_5:
-        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::RIGHT);
-        break;
-    case GLFW_KEY_6:
-        sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::LEFT);
-        break;
+    }
+
+    if(m_viewportWindow.isFocusOnViewport())
+    {
+        switch (key)
+        {
+        case GLFW_KEY_1:
+            sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::TOP);
+            break;
+        case GLFW_KEY_2:
+            sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BOTTOM);
+            break;
+        case GLFW_KEY_3:
+            sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::FRONT);
+            break;
+        case GLFW_KEY_4:
+            sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::BACK);
+            break;
+        case GLFW_KEY_5:
+            sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::RIGHT);
+            break;
+        case GLFW_KEY_6:
+            sofaimgui::Utils::alignCamera(m_baseGUI, sofaimgui::Utils::CameraAlignement::LEFT);
+            break;
+        }
     }
 }
 

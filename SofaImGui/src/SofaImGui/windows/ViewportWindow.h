@@ -41,11 +41,16 @@ class SOFAIMGUI_API ViewportWindow : public BaseWindow
     bool addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes, const double &maxItemWidth);
 
     std::pair<float, float> m_windowSize{0., 0.};
-    bool m_isMouseOnViewport{false};
+
+    bool isMouseOnViewport() {return m_isMouseOnViewport;}
+    bool isFocusOnViewport() {return m_isFocusOnViewport;}
 
    protected:
 
     std::shared_ptr<StateWindow> m_stateWindow;
+
+    bool m_isMouseOnViewport{false};
+    bool m_isFocusOnViewport{false};
 
     void addStateWindow();
     void addSimulationTimeAndFPS(sofa::simulation::Node *groot);

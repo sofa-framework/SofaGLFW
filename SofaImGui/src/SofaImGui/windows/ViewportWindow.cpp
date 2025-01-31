@@ -45,6 +45,8 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
             ImVec2 wsize = ImGui::GetWindowSize();
             m_windowSize = {wsize.x, wsize.y};
 
+            m_isFocusOnViewport = ImGui::IsWindowFocused();
+
             ImDrawList* dl = ImGui::GetWindowDrawList();
             ImVec2 p_min = ImGui::GetCursorScreenPos();
             ImVec2 p_max = ImVec2(p_min.x + wsize.x, p_min.y + wsize.y);
