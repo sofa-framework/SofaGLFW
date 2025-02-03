@@ -147,9 +147,9 @@ jobs:
           body: |
             Last updated on ${{ env.RELEASE_DATE }}
           files: |
-            artifacts/${{ env.PROJECT_NAME }}_${{ env.RELEASE_NAME }}_*_Linux.zip
-            artifacts/${{ env.PROJECT_NAME }}_${{ env.RELEASE_NAME }}_*_Windows.zip
-            artifacts/${{ env.PROJECT_NAME }}_${{ env.RELEASE_NAME }}_*_macOS.zip
+            artifacts/${{ env.PROJECT_NAME }}_${{ env.RELEASE_NAME }}_for*_Linux.zip
+            artifacts/${{ env.PROJECT_NAME }}_${{ env.RELEASE_NAME }}_for*_Windows.zip
+            artifacts/${{ env.PROJECT_NAME }}_${{ env.RELEASE_NAME }}_for*_macOS.zip
 
 
   build-and-test-with-imgui:
