@@ -19,17 +19,24 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <string>
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+namespace windows {
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+    class WindowState {
+    public:
+        WindowState(const std::string& path);
+        ~WindowState();
+        bool * getStatePtr() ;
+        void setState(bool isOpen);
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+    private:
+        bool readState();
+        void writeState();
+        bool m_isOpen;
+        std::string m_path;
+    };
+
+} // namespace windows

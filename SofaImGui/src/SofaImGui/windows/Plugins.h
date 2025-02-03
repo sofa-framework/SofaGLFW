@@ -19,17 +19,24 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#pragma once
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
+#include <sofa/simulation/Node.h>
+#include "WindowState.h"
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+namespace windows
+{
+        /**
+         * @brief Shows the Plugins window.
+         *
+         * This function allows users to load plugins, view a list of loaded plugins, and display detailed information about a selected plugin.
+         *
+         * @param windowNamePlugins The name of the Plugins window.
+         * @param isPluginsWindowOpen A reference to a boolean flag indicating if the Plugins window is open.
+         */
+        void showPlugins(const char* const& windowNamePlugins,
+                         WindowState& winManagerPlugins);
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+
+} // namespace sofaimgui

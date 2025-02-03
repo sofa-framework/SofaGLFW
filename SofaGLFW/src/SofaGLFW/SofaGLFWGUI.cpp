@@ -48,13 +48,15 @@ void SofaGLFWGUI::redraw()
 }
 
 int SofaGLFWGUI::closeGUI()
-{ 
-    m_baseGUI.terminate();
+{
+    delete this;
     return 0; 
 }
 
 void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filename, bool temporaryFile)
 {
+    SOFA_UNUSED(temporaryFile);
+
     std::string strFilename;
     if (filename)
         strFilename = filename;
@@ -66,6 +68,9 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
     this->configureGUI(groot);
 
     m_baseGUI.initVisual();
+
+    // update camera if a sidecar file is present
+    m_baseGUI.restoreCamera(m_baseGUI.findCamera(groot));
 }
 
 sofa::simulation::Node* SofaGLFWGUI::currentSimulation()
@@ -81,6 +86,11 @@ void SofaGLFWGUI::setViewerResolution(int width, int height)
     //if already spawned, apply
     m_baseGUI.resizeWindow(width, height);
 
+}
+
+void SofaGLFWGUI::centerWindow()
+{
+    [[maybe_unused]] bool centered = m_baseGUI.centerWindow();
 }
 
 void SofaGLFWGUI::setViewerConfiguration(sofa::component::setting::ViewerSetting* viewerConf)
@@ -109,7 +119,7 @@ void SofaGLFWGUI::setBackgroundColor(const sofa::type::RGBAColor& color)
 
 void SofaGLFWGUI::setBackgroundImage(const std::string& image)
 {
-
+    SOFA_UNUSED(image);
 }
 
 sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename)

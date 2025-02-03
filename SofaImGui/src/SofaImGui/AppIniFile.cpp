@@ -19,17 +19,33 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/config.h>
+#include <SofaImGui/ImGuiGUIEngine.h>
+#include <sofa/helper/Utils.h>
+#include <sofa/helper/system/FileSystem.h>
+#include <sofa/gui/common/BaseGUI.h>
+#include "windows/Performances.h"
+#include "AppIniFile.h"
 
-#define SOFAGLFW_VERSION @PROJECT_VERSION@
 
-#cmakedefine01 SOFAGLFW_HAVE_SOFA_GUI_COMMON
+using namespace sofa;
 
-#define SOFAGLFW_HAS_IMGUI @SOFAGLFW_HAS_IMGUI_VALUE@
+namespace sofaimgui
+{
+    const std::string& getConfigurationFolderPath()
+    {
+        static const std::string configPath(
+            helper::system::FileSystem::findOrCreateAValidPath(
+                helper::system::FileSystem::append(sofa::gui::common::BaseGUI::getConfigDirectoryPath(), "imgui")
+            )
+        );
+        return configPath;
+    }
 
-#ifdef SOFA_BUILD_SOFAGLFW
-#  define SOFA_TARGET @PROJECT_NAME@
-#  define SOFAGLFW_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFAGLFW_API SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+    const std::string& AppIniFile::getAppIniFile()
+    {
+        static const std::string appIniFile(helper::system::FileSystem::append(getConfigurationFolderPath(), "settings.ini"));
+        return appIniFile;
+    }
+
+
+}
