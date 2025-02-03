@@ -92,6 +92,7 @@ set(SOFAIMGUI_SOURCE_DIR src/SofaImGui)
 set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/IOWindow.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/LogWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/MyRobotWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/MoveWindow.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.h
@@ -130,20 +131,14 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/init.h
 
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.h
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
 )
 
 set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/BaseWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/IOWindow.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/LogWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/MyRobotWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/MoveWindow.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraphWindow.cpp
@@ -184,14 +179,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
 
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
     # ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.cpp
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.cpp
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.cpp
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.cpp
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Components.cpp
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.cpp
-    # ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
 )
 

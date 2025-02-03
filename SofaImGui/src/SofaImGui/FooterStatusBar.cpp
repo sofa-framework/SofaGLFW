@@ -120,7 +120,7 @@ void FooterStatusBar::setTempMessage(const std::string &message, const MessageTy
     m_refreshTempMessage = true;
     m_tempMessageType = type;
     m_tempMessage = message;
-    std::string from = "FooterStatusBar";
+    std::string from = "GUI";
 
     switch (type) {
     case MessageType::MWARNING:

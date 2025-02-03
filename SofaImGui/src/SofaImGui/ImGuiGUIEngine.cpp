@@ -352,6 +352,7 @@ void ImGuiGUIEngine::initDockSpace()
         auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.32f, nullptr, &dockspaceID);
         ImGui::DockBuilderDockWindow(m_programWindow.getName().c_str(), dock_id_down);
         ImGui::DockBuilderDockWindow(m_plottingWindow.getName().c_str(), dock_id_down);
+        ImGui::DockBuilderDockWindow(m_logWindow.getName().c_str(), dock_id_down);
 
         ImGui::DockBuilderGetNode(dockspaceID)->WantHiddenTabBarToggle = true;
 
@@ -443,6 +444,7 @@ void ImGuiGUIEngine::showOptionWindows(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     m_programWindow.showWindow(baseGUI, windowFlags);
     m_plottingWindow.showWindow(groot, windowFlags);
 
+    m_logWindow.showWindow(windowFlags);
     m_IOWindow.showWindow(groot, windowFlags);
     m_myRobotWindow.showWindow(windowFlags);
     m_moveWindow.showWindow(windowFlags);
@@ -514,10 +516,18 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             if (!m_viewportWindow.enabled())
                 ImGui::EndDisabled();
 
+            ImGui::Separator();
+
             if (!m_sceneGraphWindow.enabled())
                 ImGui::BeginDisabled();
             ImGui::LocalCheckBox(m_sceneGraphWindow.getName().c_str(), &m_sceneGraphWindow.isOpen());
             if (!m_sceneGraphWindow.enabled())
+                ImGui::EndDisabled();
+
+            if (!m_logWindow.enabled())
+                ImGui::BeginDisabled();
+            ImGui::LocalCheckBox(m_logWindow.getName().c_str(), &m_logWindow.isOpen());
+            if (!m_logWindow.enabled())
                 ImGui::EndDisabled();
 
             ImGui::EndMenu();
