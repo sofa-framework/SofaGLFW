@@ -692,7 +692,9 @@ void ProgramWindow::showAddActionButton(const ImVec2 &position,
         showActionMenu(track, trackIndex, actionIndex);
         ImGui::EndPopup();
     }
-    if (ImGui::IsItemHovered() || ImGui::IsPopupOpen(menulabel.c_str()))
+
+    size_t nbActions = track->getActions().size();
+    if (ImGui::IsItemHovered() || ImGui::IsPopupOpen(menulabel.c_str()) || actionIndex == nbActions)
     {
         ImGui::Button(buttonlabel.c_str(), ImVec2(buttonSize, buttonSize));
         if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
