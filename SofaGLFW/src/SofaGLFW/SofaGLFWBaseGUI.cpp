@@ -413,7 +413,7 @@ void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* s
     }
 }
 
-void SofaGLFWBaseGUI::setBackgroundColor(const RGBAColor& newColor, unsigned int /* windowID */)
+void SofaGLFWBaseGUI::setWindowBackgroundColor(const RGBAColor& newColor, unsigned int /* windowID */)
 {
     // only manage the first window for now
     if (hasWindow())
@@ -427,9 +427,16 @@ void SofaGLFWBaseGUI::setBackgroundColor(const RGBAColor& newColor, unsigned int
 }
 
 
-void SofaGLFWBaseGUI::setBackgroundImage(const std::string& /* filename */, unsigned int /* windowID */)
+void SofaGLFWBaseGUI::setWindowBackgroundImage(const std::string& filename, unsigned int /* windowID */)
 {
-
+    if (hasWindow())
+    {
+        s_mapWindows[m_firstWindow]->setBackgroundImage(filename);
+    }
+    else
+    {
+        msg_error("SofaGLFWBaseGUI") << "No window to set the background in";// can happen with runSofa/BaseGUI
+    }
 }
 
 void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
@@ -557,6 +564,8 @@ void SofaGLFWBaseGUI::initVisual()
     {
         sofaGlfwWindow->centerCamera(m_groot, m_vparams);
     }
+    
+    setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
 }
 
 void SofaGLFWBaseGUI::runStep()
@@ -607,13 +616,18 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     const char keyName = handleArrowKeys(key);
     const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
-    auto currentGUI = s_mapGUIs.find(window);
-    if (currentGUI == s_mapGUIs.end() || currentGUI->second == nullptr)
+    const bool foundGUI = s_mapGUIs.contains(window);
+    if (!foundGUI)
+    {
+        return;
+    }
+    auto currentGUI = s_mapGUIs[window];
+    if (!currentGUI)
     {
         return;
     }
 
-    auto rootNode = currentGUI->second->getRootNode();
+    auto rootNode = currentGUI->getRootNode();
     if (!rootNode)
     {
         return;
@@ -638,10 +652,32 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     // Handle specific keys for additional functionality
     switch (key)
     {
+        case GLFW_KEY_B:
+            if (action == GLFW_PRESS)
+            {
+                currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
+                switch (currentGUI->m_backgroundID)
+                {
+                    case 0:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+                        break;
+                    case 1:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
+                        break;
+                    case 2:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
+                        break;
+                    case 3:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
+                        break;
+                }
+                break;
+            }
+            break;
         case GLFW_KEY_F:
             if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
             {
-                currentGUI->second->switchFullScreen(window);
+                currentGUI->switchFullScreen(window);
             }
             break;
         case GLFW_KEY_ESCAPE:
@@ -653,20 +689,20 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
         case GLFW_KEY_SPACE:
             if (action == GLFW_PRESS)
             {
-                const bool isRunning = currentGUI->second->simulationIsRunning();
-                currentGUI->second->setSimulationIsRunning(!isRunning);
+                const bool isRunning = currentGUI->simulationIsRunning();
+                currentGUI->setSimulationIsRunning(!isRunning);
             }
             break;
         case GLFW_KEY_LEFT_SHIFT:
-            if (currentGUI->second->getPickHandler())
+            if (currentGUI->getPickHandler())
             {
                 if (action == GLFW_PRESS)
                 {
-                    currentGUI->second->getPickHandler()->activateRay(0, 0, rootNode.get());
+                    currentGUI->getPickHandler()->activateRay(0, 0, rootNode.get());
                 }
                 else if (action == GLFW_RELEASE)
                 {
-                    currentGUI->second->getPickHandler()->deactivateRay();
+                    currentGUI->getPickHandler()->deactivateRay();
                 }
             }
             break;
