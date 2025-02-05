@@ -138,9 +138,10 @@ int main(int argc, char** argv)
     if (background)
     {
         if (background->d_image.getValue().empty())
-            glfwGUI.setBackgroundColor(background->d_color.getValue());
+
+            glfwGUI.setWindowBackgroundColor(background->d_color.getValue());
         else
-            glfwGUI.setBackgroundImage(background->d_image.getFullPath());
+            glfwGUI.setWindowBackgroundImage(background->d_image.getFullPath());
     }
 
     // Run the main loop

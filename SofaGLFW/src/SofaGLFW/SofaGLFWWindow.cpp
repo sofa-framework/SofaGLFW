@@ -28,11 +28,15 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <sofa/helper/io/Image.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/objectmodel/MouseEvent.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/gl/gl.h>
+#include <sofa/gl/Texture.h>
+
+#include <ranges>
 
 using namespace sofa;
 namespace sofaglfw
@@ -47,6 +51,19 @@ SofaGLFWWindow::SofaGLFWWindow(GLFWwindow* glfwWindow, component::visual::BaseCa
 void SofaGLFWWindow::close()
 {
     glfwDestroyWindow(m_glfwWindow);
+    
+    if(m_currentBackgroundTexture)
+    {
+        delete m_currentBackgroundTexture;
+        m_currentBackgroundTexture = nullptr;
+    }
+    
+    for(auto& background : m_backgrounds | std::views::values)
+    {
+        delete background.texture;
+    }
+    
+    m_backgrounds.clear();
 }
 
 
@@ -56,6 +73,9 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (!m_currentBackgroundFilename.empty())
+        drawBackgroundImage();
+    
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_COLOR_MATERIAL);
@@ -66,6 +86,7 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
         msg_error("SofaGLFWGUI") << "No camera defined.";
         return;
     }
+    
     
     if (groot->f_bbox.getValue().isValid())
     {        
@@ -99,11 +120,105 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     vparams->setModelViewMatrix(lastModelviewMatrix);
 
     simulation::node::draw(vparams, groot.get());
+    
 }
 
 void SofaGLFWWindow::setBackgroundColor(const RGBAColor& newColor)
 {
     m_backgroundColor = newColor;
+    m_currentBackgroundFilename = "";
+}
+
+
+void SofaGLFWWindow::setBackgroundImage(const std::string& filename)
+{
+    // when setting a background image, we check if it was not loaded and cached first
+    if(!m_backgrounds.contains(filename))
+    {
+        std::string tempFilename = filename;
+        if( sofa::helper::system::DataRepository.findFile(tempFilename) )
+        {
+            const auto backgroundImageFilename = sofa::helper::system::DataRepository.getFile(tempFilename);
+            
+            std::string extension = sofa::helper::system::SetDirectory::GetExtension(filename.c_str());
+            std::ranges::transform(extension, extension.begin(), ::tolower );
+            
+            auto* backgroundImage = helper::io::Image::FactoryImage::getInstance()->createObject(extension, backgroundImageFilename);
+            if( !backgroundImage )
+            {
+                msg_warning("GUI") << "Could not load the file " << filename;
+                return;
+            }
+            else
+            {
+                auto* texture = new gl::Texture(backgroundImage);
+                if(texture)
+                {
+                    texture->init();
+                    m_backgrounds.emplace(filename, Background{backgroundImage, texture});
+                }
+            }
+        }
+    }
+    m_currentBackgroundFilename = filename;
+}
+
+
+void SofaGLFWWindow::drawBackgroundImage()
+{
+    if(!m_backgrounds.contains(m_currentBackgroundFilename))
+        return;
+
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    
+    glDisable(GL_LIGHTING);
+    
+    const auto& background = m_backgrounds[m_currentBackgroundFilename];
+
+    if(!background.image)
+        return;
+    
+    const int imageWidth = background.image->getWidth();
+    const int imageHeight = background.image->getHeight();
+    
+    int screenWidth = 0;
+    int screenHeight = 0;
+    
+    glfwGetFramebufferSize(m_glfwWindow, &screenWidth, &screenHeight);
+    
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(-0.5, screenWidth, -0.5, screenHeight, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    background.texture->bind();
+
+    const double coordWidth = int(screenWidth / imageWidth) + 1;
+    const double coordHeight = int(screenHeight / imageHeight) + 1;
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2d(0.0,            0.0);             glVertex3d( -imageWidth*coordWidth, -imageHeight*coordHeight, 0.0 );
+    glTexCoord2d(coordWidth*2.0, 0.0);             glVertex3d(  imageWidth*coordWidth, -imageHeight*coordHeight, 0.0 );
+    glTexCoord2d(coordWidth*2.0, coordHeight*2.0); glVertex3d(  imageWidth*coordWidth,  imageHeight*coordHeight, 0.0 );
+    glTexCoord2d(0.0,            coordHeight*2.0); glVertex3d( -imageWidth*coordWidth,  imageHeight*coordHeight, 0.0 );
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+    
+    glPopAttrib();
 }
 
 void SofaGLFWWindow::setCamera(component::visual::BaseCamera::SPtr newCamera)
