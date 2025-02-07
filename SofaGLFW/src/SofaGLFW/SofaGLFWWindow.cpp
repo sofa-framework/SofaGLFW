@@ -58,7 +58,7 @@ void SofaGLFWWindow::close()
         m_currentBackgroundTexture = nullptr;
     }
     
-    for(auto& background : m_backgrounds | std::views::values)
+    for(auto& [_, background] : m_backgrounds)
     {
         delete background.texture;
     }
