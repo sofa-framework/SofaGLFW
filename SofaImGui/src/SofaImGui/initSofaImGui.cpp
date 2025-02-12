@@ -48,7 +48,7 @@ void initExternalModule()
         sofa::helper::logging::MessageDispatcher::addHandler(&sofa::helper::logging::MainLoggingMessageHandler::getInstance());
         sofa::helper::logging::MainLoggingMessageHandler::getInstance().activate();
 
-        sofa::gui::common::GUIManager::RegisterGUI("imgui", &sofaimgui::ImGuiGUI::CreateGUI);
+        sofa::gui::common::GUIManager::RegisterGUI("imgui", &sofaimgui::ImGuiGUI::CreateGUI,nullptr,1);
     }
 }
 
