@@ -37,7 +37,8 @@ namespace windows
 
     void showSettings(const char* const& windowNameSettings,
                       CSimpleIniA &ini,
-                      WindowState& winManagerSettings)
+                      WindowState& winManagerSettings,
+                      sofaimgui::ImGuiGUIEngine* engine)
     {
         if (*winManagerSettings.getStatePtr())
         {
@@ -66,16 +67,17 @@ namespace windows
                     ImGui::EndCombo();
                 }
 
-                float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
+                float iniGlobalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
                 {
-                    ImGuiIO& io = ImGui::GetIO();
-                    io.FontGlobalScale = globalScale;
+                    float globalScale = iniGlobalScale;
                     constexpr float MIN_SCALE = 0.3f;
                     constexpr float MAX_SCALE = 2.0f;
-                    ImGui::DragFloat("global scale", &io.FontGlobalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
-
-                    ini.SetDoubleValue("Visualization", "globalScale", static_cast<double>(io.FontGlobalScale));
-                    if (std::abs(globalScale - io.FontGlobalScale) > 0.005f)
+                    ImGui::DragFloat("global scale", &globalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
+                    
+                    engine->setScale(globalScale, nullptr);
+                    
+                    ini.SetDoubleValue("Visualization", "globalScale", static_cast<double>(globalScale));
+                    if (std::abs(iniGlobalScale - globalScale) > 0.005f)
                     {
                         [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                     }

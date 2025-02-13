@@ -160,9 +160,9 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     }
     if (monitor)
     {
-        float xscale, yscale;
+        float xscale{}, yscale{};
         glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-
+        
         ImGuiIO& io = ImGui::GetIO();
 
         io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, 16 * yscale);
@@ -176,7 +176,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 
         // restore the global scale stored in the Settings ini file
         const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
-        io.FontGlobalScale = globalScale;
+        this->setScale(globalScale, monitor);
     }
 }
 
@@ -593,7 +593,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Settings window
      **************************************/
-    windows::showSettings(windowNameSettings,ini, winManagerSettings);
+    windows::showSettings(windowNameSettings,ini, winManagerSettings, this);
 
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
@@ -678,6 +678,22 @@ void ImGuiGUIEngine::terminate()
 bool ImGuiGUIEngine::dispatchMouseEvents()
 {
     return !ImGui::GetIO().WantCaptureMouse || isMouseOnViewport;
+}
+
+
+void ImGuiGUIEngine::setScale(double globalScale, GLFWmonitor* monitor)
+{
+    if(!monitor)
+    {
+        monitor = glfwGetPrimaryMonitor();
+    }
+    
+    ImGuiIO& io = ImGui::GetIO();
+    
+    float xscale{}, yscale{};
+    glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+    
+    io.FontGlobalScale = globalScale / yscale;
 }
 
 } //namespace sofaimgui

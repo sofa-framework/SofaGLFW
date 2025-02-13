@@ -34,6 +34,8 @@
 using windows::WindowState;
 
 struct GLFWwindow;
+struct GLFWmonitor;
+
 namespace sofa::glfw
 {
     class SofaGLFWBaseGUI;
@@ -57,6 +59,9 @@ public:
     void afterDraw() override;
     void terminate() override;
     bool dispatchMouseEvents() override;
+    
+    // apply global scale on the given monitor (if null, it will fetch the main monitor)
+    void setScale(double globalScale, GLFWmonitor* monitor);
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
