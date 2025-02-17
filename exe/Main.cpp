@@ -105,13 +105,13 @@ int main(int argc, char** argv)
     groot->get(viewerConf, sofa::core::objectmodel::BaseContext::SearchRoot);
     if (viewerConf)
     {
-        if (viewerConf->fullscreen.getValue())
+        if (viewerConf->d_fullscreen.getValue())
         {
             isFullScreen = true;
         }
         else
         {
-            resolution = viewerConf->resolution.getValue();
+            resolution = viewerConf->d_resolution.getValue();
         }
     }
 

@@ -31,6 +31,7 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <sofa/core/objectmodel/BaseClassNameHelper.h>
 
 #include <sofa/component/visual/InteractiveCamera.h>
 #include <sofa/component/visual/VisualStyle.h>
@@ -423,11 +424,11 @@ void SofaGLFWBaseGUI::initVisual()
     if (!visualStyle)
     {
         visualStyle = sofa::core::objectmodel::New<component::visual::VisualStyle>();
-        visualStyle->setName(sofa::helper::NameDecoder::getShortName<decltype(visualStyle.get())>());
+        visualStyle->setName(sofa::core::objectmodel::BaseClassNameHelper::getShortName<decltype(visualStyle.get())>());
 
-        core::visual::DisplayFlags* displayFlags = visualStyle->displayFlags.beginEdit();
+        core::visual::DisplayFlags* displayFlags = visualStyle->d_displayFlags.beginEdit();
         displayFlags->setShowVisualModels(sofa::core::visual::tristate::true_value);
-        visualStyle->displayFlags.endEdit();
+        visualStyle->d_displayFlags.endEdit();
 
         m_groot->addObject(visualStyle);
         visualStyle->init();
