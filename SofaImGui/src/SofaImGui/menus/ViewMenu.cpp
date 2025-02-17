@@ -135,14 +135,9 @@ void ViewMenu::showOriginFrame(const bool& show)
             newOriginFrame->setName("ViewportOriginFrame");
             newOriginFrame->addTag(sofa::core::objectmodel::Tag("createdByGUI"));
             newOriginFrame->d_enable.setValue(show);
-
-            auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
-            auto size = *std::max_element(box.begin(), box.end());
-            newOriginFrame->d_size.setValue(size);
-            // Waiting PR#5258
-            // newOriginFrame->d_size.setValue(-1);
-            // newOriginFrame->d_thickness.setValue(1.5f);
-            // newOriginFrame->d_vanishing.setValue(true);
+            newOriginFrame->d_infinite.setValue(true);
+            newOriginFrame->d_thickness.setValue(2.f);
+            newOriginFrame->d_vanishing.setValue(true);
             newOriginFrame->init();
         } else {
             originFrame->d_enable.setValue(show);
@@ -158,9 +153,6 @@ void ViewMenu::addViewport()
 
         if (ImGui::BeginMenu("Grid"))
         {
-            auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
-            auto size = *std::max_element(box.begin(), box.end());
-
             static bool show01 = false;
             if (ImGui::LocalCheckBox("Square size: 0.1", &show01))
                 showGrid(show01, 0.1f, 1.f);
