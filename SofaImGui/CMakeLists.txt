@@ -135,7 +135,7 @@ set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} $
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
-target_link_libraries(${PROJECT_NAME} PRIVATE nfd::nfd glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE nfd::nfd)
 
 find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
