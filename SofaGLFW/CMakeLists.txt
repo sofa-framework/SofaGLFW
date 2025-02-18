@@ -11,22 +11,27 @@ sofa_find_package(Sofa.GUI.Common QUIET)
 
 include(FetchContent)
 
-FetchContent_Declare(glfw
-        GIT_REPOSITORY https://github.com/glfw/glfw
-        GIT_TAG        3.3.4
-)
+find_package(glfw3 CONFIG QUIET)
 
-FetchContent_GetProperties(glfw)
-if(NOT glfw_POPULATED)
-    FetchContent_Populate(glfw)
+if(NOT TARGET glfw)
+    message("glfw3 not found, fetching source code...")
+    FetchContent_Declare(glfw
+            GIT_REPOSITORY https://github.com/glfw/glfw
+            GIT_TAG        3.3.4
+    )
 
-    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
-    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-    set(GLFW_INSTALL ON CACHE INTERNAL "Generate installation target")
-    set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Build GLFW as a shared library")
+    FetchContent_GetProperties(glfw)
+    if(NOT glfw_POPULATED)
+        FetchContent_Populate(glfw)
 
-    add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
+        set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
+        set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+        set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+        set(GLFW_INSTALL ON CACHE INTERNAL "Generate installation target")
+        set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Build GLFW as a shared library")
+
+        add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
+    endif()
 endif()
 
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
@@ -57,7 +62,7 @@ endif()
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Component.Visual)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC 
     $<BUILD_INTERFACE:${glfw_SOURCE_DIR}/include>  
     $<INSTALL_INTERFACE:include>
