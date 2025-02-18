@@ -14,23 +14,24 @@ include(FetchContent)
 find_package(glfw3 CONFIG QUIET)
 
 if(NOT TARGET glfw)
-  FetchContent_Declare(glfw
-          GIT_REPOSITORY https://github.com/glfw/glfw
-          GIT_TAG        3.3.4
-  )
+    message("glfw3 not found, fetching source code...")
+    FetchContent_Declare(glfw
+            GIT_REPOSITORY https://github.com/glfw/glfw
+            GIT_TAG        3.3.4
+    )
 
-  FetchContent_GetProperties(glfw)
-  if(NOT glfw_POPULATED)
-      FetchContent_Populate(glfw)
+    FetchContent_GetProperties(glfw)
+    if(NOT glfw_POPULATED)
+        FetchContent_Populate(glfw)
 
-      set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
-      set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-      set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-      set(GLFW_INSTALL ON CACHE INTERNAL "Generate installation target")
-      set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Build GLFW as a shared library")
+        set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
+        set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+        set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+        set(GLFW_INSTALL ON CACHE INTERNAL "Generate installation target")
+        set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Build GLFW as a shared library")
 
-      add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
-  endif()
+        add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
+    endif()
 endif()
 
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
