@@ -17,7 +17,7 @@ include(FetchContent)
 
 FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG        fc198fe1dbae2e045b7fb31d53466a54f5368414
+        GIT_TAG        11b3a7c8ca23201294464c7f368614a9106af2a1 # v1.91.8-docking
 )
 FetchContent_MakeAvailable(imgui)
 
@@ -38,7 +38,7 @@ endif()
 
 FetchContent_Declare(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
-        GIT_TAG        b47c8bacdbc78bc521691f70666f13924bb522ab
+        GIT_TAG        18c72431f8265e2b0b5378a3a73d8a883b2175ff # v0.16
 )
 FetchContent_MakeAvailable(ImPlot)
 
