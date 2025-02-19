@@ -630,6 +630,23 @@ void DataWidget<helper::BaseSelectableItem>::showWidget(
 }
 
 /***********************************************************************************************************************
+ * RGBAColor
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<type::RGBAColor>::showWidget(MyData& data)
+{
+    const auto& colorData = data.getValue();
+    const auto& label = data.getName();
+    const auto id = data.getName() + data.getOwner()->getPathName();
+    ImVec4 color { colorData.r(), colorData.g(), colorData.b(), colorData.a()};
+    if (ImGui::ColorEdit4((label + "##" + id).c_str(), (float*)&color, ImGuiColorEditFlags_DisplayRGB))
+    {
+        data.setValue(type::RGBAColor(color.x, color.y, color.z, color.w));
+    }
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -699,4 +716,5 @@ const bool dw_optionsGroup = DataWidgetFactory::Add<helper::OptionsGroup>();
 
 const bool dw_selectable_items = DataWidgetFactory::Add<helper::BaseSelectableItem>();
 
+const bool dw_rgbacolor = DataWidgetFactory::Add<type::RGBAColor>();
 }
