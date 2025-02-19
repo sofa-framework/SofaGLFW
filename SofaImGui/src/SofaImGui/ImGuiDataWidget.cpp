@@ -625,6 +625,7 @@ void DataWidget<helper::BaseSelectableItem>::showWidget(
         static_cast<int>(selectableItems->getNumberOfItems())))
     {
         const_cast<helper::BaseSelectableItem*>(selectableItems)->setSelectedId(selectedId);
+        data.setDirtyOutputs();
     }
 }
 
