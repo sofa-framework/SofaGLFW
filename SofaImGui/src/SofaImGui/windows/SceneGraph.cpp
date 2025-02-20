@@ -49,6 +49,8 @@ namespace windows
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                         WindowState& winManagerSceneGraph)
     {
+        std::set<sofa::core::objectmodel::BaseObject*> componentToOpen;
+
         if (*winManagerSceneGraph.getStatePtr())
         {
             if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getStatePtr()))
@@ -73,7 +75,8 @@ namespace windows
                 static sofa::core::objectmodel::Base* clickedObject { nullptr };
 
                 std::function<void(sofa::simulation::Node*)> showNode;
-                showNode = [&showNode, &treeDepth, expand, collapse, &openedComponents](sofa::simulation::Node* node)
+                showNode = [&showNode, &treeDepth, expand, collapse, &openedComponents,
+                            &componentToOpen](sofa::simulation::Node* node)
                 {
                     if (node == nullptr) return;
                     if (treeDepth == 0)
@@ -158,7 +161,7 @@ namespace windows
                             {
                                 if (ImGui::IsMouseDoubleClicked(0))
                                 {
-                                    openedComponents.insert(object);
+                                    componentToOpen.insert(object);
                                     clickedObject = nullptr;
                                 }
                                 else
@@ -203,7 +206,7 @@ namespace windows
                                     {
                                         if (ImGui::IsMouseDoubleClicked(0))
                                         {
-                                            openedComponents.insert(slave.get());
+                                            componentToOpen.insert(slave.get());
                                             clickedObject = nullptr;
                                         }
                                         else
@@ -344,15 +347,30 @@ namespace windows
             ImGui::End();
         }
 
+        openedComponents.insert(componentToOpen.begin(), componentToOpen.end());
         openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
         focusedComponents.clear();
 
         sofa::type::vector<sofa::core::objectmodel::BaseObject*> toRemove;
+        static std::map<sofa::core::objectmodel::BaseObject*, int> resizeWindow;
         for (auto* component : openedComponents)
         {
             bool isOpen = true;
             ImGui::PushStyleColor(ImGuiCol_Text, sofaimgui::getObjectColor(component));
-            if (ImGui::Begin((ICON_FA_CUBE "  " + component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
+            const bool firstOpen = componentToOpen.contains(component);
+            ImGuiWindowFlags componentWindowFlags = 0;
+            if (firstOpen)
+            {
+                resizeWindow[component] = 3; //it takes 3 frames to auto-resize according to the contents (determined empirically)
+            }
+
+            if (resizeWindow[component] > 0) //auto-resize only when opening the window
+            {
+                componentWindowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+                resizeWindow[component]--;
+            }
+            
+            if (ImGui::Begin((ICON_FA_CUBE "  " + component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen, componentWindowFlags))
             {
                 ImGui::PopStyleColor();
                 std::map<std::string, std::vector<sofa::core::BaseData*> > groupMap;
@@ -360,7 +378,7 @@ namespace windows
                 {
                     groupMap[data->getGroup()].push_back(data);
                 }
-                if (ImGui::BeginTabBar(("##tabs"+component->getName()).c_str(), ImGuiTabBarFlags_None))
+                if (ImGui::BeginTabBar(("##tabs"+component->getName()).c_str(), ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton))
                 {
                     for (auto& [group, datas] : groupMap)
                     {
