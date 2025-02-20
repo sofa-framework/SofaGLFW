@@ -68,7 +68,7 @@ namespace windows {
 
     void WindowState::writeState()
     {
-        m_path = sofa::helper::system::FileSystem::findOrCreateAValidPath(m_path);
+        sofa::helper::system::FileSystem::ensureFolderForFileExists(m_path);
 
         std::ofstream file(m_path);
         if (!file.is_open())
