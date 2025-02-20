@@ -103,9 +103,9 @@ namespace windows
                         ImGui::TextDisabled("Path:");
                         ImGui::TextWrapped(selectedPlugin.c_str());
                     }
-                }
 
-                ImGui::EndChild();
+                    ImGui::EndChild();
+                }
             }
             ImGui::End();
         }
