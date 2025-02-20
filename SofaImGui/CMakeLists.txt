@@ -58,7 +58,7 @@ FetchContent_MakeAvailable(IconFontCppHeaders)
 
 FetchContent_Declare(simpleini
         GIT_REPOSITORY https://github.com/brofield/simpleini
-        GIT_TAG        9b3ed7ec815997bc8c5b9edf140d6bde653e1458
+        GIT_TAG        09c21bda1dc1b578fa55f4a005d79b0afd481296 # v4.22
 )
 FetchContent_MakeAvailable(simpleini)
 
