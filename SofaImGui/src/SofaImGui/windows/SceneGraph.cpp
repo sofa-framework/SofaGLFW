@@ -50,7 +50,6 @@ namespace windows
                         WindowState& winManagerSceneGraph)
     {
         std::set<sofa::core::objectmodel::BaseObject*> componentToOpen;
-
         if (*winManagerSceneGraph.getStatePtr())
         {
             if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getStatePtr()))
@@ -110,6 +109,7 @@ namespace windows
                         {
                             ImGui::TableNextRow();
                             ImGui::TableNextColumn();
+                            ImGui::PushID(object);
 
                             ImGuiTreeNodeFlags objectFlags = ImGuiTreeNodeFlags_SpanFullWidth;
 
@@ -154,6 +154,7 @@ namespace windows
                             }
 
                             ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
+
                             const auto objectOpen = ImGui::TreeNodeEx(icon, objectFlags);
                             ImGui::PopStyleColor();
 
@@ -180,6 +181,7 @@ namespace windows
 
                             ImGui::TableNextColumn();
                             ImGui::TextDisabled(objectClassName.c_str());
+                            ImGui::PopID();
 
                             if (isObjectHighlighted)
                             {
@@ -192,6 +194,7 @@ namespace windows
                                 {
                                     ImGui::TableNextRow();
                                     ImGui::TableNextColumn();
+                                    ImGui::PushID(slave.get());
 
                                     const auto& slaveName = slave->getName();
                                     const auto slaveClassName = slave->getClassName();
@@ -221,6 +224,7 @@ namespace windows
                                     {
                                         ImGui::PopStyleColor();
                                     }
+                                    ImGui::PopID();
                                 }
                                 ImGui::TreePop();
                             }
