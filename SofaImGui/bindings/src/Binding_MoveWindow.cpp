@@ -84,8 +84,18 @@ void moduleAddMoveWindow(py::module &m)
             {
                 engine->m_moveWindow.setActuatorsLimits(min, max);
             }
-        }, "Set the sliders limits."
+        }, "Set the sliders limits for all the actuators."
         );
+
+    m_a.def("setActuatorLimits",
+            [engine](const sofa::Index &id, const double &min, const double &max)
+            {
+                if (engine)
+                {
+                    engine->m_moveWindow.setActuatorLimits(id, min, max);
+                }
+            }, "Set the sliders limits for the actuator number 'id'."
+            );
 
     m_a.def("setActuators",
         [engine](const std::vector<sofa::core::objectmodel::BaseData*> &actuatorsData,
@@ -94,20 +104,25 @@ void moduleAddMoveWindow(py::module &m)
         {
             if (engine)
             {
-                size_t nbActuators = std::min(actuatorsData.size(), indicesInProblem.size());
+                sofa::Size nbActuators = std::min(actuatorsData.size(), indicesInProblem.size());
                 std::vector<models::IPController::Actuator> actuators;
-                actuators.reserve(nbActuators);
+                sofa::Size size = actuators.size();
                 for (size_t i=0; i< nbActuators; i++)
                 {
-                    models::IPController::Actuator actuator;
+                    models::IPController::Actuator actuator = (i<size)? actuators[i]: models::IPController::Actuator();
+
                     actuator.data = actuatorsData[i];
                     actuator.indexInProblem = indicesInProblem[i];
                     actuator.valueType.setSelectedItem(valueType);
-                    actuators.push_back(actuator);
+
+                    if (i < size)
+                        actuators[i] = actuator;
+                    else
+                        actuators.push_back(actuator);
                 }
                 engine->m_moveWindow.setActuators(actuators);
             }
-        }
+        }, "Set the actuators."
         );
 
     m_a.def("addAccessory",

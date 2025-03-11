@@ -45,6 +45,8 @@ class SOFAIMGUI_API IPController : public sofa::component::controller::Controlle
        size_t indexInProblem;
        double value;
        sofa::helper::OptionsGroup valueType{"force", "displacement"};
+       double min{-500};
+       double max{500};
     };
 
     IPController(sofa::simulation::Node::SPtr groot,

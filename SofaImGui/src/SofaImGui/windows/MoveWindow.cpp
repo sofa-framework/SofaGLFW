@@ -27,6 +27,7 @@
 
 #include <SofaImGui/windows/MoveWindow.h>
 #include <SofaImGui/widgets/Buttons.h>
+#include <SofaImGui/FooterStatusBar.h>
 
 namespace sofaimgui::windows {
 
@@ -58,10 +59,26 @@ void MoveWindow::setActuatorsDescriptions(const std::string &description)
     m_actuatorsDescription = description;
 }
 
-void MoveWindow::setActuatorsLimits(double min, double max)
+void MoveWindow::setActuatorsLimits(const double &min, const double &max)
 {
-    m_actuatorsMin = min;
-    m_actuatorsMax = max;
+    if (m_actuators.empty())
+        FooterStatusBar::getInstance().setTempMessage("Calling setActuatorsLimits() without any actuators set. Won't proceed."
+                                                      "To fix the warning you can call setActuators() before calling setActuatorsLimits(). ", FooterStatusBar::MWARNING);
+
+    for (auto actuator: m_actuators)
+    {
+        actuator.max = max;
+        actuator.min = min;
+    }
+}
+
+void MoveWindow::setActuatorLimits(const sofa::Index &id, const double &min, const double &max)
+{
+    if (id < m_actuators.size())
+    {
+        m_actuators[id].max = max;
+        m_actuators[id].min = min;
+    }
 }
 
 void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
@@ -169,19 +186,25 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                     {
                         std::string name = "M" + std::to_string(i);
 
-                        auto* typeinfo = m_actuators[i].data->getValueTypeInfo();
-                        auto* value = m_actuators[i].data->getValueVoidPtr();
-                        double buffer = typeinfo->getScalarValue(value, 0);
-                        bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer, m_actuatorsMin, m_actuatorsMax,
-                                                           ImVec4(0, 0, 0, 0));
-                        if (hasChanged)
+                        auto &actuator = m_actuators[i];
+
+                        if (actuator.min < actuator.max)
                         {
-                            std::string value = std::to_string(buffer);
-                            std::replace(value.begin(), value.end(), ',', '.');
-                            m_actuators[i].data->read(value);
-                            solveInverseProblem = false;
+                            auto* typeinfo = actuator.data->getValueTypeInfo();
+                            auto* value = actuator.data->getValueVoidPtr();
+                            double buffer = typeinfo->getScalarValue(value, 0);
+                            bool hasChanged = showSliderDouble(name.c_str(), ("##Slider" + name).c_str(), ("##Input" + name).c_str(), &buffer,
+                                                               actuator.min, actuator.max,
+                                                               ImVec4(0, 0, 0, 0));
+                            if (hasChanged)
+                            {
+                                std::string value = std::to_string(buffer);
+                                std::replace(value.begin(), value.end(), ',', '.');
+                                actuator.data->read(value);
+                                solveInverseProblem = false;
+                            }
+                            actuator.value=buffer;
                         }
-                        m_actuators[i].value=buffer;
                     }
                     if (m_IPController && !solveInverseProblem && m_isDrivingSimulation)
                     {
