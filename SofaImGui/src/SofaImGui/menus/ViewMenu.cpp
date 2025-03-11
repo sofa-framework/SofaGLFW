@@ -41,6 +41,8 @@
 
 namespace sofaimgui::menus {
 
+static constexpr sofa::component::visual::VisualGrid::PlaneType defaultPlane("y");
+
 ViewMenu::ViewMenu(sofaglfw::SofaGLFWBaseGUI *baseGUI) : m_baseGUI(baseGUI)
 {
 }
@@ -107,7 +109,7 @@ void ViewMenu::showGrid(const bool& show, const float& squareSize, const float &
             newGrid->setName(name);
             newGrid->addTag(sofa::core::objectmodel::Tag("createdByGUI"));
             newGrid->d_enable.setValue(show);
-            newGrid->d_plane.setValue("y");
+            newGrid->d_plane.setValue(defaultPlane);
 
             newGrid->d_size.setValue(size);
             newGrid->d_thickness.setValue(thickness);
