@@ -62,10 +62,12 @@ void MoveWindow::setActuatorsDescriptions(const std::string &description)
 void MoveWindow::setActuatorsLimits(const double &min, const double &max)
 {
     if (m_actuators.empty())
+    {
         FooterStatusBar::getInstance().setTempMessage("Calling setActuatorsLimits() without any actuators set. Won't proceed."
-                                                      "To fix the warning you can call setActuators() before calling setActuatorsLimits(). ", FooterStatusBar::MWARNING);
+                                                      "To fix this warning you can call setActuators() before calling setActuatorsLimits(). ", FooterStatusBar::MWARNING);
+    }
 
-    for (auto actuator: m_actuators)
+    for (auto &actuator: m_actuators)
     {
         actuator.max = max;
         actuator.min = min;
@@ -78,6 +80,11 @@ void MoveWindow::setActuatorLimits(const sofa::Index &id, const double &min, con
     {
         m_actuators[id].max = max;
         m_actuators[id].min = min;
+    }
+    else
+    {
+        FooterStatusBar::getInstance().setTempMessage("Calling setActuatorLimits() with 'id' greater than the number of actuators. Won't proceed."
+                                                      "To fix this warning give a correct 'id' number.", FooterStatusBar::MWARNING);
     }
 }
 
