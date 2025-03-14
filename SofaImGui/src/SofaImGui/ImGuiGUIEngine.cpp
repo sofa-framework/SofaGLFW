@@ -69,6 +69,7 @@
 #include <SofaImGui/UIStrings.h>
 #include "windows/Performances.h"
 #include "windows/Log.h"
+#include "windows/MouseManager.h"
 #include "windows/Profiler.h"
 #include "windows/SceneGraph.h"
 #include "windows/DisplayFlags.h"
@@ -85,16 +86,17 @@ namespace sofaimgui
 {
 
 ImGuiGUIEngine::ImGuiGUIEngine()
-            : winManagerProfiler(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("profiler.txt"))),
-              winManagerSceneGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("scenegraph.txt"))),
-              winManagerPerformances(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("performances.txt"))),
-              winManagerDisplayFlags(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("displayflags.txt"))),
-              winManagerPlugins(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("plugins.txt"))),
-              winManagerComponents(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("components.txt"))),
-              winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt"))),
-              winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt"))),
-              winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt"))),
-              firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
+    : winManagerProfiler(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("profiler.txt")))
+    , winManagerSceneGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("scenegraph.txt")))
+    , winManagerPerformances(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("performances.txt")))
+    , winManagerDisplayFlags(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("displayflags.txt")))
+    , winManagerPlugins(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("plugins.txt")))
+    , winManagerComponents(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("components.txt")))
+    , winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt")))
+    , winManagerMouse(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mouse.txt")))
+    , winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt")))
+    , winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt")))
+    , firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
 {
 }
 
@@ -257,6 +259,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNamePlugins = ICON_FA_CIRCLE_PLUS "  Plugins";
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
+    static constexpr auto windowNameMouse = ICON_FA_TERMINAL "  Mouse Manager";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
 
 
@@ -474,6 +477,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::Checkbox(windowNameLog, winManagerLog.getStatePtr());
 
+            ImGui::Checkbox(windowNameMouse, winManagerMouse.getStatePtr());
+
             ImGui::Separator();
 
             ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
@@ -562,13 +567,13 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
 
     windows::showProfiler(groot, windowNameProfiler, winManagerProfiler);
+
     /***************************************
      * Scene graph window
      **************************************/
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     windows::showSceneGraph(groot, windowNameSceneGraph, openedComponents, focusedComponents, winManagerSceneGraph);
-
 
     /***************************************
      * Display flags window
@@ -589,6 +594,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      * Log window
      **************************************/
     windows::showLog(windowNameLog, winManagerLog);
+
+    /***************************************
+     * Log window
+     **************************************/
+    windows::showManagerMouseWindow(windowNameMouse, winManagerMouse, baseGUI);
 
     /***************************************
      * Settings window

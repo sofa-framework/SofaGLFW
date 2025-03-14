@@ -80,6 +80,7 @@ protected:
     windows::WindowState winManagerPlugins;
     windows::WindowState winManagerComponents;
     windows::WindowState winManagerLog;
+    windows::WindowState winManagerMouse;
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
     windows::WindowState firstRunState;
