@@ -25,10 +25,10 @@
 #include <sofa/testing/BaseTest.h>
 using sofa::testing::BaseTest;
 
-namespace sofaimgui::windows
+namespace sofaimgui::windows_test
 {
 
-class TestIOWindow : public BaseTest, public IOWindow
+class TestIOWindow : public BaseTest, public sofaimgui::windows::IOWindow
 {
 public:
 

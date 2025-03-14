@@ -25,11 +25,11 @@
 #include <sofa/testing/BaseTest.h>
 using sofa::testing::BaseTest;
 
-namespace sofaimgui::windows
+namespace sofaimgui::windows_test
 {
 
 class TestProgramWindow : public BaseTest, 
-                          public ProgramWindow
+                          public sofaimgui::windows::ProgramWindow
 {
 public:
     void testInitFilePath_noFile();
