@@ -51,12 +51,12 @@ void DataWidget<bool>::showWidget(MyData& data)
 
 bool showScalarWidget(const std::string& label, const std::string& id, float& value)
 {
-    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_None);
 }
 
 bool showScalarWidget(const std::string& label, const std::string& id, double& value)
 {
-    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_None);
 }
 
 template<typename Scalar>
