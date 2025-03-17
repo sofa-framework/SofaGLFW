@@ -139,4 +139,15 @@ sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simul
     return gui;
 }
 
+void SofaGLFWGUI::setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting)
+{
+    if (setting)
+    {
+        if (auto* pickHandler = m_baseGUI.getPickHandler())
+        {
+            pickHandler->changeOperation(setting);
+        }
+    }
+}
+
 } // namespace sofaglfw

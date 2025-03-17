@@ -52,6 +52,7 @@ public:
     void setBackgroundColor(const sofa::type::RGBAColor& color) override;
     void setBackgroundImage(const std::string& image) override;
     static sofa::gui::common::BaseGUI * CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+    void setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting) override;
 protected:
     SofaGLFWBaseGUI m_baseGUI;
     bool m_bCreateWithFullScreen{ false };
