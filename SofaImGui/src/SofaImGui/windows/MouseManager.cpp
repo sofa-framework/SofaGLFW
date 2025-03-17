@@ -149,6 +149,37 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                     }
                     else if (auto* topologyOperation = dynamic_cast<TopologyOperation*>(operation))
                     {
+                        {
+                            auto topologicalOperation = topologyOperation->getTopologicalOperation();
+                            ImGui::Text("Topological operation:");
+                            if (ImGui::RadioButton("Remove one element", topologicalOperation == 0))
+                            {
+                                topologyOperation->setTopologicalOperation(0);
+                            }
+                            if (ImGui::RadioButton("Remove a zone of elements", topologicalOperation != 0))
+                            {
+                                topologyOperation->setTopologicalOperation(1);
+                            }
+                        }
+
+                        static float scale = topologyOperation->getScale();
+                        if (ImGui::SliderFloat("Selector scale", &scale, 0.0f, 100.0f))
+                        {
+                            topologyOperation->setScale(scale);
+                        }
+
+                        {
+                            auto volumicMesh = topologyOperation->getVolumicMesh();
+                            ImGui::Text("Remove area type:");
+                            if (ImGui::RadioButton("Surface", !volumicMesh))
+                            {
+                                topologyOperation->setVolumicMesh(false);
+                            }
+                            if (ImGui::RadioButton("Volume", volumicMesh))
+                            {
+                                topologyOperation->setVolumicMesh(true);
+                            }
+                        }
                     }
                     else if (auto* sutureOperation = dynamic_cast<AddSutureOperation*>(operation))
                     {
