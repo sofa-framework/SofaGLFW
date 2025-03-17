@@ -259,7 +259,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNamePlugins = ICON_FA_CIRCLE_PLUS "  Plugins";
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
-    static constexpr auto windowNameMouse = ICON_FA_TERMINAL "  Mouse Manager";
+    static constexpr auto windowNameMouse = ICON_FA_COMPUTER_MOUSE "  Mouse Manager";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
 
 
