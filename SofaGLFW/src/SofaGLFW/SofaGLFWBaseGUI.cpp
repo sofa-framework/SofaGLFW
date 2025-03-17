@@ -857,13 +857,19 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
     translateToViewportCoordinates(gui,xpos,ypos);
 
     bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
-    int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+
 
     auto currentSofaWindow = s_mapWindows.find(window);
 
-    if (shiftPressed && state == GLFW_PRESS)
+    if (shiftPressed)
     {
-        currentSofaWindow->second->mouseEvent(window,gui->m_viewPortWidth,gui->m_viewPortHeight, 0, 1, 1, gui->m_translatedCursorPos[0], gui->m_translatedCursorPos[1]);
+        for (const auto button : {GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_MIDDLE, GLFW_MOUSE_BUTTON_RIGHT})
+        {
+            if (glfwGetMouseButton(window, button) == GLFW_PRESS)
+            {
+                currentSofaWindow->second->mouseEvent(window,gui->m_viewPortWidth,gui->m_viewPortHeight, button, 1, 1, gui->m_translatedCursorPos[0], gui->m_translatedCursorPos[1]);
+            }
+        }
     }
 
     if (currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
