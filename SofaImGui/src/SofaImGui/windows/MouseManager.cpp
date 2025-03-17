@@ -64,6 +64,28 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                 if (ImGui::CollapsingHeader(buttonNames.at(button).c_str()))
                 {
                     auto* operation = pickHandler->getOperation(button);
+                    std::string currentOperationDescription;
+
+                    for (const auto& [label, creator] : OperationFactory::getInstance()->registry)
+                    {
+                        if (operation->getId() == label)
+                            currentOperationDescription = creator->getDescription();
+                    }
+
+                    ImGui::PushID(button);
+                    if (ImGui::BeginCombo("Operation", currentOperationDescription.c_str()))
+                    {
+                        for (const auto& [label, creator] : OperationFactory::getInstance()->registry)
+                        {
+                            const bool isSelected = operation->getId() == label;
+                            ImGui::Selectable(creator->getDescription().c_str(), isSelected);
+                        }
+                        ImGui::EndCombo();
+                    }
+                    ImGui::PopID();
+
+                    ImGui::Separator();
+
                     if (auto* attachOperation = dynamic_cast<AttachOperation*>(operation))
                     {
                         if (ImGui::SliderFloat("Stiffness", &settings.stiffness, 0.0f, 1000.0f))
