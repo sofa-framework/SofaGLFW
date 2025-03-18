@@ -97,6 +97,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/UIStrings.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
@@ -116,6 +117,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.cpp
