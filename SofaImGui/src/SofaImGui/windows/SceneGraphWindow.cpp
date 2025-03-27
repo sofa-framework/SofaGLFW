@@ -99,6 +99,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                     {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
+                        ImGui::PushID(object);
 
                         ImGuiTreeNodeFlags objectFlags = ImGuiTreeNodeFlags_SpanFullWidth;
 
@@ -174,6 +175,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
 
                         ImGui::TableNextColumn();
                         ImGui::TextDisabled("%s", objectClassName.c_str());
+                        ImGui::PopID();
 
                         if (isObjectHighlighted)
                         {
@@ -186,6 +188,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                             {
                                 ImGui::TableNextRow();
                                 ImGui::TableNextColumn();
+                                ImGui::PushID(slave.get());
 
                                 const auto& slaveName = slave->getName();
                                 const auto slaveClassName = slave->getClassName();
@@ -215,6 +218,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                                 {
                                     ImGui::PopStyleColor();
                                 }
+                                ImGui::PopID();
                             }
                             ImGui::TreePop();
                         }
