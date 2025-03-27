@@ -31,24 +31,26 @@ namespace windows {
                           , const ImGuiIO &io
                           , bool &isPerformancesWindowOpen)
     {
-        if (isPerformancesWindowOpen) {
-            static sofa::type::vector<float> msArray;
-            if (ImGui::Begin(windowNamePerformances, &isPerformancesWindowOpen)) {
-                ImGuiContext& g = *GImGui;
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-                ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices,
-                            io.MetricsRenderIndices / 3);
-                ImGui::Text("%d visible windows, %d active allocations", io.MetricsRenderWindows,
-                            g.DebugAllocInfo.TotalAllocCount - g.DebugAllocInfo.TotalFreeCount);
-
-                msArray.push_back(1000.0f / io.Framerate);
-                if (msArray.size() >= 2000) {
-                    msArray.erase(msArray.begin());
-                }
-                ImGui::PlotLines("Frame Times", msArray.data(), msArray.size(), 0, nullptr, FLT_MAX, FLT_MAX,
-                                 ImVec2(0, 100));
-            }
-            ImGui::End();
-        }
-    }
+         ImGuiContext& g = *GImGui;
+         if (*winManagerPerformances.getStatePtr()) {
+             static sofa::type::vector<float> msArray;
+             if (ImGui::Begin(windowNamePerformances, winManagerPerformances.getStatePtr())) {
+                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+                 ImGui::Text("%d vertices, %d indices (%d triangles)", io.MetricsRenderVertices, io.MetricsRenderIndices,
+                             io.MetricsRenderIndices / 3);
+                 ImGui::Text("%d visible windows, %d active allocations", io.MetricsRenderWindows,
+                             io.MetricsActiveAllocations);
+                 ImGui::Text("%d visible windows, %d current allocations", io.MetricsRenderWindows,
+                             g.DebugAllocInfo.TotalAllocCount - g.DebugAllocInfo.TotalFreeCount);
+ 
+                 msArray.push_back(1000.0f / io.Framerate);
+                 if (msArray.size() >= 2000) {
+                     msArray.erase(msArray.begin());
+                 }
+                 ImGui::PlotLines("Frame Times", msArray.data(), msArray.size(), 0, nullptr, FLT_MAX, FLT_MAX,
+                                  ImVec2(0, 100));
+             }
+             ImGui::End();
+         }
+     }
 }
