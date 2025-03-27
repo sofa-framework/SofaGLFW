@@ -38,6 +38,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
 {
     static std::set<sofa::core::objectmodel::BaseObject*> openedComponents;
     static std::set<sofa::core::objectmodel::BaseObject*> focusedComponents;
+    std::set<sofa::core::objectmodel::BaseObject*> componentToOpen;
     
     if (enabled() && isOpen())
     {
@@ -63,7 +64,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
             static sofa::core::objectmodel::Base* clickedObject { nullptr };
 
             std::function<void(sofa::simulation::Node*)> showNode;
-            showNode = [&showNode, &treeDepth, expand, collapse](sofa::simulation::Node* node)
+            showNode = [&showNode, &treeDepth, expand, collapse, &componentToOpen](sofa::simulation::Node* node)
             {
                 if (node == nullptr) return;
                 if (treeDepth == 0)
@@ -154,7 +155,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                         {
                             if (ImGui::IsMouseDoubleClicked(0))
                             {
-                                openedComponents.insert(object);
+                                componentToOpen.insert(object);
                                 clickedObject = nullptr;
                             }
                             else
@@ -199,7 +200,7 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
                                 {
                                     if (ImGui::IsMouseDoubleClicked(0))
                                     {
-                                        openedComponents.insert(slave.get());
+                                        componentToOpen.insert(slave.get());
                                         clickedObject = nullptr;
                                     }
                                     else
@@ -340,23 +341,36 @@ void SceneGraphWindow::showWindow(sofa::simulation::Node *groot, const ImGuiWind
         ImGui::End();
     }
 
-    openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
+    openedComponents.insert(componentToOpen.begin(), componentToOpen.end());
     focusedComponents.clear();
 
     sofa::type::vector<sofa::core::objectmodel::BaseObject*> toRemove;
+    static std::map<sofa::core::objectmodel::BaseObject*, int> resizeWindow;
+
     for (auto* component : openedComponents)
     {
         bool isOpen = true;
-        ImGui::PushStyleColor(ImGuiCol_Text, getObjectColor(component));
-        if (ImGui::Begin((ICON_FA_CUBE "  " + component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen))
+        const bool firstOpen = componentToOpen.contains(component);
+        ImGuiWindowFlags componentWindowFlags = 0;
+        if (firstOpen)
         {
-            ImGui::PopStyleColor();
+            resizeWindow[component] = 3; //it takes 3 frames to auto-resize according to the contents (determined empirically)
+        }
+
+        if (resizeWindow[component] > 0) //auto-resize only when opening the window
+        {
+            componentWindowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+            resizeWindow[component]--;
+        }
+
+        if (ImGui::Begin((ICON_FA_CUBE "  " + component->getName() + " (" + component->getPathName() + ")").c_str(), &isOpen, componentWindowFlags))
+        {
             std::map<std::string, std::vector<sofa::core::BaseData*> > groupMap;
             for (auto* data : component->getDataFields())
             {
                 groupMap[data->getGroup()].push_back(data);
             }
-            if (ImGui::BeginTabBar(("##tabs"+component->getName()).c_str(), ImGuiTabBarFlags_None))
+            if (ImGui::BeginTabBar(("##tabs"+component->getName()).c_str(), ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton))
             {
                 for (auto& [group, datas] : groupMap)
                 {
