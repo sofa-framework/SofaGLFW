@@ -78,7 +78,7 @@ sofa::defaulttype::RigidCoord<3, double> IPController::getTCPPosition()
     if (m_TCPState)
     {
         std::stringstream frame;
-        m_TCPState->writeVec(sofa::core::VecId::position(), frame);
+        m_TCPState->writeVec(sofa::core::vec_id::read_access::position, frame);
 
         frame >> position[0];
         frame >> position[1];
@@ -103,7 +103,7 @@ sofa::defaulttype::RigidCoord<3, double> IPController::getTCPTargetPosition()
     if (m_TCPTargetState)
     {
         std::stringstream frame;
-        m_TCPTargetState->writeVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->writeVec(sofa::core::vec_id::read_access::position, frame);
 
         frame >> position[0];
         frame >> position[1];
@@ -122,7 +122,7 @@ void IPController::getTCPTargetPosition(double &x, double &y, double &z, double 
     if (m_TCPTargetState)
     {
         std::stringstream frame;
-        m_TCPTargetState->writeVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->writeVec(sofa::core::vec_id::read_access::position, frame);
 
         frame >> x;
         frame >> y;
@@ -154,7 +154,7 @@ void IPController::setTCPTargetPosition(const RigidCoord& position)
         frame << position[4] << " ";
         frame << position[5] << " ";
         frame << position[6] << " ";
-        m_TCPTargetState->readVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->readVec(sofa::core::vec_id::write_access::position, frame);
     }
 }
 
@@ -173,7 +173,7 @@ void IPController::setTCPTargetPosition(const double &x, const double &y, const 
         frame << q[1] << " ";
         frame << q[2] << " ";
         frame << q[3] << " ";
-        m_TCPTargetState->readVec(sofa::core::VecId::position(), frame);
+        m_TCPTargetState->readVec(sofa::core::vec_id::write_access::position, frame);
     }
 }
 
