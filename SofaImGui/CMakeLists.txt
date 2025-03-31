@@ -27,8 +27,10 @@ if(NOT TARGET nfd::nfd)
     message("nativefiledialog-extended not found, fetching source code...")
     FetchContent_Declare(nfd
             GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
-            GIT_TAG        d4df2b6ad5420f5300c00f418bf28d86291fa675                # v1.0.0
+            GIT_TAG        v1.2.1
     )
+    set(NFD_INSTALL ON CACHE INTERNAL "")
+    
     FetchContent_MakeAvailable(nfd)
     set_property(TARGET nfd  PROPERTY POSITION_INDEPENDENT_CODE ON)
     set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
@@ -137,7 +139,7 @@ set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} $
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
-target_link_libraries(${PROJECT_NAME} PRIVATE nfd::nfd)
+target_link_libraries(${PROJECT_NAME} PRIVATE nfd)
 
 find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
