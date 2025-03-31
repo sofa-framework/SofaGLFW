@@ -124,7 +124,7 @@ private:
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
 
-    sofa::simulation::NodeSPtr m_groot;
+    sofa::simulation::NodeSPtr m_groot{ nullptr };
     std::string m_filename;
     sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
     sofa::core::visual::VisualParams* m_vparams{ nullptr };

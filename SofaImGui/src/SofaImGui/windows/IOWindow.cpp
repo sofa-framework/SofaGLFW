@@ -136,6 +136,7 @@ void IOWindow::setSimulationState(const models::SimulationState &simulationState
 
 void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
 {
+    SOFA_UNUSED(groot);
 #if SOFAIMGUI_WITH_ROS
     if (m_method == 0) // ROS
         animateBeginEventROS(groot);
@@ -144,6 +145,7 @@ void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
 
 void IOWindow::animateEndEvent(sofa::simulation::Node *groot)
 {
+    SOFA_UNUSED(groot);
 #if SOFAIMGUI_WITH_ROS
     if (m_method == 0) // ROS
         animateEndEventROS(groot);

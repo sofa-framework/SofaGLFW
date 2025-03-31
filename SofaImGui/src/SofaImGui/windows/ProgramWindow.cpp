@@ -212,6 +212,7 @@ void ProgramWindow::showProgramButtons()
 
 void ProgramWindow::showCursorMarker(const int& nbCollaspedTracks)
 {
+    SOFA_UNUSED(nbCollaspedTracks); // todo: handle mutli tracks
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return;

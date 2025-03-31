@@ -64,8 +64,8 @@ class Action
         computeDuration();
     }
 
-    void setComment(const char* comment) {strncpy(m_comment, comment, COMMENTSIZE);}
-    void getComment(char* comment) {strncpy(comment, m_comment, COMMENTSIZE);}
+    void setComment(const char* comment) {strncpy(m_comment, comment, COMMENTSIZE); m_comment[COMMENTSIZE-1]='\0';}
+    void getComment(char* comment) {strncpy(comment, m_comment, COMMENTSIZE); comment[COMMENTSIZE-1]='\0';}
 
     char* getComment() {return m_comment;}
 
