@@ -17,7 +17,8 @@ if(NOT TARGET glfw)
     message("glfw3 not found, fetching source code...")
     FetchContent_Declare(glfw
             GIT_REPOSITORY https://github.com/glfw/glfw
-            GIT_TAG        3.4
+            GIT_TAG        3.3.4
+            # GIT_TAG        3.4 # Wayland, at the moment, does not support getting/setting window positions.
     )
 
     FetchContent_GetProperties(glfw)
