@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
   schedule:
-    - cron: '0 0 * * *' # nightly job at midnight UTC
+    - cron: '0 3 * * *' # nightly job at midnight UTC
 
 jobs:
   build-and-test:
