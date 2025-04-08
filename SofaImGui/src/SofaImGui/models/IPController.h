@@ -66,6 +66,7 @@ class SOFAIMGUI_API IPController : public sofa::component::controller::Controlle
     
     double* getRotationWeight() {return m_rotationWeight;}
 
+    bool hasRotationEffector() { return m_rotationEffector != nullptr; }
     void setFreeInRotation(const bool &freeRoll, const bool &freePitch, const bool &freeYaw);
 
     sofa::simulation::Node::SPtr getRootNode() {return m_groot;}

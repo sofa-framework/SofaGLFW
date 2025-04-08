@@ -122,7 +122,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
 
                 m_IPController->setFreeInRotation(m_freeRoll, m_freePitch, m_freeYaw);
 
-                if (ImGui::LocalBeginCollapsingHeader(m_TCPRotationDescription.c_str(), ImGuiTreeNodeFlags_AllowOverlap))
+                if (m_IPController->hasRotationEffector() && ImGui::LocalBeginCollapsingHeader(m_TCPRotationDescription.c_str(), ImGuiTreeNodeFlags_AllowOverlap))
                 {
                     ImGui::SameLine();
 

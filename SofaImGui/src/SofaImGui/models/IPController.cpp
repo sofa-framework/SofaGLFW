@@ -63,7 +63,7 @@ IPController::IPController(sofa::simulation::Node::SPtr groot,
 
 void IPController::setFreeInRotation(const bool &freeRoll, const bool &freePitch, const bool &freeYaw)
 {
-    if(m_rotationEffector)
+    if(hasRotationEffector())
     {
         auto weight = sofa::helper::getWriteAccessor(m_rotationEffector->d_weight);
         weight[3] = freeRoll? 0: m_rotationWeight[0];

@@ -60,7 +60,8 @@ void setIPController(sofa::simulation::Node &TCPTargetNode,
             // Find the PositionEffector component corresponding to the rotation if any
             sofa::type::vector<softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3dTypes> *> effectors;
             groot->getContext()->getObjects(effectors, sofa::core::objectmodel::BaseContext::SearchDirection::SearchRoot);
-            softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3dTypes> * rotationEffector;
+            softrobotsinverse::constraint::PositionEffector<sofa::defaulttype::Rigid3dTypes>* rotationEffector{ nullptr };
+
             for (auto* effector: effectors)
             {
                 auto useDirections = effector->d_useDirections.getValue();
