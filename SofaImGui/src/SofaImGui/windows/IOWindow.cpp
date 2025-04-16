@@ -134,6 +134,11 @@ void IOWindow::setSimulationState(const models::SimulationState &simulationState
     m_simulationStateData = simulationState.getStateData();
 }
 
+void IOWindow::addSubscribableData(const std::string& name, sofa::core::BaseData* data)
+{
+    m_subscribableData[name] = data;
+}
+
 void IOWindow::animateBeginEvent(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
@@ -364,7 +369,7 @@ void IOWindow::showROSInput()
 
     // List of found nodes
     const std::vector<std::string>& nodelist = m_rosnode->get_node_names();
-    size_t nbNodes = nodelist.size();
+    const size_t nbNodes = nodelist.size();
     const char* nodes[nbNodes];
     for (size_t i=0; i<nbNodes; i++)
     {
@@ -413,9 +418,8 @@ void IOWindow::showROSInput()
         {
             // TCP target
             if (!m_isListening)
-            {
-                m_rosnode->m_selectedStateToOverwrite.clear();
-            }
+                m_rosnode->clearSelectedInput();
+
             for (const auto& [simStateName, stateValue] : m_simulationState)
             {
                 std::string stateName = simStateName;
@@ -440,7 +444,7 @@ void IOWindow::showROSInput()
                     ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
                     ImGui::LocalCheckBox(stateName.c_str(), &subcriptionListboxItems[stateName]);
                     ImGui::PopStyleColor();
-                    \
+
                     if (!hasMatchingTopic)
                     {
                         ImGui::EndDisabled();
@@ -454,13 +458,19 @@ void IOWindow::showROSInput()
             }
 
             // Digital input
-            m_rosnode->m_selectedDigitalInput.clear();
             for (int i=0; i<3; i++)
             {
                 std::string key = "/DI" + std::to_string(i + 1);
                 if (subscribeFirstTime)
                 {
                     subcriptionListboxItems[key] = false;
+                }
+
+                bool hasMatchingTopic = topiclist.find(key) != topiclist.end();
+
+                if (!hasMatchingTopic)
+                {
+                    ImGui::BeginDisabled();
                 }
 
                 ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
@@ -470,9 +480,46 @@ void IOWindow::showROSInput()
                 ImGui::SetItemTooltip("%s", ("Digital input " + std::to_string(i + 1)).c_str());
                 ImGui::PopStyleColor();
 
+                if (!hasMatchingTopic)
+                {
+                    ImGui::EndDisabled();
+                }
+
                 if(subcriptionListboxItems[key])
                 {
                     m_rosnode->m_selectedDigitalInput[key] = m_digitalInput[i];
+                }
+            }
+
+            // User defined input
+            for (const auto &[name, value] : m_subscribableData)
+            {
+                if (subscribeFirstTime)
+                {
+                    subcriptionListboxItems[name] = false;
+                }
+
+                bool hasMatchingTopic = topiclist.find(name) != topiclist.end();
+
+                if (!hasMatchingTopic)
+                {
+                    ImGui::BeginDisabled();
+                }
+
+                ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+                color.w = 1.0;
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
+                ImGui::LocalCheckBox(name.c_str(), &subcriptionListboxItems[name]);
+                ImGui::PopStyleColor();
+
+                if (!hasMatchingTopic)
+                {
+                    ImGui::EndDisabled();
+                }
+
+                if(subcriptionListboxItems[name] & !m_isListening)
+                {
+                    m_rosnode->m_selectedUserInput[name] = stof(value->getValueString());  // default temp value, will be overwritten by chosen topic's callback
                 }
             }
 
@@ -488,8 +535,7 @@ void IOWindow::showROSInput()
     }
 
     // Listening button
-    bool nothingSelected = m_rosnode->m_selectedStateToOverwrite.empty() && m_rosnode->m_selectedDigitalInput.empty();
-    if (nothingSelected)
+    if (!m_rosnode->hasSelectedInput())
     {
         m_isListening = false;
         m_rosnode->m_subscriptions.clear();
@@ -512,7 +558,7 @@ void IOWindow::showROSInput()
     ImGui::AlignTextToFramePadding();
     ImGui::Text(m_isListening? "Listening" : "Subscribe");
 
-    if (nothingSelected)
+    if (!m_rosnode->hasSelectedInput())
     {
         ImGui::EndDisabled();
     }
@@ -521,21 +567,30 @@ void IOWindow::showROSInput()
 void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
 {
     SOFA_UNUSED(groot);
-    if (m_isReadyToPublish && m_isDrivingSimulation && m_IPController)
+    if (m_isListening && m_isDrivingSimulation)
     {
         rclcpp::spin_some(m_rosnode);  // Create a default single-threaded executor and execute any immediately available work.
-        for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
+
+        if (m_IPController)
         {
-            if (stateName.find("TCPTarget") != std::string::npos)
+            for (const auto& [stateName, stateValue]: m_rosnode->m_selectedStateToOverwrite)
             {
-                if (stateValue.size() == IOWindow::RigidCoord::total_size)
+                if (stateName.find("TCPTarget") != std::string::npos)
                 {
-                    m_IPController->setTCPTargetPosition(IOWindow::RigidCoord(sofa::type::Vec3(stateValue[0], stateValue[1], stateValue[2]),
-                                                         sofa::type::Quat<SReal>(stateValue[3], stateValue[4], stateValue[5], stateValue[6])));
+                    if (stateValue.size() == IOWindow::RigidCoord::total_size)
+                    {
+                        m_IPController->setTCPTargetPosition(IOWindow::RigidCoord(sofa::type::Vec3(stateValue[0], stateValue[1], stateValue[2]),
+                                                             sofa::type::Quat<SReal>(stateValue[3], stateValue[4], stateValue[5], stateValue[6])));
+                    }
                 }
             }
-            // for actuator, is it interesting to send actuation to the simulation ? => direct mode
-            // from the user interface, switch between direct and inverse mode ?
+        }
+
+        for (auto [name, value]: m_rosnode->m_selectedUserInput)
+        {
+            sofa::core::BaseData* data = m_subscribableData[name];
+            if (data)
+                data->read(std::to_string(value));
         }
     }
 }

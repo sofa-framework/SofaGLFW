@@ -190,7 +190,6 @@ void MyRobotWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                                 setting.buffer = std::clamp(setting.buffer, setting.min, setting.max);
                                 uiValue += std::to_string(setting.buffer) + " ";
                             }
-                            std::replace(uiValue.begin(), uiValue.end(), ',', '.');
                             setting.data->read(uiValue);
                         }
 

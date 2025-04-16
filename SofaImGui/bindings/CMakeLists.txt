@@ -1,24 +1,27 @@
 project(SofaImGuiBindings)
 
 set(HEADER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_IOWindow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_IOWindow_doc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MoveWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MoveWindow_doc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MyRobotWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MyRobotWindow_doc.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState_doc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_PlottingWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_PlottingWindow_doc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_ProgramWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_ProgramWindow_doc.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState_doc.h
 )
 
 set(SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_IOWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MoveWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_MyRobotWindow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_PlottingWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_ProgramWindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_SimulationState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Module_SofaImGui.cpp
 )
 

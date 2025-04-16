@@ -21,11 +21,12 @@
 #include <pybind11/pybind11.h>
 
 #include <SofaImGui/init.h>
+#include <Binding_IOWindow.h>
 #include <Binding_MoveWindow.h>
 #include <Binding_MyRobotWindow.h>
-#include <Binding_SimulationState.h>
 #include <Binding_PlottingWindow.h>
 #include <Binding_ProgramWindow.h>
+#include <Binding_SimulationState.h>
 
 #include <sofa/gui/common/GUIManager.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
@@ -96,11 +97,12 @@ PYBIND11_MODULE(ImGui, m)
     m.def("setIPController", &setIPController);
     m.def("getRobotConnection", &getRobotConnection);
 
+    moduleAddIOWindow(m);
     moduleAddMoveWindow(m);
     moduleAddMyRobotWindow(m);
-    moduleAddSimulationState(m);
     moduleAddPlottingWindow(m);
     moduleAddProgramWindow(m);
+    moduleAddSimulationState(m);
 }
 
 } // namespace sofaimgui::python3

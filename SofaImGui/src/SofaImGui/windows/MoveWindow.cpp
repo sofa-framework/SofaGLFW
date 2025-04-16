@@ -205,9 +205,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                                                                ImVec4(0, 0, 0, 0));
                             if (hasChanged)
                             {
-                                std::string value = std::to_string(buffer);
-                                std::replace(value.begin(), value.end(), ',', '.');
-                                actuator.data->read(value);
+                                actuator.data->read(std::to_string(buffer));
                                 solveInverseProblem = false;
                             }
                             actuator.value=buffer;
@@ -241,9 +239,7 @@ void MoveWindow::showWindow(const ImGuiWindowFlags &windowFlags)
                                                            ImVec4(0, 0, 0, 0));
                         if (hasChanged && m_isDrivingSimulation)
                         {
-                            std::string value = std::to_string(buffer);
-                            std::replace(value.begin(), value.end(), ',', '.');
-                            accessory.data->read(value);
+                            accessory.data->read(std::to_string(buffer));
                         }
                     }
                     ImGui::LocalEndCollapsingHeader();

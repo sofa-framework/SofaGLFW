@@ -52,6 +52,10 @@ class SOFAIMGUI_API ROSNode: public rclcpp::Node
     std::map<std::string, bool> m_selectedDigitalOutputToPublish;
     std::map<std::string, std::vector<float>> m_selectedStateToOverwrite;
     std::map<std::string, bool> m_selectedDigitalInput;
+    std::map<std::string, float> m_selectedUserInput;
+
+    bool hasSelectedInput() {return !m_selectedStateToOverwrite.empty() || !m_selectedDigitalInput.empty() || !m_selectedUserInput.empty();}
+    void clearSelectedInput() {m_selectedStateToOverwrite.clear(); m_selectedDigitalInput.clear(); m_selectedUserInput.clear();}
 
     void createSubscription(const std::string& topicName)
     {
@@ -82,14 +86,20 @@ class SOFAIMGUI_API ROSNode: public rclcpp::Node
 
     void createSubscriptions()
     {
-        if (!m_selectedStateToOverwrite.empty() || !m_selectedDigitalInput.empty())
+        if (hasSelectedInput())
         {
-            m_subscriptions.reserve(m_selectedStateToOverwrite.size() + m_selectedDigitalInput.size());
+            m_subscriptions.reserve(m_selectedStateToOverwrite.size()
+                                    + m_selectedDigitalInput.size()
+                                    + m_selectedUserInput.size());
             for (const auto& [key, value] : m_selectedStateToOverwrite)
             {
                 createSubscription(key);
             }
             for (const auto& [key, value] : m_selectedDigitalInput)
+            {
+                createSubscription(key);
+            }
+            for (const auto& [key, value] : m_selectedUserInput)
             {
                 createSubscription(key);
             }
@@ -106,6 +116,11 @@ class SOFAIMGUI_API ROSNode: public rclcpp::Node
         std::map<std::string, std::vector<float>>::iterator it = m_selectedStateToOverwrite.find(topicName);
         if (it != m_selectedStateToOverwrite.end())
             it->second = vector;
+
+        std::map<std::string, float>::iterator itu = m_selectedUserInput.find(topicName);
+        if (itu != m_selectedUserInput.end())
+            if (!vector.empty())
+                itu->second = vector[0];
     }
 };
 #endif
@@ -128,6 +143,8 @@ class SOFAIMGUI_API IOWindow : public BaseWindow
     void setIPController(models::IPController::SPtr IPController) {m_IPController=IPController;}
     void setSimulationState(const models::SimulationState &simulationState);
 
+    void addSubscribableData(const std::string& name, sofa::core::BaseData* data);
+
    protected:
     
     models::IPController::SPtr m_IPController;
@@ -146,6 +163,8 @@ class SOFAIMGUI_API IOWindow : public BaseWindow
 
     std::vector<models::SimulationState::StateData> m_simulationStateData;
     std::map<std::string, std::vector<float> > m_simulationState;
+    std::vector<models::IPController::Actuator> m_actuators;
+    std::map<std::string, sofa::core::BaseData*> m_subscribableData;
     float m_itemWidth;
 
 #if SOFAIMGUI_WITH_ROS
