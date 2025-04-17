@@ -582,6 +582,11 @@ void IOWindow::animateBeginEventROS(sofa::simulation::Node *groot)
                         m_IPController->setTCPTargetPosition(IOWindow::RigidCoord(sofa::type::Vec3(stateValue[0], stateValue[1], stateValue[2]),
                                                              sofa::type::Quat<SReal>(stateValue[3], stateValue[4], stateValue[5], stateValue[6])));
                     }
+                    else
+                    {
+                        FooterStatusBar::getInstance().setTempMessage("Wrong size for the data from topic TCPTarget. The expected data structure is [x, y, z, qx, qy, qz, qw].",
+                                                                      FooterStatusBar::MessageType::MWARNING);
+                    }
                 }
             }
         }
