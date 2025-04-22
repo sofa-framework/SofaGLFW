@@ -542,7 +542,6 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::BeginMenu("Help"))
         {
             ImGui::PopStyleColor();
-            ImGui::Separator();
             if (ImGui::MenuItem("About", nullptr, false, true))
                 isAboutOpen = true;
             ImGui::EndMenu();
