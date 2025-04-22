@@ -96,9 +96,9 @@ void setDeepDarkStyle()
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.30f, 0.32f, 0.33f, 1.00f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(0.80f, 0.80f, 0.80f, 1.00f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.53f, 0.54f, 0.55f, 1.00f);
-    colors[ImGuiCol_ButtonActive]           = ImVec4(0.53f, 0.54f, 0.55f, 1.00f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.63f, 0.64f, 0.65f, 1.00f);
+    colors[ImGuiCol_Button]                 = ImVec4(0.21f, 0.51f, 0.50f, 1.00f);
+    colors[ImGuiCol_ButtonActive]           = ImVec4(0.31f, 0.61f, 0.60f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.25f, 0.56f, 0.55f, 1.00f);
     colors[ImGuiCol_Header]                 = ImVec4(0.09f, 0.10f, 0.10f, 1.00f);
     colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.30f, 0.32f, 0.33f, 1.00f);

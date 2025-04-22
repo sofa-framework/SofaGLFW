@@ -79,12 +79,16 @@ void LocalToggleButton(const char* str_id, bool* v)
 
 void LocalPushButton(const char* str_id, bool* v, const ImVec2 &buttonSize)
 {
-    ImVec4 colorActive{0.25f, 0.25f, 0.25f, 1.00f};
+
+    ImVec4 colorActive = ImGui::GetStyle().Colors[ImGuiCol_Button];
+    colorActive.x -= 0.25;
+    colorActive.y -= 0.25;
+    colorActive.z -= 0.25;
+    ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyle().Colors[ImGuiCol_WindowBg]);
+    ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.f, 0.f, 0.f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_Button, *v? colorActive : ImGui::GetStyle().Colors[ImGuiCol_Button]);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, *v? colorActive : ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-    ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg]);
-    ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.f, 0.f, 0.f, 0.f));
 
     const bool active = *v;
     if (active)
