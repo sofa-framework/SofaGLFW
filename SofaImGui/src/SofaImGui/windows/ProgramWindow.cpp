@@ -540,10 +540,35 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
     {
         std::shared_ptr<models::actions::StartMove> startmove = track->getStartMove();
         std::string blockLabel = "##StartMove" + std::to_string(trackIndex);
-        if (startmove->getView()->showBlock(blockLabel, ImVec2(ProgramSizes().StartMoveBlockSize, blockHeight)))
+        std::string menuLabel = std::string("##OptionsMenu" + blockLabel);
+
+        ImGui::SameLine();
+
+        float blockWidth = ProgramSizes().StartMoveBlockSize;
+        ImVec2 blockSize(blockWidth, blockHeight);
+
+        if (ImGui::BeginPopup(menuLabel.c_str()))
+        {
+            if (ImGui::BeginMenu("Add after"))
+            {
+                showActionMenu(track, trackIndex, 0);
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Overwrite waypoint"))
+            {
+                startmove->setWaypoint(m_IPController->getTCPTargetPosition());
+                track->updateNextMoveInitialPoint(-1, startmove->getWaypoint());
+            }
+            ImGui::EndPopup();
+        }
+
+        ImGui::SameLine();
+        if (startmove->getView()->showBlock(blockLabel, blockSize))
         {
             track->updateNextMoveInitialPoint(-1, startmove->getWaypoint());
         }
+        showBlockOptionButton(menuLabel, blockLabel);
     }
 
     // Modifiers blocks
@@ -557,7 +582,7 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
         std::shared_ptr<models::modifiers::Modifier> modifier = modifiers[modifierIndex];
         float blockWidth = modifier->getDuration() * ProgramSizes().TimelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
         std::string blockLabel = "##Modifier" + std::to_string(trackIndex) + std::to_string(modifierIndex);
-        std::string menuLabel = std::string("##ModifierOptionsMenu" + blockLabel);
+        std::string menuLabel = std::string("##OptionsMenu" + blockLabel);
         ImGui::SameLine();
 
         modifier->getView()->showBlock(blockLabel, ImVec2(blockWidth, blockHeight), m_trackBeginPos);
@@ -590,7 +615,7 @@ void ProgramWindow::showBlocks(std::shared_ptr<models::Track> track,
         std::shared_ptr<models::actions::Action> action = actions[actionIndex];
         float blockWidth = (m_timeBasedDisplay? action->getDuration(): 1.f) * ProgramSizes().TimelineOneSecondSize - ImGui::GetStyle().ItemSpacing.x;
         std::string blockLabel = "##Action" + std::to_string(trackIndex) + std::to_string(actionIndex);
-        std::string menuLabel = std::string("##ActionOptionsMenu" + blockLabel);
+        std::string menuLabel = std::string("##OptionsMenu" + blockLabel);
         ImGui::SameLine();
 
         ImGuiWindow* window = ImGui::GetCurrentWindow();
