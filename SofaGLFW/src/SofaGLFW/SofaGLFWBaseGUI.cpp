@@ -92,6 +92,12 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
     glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
 #endif
 
+    // Wayland is not fully supported in GLFW
+    // this will force using X11 on wayland (XWayland)
+#if defined(__linux__)
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+#endif
+
     if (glfwInit() == GLFW_TRUE)
     {
         // defined samples for MSAA
