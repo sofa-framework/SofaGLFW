@@ -30,6 +30,7 @@ namespace sofaimgui::windows {
 class SOFAIMGUI_API ViewportWindow : public BaseWindow
 {
    public:
+
     ViewportWindow(const std::string& name, const bool& isWindowOpen, std::shared_ptr<StateWindow> stateWindow);
     ~ViewportWindow() = default;
 
@@ -38,7 +39,7 @@ class SOFAIMGUI_API ViewportWindow : public BaseWindow
     
     bool addStepButton();
     bool addAnimateButton(bool *animate);
-    bool addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes, const double &maxItemWidth);
+    bool addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes);
 
     std::pair<float, float> m_windowSize{0., 0.};
 
@@ -51,6 +52,8 @@ class SOFAIMGUI_API ViewportWindow : public BaseWindow
 
     bool m_isMouseOnViewport{false};
     bool m_isFocusOnViewport{false};
+
+    double m_maxPanelItemWidth = 0.0;
 
     void addStateWindow();
     void addSimulationTimeAndFPS(sofa::simulation::Node *groot);

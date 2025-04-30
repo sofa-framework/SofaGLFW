@@ -41,43 +41,45 @@ void ViewportWindow::showWindow(sofa::simulation::Node* groot,
     {
         if (ImGui::Begin(m_name.c_str(), &m_isOpen, windowFlags))
         {
+
             ImGui::BeginChild("Render");
-            ImVec2 wsize = ImGui::GetWindowSize();
-            m_windowSize = {wsize.x, wsize.y};
+            {
+                ImVec2 wsize = ImGui::GetWindowSize();
+                m_windowSize = {wsize.x, wsize.y};
+                m_maxPanelItemWidth = ImGui::CalcTextSize("Input/Output").x + ImGuiStyleVar_FramePadding * 2.0f + ImGui::GetTextLineHeightWithSpacing();
 
-            m_isFocusOnViewport = ImGui::IsWindowFocused();
+                m_isFocusOnViewport = ImGui::IsWindowFocused();
 
-            ImDrawList* dl = ImGui::GetWindowDrawList();
-            ImVec2 p_min = ImGui::GetCursorScreenPos();
-            ImVec2 p_max = ImVec2(p_min.x + wsize.x, p_min.y + wsize.y);
-            ImGui::ItemAdd(ImRect(p_min, p_max), ImGui::GetID("ImageRender"));
-            dl->AddImageRounded(texture, p_min, p_max,
-                                ImVec2(0, 1), ImVec2(1, 0), ImGui::GetColorU32(ImVec4(1, 1, 1, 1)),
-                                ImGui::GetStyle().FrameRounding);
+                ImDrawList* dl = ImGui::GetWindowDrawList();
+                ImVec2 p_min = ImGui::GetCursorScreenPos();
+                ImVec2 p_max = ImVec2(p_min.x + wsize.x, p_min.y + wsize.y);
+                ImGui::ItemAdd(ImRect(p_min, p_max), ImGui::GetID("ImageRender"));
+                dl->AddImageRounded(texture, p_min, p_max,
+                                    ImVec2(0, 1), ImVec2(1, 0), ImGui::GetColorU32(ImVec4(1, 1, 1, 1)),
+                                    ImGui::GetStyle().FrameRounding);
 
-            m_isMouseOnViewport = ImGui::IsItemHovered();
+                m_isMouseOnViewport = ImGui::IsItemHovered();
 
-            addStateWindow();
-            addSimulationTimeAndFPS(groot);
+                addStateWindow();
+                addSimulationTimeAndFPS(groot);
 
-            // Panel backgroung
-            double maxItemWidth = ImGui::CalcTextSize("Input/Output").x;
-            ImDrawList* drawList = ImGui::GetWindowDrawList();
-            ImVec2 size(ImGui::GetFrameHeight() * 3 + ImGui::GetStyle().FramePadding.x * 8 + maxItemWidth, ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2);
+                // Panel backgroung
+                ImDrawList* drawList = ImGui::GetWindowDrawList();
+                ImVec2 size(ImGui::GetFrameHeight() * 2 + ImGui::GetStyle().ItemSpacing.x * 4 + m_maxPanelItemWidth, ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.y * 2);
 
-            float x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth() / 2.f - ImGui::GetFrameHeight() * 4.f + ImGui::GetStyle().FramePadding.x;
-            float y = ImGui::GetWindowPos().y + ImGui::GetStyle().FramePadding.y;
+                float x = ImGui::GetWindowPos().x + ImGui::GetWindowWidth() / 2.f - ImGui::GetFrameHeight() * 4.f + ImGui::GetStyle().FramePadding.x;
+                float y = ImGui::GetWindowPos().y + ImGui::GetStyle().FramePadding.y;
 
-            ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
-            { // Draw
-                auto color = ImGui::GetStyle().Colors[ImGuiCol_TabActive];
-                color.w = 0.6f;
-                drawList->AddRectFilled(bb.Min, bb.Max,
-                                        ImGui::GetColorU32(color),
-                                        ImGui::GetStyle().FrameRounding,
-                                        ImDrawFlags_None);
+                ImRect bb(ImVec2(x, y), ImVec2(x + size.x, y + size.y));
+                { // Draw
+                    auto color = ImGui::GetStyle().Colors[ImGuiCol_TabActive];
+                    color.w = 0.6f;
+                    drawList->AddRectFilled(bb.Min, bb.Max,
+                                            ImGui::GetColorU32(color),
+                                            ImGui::GetStyle().FrameRounding,
+                                            ImDrawFlags_None);
+                }
             }
-
             ImGui::EndChild();
         }
         ImGui::End();
@@ -172,7 +174,7 @@ bool ViewportWindow::addAnimateButton(bool *animate)
     return isItemClicked;
 }
 
-bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes, const double &maxItemWidth)
+bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], const int &sizeListModes)
 {
     bool hasValueChanged = false;
     
@@ -192,7 +194,7 @@ bool ViewportWindow::addDrivingTabCombo(int *mode, const char *listModes[], cons
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
                 {
                     ImGui::SameLine();
-                    ImGui::PushItemWidth(maxItemWidth + ImGuiStyleVar_FramePadding * 2.0f + ImGui::GetTextLineHeightWithSpacing());
+                    ImGui::PushItemWidth(m_maxPanelItemWidth);
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.53f, 0.54f, 0.55f, 1.00f));

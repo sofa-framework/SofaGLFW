@@ -399,12 +399,11 @@ void ImGuiGUIEngine::showViewportWindow(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     // Driving Tab combo
     static const char* listTabs[]{"Move", "Program", "Input/Output"};
-    double maxItemWidth = ImGui::CalcTextSize("Input/Output").x;
 
     if(!m_IPController)
         ImGui::BeginDisabled();
 
-    if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs), maxItemWidth))
+    if (m_viewportWindow.addDrivingTabCombo(&m_mode, listTabs, IM_ARRAYSIZE(listTabs)))
     {
         const auto filename = baseGUI->getFilename();
 
