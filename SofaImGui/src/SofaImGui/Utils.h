@@ -25,7 +25,7 @@
 
 namespace sofaimgui::Utils {
 
-void loadFile(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName);
+void loadFile(sofaglfw::SofaGLFWBaseGUI *baseGUI, const bool &reload, const std::string filePathName);
 void resetSimulationView(sofaglfw::SofaGLFWBaseGUI *baseGUI);
 void reloadSimulation(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName);
 

@@ -23,17 +23,19 @@
 #include <sofa/helper/system/FileSystem.h>
 #include <SofaImGui/Utils.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
+#include <sofa/gui/common/ArgumentParser.h>
 
 namespace sofaimgui::Utils {
 
-void loadFile(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName)
+void loadFile(sofaglfw::SofaGLFWBaseGUI *baseGUI, const bool& reload, const std::string filePathName)
 {
     if (baseGUI && !filePathName.empty() && sofa::helper::system::FileSystem::exists(filePathName))
     {
         sofa::core::sptr<sofa::simulation::Node> groot = baseGUI->getRootNode();
         sofa::simulation::node::unload(groot);
+        const std::vector<std::string> sceneArgs = sofa::gui::common::ArgumentParser::extra_args();
 
-        groot = sofa::simulation::node::load(filePathName.c_str());
+        groot = sofa::simulation::node::load(filePathName.c_str(), reload, sceneArgs);
         if(!groot)
             groot = sofa::simulation::getSimulation()->createNewGraph("");
         baseGUI->setSimulation(groot, filePathName);
@@ -77,7 +79,7 @@ void resetSimulationView(sofaglfw::SofaGLFWBaseGUI *baseGUI)
 
 void reloadSimulation(sofaglfw::SofaGLFWBaseGUI *baseGUI, const std::string filePathName)
 {
-    loadFile(baseGUI, filePathName);
+    loadFile(baseGUI, true, filePathName);
     resetSimulationView(baseGUI);
 }
 
