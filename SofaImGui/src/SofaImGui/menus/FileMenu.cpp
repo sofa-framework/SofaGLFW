@@ -140,7 +140,7 @@ bool FileMenu::addReloadSimulation()
 {
     bool clicked = false;
     const auto &filename = m_baseGUI->getFilename();
-    if (ImGui::MenuItem("Reload Simulation"))
+    if (ImGui::MenuItem("Reload Simulation", "Ctrl+R"))
     {
         clicked = true;
         m_filename = filename;

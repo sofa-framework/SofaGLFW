@@ -517,7 +517,7 @@ int SofaGLFWBaseGUI::handleArrowKeys(int key)
 
 void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    const char keyName = SofaGLFWBaseGUI::handleArrowKeys(key);
+    const char sofaKey = SofaGLFWBaseGUI::handleArrowKeys(key);
     const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
     auto currentGUI = s_mapGUIs.find(window);
@@ -539,12 +539,12 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
         {
             dmsg_info_when(key == GLFW_KEY_LEFT_CONTROL, "SofaGLFWBaseGUI") << "KeyPressEvent, CONTROL pressed";
 
-            sofa::core::objectmodel::KeypressedEvent keyPressedEvent(keyName);
+            sofa::core::objectmodel::KeypressedEvent keyPressedEvent(sofaKey);
             rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyPressedEvent);
         }
         else if (action == GLFW_RELEASE)
         {
-            sofa::core::objectmodel::KeyreleasedEvent keyReleasedEvent(keyName);
+            sofa::core::objectmodel::KeyreleasedEvent keyReleasedEvent(sofaKey);
             rootNode->propagateEvent(sofa::core::ExecParams::defaultInstance(), &keyReleasedEvent);
         }
     }
@@ -552,18 +552,6 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     // Handle specific keys for additional functionality
     switch (key)
     {
-        case GLFW_KEY_F:
-            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
-            {
-                currentGUI->second->switchFullScreen(window);
-            }
-            break;
-        case GLFW_KEY_Q:
-            if (action == GLFW_PRESS && isCtrlKeyPressed)
-            {
-                glfwSetWindowShouldClose(window, GLFW_TRUE);
-            }
-            break;
         case GLFW_KEY_SPACE:
             if (action == GLFW_PRESS)
             {
@@ -571,6 +559,28 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                 currentGUI->second->setSimulationIsRunning(!isRunning);
             }
             break;
+        default:
+            break;
+    }
+
+    // Handle specific keyName for additional functionality for layout dependent keys
+    const char* keyName = glfwGetKeyName(key, scancode);
+    if (keyName)
+    {
+        if(strcmp(keyName, "f") == 0)
+        {
+            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
+            {
+                currentGUI->second->switchFullScreen(window);
+            }
+        }
+        else if (strcmp(keyName, "q") == 0)
+        {
+            if (action == GLFW_PRESS && isCtrlKeyPressed)
+            {
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+            }
+        }
     }
 }
 

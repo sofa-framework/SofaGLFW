@@ -459,17 +459,7 @@ void ImGuiGUIEngine::showMainMenuBar(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         menus::FileMenu fileMenu(baseGUI);
         if(fileMenu.addMenu())
         {
-            m_simulationState.clearStateData();
-            m_myRobotWindow.clearData();
-            m_moveWindow.clearData();
-            m_plottingWindow.clearData();
-
-            Utils::reloadSimulation(baseGUI, fileMenu.getFilename());
-
-            auto groot = baseGUI->getRootNode().get();
-            m_programWindow.addTrajectoryComponents(groot);
-            m_IOWindow.setSimulationState(m_simulationState);
-            m_stateWindow->setSimulationState(m_simulationState);
+            reloadSimulation();
         }
 
         menus::ViewMenu(baseGUI).addMenu(m_currentFBOSize, m_fbo->getColorTexture());
@@ -678,26 +668,36 @@ void ImGuiGUIEngine::animateEndEvent(sofa::simulation::Node* groot)
 
 void ImGuiGUIEngine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    SOFA_UNUSED(scancode);
     SOFA_UNUSED(mods);
 
     const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
     const bool isShiftKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 
-    switch (key)
+    // Handle specific keyName for additional functionality for layout dependent keys
+    const char* keyName = glfwGetKeyName(key, scancode);
+    if (keyName)
     {
-    case GLFW_KEY_I:
-        if (action == GLFW_PRESS && isCtrlKeyPressed && isShiftKeyPressed)
+        if(strcmp(keyName, "i") == 0)
         {
-            m_programWindow.importProgram();
+            if (action == GLFW_PRESS && isCtrlKeyPressed && isShiftKeyPressed)
+            {
+                m_programWindow.importProgram();
+            }
         }
-        break;
-    case GLFW_KEY_E:
-        if (action == GLFW_PRESS && isCtrlKeyPressed && isShiftKeyPressed)
+        else if (strcmp(keyName, "r") == 0)
         {
-            m_programWindow.exportProgram(false);
+            if (action == GLFW_PRESS && isCtrlKeyPressed)
+            {
+                reloadSimulation();
+            }
         }
-        break;
+        else if (strcmp(keyName, "e") == 0)
+        {
+            if (action == GLFW_PRESS && isCtrlKeyPressed && isShiftKeyPressed)
+            {
+                m_programWindow.exportProgram(false);
+            }
+        }
     }
 
     if(m_viewportWindow.isFocusOnViewport())
@@ -724,6 +724,21 @@ void ImGuiGUIEngine::key_callback(GLFWwindow* window, int key, int scancode, int
             break;
         }
     }
+}
+
+void ImGuiGUIEngine::reloadSimulation()
+{
+    m_simulationState.clearStateData();
+    m_myRobotWindow.clearData();
+    m_moveWindow.clearData();
+    m_plottingWindow.clearData();
+
+    Utils::reloadSimulation(m_baseGUI, m_baseGUI->getFilename());
+
+    auto groot = m_baseGUI->getRootNode().get();
+    m_programWindow.addTrajectoryComponents(groot);
+    m_IOWindow.setSimulationState(m_simulationState);
+    m_stateWindow->setSimulationState(m_simulationState);
 }
 
 } //namespace sofaimgui
