@@ -647,6 +647,43 @@ void DataWidget<type::RGBAColor>::showWidget(MyData& data)
 }
 
 /***********************************************************************************************************************
+ * CompressedRowSparseMatrixConstraint
+ **********************************************************************************************************************/
+
+template<typename TBlock, typename TPolicy>
+void showWidgetT(
+Data<linearalgebra::CompressedRowSparseMatrixConstraint<TBlock, TPolicy>>& data)
+{
+    std::stringstream ss;
+    data.getValue().prettyPrint(ss);
+    ImGui::TextWrapped(ss.str().c_str());
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec2Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec3Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid2Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid3Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -717,4 +754,10 @@ const bool dw_optionsGroup = DataWidgetFactory::Add<helper::OptionsGroup>();
 const bool dw_selectable_items = DataWidgetFactory::Add<helper::BaseSelectableItem>();
 
 const bool dw_rgbacolor = DataWidgetFactory::Add<type::RGBAColor>();
+
+const bool dw_constraintmatrixVec2 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec2Types::Deriv>>();
+const bool dw_constraintmatrixVec3 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec3Types::Deriv>>();
+const bool dw_constraintmatrixRigid3 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid3Types::Deriv>>();
+const bool dw_constraintmatrixRigid2 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid2Types::Deriv>>();
+
 }
