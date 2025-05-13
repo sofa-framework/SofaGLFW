@@ -478,6 +478,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
         // Keep running
         runStep();
+        sofa::type::vector<std::pair<GLFWwindow*, SofaGLFWWindow*>> closedWindows;
         
         for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
         {
@@ -504,12 +505,31 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                 else
                 {
                     // otherwise close this window
-                    close_callback(glfwWindow);
+                    closedWindows.emplace_back(glfwWindow, sofaGlfwWindow);
                 }
             }
         }
 
         glfwPollEvents();
+
+        // the engine must be terminated before the window
+        if (s_numberOfActiveWindows == closedWindows.size())
+        {
+            m_guiEngine->terminate();
+            m_guiEngine.reset();
+        }
+
+        for (auto& [glfwWindow, sofaGlfwWindow] : closedWindows)
+        {
+            sofaGlfwWindow->close();
+
+            auto currentSofaWindow = s_mapWindows.find(glfwWindow);
+            if (currentSofaWindow != s_mapWindows.end())
+            {
+                s_numberOfActiveWindows--;
+                s_mapWindows.erase(currentSofaWindow);
+            }
+        }
 
         currentNbIterations++;
         running = (targetNbIterations > 0) ? currentNbIterations < targetNbIterations : true;
@@ -593,7 +613,8 @@ void SofaGLFWBaseGUI::terminate()
     if (!m_bGlfwIsInitialized)
         return;
 
-    m_guiEngine->terminate();
+    if (m_guiEngine)
+        m_guiEngine->terminate();
 
     glfwTerminate();
 }
@@ -902,17 +923,6 @@ void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double
 
 void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
 {
-    auto currentSofaWindow = s_mapWindows.find(window);
-    if (currentSofaWindow != s_mapWindows.end())
-    {
-        if (SofaGLFWWindow* glfwWindow = currentSofaWindow->second)
-        {
-            glfwWindow->close();
-            delete glfwWindow;
-            glfwWindow = nullptr;
-            s_numberOfActiveWindows--;
-        }
-    }
 }
 
 void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
