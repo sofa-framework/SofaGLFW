@@ -25,6 +25,7 @@
 #include <GLFW/glfw3.h>
 
 #include <SofaGLFW/SofaGLFWWindow.h>
+#include <SofaGLFW/config.h>
 
 #include <SofaGLFW/SofaGLFWMouseManager.h>
 
@@ -94,7 +95,7 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
 
     // Wayland is not fully supported in GLFW
     // this will force using X11 on wayland (XWayland)
-#if defined(__linux__)
+#if defined(SOFAGLFW_USEX11_INTERNAL)
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 #endif
 
