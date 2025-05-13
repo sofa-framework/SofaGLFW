@@ -190,7 +190,30 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         {
             const long windowPosX = ini.GetLongValue("Window", "windowPosX");
             const long windowPosY = ini.GetLongValue("Window", "windowPosY");
-            glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
+            
+            //retrieve the work area of the monitor in the whole desktop space, in screen coordinates
+            int monitorXPos{0}, monitorYPos{0}, monitorWidth{0}, monitorHeight{0};
+            glfwGetMonitorWorkarea(monitor, &monitorXPos, &monitorYPos, &monitorWidth, &monitorHeight);
+            if(!monitorWidth || !monitorHeight)
+            {
+                msg_error("ImGuiGUIEngine") << "Unknown error while trying to fetch the monitor information.";
+            }
+            else
+            {
+                constexpr long margin = 5; // avoid case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
+                
+                if(windowPosX  > (monitorXPos) &&
+                   windowPosX  < (monitorXPos + monitorWidth-margin) &&
+                   windowPosY  > (monitorYPos) &&
+                   windowPosY  < (monitorYPos + monitorHeight-margin))
+                {
+                    glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
+                }
+                else
+                {
+                    msg_error("ImGuiGUIEngine") << "The window position from settings is invalid for the current monitor.";
+                }
+            }
         }
         else
         {
