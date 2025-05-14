@@ -284,8 +284,12 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     }
     s_numberOfActiveWindows++;
 
-    setWindowIcon(glfwWindow);
-
+#ifndef __APPLE__ // Apple implies Cocoa and Cocoa does not support icon for the window
+    {
+        setWindowIcon(glfwWindow);
+    }
+#endif
+    
     if (!m_firstWindow)
         m_firstWindow = glfwWindow;
 
