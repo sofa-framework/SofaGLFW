@@ -156,15 +156,15 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     ImGui_ImplOpenGL3_Init(nullptr);
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
-    GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-    if (!monitor)
+    GLFWmonitor* windowMonitor = glfwGetWindowMonitor(glfwWindow);
+    if (!windowMonitor)
     {
-        monitor = glfwGetPrimaryMonitor();
+        windowMonitor = glfwGetPrimaryMonitor();
     }
-    if (monitor)
+    if (windowMonitor)
     {
         float xscale{}, yscale{};
-        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+        glfwGetMonitorContentScale(windowMonitor, &xscale, &yscale);
         
         ImGuiIO& io = ImGui::GetIO();
 
@@ -179,7 +179,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 
         // restore the global scale stored in the Settings ini file
         const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
-        this->setScale(globalScale, monitor);
+        this->setScale(globalScale, windowMonitor);
     }
  
     // restore window settings if set
@@ -190,38 +190,52 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         {
             const long windowPosX = ini.GetLongValue("Window", "windowPosX");
             const long windowPosY = ini.GetLongValue("Window", "windowPosY");
-            
-            //retrieve the work area of the monitor in the whole desktop space, in screen coordinates
-            int monitorXPos{0}, monitorYPos{0}, monitorWidth{0}, monitorHeight{0};
-            glfwGetMonitorWorkarea(monitor, &monitorXPos, &monitorYPos, &monitorWidth, &monitorHeight);
-            if(!monitorWidth || !monitorHeight)
+
+            int monitorCount;
+            GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+
+            bool foundValidMonitor = false;
+            for (int i = 0; i < monitorCount; ++i)
             {
-                msg_error("ImGuiGUIEngine") << "Unknown error while trying to fetch the monitor information.";
+                if (GLFWmonitor* monitor = monitors[i])
+                {
+                    //retrieve the work area of the monitor in the whole desktop space, in screen coordinates
+                    int monitorXPos{0}, monitorYPos{0}, monitorWidth{0}, monitorHeight{0};
+                    glfwGetMonitorWorkarea(monitor, &monitorXPos, &monitorYPos, &monitorWidth, &monitorHeight);
+                    if(!monitorWidth || !monitorHeight)
+                    {
+                        msg_error("ImGuiGUIEngine") << "Unknown error while trying to fetch the monitor information.";
+                    }
+                    else
+                    {
+                        constexpr long margin = 5; // avoid the case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
+
+                        if(windowPosX  > (monitorXPos) &&
+                           windowPosX  < (monitorXPos + monitorWidth-margin) &&
+                           windowPosY  > (monitorYPos) &&
+                           windowPosY  < (monitorYPos + monitorHeight-margin))
+                        {
+                            glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
+                            foundValidMonitor = true;
+                            break;
+                        }
+
+                    }
+                }
             }
-            else
+
+            if (!foundValidMonitor)
             {
-                constexpr long margin = 5; // avoid case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
-                
-                if(windowPosX  > (monitorXPos) &&
-                   windowPosX  < (monitorXPos + monitorWidth-margin) &&
-                   windowPosY  > (monitorYPos) &&
-                   windowPosY  < (monitorYPos + monitorHeight-margin))
-                {
-                    glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
-                }
-                else
-                {
-                    msg_error("ImGuiGUIEngine") << "The window position from settings is invalid for the current monitor.";
-                }
+                msg_error("ImGuiGUIEngine") << "The window position from settings is invalid for any monitor.";
             }
         }
         else
         {
             msg_error("ImGuiGUIEngine") << "Cannot set window position from settings.";
         }
-                
+
     }
-    
+
     const bool rememberWindowSize = ini.GetBoolValue("Window", "rememberWindowSize", true);
     if(rememberWindowSize)
     {
