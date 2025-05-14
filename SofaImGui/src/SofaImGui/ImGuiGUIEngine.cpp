@@ -229,7 +229,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         {
             const long windowSizeX = ini.GetLongValue("Window", "windowSizeX");
             const long windowSizeY = ini.GetLongValue("Window", "windowSizeY");
-            if(windowSizeX > 0 && windowSizeX > 0)
+            if(windowSizeX > 0 && windowSizeY > 0)
             {
                 glfwSetWindowSize(glfwWindow, static_cast<int>(windowSizeX), static_cast<int>(windowSizeY));
             }
