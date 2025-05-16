@@ -96,6 +96,20 @@ namespace windows
                     ini.SetBoolValue("Visualization", "showViewportSettingsButton", showViewportSettingsButton);
                     [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                 }
+                
+                bool rememberWindowPosition = ini.GetBoolValue("Window", "rememberWindowPosition", true);
+                if (ImGui::Checkbox("Remember window position", &rememberWindowPosition))
+                {
+                    ini.SetBoolValue("Window", "rememberWindowPosition", rememberWindowPosition);
+                    [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                }
+                
+                bool rememberWindowSize = ini.GetBoolValue("Window", "rememberWindowSize", true);
+                if (ImGui::Checkbox("Remember window size", &rememberWindowSize))
+                {
+                    ini.SetBoolValue("Window", "rememberWindowSize", rememberWindowSize);
+                    [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+                }
 
             }
             ImGui::End();

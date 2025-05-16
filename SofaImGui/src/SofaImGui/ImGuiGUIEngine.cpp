@@ -121,6 +121,7 @@ void ImGuiGUIEngine::init()
     {
         SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
+        msg_info("ImGuiGUIEngine") << "Fetching settings from " << sofaimgui::AppIniFile::getAppIniFile();
     }
 
     const char* pv;
@@ -155,15 +156,15 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     ImGui_ImplOpenGL3_Init(nullptr);
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
-    GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-    if (!monitor)
+    GLFWmonitor* windowMonitor = glfwGetWindowMonitor(glfwWindow);
+    if (!windowMonitor)
     {
-        monitor = glfwGetPrimaryMonitor();
+        windowMonitor = glfwGetPrimaryMonitor();
     }
-    if (monitor)
+    if (windowMonitor)
     {
         float xscale{}, yscale{};
-        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+        glfwGetMonitorContentScale(windowMonitor, &xscale, &yscale);
         
         ImGuiIO& io = ImGui::GetIO();
 
@@ -178,7 +179,83 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 
         // restore the global scale stored in the Settings ini file
         const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
-        this->setScale(globalScale, monitor);
+        this->setScale(globalScale, windowMonitor);
+    }
+ 
+    // restore window settings if set
+    const bool rememberWindowPosition = ini.GetBoolValue("Window", "rememberWindowPosition", true);
+    if(rememberWindowPosition)
+    {
+        if(ini.KeyExists("Window", "windowPosX") && ini.KeyExists("Window", "windowPosY"))
+        {
+            const long windowPosX = ini.GetLongValue("Window", "windowPosX");
+            const long windowPosY = ini.GetLongValue("Window", "windowPosY");
+
+            int monitorCount;
+            GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+
+            bool foundValidMonitor = false;
+            for (int i = 0; i < monitorCount; ++i)
+            {
+                if (GLFWmonitor* monitor = monitors[i])
+                {
+                    //retrieve the work area of the monitor in the whole desktop space, in screen coordinates
+                    int monitorXPos{0}, monitorYPos{0}, monitorWidth{0}, monitorHeight{0};
+                    glfwGetMonitorWorkarea(monitor, &monitorXPos, &monitorYPos, &monitorWidth, &monitorHeight);
+                    if(!monitorWidth || !monitorHeight)
+                    {
+                        msg_error("ImGuiGUIEngine") << "Unknown error while trying to fetch the monitor information.";
+                    }
+                    else
+                    {
+                        constexpr long margin = 5; // avoid the case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
+
+                        if(windowPosX  > (monitorXPos) &&
+                           windowPosX  < (monitorXPos + monitorWidth-margin) &&
+                           windowPosY  > (monitorYPos) &&
+                           windowPosY  < (monitorYPos + monitorHeight-margin))
+                        {
+                            glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
+                            foundValidMonitor = true;
+                            break;
+                        }
+
+                    }
+                }
+            }
+
+            if (!foundValidMonitor)
+            {
+                msg_error("ImGuiGUIEngine") << "The window position from settings is invalid for any monitor.";
+            }
+        }
+        else
+        {
+            msg_error("ImGuiGUIEngine") << "Cannot set window position from settings.";
+        }
+
+    }
+
+    const bool rememberWindowSize = ini.GetBoolValue("Window", "rememberWindowSize", true);
+    if(rememberWindowSize)
+    {
+        if(ini.KeyExists("Window", "windowSizeX") && ini.KeyExists("Window", "windowSizeY"))
+        {
+            const long windowSizeX = ini.GetLongValue("Window", "windowSizeX");
+            const long windowSizeY = ini.GetLongValue("Window", "windowSizeY");
+            if(windowSizeX > 0 && windowSizeY > 0)
+            {
+                glfwSetWindowSize(glfwWindow, static_cast<int>(windowSizeX), static_cast<int>(windowSizeY));
+            }
+            else
+            {
+                msg_error("ImGuiGUIEngine") << "Invalid window size from settings.";
+            }
+        }
+        else
+        {
+            msg_error("ImGuiGUIEngine") << "Cannot set window size from settings.";
+        }
     }
 }
 
@@ -233,7 +310,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-
+    
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
@@ -604,7 +681,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      * Settings window
      **************************************/
     windows::showSettings(windowNameSettings,ini, winManagerSettings, this);
-
+    
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
@@ -619,6 +696,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::RenderPlatformWindowsDefault();
     }
 }
+
 void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport)
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -672,6 +750,17 @@ void ImGuiGUIEngine::afterDraw()
 
 void ImGuiGUIEngine::terminate()
 {
+    // store window state (position and size)
+    const auto lastWindowPos = ImGui::GetMainViewport()->Pos;
+    const auto lastWindowSize = ImGui::GetMainViewport()->Size;
+    
+    // save latest window state
+    ini.SetLongValue("Window", "windowPosX", static_cast<long>(lastWindowPos.x));
+    ini.SetLongValue("Window", "windowPosY", static_cast<long>(lastWindowPos.y));
+    ini.SetLongValue("Window", "windowSizeX", static_cast<long>(lastWindowSize.x));
+    ini.SetLongValue("Window", "windowSizeY", static_cast<long>(lastWindowSize.y));
+    [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        
     NFD_Quit();
 
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
