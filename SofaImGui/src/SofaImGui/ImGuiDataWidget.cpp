@@ -28,6 +28,7 @@
 #include <sofa/helper/OptionsGroup.h>
 #include <sofa/helper/SelectableItem.h>
 #include <SofaImGui/widgets/DisplayFlagsWidget.h>
+#include <SofaImGui/widgets/LinearSpringWidget.h>
 
 namespace sofaimgui
 {
@@ -46,28 +47,6 @@ void DataWidget<bool>::showWidget(MyData& data)
     if (changeableValue != initialValue)
     {
         data.setValue(changeableValue);
-    }
-}
-
-bool showScalarWidget(const std::string& label, const std::string& id, float& value)
-{
-    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
-}
-
-bool showScalarWidget(const std::string& label, const std::string& id, double& value)
-{
-    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
-}
-
-template<typename Scalar>
-void showScalarWidget(Data<Scalar>& data)
-{
-    Scalar initialValue = data.getValue();
-    const auto& label = data.getName();
-    const auto id = data.getName() + data.getOwner()->getPathName();
-    if (showScalarWidget(label, id, initialValue))
-    {
-        data.setValue(initialValue);
     }
 }
 
@@ -694,6 +673,34 @@ void DataWidget<core::visual::DisplayFlags>::showWidget(MyData& data)
 }
 
 /***********************************************************************************************************************
+ * Springs
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<sofa::component::solidmechanics::spring::LinearSpring<float>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+template<>
+void DataWidget<sofa::component::solidmechanics::spring::LinearSpring<double>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<float>>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<double>>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -771,4 +778,9 @@ const bool dw_constraintmatrixRigid3 = DataWidgetFactory::Add<linearalgebra::Com
 const bool dw_constraintmatrixRigid2 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid2Types::Deriv>>();
 
 const bool dw_displayFlags = DataWidgetFactory::Add<core::visual::DisplayFlags>();
+
+const bool dw_springd = DataWidgetFactory::Add<sofa::component::solidmechanics::spring::LinearSpring<double> >();
+const bool dw_springf = DataWidgetFactory::Add<sofa::component::solidmechanics::spring::LinearSpring<float> >();
+const bool dw_springvecd = DataWidgetFactory::Add<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<double> > >();
+const bool dw_springvecf = DataWidgetFactory::Add<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<float> > >();
 }
