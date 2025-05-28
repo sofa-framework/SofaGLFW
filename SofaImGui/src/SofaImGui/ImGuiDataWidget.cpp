@@ -35,6 +35,11 @@ namespace sofaimgui
 
 using namespace sofa;
 
+void BaseDataWidget::showWidgetAsText(sofa::core::objectmodel::BaseData& data)
+{
+    ImGui::TextWrapped(data.getValueString().c_str());
+}
+
 template<>
 void DataWidget<bool>::showWidget(MyData& data)
 {
