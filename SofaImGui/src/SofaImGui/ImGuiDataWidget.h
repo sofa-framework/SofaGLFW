@@ -20,19 +20,20 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+#include <SofaImGui/config.h>
 #include <sofa/core/objectmodel/Data.h>
-
-#include <imgui.h>
 
 #include <unordered_map>
 
 namespace sofaimgui
 {
 
-struct BaseDataWidget
+struct SOFAIMGUI_API BaseDataWidget
 {
     virtual ~BaseDataWidget() = default;
     virtual void showWidget(sofa::core::objectmodel::BaseData&) = 0;
+
+    static void showWidgetAsText(sofa::core::objectmodel::BaseData& data);
 };
 
 template<class T>
@@ -87,14 +88,9 @@ protected:
         SOFA_UNUSED(object);
         showWidgetAsText(data);
     }
-
-    void showWidgetAsText(sofa::core::objectmodel::BaseData& data)
-    {
-        ImGui::TextWrapped(data.getValueString().c_str());
-    }
 };
 
-struct DataWidgetFactory
+struct SOFAIMGUI_API DataWidgetFactory
 {
     template<class T>
     static bool Add()
@@ -126,7 +122,7 @@ inline void showWidget(sofa::core::objectmodel::BaseData& data)
     }
     else
     {
-        ImGui::TextWrapped(data.getValueString().c_str());
+        BaseDataWidget::showWidgetAsText(data);
     }
 }
 
