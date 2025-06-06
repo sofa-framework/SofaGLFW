@@ -28,6 +28,7 @@
 #include <sofa/component/visual/VisualGrid.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
+#include <sofa/component/visual/VisualBoundingBox.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include "ViewPort.h"
 #include "SofaGLFW/SofaGLFWBaseGUI.h"
@@ -87,6 +88,7 @@ namespace windows
                 pos.x += 10;
                 pos.y += 40;
                 ImGui::SetNextWindowPos(pos);
+                static const auto createdByGuiTag = sofa::core::objectmodel::Tag("createdByGUI");
 
                 if (ImGui::Begin("viewportSettingsMenuWindow", winManagerViewPort.getStatePtr(), window_flags))
                 {
@@ -99,13 +101,13 @@ namespace windows
                     {
                         if (ImGui::Selectable(ICON_FA_BORDER_ALL "  Show Grid"))
                         {
-                            auto grid = groot->get<sofa::component::visual::VisualGrid>();
+                            auto grid = groot->get<sofa::component::visual::VisualGrid>(createdByGuiTag);
                             if (!grid)
                             {
                                 auto newGrid = sofa::core::objectmodel::New<sofa::component::visual::VisualGrid>();
                                 groot->addObject(newGrid);
                                 newGrid->setName("viewportGrid");
-                                newGrid->addTag(sofa::core::objectmodel::Tag("createdByGUI"));
+                                newGrid->addTag(createdByGuiTag);
                                 newGrid->d_enable.setValue(true);
                                 auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
                                 newGrid->d_size.setValue(*std::max_element(box.begin(), box.end()));
@@ -118,13 +120,13 @@ namespace windows
                         }
                         if (ImGui::Selectable(ICON_FA_UP_DOWN_LEFT_RIGHT "  Show Axis"))
                         {
-                            auto axis = groot->get<sofa::component::visual::LineAxis>();
+                            auto axis = groot->get<sofa::component::visual::LineAxis>(createdByGuiTag);
                             if (!axis)
                             {
                                 auto newAxis = sofa::core::objectmodel::New<sofa::component::visual::LineAxis>();
                                 groot->addObject(newAxis);
                                 newAxis->setName("viewportAxis");
-                                newAxis->addTag(sofa::core::objectmodel::Tag("createdByGUI"));
+                                newAxis->addTag(createdByGuiTag);
                                 newAxis->d_enable.setValue(true);
                                 auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
                                 newAxis->d_size.setValue(*std::max_element(box.begin(), box.end()));
@@ -137,19 +139,38 @@ namespace windows
                         }
                         if (ImGui::Selectable(ICON_FA_SQUARE_FULL "  Show Frame"))
                         {
-                            auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>();
+                            auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>(createdByGuiTag);
                             if (!sceneFrame)
                             {
                                 auto newSceneFrame = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglSceneFrame>();
                                 groot->addObject(newSceneFrame);
                                 newSceneFrame->setName("viewportFrame");
-                                newSceneFrame->addTag(sofa::core::objectmodel::Tag("createdByGUI"));
+                                newSceneFrame->addTag(createdByGuiTag);
                                 newSceneFrame->d_drawFrame.setValue(true);
                                 newSceneFrame->init();
                             }
                             else
                             {
                                 sceneFrame->d_drawFrame.setValue(!sceneFrame->d_drawFrame.getValue());
+                            }
+                        }
+                        if (ImGui::Selectable(ICON_FA_CUBE "  Show Bounding Box"))
+                        {
+                            auto bboxVM = groot->get<sofa::component::visual::VisualBoundingBox>(createdByGuiTag);
+                            if (!bboxVM)
+                            {
+                                auto newBBoxVM = sofa::core::objectmodel::New<sofa::component::visual::VisualBoundingBox>();
+                                groot->addObject(newBBoxVM);
+                                newBBoxVM->setName("VisualBBox");
+                                newBBoxVM->addTag(createdByGuiTag);
+                                newBBoxVM->d_enable.setValue(true);
+                                newBBoxVM->f_bbox.setParent(&groot->f_bbox);
+                                newBBoxVM->d_color.setValue(sofa::type::RGBAColor::yellow());
+                                newBBoxVM->d_thickness.setValue(10.0f);
+                            }
+                            else
+                            {
+                                bboxVM->d_enable.setValue(!bboxVM->d_enable.getValue());
                             }
                         }
                         ImGui::EndPopup();
