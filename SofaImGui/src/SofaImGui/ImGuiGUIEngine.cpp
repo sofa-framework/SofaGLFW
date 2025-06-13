@@ -279,7 +279,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
 
     baseGUI->initVisual();
     
-    // reset screenhost counter when a file is loaded
+    // reset screenshot counter when a file is loaded
     m_screenshotCounter = 0;
 }
 
