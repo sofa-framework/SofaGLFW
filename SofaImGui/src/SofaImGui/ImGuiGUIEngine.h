@@ -87,6 +87,7 @@ protected:
 
     bool isViewportDisplayedForTheFirstTime{true};
     sofa::type::Vec2f lastViewPortPos;
+    unsigned long m_screenshotCounter{0};
 };
 
 } // namespace sofaimgui
