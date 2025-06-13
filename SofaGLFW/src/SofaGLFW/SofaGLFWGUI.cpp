@@ -62,7 +62,7 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
         strFilename = filename;
     m_baseGUI.setSimulation(groot, strFilename);
 
-    m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SofaGLFW - " + strFilename).c_str(), m_bCreateWithFullScreen);
+    m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SOFA - " + strFilename).c_str(), m_bCreateWithFullScreen);
 
     // needs to be done after for background
     this->configureGUI(groot);

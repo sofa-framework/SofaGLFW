@@ -83,6 +83,8 @@ public:
     void switchFullScreen(GLFWwindow* glfwWindow = nullptr, unsigned int screenID = 0);
     void setWindowBackgroundColor(const RGBAColor& newColor, unsigned int windowID = 0);
     void setWindowBackgroundImage(const std::string& imageFileName, unsigned int windowID = 0);
+    void setWindowTitle(GLFWwindow* window, const char* title);
+    
     virtual void setBackgroundColour(float r, float g, float b) override
     {
         setWindowBackgroundColor(RGBAColor{r, g, b, 1.0f}, 0);
