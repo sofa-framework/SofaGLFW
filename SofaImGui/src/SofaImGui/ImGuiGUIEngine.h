@@ -54,7 +54,7 @@ public:
     void init() override;
     void initBackend(GLFWwindow*) override;
     void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
-    void endFrame() override {}
+    void endFrame() override;
     void beforeDraw(GLFWwindow* window) override;
     void afterDraw() override;
     void terminate() override;
@@ -87,6 +87,8 @@ protected:
 
     bool isViewportDisplayedForTheFirstTime{true};
     sofa::type::Vec2f lastViewPortPos;
+
+    std::string m_localeBackup;
 };
 
 } // namespace sofaimgui
