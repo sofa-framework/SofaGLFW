@@ -190,6 +190,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
     baseGUI->setSimulation(groot, filePathName);
+    baseGUI->setWindowTitle(nullptr, std::string("SOFA - " + filePathName).c_str());
     
     sofa::simulation::node::initRoot(groot.get());
     auto camera = baseGUI->findCamera(groot);

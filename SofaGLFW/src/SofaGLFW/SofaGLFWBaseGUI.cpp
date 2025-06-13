@@ -451,6 +451,19 @@ void SofaGLFWBaseGUI::setWindowBackgroundImage(const std::string& filename, unsi
     }
 }
 
+void SofaGLFWBaseGUI::setWindowTitle(GLFWwindow* window, const char* title)
+{
+    if(hasWindow())
+    {
+        auto* glfwWindow = (window) ? window : m_firstWindow ;
+        glfwSetWindowTitle(glfwWindow, title);
+    }
+    else
+    {
+        msg_error("SofaGLFWBaseGUI") << "No window to set the title on";// can happen with runSofa/BaseGUI
+    }
+}
+
 void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
 {
     glfwMakeContextCurrent(glfwWindow);
