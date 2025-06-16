@@ -201,6 +201,9 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     }
 
     baseGUI->initVisual();
+    
+    // reset screenshot counter when a file is loaded
+    m_screenshotCounter = 0;
 }
 
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -429,16 +432,20 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 nfdchar_t *outPath;
                 std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
-                auto sceneFilename = baseGUI->getFilename();
+                const auto sceneFilename = baseGUI->getFilename();
+                std::string baseFilename{};
                 if (!sceneFilename.empty())
                 {
                     std::filesystem::path path(sceneFilename);
-                    path = path.replace_extension(".png");
-                    sceneFilename = path.filename().string();
+                    baseFilename = path.stem().string();
                 }
+                
+                std::ostringstream oss{};
+                oss << baseFilename << "_" << std::setfill('0') << std::setw(4) << m_screenshotCounter << ".png";
+                m_screenshotCounter++;
 
                 nfdresult_t result = NFD_SaveDialog(&outPath,
-                    filterItem.data(), filterItem.size(), nullptr, sceneFilename.c_str());
+                    filterItem.data(), filterItem.size(), nullptr, oss.str().c_str());
                 if (result == NFD_OKAY)
                 {
                     helper::io::STBImage image;
