@@ -21,7 +21,7 @@
 #include <pybind11/pybind11.h>
 
 #include <SofaImGui/init.h>
-
+#include "Binding_AdditionalGUI.h"
 
 namespace py { using namespace pybind11; }
 
@@ -31,6 +31,7 @@ namespace sofaimgui::python3
 PYBIND11_MODULE(SofaImGui, m)
 {
     sofaimgui::init();
+    sofaimgui::bindings::moduleAddAdditionalGUI(m);
 }
 
 } // namespace sofaimgui::python3
