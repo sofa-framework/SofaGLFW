@@ -30,6 +30,7 @@
 #include <sofa/simulation/Node.h>
 #include <SimpleIni.h>
 #include "windows/WindowState.h"
+#include "guis/AdditionalGUIManager.h"
 
 using windows::WindowState;
 
@@ -83,6 +84,7 @@ protected:
     windows::WindowState winManagerMouse;
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
+    std::map<std::string, std::unique_ptr<windows::WindowState>> winManagerAdditionalGUIs;
     windows::WindowState firstRunState;
 
     bool isViewportDisplayedForTheFirstTime{true};
