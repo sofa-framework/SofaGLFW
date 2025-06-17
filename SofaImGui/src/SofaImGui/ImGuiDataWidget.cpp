@@ -29,6 +29,7 @@
 #include <sofa/helper/SelectableItem.h>
 #include <SofaImGui/widgets/DisplayFlagsWidget.h>
 #include <SofaImGui/widgets/LinearSpringWidget.h>
+#include <SofaImGui/widgets/MaterialWidget.h>
 
 namespace sofaimgui
 {
@@ -706,6 +707,16 @@ void DataWidget<sofa::type::vector<sofa::component::solidmechanics::spring::Line
 }
 
 /***********************************************************************************************************************
+ * Material
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<sofa::type::Material>::showWidget(MyData& data)
+{
+    showMaterialWidget(data);
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -788,4 +799,6 @@ const bool dw_springd = DataWidgetFactory::Add<sofa::component::solidmechanics::
 const bool dw_springf = DataWidgetFactory::Add<sofa::component::solidmechanics::spring::LinearSpring<float> >();
 const bool dw_springvecd = DataWidgetFactory::Add<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<double> > >();
 const bool dw_springvecf = DataWidgetFactory::Add<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<float> > >();
+
+const bool dw_material = DataWidgetFactory::Add<sofa::type::Material>();
 }
