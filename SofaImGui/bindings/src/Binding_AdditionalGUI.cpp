@@ -2,6 +2,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/functional.h>
+#include <pybind11/stl.h>
 namespace py = pybind11;
 
 #include <memory>
@@ -69,6 +70,11 @@ namespace sofaimgui::bindings
             .def("getWindowIcon", &BaseAdditionalGUI::getWindowIcon);
 
         m.def("registerPythonGUI", &registerPythonGUI, "Register a Python-defined Additional GUI instance");
+
+        py::class_<AdditionalGUIManager>(m, "AdditionalGUIManager")
+            .def_static("getInstance", &AdditionalGUIManager::getInstance, py::return_value_policy::reference)
+            .def("getAllGUIs", &AdditionalGUIManager::getAllGUIs, py::return_value_policy::reference);
+
     }
     
 } // namespace sofaimgui::bindings
