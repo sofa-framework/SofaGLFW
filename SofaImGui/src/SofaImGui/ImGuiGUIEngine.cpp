@@ -97,6 +97,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
     , winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt")))
     , winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt")))
     , firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
+    , m_imguiNeedViewReset(false)
 {
 }
 
@@ -109,11 +110,15 @@ void ImGuiGUIEngine::init()
 
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    static const std::string imguiIniFile(helper::Utils::getExecutableDirectory() + "/imgui.ini");
+    static const std::string imguiIniFile(sofaimgui::getConfigurationFolderPath() + "/imgui.ini");
+
+    m_imguiNeedViewReset = !std::filesystem::exists(imguiIniFile);
+
     io.IniFilename = imguiIniFile.c_str();
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
 
 
     ini.SetUnicode();
@@ -142,6 +147,7 @@ void ImGuiGUIEngine::init()
 
     sofa::helper::system::PluginManager::getInstance().readFromIniFile(
         sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
+
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
@@ -557,6 +563,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::EndMainMenuBar();
     }
 
+    if (m_imguiNeedViewReset)
+    {
+      resetView(dockspace_id, windowNameSceneGraph, windowNameLog, windowNameViewport);
+      m_imguiNeedViewReset = false;
+    }
+
     /***************************************
      * Viewport window
      **************************************/
@@ -624,12 +636,16 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
+
     // Update and Render additional Platform Windows
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
+
+
+
 }
 
 
