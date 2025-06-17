@@ -291,6 +291,10 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
 
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
+    m_localeBackup = std::setlocale(LC_NUMERIC, nullptr);
+    std::setlocale(LC_NUMERIC, "C.UTF-8");
+
+
     auto groot = baseGUI->getRootNode();
 
     bool alwaysShowFrame = ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
@@ -721,6 +725,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
 }
 
+void ImGuiGUIEngine::endFrame()
+{
+    std::setlocale(LC_NUMERIC, m_localeBackup.c_str());
+}
+
 void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport)
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -744,6 +753,7 @@ void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameScene
 
 void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
 {
+
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -770,6 +780,7 @@ void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
 void ImGuiGUIEngine::afterDraw()
 {
     m_fbo->stop();
+
 }
 
 void ImGuiGUIEngine::terminate()
