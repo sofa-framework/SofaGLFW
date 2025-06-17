@@ -89,6 +89,7 @@ protected:
     sofa::type::Vec2f lastViewPortPos;
 
     bool m_imguiNeedViewReset;
+    unsigned long m_screenshotCounter{0};
 };
 
 } // namespace sofaimgui
