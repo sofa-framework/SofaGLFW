@@ -87,6 +87,7 @@ protected:
 
     bool isViewportDisplayedForTheFirstTime{true};
     sofa::type::Vec2f lastViewPortPos;
+    bool m_imguiNeedViewReset;
     std::string m_localeBackup;
     unsigned long m_screenshotCounter{0};
 };
