@@ -137,7 +137,6 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.cpp
-    ${SOFAIMGUI_SOURCE_DIR}/guis/BaseAdditionalGUI.cpp
     ${SOFAIMGUI_SOURCE_DIR}/guis/AdditionalGUIManager.cpp
     ${SOFAIMGUI_SOURCE_DIR}/guis/examples/AdditionGUIExample.cpp
     ${SOFAIMGUI_SOURCE_DIR}/guis/examples/AdditionGUIExample2.cpp
