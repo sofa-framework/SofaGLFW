@@ -27,5 +27,6 @@ namespace sofaimgui
 {
 
 void showMaterialWidget(sofa::Data<sofa::type::Material>& data);
+void showMaterialListWidget(sofa::Data<sofa::type::vector<sofa::type::Material>>& data);
 
 }

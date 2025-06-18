@@ -27,13 +27,9 @@
 namespace sofaimgui
 {
 
-void showMaterialWidget(sofa::Data<sofa::type::Material> &data)
+void showMaterialWidgetImpl(sofa::type::Material& material, std::string id)
 {
-    auto& material = sofa::helper::getWriteAccessor(data).wref();
-
-    const auto id = data.getName() + data.getOwner()->getPathName();
-
-    ImGui::InputText(("Material##" + id).c_str(), &material.name);
+    ImGui::InputText(("Name##" + id).c_str(), &material.name);
 
     ImGui::ColorEdit4(("Diffuse##" + id).c_str(), (float*)&material.diffuse, ImGuiColorEditFlags_DisplayRGB);
     ImGui::ColorEdit4(("Ambient##" + id).c_str(), (float*)&material.ambient, ImGuiColorEditFlags_DisplayRGB);
@@ -51,7 +47,30 @@ void showMaterialWidget(sofa::Data<sofa::type::Material> &data)
     ImGui::Checkbox(("Use bump mapping##" + id).c_str(), &material.useBumpMapping);
 
     ImGui::Checkbox(("Activated##" + id).c_str(), &material.activated);
+}
 
+void showMaterialWidget(sofa::Data<sofa::type::Material> &data)
+{
+    auto& material = sofa::helper::getWriteAccessor(data).wref();
+    const auto id = data.getName() + data.getOwner()->getPathName();
+    showMaterialWidgetImpl(material, id);
+}
+
+void showMaterialListWidget(sofa::Data<sofa::type::vector<sofa::type::Material>>& data)
+{
+    auto& materialList = sofa::helper::getWriteAccessor(data).wref();
+    const auto id = data.getName() + data.getOwner()->getPathName();
+
+    for (auto& material : materialList)
+    {
+        ImGui::Indent();
+        const bool showMaterial = ImGui::CollapsingHeader((material.name + "##" + id).c_str(), ImGuiTreeNodeFlags_None);
+        ImGui::Unindent();
+        if (showMaterial)
+        {
+            showMaterialWidgetImpl(material, id);
+        }
+    }
 }
 
 } // namespace sofaimgui

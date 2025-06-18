@@ -716,6 +716,12 @@ void DataWidget<sofa::type::Material>::showWidget(MyData& data)
     showMaterialWidget(data);
 }
 
+template<>
+void DataWidget<sofa::type::vector<sofa::type::Material>>::showWidget(MyData& data)
+{
+    showMaterialListWidget(data);
+}
+
 /***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
@@ -801,4 +807,5 @@ const bool dw_springvecd = DataWidgetFactory::Add<sofa::type::vector<sofa::compo
 const bool dw_springvecf = DataWidgetFactory::Add<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<float> > >();
 
 const bool dw_material = DataWidgetFactory::Add<sofa::type::Material>();
+const bool dw_vector_material = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Material>>();
 }
