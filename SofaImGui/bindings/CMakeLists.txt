@@ -1,12 +1,7 @@
 project(Bindings_SofaImGui)
 
-set(HEADER_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_AdditionalGUI.h
-)
-
 set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Module_SofaImGui.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Binding_AdditionalGUI.cpp
 )
 
 if (NOT TARGET SofaPython3::Plugin)
