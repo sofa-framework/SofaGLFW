@@ -105,3 +105,15 @@ Here are all the available windows:
 ### Screenshots
 
 ![MainGUI](doc/screenshot.png)
+
+### Custom GUI
+
+The software allows for flexible extension of its GUI through custom windows.
+Users can develop and integrate their own GUI components tailored to the needs of a specific simulation scene.
+This makes it possible to build highly specialized controls, panels, or visualization tools that enhance or modify the user experience.
+
+To help users get started, the built-in `SofaImGui.Camera` extension serves as a reference implementation.
+It demonstrates how a custom window can be structured and integrated into the GUI framework.
+Developers can use it as a foundation to build their own extensions, adapting it to different simulation contexts and requirements.
+
+As any SOFA plugin, the custom GUI is available only if loaded (https://sofa-framework.github.io/doc/plugins/what-is-a-plugin/#plugin_loading).

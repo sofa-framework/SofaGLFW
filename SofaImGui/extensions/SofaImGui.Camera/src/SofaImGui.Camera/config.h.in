@@ -1,0 +1,15 @@
+#pragma once
+#include <sofa/config.h>
+
+#ifdef SOFA_BUILD_SOFAIMGUI_CAMERA
+#  define SOFA_TARGET @PROJECT_NAME@
+#  define SOFAIMGUI_CAMERA_API SOFA_EXPORT_DYNAMIC_LIBRARY
+#else
+#  define SOFAIMGUI_CAMERA_API SOFA_IMPORT_DYNAMIC_LIBRARY
+#endif
+
+namespace sofaimguicamera
+{
+    constexpr const char* MODULE_NAME = "@PROJECT_NAME@";
+    constexpr const char* MODULE_VERSION = "@PROJECT_VERSION@";
+}

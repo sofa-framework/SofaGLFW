@@ -112,6 +112,8 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.h
+    ${SOFAIMGUI_SOURCE_DIR}/guis/BaseAdditionalGUI.h
+    ${SOFAIMGUI_SOURCE_DIR}/guis/AdditionalGUIRegistry.h
 )
 
 set(SOURCE_FILES
@@ -133,7 +135,8 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.cpp
-
+    ${SOFAIMGUI_SOURCE_DIR}/guis/AdditionalGUIRegistry.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/guis/BaseAdditionalGUI.cpp
 )
 
 
@@ -162,3 +165,5 @@ sofa_create_package_with_targets(
     INCLUDE_INSTALL_DIR "${PROJECT_NAME}"
     RELOCATABLE "plugins"
 )
+
+sofa_add_subdirectory(plugin extensions/SofaImGui.Camera SofaImGui.Camera)
