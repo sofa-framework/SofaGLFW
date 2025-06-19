@@ -113,7 +113,7 @@ private:
     inline static std::unordered_map<std::string, std::unique_ptr<BaseDataWidget> > factoryMap;
 };
 
-inline void showWidget(sofa::core::objectmodel::BaseData& data)
+inline void SOFAIMGUI_API showWidget(sofa::core::objectmodel::BaseData& data)
 {
     auto* widget = DataWidgetFactory::GetWidget(data);
     if (widget)

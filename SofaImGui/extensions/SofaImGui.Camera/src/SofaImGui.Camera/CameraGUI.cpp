@@ -22,13 +22,27 @@
 #include <SofaImGui.Camera/CameraGUI.h>
 #include <SofaImGui/guis/AdditionalGUIRegistry.h>
 #include <imgui.h>
+#include <sofa/component/visual/BaseCamera.h>
+#include <SofaImGui/ImGuiDataWidget.h>
 
 namespace sofaimguicamera
 {
 
 void CameraGUI::doDraw(sofa::core::sptr<sofa::simulation::Node> groot)
 {
-    ImGui::Text("Hello from AdditionGUI Example!");
+    sofa::component::visual::BaseCamera::SPtr camera;
+    groot->get(camera);
+    if (camera)
+    {
+        // GUI of fov is custom (not the default widget)
+        float fov = static_cast<float>(camera->d_fieldOfView.getValue());
+        if(ImGui::SliderFloat("Camera field of view", &fov, 0.0f, 200.0f))
+        {
+            camera->d_fieldOfView.setValue(fov);
+        }
+
+        sofaimgui::showWidget(camera->d_type);
+    }
 }
 
 std::string CameraGUI::getWindowName() const
