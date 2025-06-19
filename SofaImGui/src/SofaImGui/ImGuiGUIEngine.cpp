@@ -80,6 +80,9 @@
 #include "windows/ViewPort.h"
 #include "windows/WindowState.h"
 
+#include <clocale>
+
+
 using namespace sofa;
 
 namespace sofaimgui
