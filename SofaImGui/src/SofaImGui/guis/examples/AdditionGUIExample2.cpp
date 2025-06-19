@@ -13,7 +13,7 @@ namespace sofaimgui::guis
         return "AdditionalGUI Example 2";
     }
 
-void AdditionGUIExample2::draw()
+void AdditionGUIExample2::doDraw()
 {
     ImGui::Begin("AdditionalGUI - Example 2");
     

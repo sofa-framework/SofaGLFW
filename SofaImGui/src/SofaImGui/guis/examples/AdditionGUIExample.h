@@ -7,14 +7,15 @@ using sofaimgui::guis::BaseAdditionalGUI;
 namespace sofaimgui::guis
 {
 
-    /**
-     * @brief Example custom GUI module for testing the injection system.
-     */
-    class AdditionGUIExample : public BaseAdditionalGUI
-    {
-    public:
-        void draw() override;
-        std::string getWindowName() const override;
-    };
+/**
+ * @brief Example custom GUI module for testing the injection system.
+ */
+class AdditionGUIExample : public BaseAdditionalGUI
+{
+public:
+    std::string getWindowName() const override;
+private:
+    void doDraw() override;
+};
 
 } // namespace sofaimgui::guis

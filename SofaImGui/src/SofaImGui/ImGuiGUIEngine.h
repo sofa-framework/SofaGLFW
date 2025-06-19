@@ -26,11 +26,11 @@
 #include <SofaGLFW/BaseGUIEngine.h>
 #include <sofa/gl/FrameBufferObject.h>
 
+#include "guis/AdditionalGUIRegistry.h"
+#include "windows/WindowState.h"
+#include <SimpleIni.h>
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
-#include "windows/WindowState.h"
-#include "guis/AdditionalGUIManager.h"
 
 using windows::WindowState;
 
@@ -84,7 +84,7 @@ protected:
     windows::WindowState winManagerMouse;
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
-    std::map<std::string, std::unique_ptr<windows::WindowState>> winManagerAdditionalGUIs;
+    std::map<std::string, windows::WindowState> winManagerAdditionalGUIs;
     windows::WindowState firstRunState;
 
     bool isViewportDisplayedForTheFirstTime{true};

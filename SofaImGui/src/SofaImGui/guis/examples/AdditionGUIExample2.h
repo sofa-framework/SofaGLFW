@@ -21,7 +21,7 @@ namespace sofaimgui::guis
     class AdditionGUIExample2 : public BaseAdditionalGUI
     {
     public:
-        void draw() override;
+
         std::string getWindowName() const override;
 
         /**
@@ -34,6 +34,7 @@ namespace sofaimgui::guis
         void setRootNode(sofa::simulation::Node::SPtr root);
 
     private:
+        void doDraw() override;
 
         sofa::simulation::Node::SPtr rootNode; // Root node of the simulation graph
 
