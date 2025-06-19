@@ -23,7 +23,7 @@
 
 #include <SofaImGui/config.h>
 #include <SofaImGui/windows/WindowState.h>
-#include <string>
+#include <sofa/simulation/Node.h>
 
 namespace sofaimgui::guis
 {
@@ -44,7 +44,7 @@ public:
      *
      * You must override this method to implement the GUI logic.
      */
-    void draw(windows::WindowState& winManager);
+    void draw(sofa::core::sptr<sofa::simulation::Node> groot, windows::WindowState& winManager);
 
     /**
      * @brief Get the name of the window.
@@ -65,7 +65,7 @@ public:
     virtual std::string getWindowIcon() const;
 
 private:
-    virtual void doDraw() = 0;
+    virtual void doDraw(sofa::core::sptr<sofa::simulation::Node> groot) = 0;
 };
 
 } // namespace sofaimgui::guis

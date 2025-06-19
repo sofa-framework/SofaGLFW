@@ -75,7 +75,7 @@ void drawWindowMenuCheckboxes(std::map<std::string, windows::WindowState>& state
     }
 }
 
-void showVisibleGUIs(std::map<std::string, windows::WindowState>& states)
+void showVisibleGUIs(sofa::core::sptr<sofa::simulation::Node> groot, std::map<std::string, windows::WindowState>& states)
 {
     for (auto& gui : MainAdditionGUIRegistry::getAllGUIs())
     {
@@ -95,7 +95,7 @@ void showVisibleGUIs(std::map<std::string, windows::WindowState>& states)
 
         if (it != states.end())
         {
-            gui->draw(it->second);
+            gui->draw(groot, it->second);
         }
     }
 }

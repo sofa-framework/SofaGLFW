@@ -23,17 +23,17 @@
 #include <SofaImGui/guis/AdditionalGUIRegistry.h>
 #include <imgui.h>
 
-namespace sofaimgui::guis
+namespace sofaimguicamera
 {
 
-void AdditionGUIExample::doDraw()
+void CameraGUI::doDraw(sofa::core::sptr<sofa::simulation::Node> groot)
 {
     ImGui::Text("Hello from AdditionGUI Example!");
 }
 
-std::string AdditionGUIExample::getWindowName() const
+std::string CameraGUI::getWindowName() const
 {
     return "Camera";
 }
 
-} // namespace sofaimgui::guis
+} // namespace sofaimguicamera

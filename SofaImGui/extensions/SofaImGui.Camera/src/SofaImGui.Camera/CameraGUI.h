@@ -21,22 +21,23 @@
 ******************************************************************************/
 #pragma once
 
+#include <SofaImGui.Camera/config.h>
 #include <SofaImGui/guis/BaseAdditionalGUI.h>
 
 using sofaimgui::guis::BaseAdditionalGUI;
 
-namespace sofaimgui::guis
+namespace sofaimguicamera
 {
 
 /**
  * @brief Example custom GUI module for testing the injection system.
  */
-class AdditionGUIExample : public BaseAdditionalGUI
+class SOFAIMGUI_CAMERA_API CameraGUI : public BaseAdditionalGUI
 {
 public:
     std::string getWindowName() const override;
 private:
-    void doDraw() override;
+    void doDraw(sofa::core::sptr<sofa::simulation::Node> groot) override;
 };
 
-} // namespace sofaimgui::guis
+} // namespace sofaimguicamera

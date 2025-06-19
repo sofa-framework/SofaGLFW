@@ -105,5 +105,5 @@ void drawWindowMenuCheckboxes(std::map<std::string, windows::WindowState>& state
  *
  * @param states Map containing the state of each window, including visibility.
  */
-void showVisibleGUIs(std::map<std::string, windows::WindowState>& states);
+void showVisibleGUIs(sofa::core::sptr<sofa::simulation::Node> groot, std::map<std::string, windows::WindowState>& states);
 } // namespace sofaimgui::guis

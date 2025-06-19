@@ -37,7 +37,7 @@ void initializePlugin()
 
         const bool registrationSuccessful =
             sofaimgui::guis::MainAdditionGUIRegistry::registerAdditionalGUI(
-                new sofaimgui::guis::AdditionGUIExample());
+                new CameraGUI());
     }
 }
 

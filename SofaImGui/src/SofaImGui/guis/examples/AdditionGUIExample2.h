@@ -34,7 +34,7 @@ namespace sofaimgui::guis
         void setRootNode(sofa::simulation::Node::SPtr root);
 
     private:
-        void doDraw() override;
+        void doDraw(sofa::core::sptr<sofa::simulation::Node> groot) override;
 
         sofa::simulation::Node::SPtr rootNode; // Root node of the simulation graph
 

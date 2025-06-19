@@ -25,14 +25,17 @@
 
 namespace sofaimgui::guis {
 
-void BaseAdditionalGUI::draw(windows::WindowState &winManager) {
-  if (*winManager.getStatePtr()) {
-    const auto label = getWindowIcon() + "  " + getWindowName();
-    if (ImGui::Begin(label.c_str(), winManager.getStatePtr())) {
-      this->doDraw();
+void BaseAdditionalGUI::draw(sofa::core::sptr<sofa::simulation::Node> groot, windows::WindowState &winManager)
+{
+    if (*winManager.getStatePtr())
+    {
+        const auto label = getWindowIcon() + "  " + getWindowName();
+        if (ImGui::Begin(label.c_str(), winManager.getStatePtr()))
+        {
+            this->doDraw(groot);
+        }
+        ImGui::End();
     }
-    ImGui::End();
-  }
 }
 std::string BaseAdditionalGUI::getWindowIcon() const
 {

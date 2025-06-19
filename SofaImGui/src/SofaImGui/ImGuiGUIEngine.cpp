@@ -711,7 +711,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Additional GUIs
      **************************************/
-    sofaimgui::guis::showVisibleGUIs(winManagerAdditionalGUIs);
+    sofaimgui::guis::showVisibleGUIs(groot, winManagerAdditionalGUIs);
 
     /***************************************
      * Settings window

@@ -13,7 +13,7 @@ namespace sofaimgui::guis
         return "AdditionalGUI Example 2";
     }
 
-void AdditionGUIExample2::doDraw()
+void AdditionGUIExample2::doDraw(sofa::core::sptr<sofa::simulation::Node> groot)
 {
     ImGui::Begin("AdditionalGUI - Example 2");
     
