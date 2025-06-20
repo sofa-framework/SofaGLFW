@@ -112,6 +112,7 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
     }
     else
     {
+        msg_error("SofaGLFWBaseGUI") << "Cannot initialize GLFW";
         return false;
     }
 }
@@ -282,6 +283,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     {
         glfwWindow = glfwCreateWindow(width > 0 ? width : 100, height > 0 ? height : 100, title, nullptr, m_firstWindow);
     }
+    assert(glfwWindow);
     s_numberOfActiveWindows++;
 
 #ifndef __APPLE__ // Apple implies Cocoa and Cocoa does not support icon for the window
