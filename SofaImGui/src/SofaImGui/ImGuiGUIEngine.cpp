@@ -39,46 +39,47 @@
 
 #include <GLFW/glfw3.h>
 
-#include <imgui.h>
-#include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
-#include <implot.h>
-#include <nfd.h>
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_opengl2.h>
+#include "AppIniFile.h"
+#include "guis/AdditionalGUIRegistry.h"
+#include "windows/Components.h"
+#include "windows/DisplayFlags.h"
+#include "windows/Log.h"
+#include "windows/MouseManager.h"
+#include "windows/Performances.h"
+#include "windows/Plugins.h"
+#include "windows/Profiler.h"
+#include "windows/SceneGraph.h"
+#include "windows/Settings.h"
+#include "windows/ViewPort.h"
+#include "windows/WindowState.h"
 #include <IconsFontAwesome4.h>
 #include <IconsFontAwesome6.h>
+#include <Roboto-Medium.h>
+#include <SofaImGui/ImGuiDataWidget.h>
+#include <SofaImGui/UIStrings.h>
+#include <Style.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl2.h>
+#include <backends/imgui_impl_opengl3.h>
 #include <fa-regular-400.h>
 #include <fa-solid-900.h>
 #include <filesystem>
 #include <fstream>
-#include <Roboto-Medium.h>
-#include <Style.h>
-#include <SofaImGui/ImGuiDataWidget.h>
-#include <sofa/helper/Utils.h>
-#include <sofa/simulation/Node.h>
+#include <imgui.h>
+#include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
+#include <implot.h>
+#include <nfd.h>
 #include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/ObjectFactory.h>
-#include <sofa/helper/system/PluginManager.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <sofa/helper/io/File.h>
 #include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/gui/common/BaseGUI.h>
+#include <sofa/helper/Utils.h>
+#include <sofa/helper/io/File.h>
 #include <sofa/helper/io/STBImage.h>
+#include <sofa/helper/system/PluginManager.h>
+#include <sofa/simulation/Node.h>
 #include <sofa/simulation/graph/DAGNode.h>
-#include <SofaImGui/UIStrings.h>
-#include "windows/Performances.h"
-#include "windows/Log.h"
-#include "windows/MouseManager.h"
-#include "windows/Profiler.h"
-#include "windows/SceneGraph.h"
-#include "windows/DisplayFlags.h"
-#include "windows/Plugins.h"
-#include "windows/Components.h"
-#include "windows/Settings.h"
-#include "AppIniFile.h"
-#include "windows/ViewPort.h"
-#include "windows/WindowState.h"
 
 #include <clocale>
 
@@ -577,6 +578,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::Checkbox(windowNameMouse, winManagerMouse.getStatePtr());
 
+            if (guis::MainAdditionGUIRegistry::getAllGUIs().empty() == false)
+            {
+                ImGui::Separator();
+                sofaimgui::guis::drawWindowMenuCheckboxes(winManagerAdditionalGUIs, getConfigurationFolderPath());
+            }
+
             ImGui::Separator();
 
             ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
@@ -700,9 +707,14 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     windows::showLog(windowNameLog, winManagerLog);
 
     /***************************************
-     * Log window
+     * Mouse window
      **************************************/
     windows::showManagerMouseWindow(windowNameMouse, winManagerMouse, baseGUI);
+
+    /***************************************
+     * Additional GUIs
+     **************************************/
+    sofaimgui::guis::showVisibleGUIs(groot, winManagerAdditionalGUIs);
 
     /***************************************
      * Settings window
