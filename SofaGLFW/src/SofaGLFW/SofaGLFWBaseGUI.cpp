@@ -128,6 +128,7 @@ void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename)
     m_filename = filename;
 
     VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
+    sofa::core::visual::VisualParams::defaultInstance()->setSupported(sofa::core::visual::API_OpenGL);
 
     if (m_groot) {
         // Initialize the pick handler
