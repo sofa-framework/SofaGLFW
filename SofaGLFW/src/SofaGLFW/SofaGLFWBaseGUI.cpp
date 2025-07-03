@@ -25,6 +25,7 @@
 #include <GLFW/glfw3.h>
 
 #include <SofaGLFW/SofaGLFWWindow.h>
+#include <SofaGLFW/config.h>
 
 #include <SofaGLFW/SofaGLFWMouseManager.h>
 
@@ -94,7 +95,7 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
 
     // Wayland is not fully supported in GLFW
     // this will force using X11 on wayland (XWayland)
-#if defined(__linux__)
+#if defined(SOFAGLFW_USEX11_INTERNAL)
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 #endif
 
@@ -111,6 +112,7 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
     }
     else
     {
+        msg_error("SofaGLFWBaseGUI") << "Cannot initialize GLFW";
         return false;
     }
 }
@@ -281,10 +283,15 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     {
         glfwWindow = glfwCreateWindow(width > 0 ? width : 100, height > 0 ? height : 100, title, nullptr, m_firstWindow);
     }
+    assert(glfwWindow);
     s_numberOfActiveWindows++;
 
-    setWindowIcon(glfwWindow);
-
+#ifndef __APPLE__ // Apple implies Cocoa and Cocoa does not support icon for the window
+    {
+        setWindowIcon(glfwWindow);
+    }
+#endif
+    
     if (!m_firstWindow)
         m_firstWindow = glfwWindow;
 
@@ -446,6 +453,19 @@ void SofaGLFWBaseGUI::setWindowBackgroundImage(const std::string& filename, unsi
     }
 }
 
+void SofaGLFWBaseGUI::setWindowTitle(GLFWwindow* window, const char* title)
+{
+    if(hasWindow())
+    {
+        auto* glfwWindow = (window) ? window : m_firstWindow ;
+        glfwSetWindowTitle(glfwWindow, title);
+    }
+    else
+    {
+        msg_error("SofaGLFWBaseGUI") << "No window to set the title on";// can happen with runSofa/BaseGUI
+    }
+}
+
 void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
 {
     glfwMakeContextCurrent(glfwWindow);
@@ -478,6 +498,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
         // Keep running
         runStep();
+        sofa::type::vector<std::pair<GLFWwindow*, SofaGLFWWindow*>> closedWindows;
         
         for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
         {
@@ -504,12 +525,31 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                 else
                 {
                     // otherwise close this window
-                    close_callback(glfwWindow);
+                    closedWindows.emplace_back(glfwWindow, sofaGlfwWindow);
                 }
             }
         }
 
         glfwPollEvents();
+
+        // the engine must be terminated before the window
+        if (s_numberOfActiveWindows == closedWindows.size())
+        {
+            m_guiEngine->terminate();
+            m_guiEngine.reset();
+        }
+
+        for (auto& [glfwWindow, sofaGlfwWindow] : closedWindows)
+        {
+            sofaGlfwWindow->close();
+
+            auto currentSofaWindow = s_mapWindows.find(glfwWindow);
+            if (currentSofaWindow != s_mapWindows.end())
+            {
+                s_numberOfActiveWindows--;
+                s_mapWindows.erase(currentSofaWindow);
+            }
+        }
 
         currentNbIterations++;
         running = (targetNbIterations > 0) ? currentNbIterations < targetNbIterations : true;
@@ -593,7 +633,8 @@ void SofaGLFWBaseGUI::terminate()
     if (!m_bGlfwIsInitialized)
         return;
 
-    m_guiEngine->terminate();
+    if (m_guiEngine)
+        m_guiEngine->terminate();
 
     glfwTerminate();
 }
@@ -902,17 +943,6 @@ void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double
 
 void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
 {
-    auto currentSofaWindow = s_mapWindows.find(window);
-    if (currentSofaWindow != s_mapWindows.end())
-    {
-        if (SofaGLFWWindow* glfwWindow = currentSofaWindow->second)
-        {
-            glfwWindow->close();
-            delete glfwWindow;
-            glfwWindow = nullptr;
-            s_numberOfActiveWindows--;
-        }
-    }
 }
 
 void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)

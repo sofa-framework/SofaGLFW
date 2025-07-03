@@ -1,24 +1,24 @@
 /******************************************************************************
-*                 SOFA, Simulation Open-Framework Architecture                *
-*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
-*                                                                             *
-* This program is free software; you can redistribute it and/or modify it     *
-* under the terms of the GNU General Public License as published by the Free  *
-* Software Foundation; either version 2 of the License, or (at your option)   *
-* any later version.                                                          *
-*                                                                             *
-* This program is distributed in the hope that it will be useful, but WITHOUT *
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    *
-* more details.                                                               *
-*                                                                             *
-* You should have received a copy of the GNU General Public License along     *
-* with this program. If not, see <http://www.gnu.org/licenses/>.              *
-*******************************************************************************
-* Authors: The SOFA Team and external contributors (see Authors.txt)          *
-*                                                                             *
-* Contact information: contact@sofa-framework.org                             *
-******************************************************************************/
+ *                 SOFA, Simulation Open-Framework Architecture                *
+ *                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
+ *                                                                             *
+ * This program is free software; you can redistribute it and/or modify it     *
+ * under the terms of the GNU General Public License as published by the Free  *
+ * Software Foundation; either version 2 of the License, or (at your option)   *
+ * any later version.                                                          *
+ *                                                                             *
+ * This program is distributed in the hope that it will be useful, but WITHOUT *
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    *
+ * more details.                                                               *
+ *                                                                             *
+ * You should have received a copy of the GNU General Public License along     *
+ * with this program. If not, see <http://www.gnu.org/licenses/>.              *
+ *******************************************************************************
+ * Authors: The SOFA Team and external contributors (see Authors.txt)          *
+ *                                                                             *
+ * Contact information: contact@sofa-framework.org                             *
+ ******************************************************************************/
 
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/core/objectmodel/Base.h>
@@ -27,7 +27,9 @@
 #include <sofa/helper/map.h>
 #include <sofa/helper/OptionsGroup.h>
 #include <sofa/helper/SelectableItem.h>
-
+#include <SofaImGui/widgets/DisplayFlagsWidget.h>
+#include <SofaImGui/widgets/LinearSpringWidget.h>
+#include <SofaImGui/widgets/MaterialWidget.h>
 
 namespace sofaimgui
 {
@@ -46,28 +48,6 @@ void DataWidget<bool>::showWidget(MyData& data)
     if (changeableValue != initialValue)
     {
         data.setValue(changeableValue);
-    }
-}
-
-bool showScalarWidget(const std::string& label, const std::string& id, float& value)
-{
-    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_None);
-}
-
-bool showScalarWidget(const std::string& label, const std::string& id, double& value)
-{
-    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_None);
-}
-
-template<typename Scalar>
-void showScalarWidget(Data<Scalar>& data)
-{
-    Scalar initialValue = data.getValue();
-    const auto& label = data.getName();
-    const auto id = data.getName() + data.getOwner()->getPathName();
-    if (showScalarWidget(label, id, initialValue))
-    {
-        data.setValue(initialValue);
     }
 }
 
@@ -647,6 +627,97 @@ void DataWidget<type::RGBAColor>::showWidget(MyData& data)
 }
 
 /***********************************************************************************************************************
+* CompressedRowSparseMatrixConstraint
+**********************************************************************************************************************/
+
+template<typename TBlock, typename TPolicy>
+void showWidgetT(
+Data<linearalgebra::CompressedRowSparseMatrixConstraint<TBlock, TPolicy>>& data)
+{
+    std::stringstream ss;
+    data.getValue().prettyPrint(ss);
+    ImGui::TextWrapped(ss.str().c_str());
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec2Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec3Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid2Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+template<>
+void DataWidget<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid3Types::Deriv>>::showWidget(MyData& data)
+{
+    showWidgetT(data);
+}
+
+/***********************************************************************************************************************
+ * DisplayFlags
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<core::visual::DisplayFlags>::showWidget(MyData& data)
+{
+    showDisplayFlagsWidget(data);
+}
+
+/***********************************************************************************************************************
+ * Springs
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<sofa::component::solidmechanics::spring::LinearSpring<float>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+template<>
+void DataWidget<sofa::component::solidmechanics::spring::LinearSpring<double>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<float>>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<double>>>::showWidget(MyData& data)
+{
+    showLinearSpringWidget(data);
+}
+
+/***********************************************************************************************************************
+ * Material
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<sofa::type::Material>::showWidget(MyData& data)
+{
+    showMaterialWidget(data);
+}
+
+template<>
+void DataWidget<sofa::type::vector<sofa::type::Material>>::showWidget(MyData& data)
+{
+    showMaterialListWidget(data);
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -717,4 +788,19 @@ const bool dw_optionsGroup = DataWidgetFactory::Add<helper::OptionsGroup>();
 const bool dw_selectable_items = DataWidgetFactory::Add<helper::BaseSelectableItem>();
 
 const bool dw_rgbacolor = DataWidgetFactory::Add<type::RGBAColor>();
+
+const bool dw_constraintmatrixVec2 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec2Types::Deriv>>();
+const bool dw_constraintmatrixVec3 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Vec3Types::Deriv>>();
+const bool dw_constraintmatrixRigid3 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid3Types::Deriv>>();
+const bool dw_constraintmatrixRigid2 = DataWidgetFactory::Add<linearalgebra::CompressedRowSparseMatrixConstraint<defaulttype::Rigid2Types::Deriv>>();
+
+const bool dw_displayFlags = DataWidgetFactory::Add<core::visual::DisplayFlags>();
+
+const bool dw_springd = DataWidgetFactory::Add<sofa::component::solidmechanics::spring::LinearSpring<double> >();
+const bool dw_springf = DataWidgetFactory::Add<sofa::component::solidmechanics::spring::LinearSpring<float> >();
+const bool dw_springvecd = DataWidgetFactory::Add<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<double> > >();
+const bool dw_springvecf = DataWidgetFactory::Add<sofa::type::vector<sofa::component::solidmechanics::spring::LinearSpring<float> > >();
+
+const bool dw_material = DataWidgetFactory::Add<sofa::type::Material>();
+const bool dw_vector_material = DataWidgetFactory::Add<sofa::type::vector<sofa::type::Material>>();
 }

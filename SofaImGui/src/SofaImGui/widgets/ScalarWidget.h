@@ -19,45 +19,33 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaImGui/ImGuiGUIEngine.h>
-#include <SofaGLFW/SofaGLFWBaseGUI.h>
-#include <sofa/core/loader/SceneLoader.h>
-#include <sofa/simulation/SceneLoaderFactory.h>
-#include <sofa/helper/AdvancedTimer.h>
+#pragma once
+#include <sofa/core/objectmodel/Data.h>
 #include <imgui.h>
-#include <SofaImGui/ImGuiDataWidget.h>
-#include <sofa/simulation/Node.h>
-#include <sofa/component/visual/VisualStyle.h>
-#include <sofa/core/visual/VisualParams.h>
-#include <sofa/gui/common/BaseGUI.h>
-#include <sofa/simulation/graph/DAGNode.h>
 
-#include "DisplayFlags.h"
-#include "WindowState.h"
-
-#include <SofaImGui/widgets/DisplayFlagsWidget.h>
-
-namespace windows
+namespace sofaimgui
 {
 
-    void showDisplayFlags(sofa::core::sptr<sofa::simulation::Node> groot,
-                          const char* const& windowNameDisplayFlags,
-                          WindowState& winManagerDisplayFlags)
+inline bool showScalarWidget(const std::string& label, const std::string& id, float& value)
+{
+    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
+}
+
+inline bool showScalarWidget(const std::string& label, const std::string& id, double& value)
+{
+    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
+}
+
+template<typename Scalar>
+void showScalarWidget(sofa::Data<Scalar>& data)
+{
+    Scalar initialValue = data.getValue();
+    const auto& label = data.getName();
+    const auto id = data.getName() + data.getOwner()->getPathName();
+    if (showScalarWidget(label, id, initialValue))
     {
-        if (*winManagerDisplayFlags.getStatePtr())
-        {
-            if (ImGui::Begin(windowNameDisplayFlags, winManagerDisplayFlags.getStatePtr()))
-            {
-                sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
-                groot->get(visualStyle);
-                
-                if (visualStyle)
-                {
-                    sofaimgui::showDisplayFlagsWidget(visualStyle->d_displayFlags);
-                }
-            }
-            ImGui::End();
-        }
+        data.setValue(initialValue);
     }
+}
 
 }

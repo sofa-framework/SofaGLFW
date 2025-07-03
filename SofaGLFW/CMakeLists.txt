@@ -13,6 +13,14 @@ include(FetchContent)
 
 find_package(glfw3 CONFIG QUIET)
 
+if( UNIX AND NOT APPLE )
+    option(SOFAGLFW_USEX11 "Flag to force x11 for windows management" ON)
+    if(SOFAGLFW_USEX11)
+        set(SOFAGLFW_USEX11_INTERNAL ON)
+    endif ()
+endif ()
+
+
 if(NOT TARGET glfw)
     message("glfw3 not found, fetching source code...")
     FetchContent_Declare(glfw
