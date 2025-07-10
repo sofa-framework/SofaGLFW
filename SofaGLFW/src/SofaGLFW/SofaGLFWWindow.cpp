@@ -319,6 +319,8 @@ void SofaGLFWWindow::mouseButtonEvent(int button, int action, int mods)
 
 bool SofaGLFWWindow::mouseEvent(GLFWwindow* window, int width, int height,int button, int action, int mods, double xpos, double ypos) const
 {
+    SOFA_UNUSED(mods);
+    
     if (!m_currentCamera)
         return true;
 
