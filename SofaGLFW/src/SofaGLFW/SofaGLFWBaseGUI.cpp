@@ -662,6 +662,8 @@ int SofaGLFWBaseGUI::handleArrowKeys(int key)
 
 void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    SOFA_UNUSED(scancode);
+
     const char keyName = handleArrowKeys(key);
     const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 
@@ -755,6 +757,42 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                 }
             }
             break;
+        case GLFW_KEY_R:
+            if (action == GLFW_PRESS && isCtrlKeyPressed)
+            {
+                // Reload using CTRL + R
+                sofa::simulation::NodeSPtr groot = currentGUI->m_groot;
+                std::string filename = currentGUI->m_filename;
+
+                if (!filename.empty() && helper::system::FileSystem::exists(filename))
+                {
+                    msg_info("GUI") << "Reloading file " << filename;
+                    sofa::simulation::node::unload(groot);
+
+                    groot = sofa::simulation::node::load(filename.c_str());
+                    if( !groot )
+                        groot = sofa::simulation::getSimulation()->createNewGraph("");
+
+                    currentGUI->setSimulation(groot, filename);
+                    currentGUI->setWindowTitle(nullptr, std::string("SOFA - " + filename).c_str());
+
+                    sofa::simulation::node::initRoot(groot.get());
+                    auto camera = currentGUI->findCamera(groot);
+                    if (camera)
+                    {
+                        camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+                        currentGUI->changeCamera(camera);
+                    }
+
+                    currentGUI->initVisual();
+
+                    currentGUI->m_guiEngine->resetCounter();
+
+                    // update camera if a sidecar file is present
+                    currentGUI->restoreCamera(currentGUI->findCamera(groot));
+                }
+            }
+
 
         default:
             break;
@@ -944,6 +982,7 @@ void SofaGLFWBaseGUI::scroll_callback(GLFWwindow* window, double xoffset, double
 
 void SofaGLFWBaseGUI::close_callback(GLFWwindow* window)
 {
+    SOFA_UNUSED(window);
 }
 
 void SofaGLFWBaseGUI::window_focus_callback(GLFWwindow* window, int focused)
