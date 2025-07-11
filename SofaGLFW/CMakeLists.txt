@@ -21,7 +21,11 @@ if( UNIX AND NOT APPLE )
 endif ()
 
 
-if(NOT TARGET glfw)
+if(TARGET glfw)
+    if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        sofa_install_libraries(TARGETS glfw)
+    endif()
+else()
     message("glfw3 not found, fetching source code...")
     FetchContent_Declare(glfw
             GIT_REPOSITORY https://github.com/glfw/glfw
@@ -29,7 +33,6 @@ if(NOT TARGET glfw)
     )
 
     FetchContent_GetProperties(glfw)
-    set(USE_FETCHED_GLFW ON)
     if(NOT glfw_POPULATED)
         FetchContent_Populate(glfw)
 
@@ -87,10 +90,6 @@ if(SofaPython3_FOUND)
 endif()
 
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
-
-if(NOT USE_FETCHED_GLFW AND CMAKE_SYSTEM_NAME STREQUAL Windows)
-    sofa_install_libraries(TARGETS glfw)
-endif()
 
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}

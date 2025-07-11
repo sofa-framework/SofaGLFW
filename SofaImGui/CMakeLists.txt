@@ -23,7 +23,11 @@ FetchContent_MakeAvailable(imgui)
 
 find_package(nfd CONFIG QUIET)
 
-if(NOT TARGET nfd::nfd)
+if(TARGET nfd::nfd)
+    if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        sofa_install_libraries(TARGETS nfd::nfd)
+    endif()
+else()
     message("nativefiledialog-extended not found, fetching source code...")
     FetchContent_Declare(nfd
             GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
@@ -159,10 +163,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_USER_CONFIG=<SofaImGui/c
 find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
     add_subdirectory(bindings)
-endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL Windows)
-    sofa_install_libraries(TARGETS nfd::nfd)
 endif()
 
 sofa_create_package_with_targets(
