@@ -87,6 +87,10 @@ endif()
 
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
 
+if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+    sofa_install_libraries(TARGETS glfw)
+endif()
+
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
     PACKAGE_VERSION ${Sofa_VERSION}

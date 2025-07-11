@@ -161,6 +161,10 @@ if(SofaPython3_FOUND)
     add_subdirectory(bindings)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+    sofa_install_libraries(TARGETS nfd::nfd)
+endif()
+
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}
     PACKAGE_VERSION ${Sofa_VERSION}
