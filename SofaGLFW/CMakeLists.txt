@@ -29,6 +29,7 @@ if(NOT TARGET glfw)
     )
 
     FetchContent_GetProperties(glfw)
+    set(USE_FETCHED_GLFW ON)
     if(NOT glfw_POPULATED)
         FetchContent_Populate(glfw)
 
@@ -87,7 +88,7 @@ endif()
 
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
 
-if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+if(NOT USE_FETCHED_GLFW AND CMAKE_SYSTEM_NAME STREQUAL Windows)
     sofa_install_libraries(TARGETS glfw)
 endif()
 
