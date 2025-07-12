@@ -249,6 +249,8 @@ jobs:
           build_status=$([ '${{ steps.build-and-install.outcome }}' == 'success' ] && \
                          echo 'true' || echo 'false')
 
+          os=$(echo "${{ matrix.os }}" | awk -F- '{ print $1 }')
+
           binary_status=$([ '${{ steps.create-artifact.outcome }}' == 'success' ] && \
                          [ '${{ steps.install-artifact.outcome }}' == 'success' ] && \
                          [ '${{ steps.sanitize.outcome }}' == 'success' ] && \
@@ -259,6 +261,7 @@ jobs:
           "{\"id\":\"$(echo "${{ github.repository }}" | awk -F/ '{ print $2 }')\",\
            \"github_ref\":\"${{ github.sha }}\",\
            \"url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\
+           \"os\":\"$os\",\
            \"build\":$build_status,\
            \"binary\":$binary_status}"\
            https://sofa-framework.org:5000/api/v1/plugins
