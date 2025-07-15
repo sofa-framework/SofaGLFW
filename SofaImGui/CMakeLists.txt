@@ -23,7 +23,11 @@ FetchContent_MakeAvailable(imgui)
 
 find_package(nfd CONFIG QUIET)
 
-if(NOT TARGET nfd::nfd)
+if(TARGET nfd::nfd)
+    if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        sofa_install_libraries(TARGETS nfd::nfd)
+    endif()
+else()
     message("nativefiledialog-extended not found, fetching source code...")
     FetchContent_Declare(nfd
             GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
