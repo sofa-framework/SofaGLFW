@@ -220,14 +220,6 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
                     {
                         constexpr long margin = 5; // avoid the case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
 
-                        std::cout << "windowPosX = " <<  windowPosX  <<  std::endl;
-                        std::cout << "monitorXPos = " <<  monitorXPos  <<  std::endl;
-                        std::cout << "monitorXPos + monitorWidth-margin = " <<  monitorXPos + monitorWidth-margin  <<  std::endl;
-                        std::cout << "windowPosY = " <<  windowPosY  <<  std::endl;
-                        std::cout << "monitorYPos = " <<  monitorYPos  <<  std::endl;
-                        std::cout << "monitorYPos + monitorHeight-margin = " <<  monitorYPos + monitorHeight-margin  <<  std::endl;
-
-
                         if(windowPosX  >= (monitorXPos) &&
                            windowPosX  <= (monitorXPos + monitorWidth-margin) &&
                            windowPosY  >= (monitorYPos) &&
