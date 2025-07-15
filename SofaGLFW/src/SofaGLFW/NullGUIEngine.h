@@ -41,6 +41,7 @@ public:
     void afterDraw() override {}
     void terminate() override;
     bool dispatchMouseEvents() override;
+    void resetCounter() override;
 };
 
 } // namespace sofaglfw

@@ -289,6 +289,14 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
 
     baseGUI->initVisual();
     
+    resetCounter();
+
+    // update camera if a sidecar file is present
+    baseGUI->restoreCamera(baseGUI->findCamera(groot));
+}
+
+void ImGuiGUIEngine::resetCounter()
+{
     // reset screenshot counter when a file is loaded
     m_screenshotCounter = 0;
 }

@@ -61,4 +61,9 @@ bool NullGUIEngine::dispatchMouseEvents()
     return true;
 }
 
+void NullGUIEngine::resetCounter()
+{
+
+}
+
 } // namespace sofaglfw

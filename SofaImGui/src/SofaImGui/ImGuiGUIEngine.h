@@ -64,6 +64,9 @@ public:
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
     void setScale(double globalScale, GLFWmonitor* monitor);
 
+    // reset counters
+    void resetCounter() override;
+
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
