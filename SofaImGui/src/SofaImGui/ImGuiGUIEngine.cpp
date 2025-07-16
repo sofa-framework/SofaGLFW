@@ -220,10 +220,10 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
                     {
                         constexpr long margin = 5; // avoid the case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
 
-                        if(windowPosX  > (monitorXPos) &&
-                           windowPosX  < (monitorXPos + monitorWidth-margin) &&
-                           windowPosY  > (monitorYPos) &&
-                           windowPosY  < (monitorYPos + monitorHeight-margin))
+                        if(windowPosX  >= (monitorXPos) &&
+                           windowPosX  <= (monitorXPos + monitorWidth-margin) &&
+                           windowPosY  >= (monitorYPos) &&
+                           windowPosY  <= (monitorYPos + monitorHeight-margin))
                         {
                             glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
                             foundValidMonitor = true;
