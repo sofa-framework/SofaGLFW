@@ -20,7 +20,11 @@ if( UNIX AND NOT APPLE )
 endif ()
 
 
-if(NOT TARGET glfw)
+if(TARGET glfw)
+    if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        sofa_install_libraries(TARGETS glfw)
+    endif()
+else()
     message("glfw3 not found, fetching source code...")
     set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
     set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")

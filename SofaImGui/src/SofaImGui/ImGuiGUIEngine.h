@@ -26,10 +26,11 @@
 #include <SofaGLFW/BaseGUIEngine.h>
 #include <sofa/gl/FrameBufferObject.h>
 
+#include "guis/AdditionalGUIRegistry.h"
+#include "windows/WindowState.h"
+#include <SimpleIni.h>
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
-#include "windows/WindowState.h"
 
 using windows::WindowState;
 
@@ -63,6 +64,9 @@ public:
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
     void setScale(double globalScale, GLFWmonitor* monitor);
 
+    // reset counters
+    void resetCounter() override;
+
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
@@ -83,6 +87,7 @@ protected:
     windows::WindowState winManagerMouse;
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
+    std::map<std::string, windows::WindowState> winManagerAdditionalGUIs;
     windows::WindowState firstRunState;
 
     bool isViewportDisplayedForTheFirstTime{true};

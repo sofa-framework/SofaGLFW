@@ -23,7 +23,11 @@ sofa_fetch_dependency(imgui
 
 find_package(nfd CONFIG QUIET)
 
-if(NOT TARGET nfd::nfd)
+if(TARGET nfd::nfd)
+    if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        sofa_install_libraries(TARGETS nfd::nfd)
+    endif()
+else()
     message("nativefiledialog-extended not found, fetching source code...")
     set(NFD_INSTALL ON CACHE INTERNAL "")
 
@@ -62,10 +66,11 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imconfig.h
     ${imgui_SOURCE_DIR}/imgui.h
     ${imgui_SOURCE_DIR}/imgui_internal.h
-    ${ImPlot_SOURCE_DIR}/implot.h
-    ${ImPlot_SOURCE_DIR}/implot_internal.h
-    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome4.h
-    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome6.h
+    ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
+    ${implot_SOURCE_DIR}/implot.h
+    ${implot_SOURCE_DIR}/implot_internal.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome4.h
+    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome6.h
     ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h
@@ -81,8 +86,9 @@ set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/imgui_draw.cpp
     ${imgui_SOURCE_DIR}/imgui_tables.cpp
     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-    ${ImPlot_SOURCE_DIR}/implot.cpp
-    ${ImPlot_SOURCE_DIR}/implot_items.cpp
+    ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
+    ${implot_SOURCE_DIR}/implot.cpp
+    ${implot_SOURCE_DIR}/implot_items.cpp
     resources/Style.cpp
 )
 
@@ -98,6 +104,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/UIStrings.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/LinearSpringWidget.h
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/ScalarWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
@@ -111,6 +118,8 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.h
+    ${SOFAIMGUI_SOURCE_DIR}/guis/BaseAdditionalGUI.h
+    ${SOFAIMGUI_SOURCE_DIR}/guis/AdditionalGUIRegistry.h
 )
 
 set(SOURCE_FILES
@@ -120,6 +129,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.cpp
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.cpp
@@ -132,7 +142,8 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.cpp
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.cpp
-
+    ${SOFAIMGUI_SOURCE_DIR}/guis/AdditionalGUIRegistry.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/guis/BaseAdditionalGUI.cpp
 )
 
 
@@ -161,3 +172,5 @@ sofa_create_package_with_targets(
     INCLUDE_INSTALL_DIR "${PROJECT_NAME}"
     RELOCATABLE "plugins"
 )
+
+sofa_add_subdirectory(plugin extensions/SofaImGui.Camera SofaImGui.Camera)
