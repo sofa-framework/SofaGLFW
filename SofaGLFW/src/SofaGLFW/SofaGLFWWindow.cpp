@@ -184,8 +184,9 @@ void SofaGLFWWindow::drawBackgroundImage()
     int screenWidth = 0;
     int screenHeight = 0;
     
-    glfwGetFramebufferSize(m_glfwWindow, &screenWidth, &screenHeight);
-    
+    screenWidth = m_currentCamera->d_widthViewport.getValue();
+    screenHeight = m_currentCamera->d_heightViewport.getValue();
+        
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
