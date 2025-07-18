@@ -633,7 +633,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::Button(ICON_FA_ROTATE_RIGHT))
         {
             groot->setTime(0.);
-            sofa::simulation::node::reset ( groot.get() );
+            // sofa::simulation::node::reset ( groot.get() );
+            loadFile(baseGUI, groot, baseGUI->getFilename());
         }
 
         const auto posX = ImGui::GetCursorPosX();
