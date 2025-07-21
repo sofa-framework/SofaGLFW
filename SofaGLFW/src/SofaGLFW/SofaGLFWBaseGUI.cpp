@@ -784,7 +784,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                         currentGUI->changeCamera(camera);
                     }
 
-                    currentGUI->initVisual();
+                    node::initTextures(groot.get());
 
                     currentGUI->m_guiEngine->resetCounter();
 
