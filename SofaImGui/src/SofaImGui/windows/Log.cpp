@@ -167,7 +167,23 @@ namespace windows
                         }
 
                         ImGui::TableNextColumn();
-                        ImGui::TextWrapped(message.message().str().c_str());
+
+                        std::string msgStr = message.message().str();
+                        int lineCount = 1;
+                        lineCount += static_cast<int>(std::count(msgStr.begin(), msgStr.end(), '\n'));
+                        float totalHeight = lineCount * ImGui::GetTextLineHeight();
+
+                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+                        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0,0,0,0)); // Transparent background
+                        ImGui::InputTextMultiline(
+                            ("##msg" + std::to_string(i)).c_str(),
+                            const_cast<char*>(msgStr.c_str()), msgStr.size() + 1,
+                            ImVec2(ImGui::GetContentRegionAvail().x, totalHeight),
+                            ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_NoUndoRedo
+                        );
+                        ImGui::PopStyleColor();
+                        ImGui::PopStyleVar();
+
                     }
 
                     static std::size_t lastNbRows = 0;
