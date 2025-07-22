@@ -269,7 +269,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     }
 }
 
-void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName)
+void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName, bool reload)
 {
     sofa::simulation::node::unload(groot);
 
@@ -287,7 +287,10 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
         baseGUI->changeCamera(camera);
     }
 
-    baseGUI->initVisual();
+    if(reload)
+        sofa::simulation::node::initTextures(groot.get()); // do not override OpenGL lights
+    else
+        baseGUI->initVisual();
     
     resetCounter();
 
@@ -435,7 +438,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 {
                     if (helper::system::FileSystem::exists(outPath))
                     {
-                        loadFile(baseGUI, groot, outPath);
+                        loadFile(baseGUI, groot, outPath, false);
                     }
                     NFD_FreePath(outPath);
                 }
@@ -447,7 +450,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 if (!filename.empty() && helper::system::FileSystem::exists(filename))
                 {
                     msg_info("GUI") << "Reloading file " << filename;
-                    loadFile(baseGUI, groot, filename);
+                    loadFile(baseGUI, groot, filename, true);
                 }
             }
             if (ImGui::IsItemHovered())
