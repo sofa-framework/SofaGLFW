@@ -731,6 +731,12 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                 currentGUI->switchFullScreen(window);
             }
             break;
+        case GLFW_KEY_F11:
+            if (action == GLFW_PRESS)
+            {
+                currentGUI->switchFullScreen(window);
+            }
+            break;
         case GLFW_KEY_ESCAPE:
             if (action == GLFW_PRESS)
             {
