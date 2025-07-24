@@ -512,6 +512,9 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     
                     m_guiEngine->beforeDraw(glfwWindow);
                     sofaGlfwWindow->draw(m_groot, m_vparams);
+
+                    drawSelection(m_vparams);
+
                     m_guiEngine->afterDraw();
 
                     m_guiEngine->startFrame(this);
