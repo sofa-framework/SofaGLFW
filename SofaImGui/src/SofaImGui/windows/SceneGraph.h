@@ -42,6 +42,7 @@ namespace windows
                             const char* const& windowNameSceneGraph,
                             std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                             std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                            std::set<sofa::core::objectmodel::Base*>& currentSelection,
                             WindowState& winManagerSceneGraph);
 
 

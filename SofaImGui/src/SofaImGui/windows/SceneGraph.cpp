@@ -47,6 +47,7 @@ namespace windows
                         const char* const& windowNameSceneGraph,
                         std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                        std::set<sofa::core::objectmodel::Base*>& currentSelection,
                         WindowState& winManagerSceneGraph)
     {
         std::set<sofa::core::objectmodel::BaseObject*> componentToOpen;
@@ -75,7 +76,7 @@ namespace windows
 
                 std::function<void(sofa::simulation::Node*)> showNode;
                 showNode = [&showNode, &treeDepth, expand, collapse, &openedComponents,
-                            &componentToOpen](sofa::simulation::Node* node)
+                            &componentToOpen, &currentSelection](sofa::simulation::Node* node)
                 {
                     if (node == nullptr) return;
                     if (treeDepth == 0)
@@ -168,22 +169,29 @@ namespace windows
                                 else
                                 {
                                     clickedObject = object;
+                                    if(!currentSelection.contains(clickedObject)){
+                                        currentSelection.clear();
+                                        currentSelection.insert(clickedObject);
+                                    }
+                                    else{
+                                        currentSelection.erase(clickedObject);
+                                    }
                                 }
                             }
 
                             ImGui::SameLine();
 
-                            if (isObjectHighlighted)
+                            bool doHighLight = isObjectHighlighted || currentSelection.contains(object);
+                            if (doHighLight)
                             {
                                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
                             }
                             ImGui::Text(object->getName().c_str());
-
                             ImGui::TableNextColumn();
                             ImGui::TextDisabled(objectClassName.c_str());
                             ImGui::PopID();
 
-                            if (isObjectHighlighted)
+                            if (doHighLight)
                             {
                                 ImGui::PopStyleColor();
                             }
@@ -353,7 +361,6 @@ namespace windows
 
         openedComponents.insert(componentToOpen.begin(), componentToOpen.end());
         openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
-        focusedComponents.clear();
 
         sofa::type::vector<sofa::core::objectmodel::BaseObject*> toRemove;
         static std::map<sofa::core::objectmodel::BaseObject*, int> resizeWindow;
