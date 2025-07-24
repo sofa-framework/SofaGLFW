@@ -67,10 +67,10 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imgui.h
     ${imgui_SOURCE_DIR}/imgui_internal.h
     ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
-    ${implot_SOURCE_DIR}/implot.h
-    ${implot_SOURCE_DIR}/implot_internal.h
-    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome4.h
-    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome6.h
+    ${ImPlot_SOURCE_DIR}/implot.h
+    ${ImPlot_SOURCE_DIR}/implot_internal.h
+    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome4.h
+    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome6.h
     ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h
@@ -87,8 +87,8 @@ set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/imgui_tables.cpp
     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
     ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
-    ${implot_SOURCE_DIR}/implot.cpp
-    ${implot_SOURCE_DIR}/implot_items.cpp
+    ${ImPlot_SOURCE_DIR}/implot.cpp
+    ${ImPlot_SOURCE_DIR}/implot_items.cpp
     resources/Style.cpp
 )
 
