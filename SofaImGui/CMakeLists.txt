@@ -13,7 +13,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(SOFAIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
 endif()
 
-include(FetchContent)
 
 sofa_fetch_dependency(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui
@@ -27,8 +26,8 @@ if(TARGET nfd::nfd)
     if(CMAKE_SYSTEM_NAME STREQUAL Windows)
         sofa_install_libraries(TARGETS nfd::nfd)
     endif()
-else()
-    message("nativefiledialog-extended not found, fetching source code...")
+elseif(SOFA_ALLOW_FETCH_DEPENDENCIES)
+    message("${PROJECT_NAME}: nativefiledialog-extended not found and SOFA_ALLOW_FETCH_DEPENDENCIES is ON, fetching source code...")
     set(NFD_INSTALL ON CACHE INTERNAL "")
 
     sofa_fetch_dependency(nfd
