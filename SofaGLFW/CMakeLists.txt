@@ -11,7 +11,7 @@ sofa_find_package(Sofa.GUI.Common QUIET)
 
 include(FetchContent)
 
-find_package(glfw3 CONFIG QUIET)
+find_package(glfw3 3.4 CONFIG QUIET)
 
 if( UNIX AND NOT APPLE )
     option(SOFAGLFW_USEX11 "Flag to force x11 for windows management" ON)
