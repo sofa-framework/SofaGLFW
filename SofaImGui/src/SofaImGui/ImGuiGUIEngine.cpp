@@ -368,7 +368,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameMouse = ICON_FA_COMPUTER_MOUSE "  Mouse Manager";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
 
-
     if (!*firstRunState.getStatePtr())
     {
         resetView(dockspace_id, windowNameSceneGraph, windowNameLog, windowNameViewport);
@@ -670,9 +669,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    showViewPort(groot, windowNameViewport, ini, m_fbo, m_viewportWindowSize,
-                 isMouseOnViewport, winManagerViewPort, baseGUI,
-                 isViewportDisplayedForTheFirstTime, lastViewPortPos);
+    windows::showViewPort(groot, windowNameViewport, ini, m_fbo, m_viewportWindowSize,
+                          isMouseOnViewport, winManagerViewPort, baseGUI,
+                          isViewportDisplayedForTheFirstTime, lastViewPortPos);
 
 
     /***************************************
@@ -695,7 +694,15 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      **************************************/
     static std::set<core::objectmodel::BaseObject*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
-    windows::showSceneGraph(groot, windowNameSceneGraph, openedComponents, focusedComponents, winManagerSceneGraph);
+    static std::set<core::objectmodel::Base*> currentSelection;
+    windows::showSceneGraph(groot, windowNameSceneGraph, openedComponents,
+                            focusedComponents, currentSelection,
+                            winManagerSceneGraph);
+
+    std::set<core::objectmodel::Base::SPtr> currentSelectionV;
+    for(auto component : currentSelection)
+        currentSelectionV.insert(component);
+    baseGUI->setCurrentSelection(currentSelectionV);
 
     /***************************************
      * Display flags window
