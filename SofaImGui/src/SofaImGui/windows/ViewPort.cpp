@@ -130,6 +130,8 @@ namespace windows
                                 newAxis->d_enable.setValue(true);
                                 auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
                                 newAxis->d_size.setValue(*std::max_element(box.begin(), box.end()));
+                                newAxis->d_infinite.setValue(true);
+                                newAxis->d_vanishing.setValue(true);
                                 newAxis->init();
                             }
                             else
