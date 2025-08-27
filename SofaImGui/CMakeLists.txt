@@ -13,13 +13,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(SOFAIMGUI_FORCE_OPENGL2 ON CACHE BOOL "" FORCE)
 endif()
 
-include(FetchContent)
 
-FetchContent_Declare(imgui
+sofa_fetch_dependency(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui
         GIT_TAG        11b3a7c8ca23201294464c7f368614a9106af2a1 # v1.91.8-docking
+        DONT_BUILD
 )
-FetchContent_MakeAvailable(imgui)
 
 find_package(nfd CONFIG QUIET)
 
@@ -27,38 +26,37 @@ if(TARGET nfd::nfd)
     if(CMAKE_SYSTEM_NAME STREQUAL Windows)
         sofa_install_libraries(TARGETS nfd::nfd)
     endif()
-else()
-    message("nativefiledialog-extended not found, fetching source code...")
-    FetchContent_Declare(nfd
+elseif(SOFA_ALLOW_FETCH_DEPENDENCIES)
+    message("${PROJECT_NAME}: nativefiledialog-extended not found and SOFA_ALLOW_FETCH_DEPENDENCIES is ON, fetching source code...")
+    set(NFD_INSTALL ON CACHE INTERNAL "")
+
+    sofa_fetch_dependency(nfd
             GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
             GIT_TAG        v1.2.1
     )
-    set(NFD_INSTALL ON CACHE INTERNAL "")
-    
-    FetchContent_MakeAvailable(nfd)
     set_property(TARGET nfd  PROPERTY POSITION_INDEPENDENT_CODE ON)
     set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
     add_library(nfd::nfd ALIAS nfd) # introduced in nfd >= v1.2.1
 endif()
 
 
-FetchContent_Declare(ImPlot
+sofa_fetch_dependency(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
         GIT_TAG        18c72431f8265e2b0b5378a3a73d8a883b2175ff # v0.16
+        DONT_BUILD
 )
-FetchContent_MakeAvailable(ImPlot)
 
-FetchContent_Declare(IconFontCppHeaders
+sofa_fetch_dependency(IconFontCppHeaders
         GIT_REPOSITORY https://github.com/juliettef/IconFontCppHeaders
         GIT_TAG        bf610efb2e5d4361df799d0dfb5ae3977d7bba2e
+        DONT_BUILD
 )
-FetchContent_MakeAvailable(IconFontCppHeaders)
 
-FetchContent_Declare(simpleini
+sofa_fetch_dependency(simpleini
         GIT_REPOSITORY https://github.com/brofield/simpleini
         GIT_TAG        09c21bda1dc1b578fa55f4a005d79b0afd481296 # v4.22
+
 )
-FetchContent_MakeAvailable(simpleini)
 
 set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
@@ -68,10 +66,10 @@ set(IMGUI_HEADER_FILES
     ${imgui_SOURCE_DIR}/imgui.h
     ${imgui_SOURCE_DIR}/imgui_internal.h
     ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
-    ${implot_SOURCE_DIR}/implot.h
-    ${implot_SOURCE_DIR}/implot_internal.h
-    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome4.h
-    ${iconfontcppheaders_SOURCE_DIR}/IconsFontAwesome6.h
+    ${ImPlot_SOURCE_DIR}/implot.h
+    ${ImPlot_SOURCE_DIR}/implot_internal.h
+    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome4.h
+    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome6.h
     ${simpleini_SOURCE_DIR}/SimpleIni.h
     resources/fa-regular-400.h
     resources/fa-solid-900.h
@@ -88,8 +86,8 @@ set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/imgui_tables.cpp
     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
     ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
-    ${implot_SOURCE_DIR}/implot.cpp
-    ${implot_SOURCE_DIR}/implot_items.cpp
+    ${ImPlot_SOURCE_DIR}/implot.cpp
+    ${ImPlot_SOURCE_DIR}/implot_items.cpp
     resources/Style.cpp
 )
 
@@ -150,7 +148,7 @@ set(SOURCE_FILES
 
 
 
-set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${implot_SOURCE_DIR} ${iconfontcppheaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
+set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${ImPlot_SOURCE_DIR} ${IconFontCppHeaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${IMGUI_SOURCE_DIR}>")
