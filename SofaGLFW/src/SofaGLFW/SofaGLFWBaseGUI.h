@@ -134,6 +134,10 @@ private:
 
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
+    
+    static void openFile(sofaglfw::SofaGLFWBaseGUI* currentGUI);
+    static void loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, std::string filename = "");
+
 
     inline static std::map<GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
     inline static std::map<GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
