@@ -688,8 +688,6 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     {
         if (action == GLFW_PRESS)
         {
-            dmsg_info_when(key == GLFW_KEY_LEFT_CONTROL, "SofaGLFWBaseGUI") << "KeyPressEvent, CONTROL pressed";
-
             KeypressedEvent keyPressedEvent(keyName);
             rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyPressedEvent);
         }
