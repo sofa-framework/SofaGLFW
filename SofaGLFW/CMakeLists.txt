@@ -24,7 +24,10 @@ if(TARGET glfw)
     if(CMAKE_SYSTEM_NAME STREQUAL Windows)
         sofa_install_libraries(TARGETS glfw)
     endif()
-elseif (SOFA_ALLOW_FETCH_DEPENDENCIES)
+elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES) OR (NOT DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES))
+    # Download if 
+    # 1) SOFA_ALLOW_FETCH_DEPENDENCIES is defined, meaning a in-tree project AND its value is TRUE
+    # 2) SOFA_ALLOW_FETCH_DEPENDENCIES is not defined, which means it is a out-of-tree project
     message("${PROJECT_NAME}: glfw3 not found and SOFA_ALLOW_FETCH_DEPENDENCIES is ON, fetching source code...")
     set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
     set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
