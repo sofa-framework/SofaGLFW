@@ -654,7 +654,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             if (showFPSInMenuBar)
                 position -= ImGui::CalcTextSize("1000.0 FPS ").x;
             ImGui::SetCursorPosX(position);
-            ImGui::TextDisabled("Time: %.3f", groot->getTime());
+            ImGui::Text("Time: %.3f", groot->getTime());
             ImGui::SetCursorPosX(posX);
         }
         mainMenuBarSize = ImGui::GetWindowSize();
