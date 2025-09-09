@@ -97,8 +97,6 @@ public:
     sofa::core::sptr<Node> getRootNode() const;
     bool hasWindow() const { return m_firstWindow != nullptr; }
 
-    [[nodiscard]] std::string getFilename() const { return m_filename; }
-
     sofa::component::visual::BaseCamera::SPtr getCamera() const { return this->currentCamera; }
     void changeCamera(sofa::component::visual::BaseCamera::SPtr newCamera);
     void restoreCamera(sofa::component::visual::BaseCamera::SPtr camera);
@@ -142,7 +140,6 @@ private:
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
 
-    std::string m_filename;
     sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
     sofa::core::visual::VisualParams* m_vparams{ nullptr };
     GLFWwindow* m_firstWindow{ nullptr };

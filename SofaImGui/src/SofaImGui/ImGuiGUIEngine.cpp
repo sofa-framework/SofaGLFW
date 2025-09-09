@@ -443,7 +443,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 }
             }
 
-            const auto filename = baseGUI->getFilename();
+            const auto filename = baseGUI->getSceneFileName();
             if (ImGui::MenuItem(ICON_FA_ROTATE_RIGHT "  Reload File"))
             {
                 if (!filename.empty() && helper::system::FileSystem::exists(filename))
@@ -500,7 +500,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 }
             }
 
-            const std::string viewFileName = baseGUI->getFilename() + std::string(baseGUI->getCameraFileExtension());
+            const std::string viewFileName = baseGUI->getSceneFileName() + std::string(baseGUI->getCameraFileExtension());
             if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_RIGHT"  Save Camera"))
             {
                 sofa::component::visual::BaseCamera::SPtr camera;
@@ -533,7 +533,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 nfdchar_t *outPath;
                 std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
-                const auto sceneFilename = baseGUI->getFilename();
+                const auto sceneFilename = baseGUI->getSceneFileName();
                 std::string baseFilename{};
                 if (!sceneFilename.empty())
                 {
@@ -635,7 +635,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::Button(ICON_FA_ROTATE_RIGHT))
         {
             groot->setTime(0.);
-            loadFile(baseGUI, groot, baseGUI->getFilename(), true);
+            loadFile(baseGUI, groot, baseGUI->getSceneFileName(), true);
         }
 
         const auto posX = ImGui::GetCursorPosX();

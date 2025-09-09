@@ -205,7 +205,7 @@ void SofaGLFWBaseGUI::restoreCamera(BaseCamera::SPtr camera)
 {
     if (camera)
     {
-        const std::string viewFileName = this->getFilename() + std::string(this->getCameraFileExtension());
+        const std::string viewFileName = this->getSceneFileName() + std::string(this->getCameraFileExtension());
         if (helper::system::FileSystem::isFile(viewFileName))
         {
             if (camera->importParametersFromFile(viewFileName))
@@ -750,7 +750,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             {
                 // Reload using CTRL + R
                 sofa::simulation::NodeSPtr groot = currentGUI->groot;
-                std::string filename = currentGUI->m_filename;
+                std::string filename = currentGUI->getSceneFileName();
 
                 if (!filename.empty() && helper::system::FileSystem::exists(filename))
                 {
