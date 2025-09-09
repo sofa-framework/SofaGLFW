@@ -280,7 +280,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     baseGUI->setWindowTitle(nullptr, std::string("SOFA - " + filePathName).c_str());
     
     sofa::simulation::node::initRoot(groot.get());
-    auto camera = baseGUI->findCamera(groot);
+    auto camera = baseGUI->getCamera();
     if (camera)
     {
         camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
@@ -295,7 +295,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     resetCounter();
 
     // update camera if a sidecar file is present
-    baseGUI->restoreCamera(baseGUI->findCamera(groot));
+    baseGUI->restoreCamera(baseGUI->getCamera());
 }
 
 void ImGuiGUIEngine::resetCounter()
