@@ -46,7 +46,6 @@
 
 #include <sofa/gui/common/BaseGUI.h>
 
-#include <sofa/simulation/graph/DAGNode.h>
 #include "Profiler.h"
 
 

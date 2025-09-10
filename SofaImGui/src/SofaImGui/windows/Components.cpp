@@ -34,7 +34,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
-#include <sofa/simulation/graph/DAGNode.h>
+#include <sofa/simulation/Node.h>
 #include <fstream>
 
 #include "Components.h"
@@ -262,7 +262,7 @@ namespace windows
 
                         std::map<std::string, std::map<std::string, DataInfo>> allData;
                         {
-                            const auto tmpNode = sofa::core::objectmodel::New<sofa::simulation::graph::DAGNode>("tmp");
+                            const auto tmpNode = sofa::core::objectmodel::New<sofa::simulation::Node>("tmp");
                             for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
                             {
                                 sofa::core::objectmodel::BaseObjectDescription desc;
