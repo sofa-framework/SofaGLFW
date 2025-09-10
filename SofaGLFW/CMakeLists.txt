@@ -9,9 +9,6 @@ sofa_find_package(Sofa.GL REQUIRED)
 sofa_find_package(Sofa.Component.Visual REQUIRED)
 sofa_find_package(Sofa.GUI.Common QUIET)
 
-
-find_package(glfw3 3.4 CONFIG QUIET)
-
 if( UNIX AND NOT APPLE )
     option(SOFAGLFW_USEX11 "Flag to force x11 for windows management" ON)
     if(SOFAGLFW_USEX11)
@@ -41,6 +38,8 @@ elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES
     )
 
 endif()
+
+sofa_find_package(glfw3 3.4 CONFIG QUIET)
 
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
@@ -80,7 +79,7 @@ if(Sofa.GUI.Common_FOUND)
     target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GUI.Common)
 endif()
 
-find_package(SofaPython3 QUIET)
+sofa_find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
     add_subdirectory(bindings)
 endif()
