@@ -40,6 +40,7 @@ public:
     void beforeDraw(GLFWwindow* window) override;
     void afterDraw() override {}
     void terminate() override;
+    bool isTerminated() const override { return false; };
     bool dispatchMouseEvents() override;
     void resetCounter() override;
 };
