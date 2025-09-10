@@ -79,7 +79,6 @@
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/simulation/Node.h>
-#include <sofa/simulation/graph/DAGNode.h>
 
 #include <clocale>
 
