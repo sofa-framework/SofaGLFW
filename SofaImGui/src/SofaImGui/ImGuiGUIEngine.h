@@ -59,6 +59,7 @@ public:
     void beforeDraw(GLFWwindow* window) override;
     void afterDraw() override;
     void terminate() override;
+    bool isTerminated() const override { return m_isTerminated; };
     bool dispatchMouseEvents() override;
     
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
@@ -95,6 +96,7 @@ protected:
     bool m_imguiNeedViewReset;
     std::string m_localeBackup;
     unsigned long m_screenshotCounter{0};
+    bool m_isTerminated{ false };
 };
 
 } // namespace sofaimgui
