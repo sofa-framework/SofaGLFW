@@ -3,11 +3,20 @@
 @PACKAGE_GUARD@
 @PACKAGE_INIT@
 
-find_package(Sofa.Config REQUIRED)
-find_package(Sofa.Simulation.Graph REQUIRED)
-find_package(Sofa.GL REQUIRED)
-find_package(Sofa.Component.Visual REQUIRED)
-find_package(Sofa.GUI.Common QUIET)
+find_package(Sofa.Config QUIET REQUIRED)
+find_package(Sofa.Simulation.Graph QUIET REQUIRED)
+find_package(Sofa.GL QUIET REQUIRED)
+find_package(Sofa.Component.Visual QUIET REQUIRED)
+
+set(SOFAGLFW_HAVE_SOFA_GUI_COMMON @SOFAGLFW_HAVE_SOFA_GUI_COMMON@)
+if(SOFAGLFW_HAVE_SOFA_GUI_COMMON)
+    find_package(Sofa.GUI.Common QUIET REQUIRED)
+endif()
+
+set(SOFAGLFW_HAVE_SOFAPYTHON3 @SOFAGLFW_HAVE_SOFAPYTHON3@)
+if(SOFAGLFW_HAVE_SOFAPYTHON3)
+    find_package(SofaPython3 QUIET REQUIRED)
+endif()
 
 if(NOT TARGET @PROJECT_NAME@)
     include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
