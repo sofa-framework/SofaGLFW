@@ -40,6 +40,7 @@ public:
     virtual void beforeDraw(GLFWwindow* window) = 0;
     virtual void afterDraw() = 0;
     virtual void terminate() = 0;
+    virtual bool isTerminated() const = 0;
     virtual bool dispatchMouseEvents() = 0;
     virtual void resetCounter() = 0;
 };

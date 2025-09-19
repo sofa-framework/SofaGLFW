@@ -487,7 +487,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
             if (glfwWindow && sofaGlfwWindow)
             {
                 // while user did not request to close this window (i.e press escape), draw
-                if (!glfwWindowShouldClose(glfwWindow))
+                if (!glfwWindowShouldClose(glfwWindow) && !m_guiEngine->isTerminated())
                 {
                     makeCurrentContext(glfwWindow);
                     
@@ -520,6 +520,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
         // the engine must be terminated before the window
         if (s_numberOfActiveWindows == closedWindows.size())
         {
+            // could be not necessary if m_guiEngine already terminated but we may need it if GLFW closed itself. (typically escape key)
             m_guiEngine->terminate();
             m_guiEngine.reset();
         }
