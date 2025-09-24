@@ -30,7 +30,6 @@
 #include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/gui/common/BaseGUI.h>
-#include <sofa/simulation/graph/DAGNode.h>
 
 #include "DisplayFlags.h"
 #include "WindowState.h"

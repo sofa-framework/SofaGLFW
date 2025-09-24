@@ -35,7 +35,6 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
-#include <sofa/simulation/graph/DAGNode.h>
 
 #include "Plugins.h"
 #include "WindowState.h"
