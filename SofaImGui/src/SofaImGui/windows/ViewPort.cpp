@@ -175,6 +175,19 @@ namespace windows
                                 bboxVM->d_enable.setValue(!bboxVM->d_enable.getValue());
                             }
                         }
+                        if (ImGui::BeginMenu(ICON_FA_ARROW_POINTER " Selection parameters"))
+                        {
+                            ImGui::Checkbox("Enable selection drawing", &baseGUI->m_enableSelectionDraw);
+                            ImGui::Checkbox("Show Node bounding box", &baseGUI->m_showSelectedNodeBoundingBox);
+                            ImGui::Checkbox("Show Object bounding box", &baseGUI->m_showSelectedObjectBoundingBox);
+                            ImGui::Checkbox("Show Object position", &baseGUI->m_showSelectedObjectPositions);
+                            ImGui::Checkbox("Show Object surface", &baseGUI->m_showSelectedObjectSurfaces);
+                            ImGui::Checkbox("Show Object volume", &baseGUI->m_showSelectedObjectVolumes);
+                            ImGui::Checkbox("Show Object indices", &baseGUI->m_showSelectedObjectIndices);
+                            ImGui::InputFloat("Visual scaling", &baseGUI->m_visualScaling);
+                            ImGui::EndMenu();
+                        }
+
                         ImGui::EndPopup();
                     }
                 }
