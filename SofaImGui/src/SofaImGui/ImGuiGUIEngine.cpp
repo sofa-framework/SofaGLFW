@@ -819,28 +819,34 @@ void ImGuiGUIEngine::afterDraw()
 
 void ImGuiGUIEngine::terminate()
 {
-    // store window state (position and size)
-    const auto lastWindowPos = ImGui::GetMainViewport()->Pos;
-    const auto lastWindowSize = ImGui::GetMainViewport()->Size;
-    
-    // save latest window state
-    ini.SetLongValue("Window", "windowPosX", static_cast<long>(lastWindowPos.x));
-    ini.SetLongValue("Window", "windowPosY", static_cast<long>(lastWindowPos.y));
-    ini.SetLongValue("Window", "windowSizeX", static_cast<long>(lastWindowSize.x));
-    ini.SetLongValue("Window", "windowSizeY", static_cast<long>(lastWindowSize.y));
-    [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
-        
-    NFD_Quit();
+    if (!this->isTerminated())
+    {
+        // store window state (position and size)
+        const auto lastWindowPos = ImGui::GetMainViewport()->Pos;
+        const auto lastWindowSize = ImGui::GetMainViewport()->Size;
+
+        // save latest window state
+        ini.SetLongValue("Window", "windowPosX", static_cast<long>(lastWindowPos.x));
+        ini.SetLongValue("Window", "windowPosY", static_cast<long>(lastWindowPos.y));
+        ini.SetLongValue("Window", "windowSizeX", static_cast<long>(lastWindowSize.x));
+        ini.SetLongValue("Window", "windowSizeY", static_cast<long>(lastWindowSize.y));
+        [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+
+        NFD_Quit();
 
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
-    ImGui_ImplOpenGL2_Shutdown();
+        ImGui_ImplOpenGL2_Shutdown();
 #else
-    ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplOpenGL3_Shutdown();
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
-    ImGui_ImplGlfw_Shutdown();
-    ImPlot::DestroyContext();
-    ImGui::DestroyContext();
+        ImGui_ImplGlfw_Shutdown();
+        ImPlot::DestroyContext();
+        ImGui::DestroyContext();
+
+        m_isTerminated = true;
+
+    }
 }
 
 bool ImGuiGUIEngine::dispatchMouseEvents()
