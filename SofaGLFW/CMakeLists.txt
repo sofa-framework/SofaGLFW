@@ -16,6 +16,7 @@ if( UNIX AND NOT APPLE )
     endif ()
 endif ()
 
+sofa_find_package(glfw3 3.4 CONFIG QUIET)
 
 if(TARGET glfw)
     if(CMAKE_SYSTEM_NAME STREQUAL Windows)
@@ -39,7 +40,6 @@ elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES
 
 endif()
 
-sofa_find_package(glfw3 3.4 CONFIG QUIET)
 
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
