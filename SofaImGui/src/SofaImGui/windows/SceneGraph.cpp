@@ -564,6 +564,10 @@ namespace windows
             }
             ImGui::End();
         }
+        else
+        {
+            currentSelection.clear();
+        }
 
 
     }
