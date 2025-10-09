@@ -251,8 +251,7 @@ namespace windows
 
                 static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
 
-                ImVec2 outer_size = ImVec2(0.0f, static_cast<bool>(clickedObject) * ImGui::GetTextLineHeightWithSpacing() * 20);
-                if (ImGui::BeginTable("sceneGraphTable", 2, flags, outer_size))
+                if (ImGui::BeginTable("sceneGraphTable", 2, flags ))
                 {
                     ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
                     ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
@@ -476,6 +475,8 @@ namespace windows
                     sofa::core::objectmodel::Base* clickedObject = (*currentSelection.begin());
                     if (clickedObject != nullptr)
                     {
+                        ImGui::TextWrapped((ICON_FA_CUBE "  " + clickedObject->getName()).c_str());
+
                         ImGui::Separator();
                         ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                         std::map<std::string, std::vector<sofa::core::BaseData*> > groupMap;

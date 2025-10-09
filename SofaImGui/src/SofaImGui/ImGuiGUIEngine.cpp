@@ -153,6 +153,8 @@ void ImGuiGUIEngine::init()
     sofa::helper::system::PluginManager::getInstance().readFromIniFile(
         sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
 
+    winManagerSelectionDescription.setState(false);
+
 }
 
 void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
@@ -578,8 +580,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(windowNameProfiler, winManagerProfiler.getStatePtr());
 
             ImGui::Checkbox(windowNameSceneGraph, winManagerSceneGraph.getStatePtr());
-
-            ImGui::Checkbox(windowNameSelectionDescription, winManagerSelectionDescription.getStatePtr());
 
             ImGui::Checkbox(windowNameDisplayFlags, winManagerDisplayFlags.getStatePtr());
 
