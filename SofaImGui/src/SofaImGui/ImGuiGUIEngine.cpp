@@ -91,6 +91,7 @@ namespace sofaimgui
 ImGuiGUIEngine::ImGuiGUIEngine()
     : winManagerProfiler(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("profiler.txt")))
     , winManagerSceneGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("scenegraph.txt")))
+    , winManagerSelectionDescription(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("selectiondescription.txt")))
     , winManagerPerformances(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("performances.txt")))
     , winManagerDisplayFlags(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("displayflags.txt")))
     , winManagerPlugins(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("plugins.txt")))
@@ -360,6 +361,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNamePerformances = ICON_FA_CHART_LINE "  Performances";
     static constexpr auto windowNameProfiler = ICON_FA_HOURGLASS "  Profiler";
     static constexpr auto windowNameSceneGraph = ICON_FA_SITEMAP "  Scene Graph";
+    static constexpr auto windowNameSelectionDescription = ICON_FA_SITEMAP "  Selection details";
     static constexpr auto windowNameDisplayFlags = ICON_FA_EYE "  Display Flags"     ;
     static constexpr auto windowNamePlugins = ICON_FA_CIRCLE_PLUS "  Plugins";
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
@@ -369,7 +371,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     if (!*firstRunState.getStatePtr())
     {
-        resetView(dockspace_id, windowNameSceneGraph, windowNameLog, windowNameViewport);
+        resetView(dockspace_id, windowNameSceneGraph, windowNameSelectionDescription, windowNameLog, windowNameViewport);
     }
     ImGui::End();
 
@@ -564,7 +566,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Separator();
             if (ImGui::MenuItem(ICON_FA_ARROWS_ROTATE  "  Reset UI Layout"))
             {
-                resetView(dockspace_id,windowNameSceneGraph,windowNameLog,windowNameViewport);
+                resetView(dockspace_id,windowNameSceneGraph,windowNameSelectionDescription, windowNameLog,windowNameViewport);
             }
             ImGui::EndMenu();
         }
@@ -576,6 +578,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(windowNameProfiler, winManagerProfiler.getStatePtr());
 
             ImGui::Checkbox(windowNameSceneGraph, winManagerSceneGraph.getStatePtr());
+
+            ImGui::Checkbox(windowNameSelectionDescription, winManagerSelectionDescription.getStatePtr());
 
             ImGui::Checkbox(windowNameDisplayFlags, winManagerDisplayFlags.getStatePtr());
 
@@ -661,7 +665,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     if (m_imguiNeedViewReset)
     {
-      resetView(dockspace_id, windowNameSceneGraph, windowNameLog, windowNameViewport);
+      resetView(dockspace_id, windowNameSceneGraph, windowNameSelectionDescription, windowNameLog, windowNameViewport);
       m_imguiNeedViewReset = false;
     }
 
@@ -696,12 +700,18 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static std::set<core::objectmodel::Base*> currentSelection;
     windows::showSceneGraph(groot, windowNameSceneGraph, openedComponents,
                             focusedComponents, currentSelection,
-                            winManagerSceneGraph);
+                            winManagerSceneGraph, winManagerSelectionDescription);
 
     std::set<core::objectmodel::Base::SPtr> currentSelectionV;
     for(auto component : currentSelection)
         currentSelectionV.insert(component);
     baseGUI->setCurrentSelection(currentSelectionV);
+
+    /***************************************
+     * ShowSelection
+     **************************************/
+    windows::showSelection(groot, windowNameSelectionDescription, currentSelection, focusedComponents,
+                            winManagerSelectionDescription);
 
     /***************************************
      * Display flags window
@@ -762,7 +772,7 @@ void ImGuiGUIEngine::endFrame()
     std::setlocale(LC_NUMERIC, m_localeBackup.c_str());
 }
 
-void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport)
+void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char* winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport)
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -770,16 +780,18 @@ void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameScene
     ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_DockSpace);
     ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
+    auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.4f, nullptr, &dockspace_id);
+    ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_left);
     auto dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
-    ImGui::DockBuilderDockWindow(windowNameSceneGraph, dock_id_right);
+    ImGui::DockBuilderDockWindow(winNameSelectionDescription, dock_id_right);
     auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
     ImGui::DockBuilderDockWindow(windowNameLog, dock_id_down);
     ImGui::DockBuilderDockWindow(windowNameViewport, dockspace_id);
     ImGui::DockBuilderFinish(dockspace_id);
-
     winManagerViewPort.setState(true);
     winManagerSceneGraph.setState(true);
     winManagerLog.setState(true);
+    winManagerSelectionDescription.setState(false);
     firstRunState.setState(true);// Mark first run as complete
 }
 
