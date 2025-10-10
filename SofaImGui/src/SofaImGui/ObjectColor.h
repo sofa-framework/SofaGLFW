@@ -22,11 +22,10 @@
 #pragma once
 
 #include <imgui.h>
-#include <sofa/core/objectmodel/Base.h>
 
 namespace sofa::core::objectmodel
 {
-    class BaseObject;
+    class Base;
 }
 
 namespace sofaimgui
