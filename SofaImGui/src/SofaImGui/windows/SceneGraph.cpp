@@ -71,11 +71,12 @@ namespace windows
                 }
 
                 unsigned int treeDepth {};
-                static sofa::core::objectmodel::Base* clickedObject { nullptr };
+                static sofa::core::objectmodel::Base* clickedObject;
+                clickedObject =  nullptr ;
 
                 std::function<void(sofa::simulation::Node*)> showNode;
-                showNode = [&showNode, &treeDepth, expand, collapse, &openedComponents,
-                            &componentToOpen, &currentSelection, &winManagerSelectionDescription](sofa::simulation::Node* node)
+                showNode = [&showNode, &treeDepth, expand, collapse,
+                            &componentToOpen, &currentSelection](sofa::simulation::Node* node)
                 {
                     if (node == nullptr) return;
                     if (treeDepth == 0)
@@ -89,20 +90,54 @@ namespace windows
 
                     const auto& nodeName = node->getName();
                     const bool isNodeHighlighted = !filter.Filters.empty() && filter.PassFilter(nodeName.c_str());
-                    if (isNodeHighlighted)
+
+                    ImGui::PushID(node);
+
+                    const bool open = ImGui::TreeNode(std::string(ICON_FA_CUBES "  " ).c_str());
+
+                    ImGui::PopID();
+                    ImGui::PushID(&nodeName);
+
+                    ImGui::SameLine();
+                    auto XPos = ImGui::GetCursorPosX();
+                    ImGui::TreeNodeEx("",ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf);
+                    if (ImGui::IsItemClicked())
+                    {
+                        if (ImGui::IsMouseDoubleClicked(0))
+                        {
+                            componentToOpen.insert(dynamic_cast<sofa::core::objectmodel::BaseObject*>(node));
+                            clickedObject = nullptr;
+                        }
+                        else
+                        {
+                            clickedObject = node;
+                        }
+                    }
+
+                    ImGui::SameLine();
+
+                    bool doHighLight = isNodeHighlighted || ((clickedObject == node) !=  currentSelection.contains(node));
+                    if (doHighLight)
                     {
                         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
                     }
 
-                    const bool open = ImGui::TreeNode(std::string(ICON_FA_CUBES "  " + nodeName).c_str());
+                    ImGui::SetCursorPosX(XPos);
+
+                    ImGui::Text(node->getName().c_str());
+                    if (doHighLight)
+                    {
+                        ImGui::PopStyleColor();
+                    }
+
                     ImGui::TableNextColumn();
                     ImGui::TextDisabled("Node");
                     if (isNodeHighlighted)
                     {
                         ImGui::PopStyleColor();
                     }
-                    if (ImGui::IsItemClicked())
-                        clickedObject = node;
+                    ImGui::PopID();
+
                     if (open)
                     {
                         for (const auto object : node->getNodeObjects())
@@ -168,21 +203,12 @@ namespace windows
                                 else
                                 {
                                     clickedObject = object;
-                                    if(!currentSelection.contains(clickedObject)){
-                                        currentSelection.clear();
-                                        currentSelection.insert(clickedObject);
-                                        winManagerSelectionDescription.setState(true);
-                                    }
-                                    else{
-                                        currentSelection.erase(clickedObject);
-                                        winManagerSelectionDescription.setState(false);
-                                    }
                                 }
                             }
 
                             ImGui::SameLine();
 
-                            bool doHighLight = isObjectHighlighted || currentSelection.contains(object);
+                            doHighLight = isObjectHighlighted || ((clickedObject == object) !=  currentSelection.contains(object));
                             if (doHighLight)
                             {
                                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
@@ -220,20 +246,11 @@ namespace windows
                                         else
                                         {
                                             clickedObject = slave.get();
-                                            if(!currentSelection.contains(clickedObject)){
-                                                currentSelection.clear();
-                                                currentSelection.insert(clickedObject);
-                                                winManagerSelectionDescription.setState(true);
-                                            }
-                                            else{
-                                                currentSelection.erase(clickedObject);
-                                                winManagerSelectionDescription.setState(false);
-                                            }
                                         }
                                     }
                                     ImGui::SameLine();
 
-                                    doHighLight = isSlaveHighlighted || currentSelection.contains(slave.get());
+                                    doHighLight = isSlaveHighlighted || ((clickedObject == slave.get()) !=  currentSelection.contains(slave.get()));
                                     if (doHighLight)
                                     {
                                         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
@@ -277,10 +294,25 @@ namespace windows
                     ImGui::EndTable();
                 }
 
-
+                if (clickedObject)
+                {
+                    if(!currentSelection.contains(clickedObject)){
+                        currentSelection.clear();
+                        currentSelection.insert(clickedObject);
+                        winManagerSelectionDescription.setState(true);
+                    }
+                    else
+                    {
+                        currentSelection.erase(clickedObject);
+                        winManagerSelectionDescription.setState(false);
+                    }
+                }
             }
             ImGui::End();
+
         }
+
+
 
         openedComponents.insert(componentToOpen.begin(), componentToOpen.end());
         openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
