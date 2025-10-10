@@ -49,11 +49,12 @@ namespace windows
     {
         const auto& objName = obj->getName();
 
+        ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
+
         //Tree expand drawing (tick + icon)
         ImGui::PushID(obj);
         const bool open = ImGui::TreeNode((std::string(icon) + std::string("  ")) .c_str());
         ImGui::PopID();
-        ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
 
         //Name drawing to be able to select the node for inspection
         ImGui::PushID(&objName);
