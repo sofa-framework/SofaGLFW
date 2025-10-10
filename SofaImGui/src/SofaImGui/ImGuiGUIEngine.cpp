@@ -695,7 +695,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Scene graph window
      **************************************/
-    static std::set<core::objectmodel::BaseObject*> openedComponents;
+    static std::set<core::objectmodel::Base*> openedComponents;
     static std::set<core::objectmodel::BaseObject*> focusedComponents;
     static std::set<core::objectmodel::Base*> currentSelection;
     windows::showSceneGraph(groot, windowNameSceneGraph, openedComponents,

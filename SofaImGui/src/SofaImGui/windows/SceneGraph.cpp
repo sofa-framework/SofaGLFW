@@ -39,17 +39,124 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include "SceneGraph.h"
 
+#include <ranges>
+#include <boost/unordered/detail/fca.hpp>
+
 namespace windows
 {
 
+    bool drawExpandableObject(sofa::core::objectmodel::Base * obj, bool isNodeHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject)
+    {
+        const auto& objName = obj->getName();
+
+        //Tree expand drawing (tick + icon)
+        ImGui::PushID(obj);
+        const bool open = ImGui::TreeNode((std::string(icon) + std::string("  ")) .c_str());
+        ImGui::PopID();
+        ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
+
+        //Name drawing to be able to select the node for inspection
+        ImGui::PushID(&objName);
+        ImGui::SameLine();
+        auto XPos = ImGui::GetCursorPosX();
+        //We don't write anything to just get the "clickable" space, the name is writent after we know if it is clicked or not
+        ImGui::TreeNodeEx("",ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf);
+        if (ImGui::IsItemClicked())
+        {
+            if (ImGui::IsMouseDoubleClicked(0))
+            {
+                componentToOpen.insert(obj);
+                clickedObject = nullptr;
+            }
+            else
+            {
+                clickedObject = obj;
+            }
+        }
+
+        ImGui::SameLine();
+        //Now actually write the name
+        bool doHighLight = isNodeHighlighted || ((clickedObject == obj) !=  currentSelection.contains(obj));
+        if (doHighLight)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+        }
+
+        ImGui::SetCursorPosX(XPos);
+
+        ImGui::Text(obj->getName().c_str());
+        if (doHighLight)
+        {
+            ImGui::PopStyleColor();
+        }
+
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled(obj->getClassName().c_str());
+        if (isNodeHighlighted)
+        {
+            ImGui::PopStyleColor();
+        }
+        ImGui::PopStyleColor();
+
+        ImGui::PopID();
+        return open;
+    }
+
+    bool drawNonExpandableObject(sofa::core::objectmodel::Base * obj, bool isObjectHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject)
+    {
+        ImGui::PushID(obj);
+
+        ImGuiTreeNodeFlags objectFlags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;;
+
+        const auto& objectName = obj->getName();
+        const auto objectClassName = obj->getClassName();
+
+        ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
+
+        const auto objectOpen = ImGui::TreeNodeEx(icon, objectFlags);
+        ImGui::PopStyleColor();
+
+        if (ImGui::IsItemClicked())
+        {
+            if (ImGui::IsMouseDoubleClicked(0))
+            {
+                componentToOpen.insert(obj);
+                clickedObject = nullptr;
+            }
+            else
+            {
+                clickedObject = obj;
+            }
+        }
+
+        ImGui::SameLine();
+
+        bool doHighLight = isObjectHighlighted || ((clickedObject == obj) !=  currentSelection.contains(obj));
+        if (doHighLight)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+        }
+        ImGui::Text(objectName.c_str());
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled(objectClassName.c_str());
+        ImGui::PopID();
+
+        if (doHighLight)
+        {
+            ImGui::PopStyleColor();
+        }
+
+        return objectOpen;
+    }
+
     void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
                         const char* const& windowNameSceneGraph,
-                        std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                        std::set<sofa::core::objectmodel::Base*>& openedComponents,
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                         std::set<sofa::core::objectmodel::Base*>& currentSelection,
                         WindowState& winManagerSceneGraph, WindowState& winManagerSelectionDescription)
     {
-        std::set<sofa::core::objectmodel::BaseObject*> componentToOpen;
+        std::set<sofa::core::objectmodel::Base*> componentToOpen;
         if (*winManagerSceneGraph.getStatePtr())
         {
             if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getStatePtr()))
@@ -71,12 +178,11 @@ namespace windows
                 }
 
                 unsigned int treeDepth {};
-                static sofa::core::objectmodel::Base* clickedObject;
-                clickedObject =  nullptr ;
+                sofa::core::objectmodel::Base* clickedObject = nullptr ;
 
                 std::function<void(sofa::simulation::Node*)> showNode;
                 showNode = [&showNode, &treeDepth, expand, collapse,
-                            &componentToOpen, &currentSelection](sofa::simulation::Node* node)
+                            &componentToOpen, &currentSelection, &clickedObject](sofa::simulation::Node* node)
                 {
                     if (node == nullptr) return;
                     if (treeDepth == 0)
@@ -88,55 +194,9 @@ namespace windows
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
 
-                    const auto& nodeName = node->getName();
-                    const bool isNodeHighlighted = !filter.Filters.empty() && filter.PassFilter(nodeName.c_str());
-
-                    ImGui::PushID(node);
-
-                    const bool open = ImGui::TreeNode(std::string(ICON_FA_CUBES "  " ).c_str());
-
-                    ImGui::PopID();
-                    ImGui::PushID(&nodeName);
-
-                    ImGui::SameLine();
-                    auto XPos = ImGui::GetCursorPosX();
-                    ImGui::TreeNodeEx("",ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf);
-                    if (ImGui::IsItemClicked())
-                    {
-                        if (ImGui::IsMouseDoubleClicked(0))
-                        {
-                            componentToOpen.insert(dynamic_cast<sofa::core::objectmodel::BaseObject*>(node));
-                            clickedObject = nullptr;
-                        }
-                        else
-                        {
-                            clickedObject = node;
-                        }
-                    }
-
-                    ImGui::SameLine();
-
-                    bool doHighLight = isNodeHighlighted || ((clickedObject == node) !=  currentSelection.contains(node));
-                    if (doHighLight)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
-                    }
-
-                    ImGui::SetCursorPosX(XPos);
-
-                    ImGui::Text(node->getName().c_str());
-                    if (doHighLight)
-                    {
-                        ImGui::PopStyleColor();
-                    }
-
-                    ImGui::TableNextColumn();
-                    ImGui::TextDisabled("Node");
-                    if (isNodeHighlighted)
-                    {
-                        ImGui::PopStyleColor();
-                    }
-                    ImGui::PopID();
+                    ////Label and tree expand drawing
+                    const bool isNodeHighlighted = !filter.Filters.empty() && filter.PassFilter(node->getName().c_str());
+                    bool open = drawExpandableObject(node, isNodeHighlighted, ICON_FA_CUBES, ImVec4(1,1,1,1), componentToOpen, currentSelection, clickedObject);
 
                     if (open)
                     {
@@ -144,26 +204,6 @@ namespace windows
                         {
                             ImGui::TableNextRow();
                             ImGui::TableNextColumn();
-                            ImGui::PushID(object);
-
-                            ImGuiTreeNodeFlags objectFlags = ImGuiTreeNodeFlags_SpanFullWidth;
-
-                            const auto& slaves = object->getSlaves();
-                            if (slaves.empty())
-                            {
-                                objectFlags |= ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
-                            }
-                            else
-                            {
-                                if (expand)
-                                    ImGui::SetNextItemOpen(true);
-                                if (collapse)
-                                    ImGui::SetNextItemOpen(false);
-                            }
-
-                            const auto& objectName = object->getName();
-                            const auto objectClassName = object->getClassName();
-                            const bool isObjectHighlighted = !filter.Filters.empty() && (filter.PassFilter(objectName.c_str()) || filter.PassFilter(objectClassName.c_str()));
 
                             ImVec4 objectColor;
 
@@ -188,40 +228,22 @@ namespace windows
                                 objectColor = sofaimgui::getObjectColor(object);
                             }
 
-                            ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
-
-                            const auto objectOpen = ImGui::TreeNodeEx(icon, objectFlags);
-                            ImGui::PopStyleColor();
-
-                            if (ImGui::IsItemClicked())
+                            const auto& slaves = object->getSlaves();
+                            if (!slaves.empty())
                             {
-                                if (ImGui::IsMouseDoubleClicked(0))
-                                {
-                                    componentToOpen.insert(object);
-                                    clickedObject = nullptr;
-                                }
-                                else
-                                {
-                                    clickedObject = object;
-                                }
+                                if (expand)
+                                    ImGui::SetNextItemOpen(true);
+                                if (collapse)
+                                    ImGui::SetNextItemOpen(false);
                             }
 
-                            ImGui::SameLine();
+                            const bool isObjectHighlighted = !filter.Filters.empty() && (filter.PassFilter(object->getName().c_str()) || filter.PassFilter(object->getClassName().c_str()));
+                            bool objectOpen;
+                            if (slaves.empty())
+                                objectOpen = drawNonExpandableObject(object,isObjectHighlighted, icon, objectColor, componentToOpen, currentSelection, clickedObject );
+                            else
+                                objectOpen = drawExpandableObject(object,isObjectHighlighted, icon, objectColor, componentToOpen, currentSelection, clickedObject );
 
-                            doHighLight = isObjectHighlighted || ((clickedObject == object) !=  currentSelection.contains(object));
-                            if (doHighLight)
-                            {
-                                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
-                            }
-                            ImGui::Text(object->getName().c_str());
-                            ImGui::TableNextColumn();
-                            ImGui::TextDisabled(objectClassName.c_str());
-                            ImGui::PopID();
-
-                            if (doHighLight)
-                            {
-                                ImGui::PopStyleColor();
-                            }
 
                             if (objectOpen && !slaves.empty())
                             {
@@ -229,42 +251,9 @@ namespace windows
                                 {
                                     ImGui::TableNextRow();
                                     ImGui::TableNextColumn();
-                                    ImGui::PushID(slave.get());
 
-                                    const auto& slaveName = slave->getName();
-                                    const auto slaveClassName = slave->getClassName();
-                                    const bool isSlaveHighlighted = !filter.Filters.empty() && (filter.PassFilter(slaveName.c_str()) || filter.PassFilter(slaveClassName.c_str()));
-
-                                    ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  ").c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
-                                    if (ImGui::IsItemClicked())
-                                    {
-                                        if (ImGui::IsMouseDoubleClicked(0))
-                                        {
-                                            componentToOpen.insert(slave.get());
-                                            clickedObject = nullptr;
-                                        }
-                                        else
-                                        {
-                                            clickedObject = slave.get();
-                                        }
-                                    }
-                                    ImGui::SameLine();
-
-                                    doHighLight = isSlaveHighlighted || ((clickedObject == slave.get()) !=  currentSelection.contains(slave.get()));
-                                    if (doHighLight)
-                                    {
-                                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
-                                    }
-                                    ImGui::Text(slave->getName().c_str());
-                                    ImGui::TableNextColumn();
-                                    ImGui::TextDisabled(slave->getClassName().c_str());
-
-                                    if (doHighLight)
-                                    {
-                                        ImGui::PopStyleColor();
-                                    }
-
-                                    ImGui::PopID();
+                                    const bool isSlaveHighlighted = !filter.Filters.empty() && (filter.PassFilter(slave->getName().c_str()) || filter.PassFilter(slave->getClassName().c_str()));
+                                    drawNonExpandableObject(slave.get(), isSlaveHighlighted, ICON_FA_CUBE, ImVec4(1,1,1,1), componentToOpen, currentSelection, clickedObject );
                                 }
                                 ImGui::TreePop();
                             }
@@ -317,8 +306,8 @@ namespace windows
         openedComponents.insert(componentToOpen.begin(), componentToOpen.end());
         openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
 
-        sofa::type::vector<sofa::core::objectmodel::BaseObject*> toRemove;
-        static std::map<sofa::core::objectmodel::BaseObject*, int> resizeWindow;
+        sofa::type::vector<sofa::core::objectmodel::Base*> toRemove;
+        static std::map<sofa::core::objectmodel::Base*, int> resizeWindow;
         for (auto* component : openedComponents)
         {
             bool isOpen = true;

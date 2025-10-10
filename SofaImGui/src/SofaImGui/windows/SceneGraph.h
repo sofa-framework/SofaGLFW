@@ -40,7 +40,7 @@ namespace windows
          */
         void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
                             const char* const& windowNameSceneGraph,
-                            std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                            std::set<sofa::core::objectmodel::Base*>& openedComponents,
                             std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                             std::set<sofa::core::objectmodel::Base*>& currentSelection,
                             WindowState& winManagerSceneGraph, WindowState& winManagerSelectionDescription);
@@ -61,6 +61,11 @@ namespace windows
                         std::set<sofa::core::objectmodel::Base*>& currentSelection,
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                         WindowState& winSelectionDescription);
+
+    //Utilitaries to draw the graph
+    bool drawExpandableObject(sofa::core::objectmodel::Base * obj, bool isNodeHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject);
+    bool drawNonExpandableObject(sofa::core::objectmodel::Base * obj, bool isObjectHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject);
+
 
 
 } // namespace sofaimgui

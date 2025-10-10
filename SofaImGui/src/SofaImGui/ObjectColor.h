@@ -22,6 +22,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <sofa/core/objectmodel/Base.h>
 
 namespace sofa::core::objectmodel
 {
@@ -31,6 +32,6 @@ namespace sofa::core::objectmodel
 namespace sofaimgui
 {
 
-    ImVec4 getObjectColor(sofa::core::objectmodel::BaseObject* object);
+    ImVec4 getObjectColor(sofa::core::objectmodel::Base* object);
 
 } //namespace sofaimgui
