@@ -208,12 +208,8 @@ namespace windows
                                     const auto& slaveName = slave->getName();
                                     const auto slaveClassName = slave->getClassName();
                                     const bool isSlaveHighlighted = !filter.Filters.empty() && (filter.PassFilter(slaveName.c_str()) || filter.PassFilter(slaveClassName.c_str()));
-                                    if (isSlaveHighlighted)
-                                    {
-                                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
-                                    }
 
-                                    ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  " + slave->getName()).c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+                                    ImGui::TreeNodeEx(std::string(ICON_FA_CUBE "  ").c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
                                     if (ImGui::IsItemClicked())
                                     {
                                         if (ImGui::IsMouseDoubleClicked(0))
@@ -224,15 +220,33 @@ namespace windows
                                         else
                                         {
                                             clickedObject = slave.get();
+                                            if(!currentSelection.contains(clickedObject)){
+                                                currentSelection.clear();
+                                                currentSelection.insert(clickedObject);
+                                                winManagerSelectionDescription.setState(true);
+                                            }
+                                            else{
+                                                currentSelection.erase(clickedObject);
+                                                winManagerSelectionDescription.setState(false);
+                                            }
                                         }
                                     }
+                                    ImGui::SameLine();
+
+                                    doHighLight = isSlaveHighlighted || currentSelection.contains(slave.get());
+                                    if (doHighLight)
+                                    {
+                                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+                                    }
+                                    ImGui::Text(slave->getName().c_str());
                                     ImGui::TableNextColumn();
                                     ImGui::TextDisabled(slave->getClassName().c_str());
 
-                                    if (isSlaveHighlighted)
+                                    if (doHighLight)
                                     {
                                         ImGui::PopStyleColor();
                                     }
+
                                     ImGui::PopID();
                                 }
                                 ImGui::TreePop();
