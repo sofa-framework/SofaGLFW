@@ -236,6 +236,7 @@ namespace windows
                                     ImGui::SetNextItemOpen(true);
                                 if (collapse)
                                     ImGui::SetNextItemOpen(false);
+
                             }
 
                             const bool isObjectHighlighted = !filter.Filters.empty() && (filter.PassFilter(object->getName().c_str()) || filter.PassFilter(object->getClassName().c_str()));
@@ -255,6 +256,7 @@ namespace windows
 
                                     const bool isSlaveHighlighted = !filter.Filters.empty() && (filter.PassFilter(slave->getName().c_str()) || filter.PassFilter(slave->getClassName().c_str()));
                                     drawNonExpandableObject(slave.get(), isSlaveHighlighted, ICON_FA_CUBE, ImVec4(1,1,1,1), componentToOpen, currentSelection, clickedObject );
+
                                 }
                                 ImGui::TreePop();
                             }
@@ -297,6 +299,7 @@ namespace windows
                         winManagerSelectionDescription.setState(false);
                     }
                 }
+
             }
             ImGui::End();
 
