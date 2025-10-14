@@ -75,11 +75,12 @@ protected:
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false);
-    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport) ;
+    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members
     windows::WindowState winManagerProfiler;
     windows::WindowState winManagerSceneGraph;
+    windows::WindowState winManagerSelectionDescription;
     windows::WindowState winManagerPerformances;
     windows::WindowState winManagerDisplayFlags;
     windows::WindowState winManagerPlugins;
