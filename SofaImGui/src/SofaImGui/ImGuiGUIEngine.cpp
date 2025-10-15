@@ -35,7 +35,7 @@
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/simulation/Simulation.h>
 
-#include <sofa/helper/AdvancedTimer.h>
+#include <sofa/helper/ScopedAdvancedTimer.h>
 
 #include <GLFW/glfw3.h>
 
@@ -620,12 +620,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             if (!animate)
             {
-                sofa::helper::AdvancedTimer::begin("Animate");
+                SCOPED_TIMER("Animate");
 
                 sofa::simulation::node::animate(groot.get(), groot->getDt());
                 sofa::simulation::node::updateVisual(groot.get());
-
-                sofa::helper::AdvancedTimer::end("Animate");
             }
         }
         ImGui::PopButtonRepeat();

@@ -27,7 +27,6 @@
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/simulation/Simulation.h>
-#include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
 #include <nfd.h>
 #include <SofaImGui/ImGuiDataWidget.h>

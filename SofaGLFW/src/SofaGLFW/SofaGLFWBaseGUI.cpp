@@ -47,6 +47,8 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
 
+#include <sofa/helper/ScopedAdvancedTimer.h>
+
 #include <algorithm>
 
 using namespace sofa;
@@ -605,12 +607,10 @@ void SofaGLFWBaseGUI::runStep()
 {
     if(simulationIsRunning())
     {
-        helper::AdvancedTimer::begin("Animate");
+        SCOPED_TIMER("Animate");
 
         node::animate(this->groot.get(), this->groot->getDt());
         node::updateVisual(this->groot.get());
-
-        helper::AdvancedTimer::end("Animate");
     }
 }
 
