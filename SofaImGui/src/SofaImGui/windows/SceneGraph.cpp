@@ -39,9 +39,6 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include "SceneGraph.h"
 
-#include <ranges>
-#include <boost/unordered/detail/fca.hpp>
-
 namespace windows
 {
 
