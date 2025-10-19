@@ -40,10 +40,32 @@ namespace windows
          */
         void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
                             const char* const& windowNameSceneGraph,
-                            std::set<sofa::core::objectmodel::BaseObject*>& openedComponents,
+                            std::set<sofa::core::objectmodel::Base*>& openedComponents,
                             std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                             std::set<sofa::core::objectmodel::Base*>& currentSelection,
-                            WindowState& winManagerSceneGraph);
+                            WindowState& winManagerSceneGraph, WindowState& winManagerSelectionDescription);
+
+
+    /**
+     * @brief Shows the Scene Graph window.
+     *
+     * This function displays the hierarchy of nodes and objects in the scene graph, allowing users to interact with and inspect different components and their properties.
+     *
+     * @param groot The root node of the scene graph.
+     * @param windowNameSelectionDescription The name of the Selection Description window.
+     * @param currentSelection A set containing pointers to the components that are currently selected.
+     * @param winSelectionDescription An object that contains information on the drawn window.
+     */
+    void showSelection(sofa::core::sptr<sofa::simulation::Node> groot,
+                        const char* const& windowNameSelectionDescription,
+                        std::set<sofa::core::objectmodel::Base*>& currentSelection,
+                        std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
+                        WindowState& winSelectionDescription);
+
+    //Utilitaries to draw the graph
+    bool drawExpandableObject(sofa::core::objectmodel::Base * obj, bool isNodeHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject);
+    bool drawNonExpandableObject(sofa::core::objectmodel::Base * obj, bool isObjectHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject);
+
 
 
 } // namespace sofaimgui

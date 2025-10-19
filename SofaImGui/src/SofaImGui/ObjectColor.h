@@ -25,12 +25,12 @@
 
 namespace sofa::core::objectmodel
 {
-    class BaseObject;
+    class Base;
 }
 
 namespace sofaimgui
 {
 
-    ImVec4 getObjectColor(sofa::core::objectmodel::BaseObject* object);
+    ImVec4 getObjectColor(sofa::core::objectmodel::Base* object);
 
 } //namespace sofaimgui

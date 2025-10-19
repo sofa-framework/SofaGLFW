@@ -23,14 +23,12 @@
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 #include <sofa/core/loader/SceneLoader.h>
 #include <sofa/simulation/SceneLoaderFactory.h>
-#include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
 #include <SofaImGui/ImGuiDataWidget.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/gui/common/BaseGUI.h>
-#include <sofa/simulation/graph/DAGNode.h>
 
 #include "DisplayFlags.h"
 #include "WindowState.h"

@@ -27,7 +27,7 @@
 
 namespace sofaimgui
 {
-    ImVec4 getObjectColor(sofa::core::objectmodel::BaseObject* object)
+    ImVec4 getObjectColor(sofa::core::objectmodel::Base* object)
     {
         unsigned int objectType=sofa::simulation::Colors::OBJECT;
         if(object->toContextObject())

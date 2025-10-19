@@ -59,6 +59,7 @@ public:
     void beforeDraw(GLFWwindow* window) override;
     void afterDraw() override;
     void terminate() override;
+    bool isTerminated() const override { return m_isTerminated; };
     bool dispatchMouseEvents() override;
     
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
@@ -74,11 +75,12 @@ protected:
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false);
-    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *windowNameLog, const char *windowNameViewport) ;
+    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members
     windows::WindowState winManagerProfiler;
     windows::WindowState winManagerSceneGraph;
+    windows::WindowState winManagerSelectionDescription;
     windows::WindowState winManagerPerformances;
     windows::WindowState winManagerDisplayFlags;
     windows::WindowState winManagerPlugins;
@@ -95,6 +97,7 @@ protected:
     bool m_imguiNeedViewReset;
     std::string m_localeBackup;
     unsigned long m_screenshotCounter{0};
+    bool m_isTerminated{ false };
 };
 
 } // namespace sofaimgui

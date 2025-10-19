@@ -27,7 +27,6 @@
 #include <sofa/core/loader/SceneLoader.h>
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/simulation/Simulation.h>
-#include <sofa/helper/AdvancedTimer.h>
 #include <imgui.h>
 #include <nfd.h>
 #include <IconsFontAwesome6.h>
@@ -35,7 +34,6 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
-#include <sofa/simulation/graph/DAGNode.h>
 #include <fstream>
 
 #include "Log.h"
