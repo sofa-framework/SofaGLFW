@@ -74,7 +74,7 @@ protected:
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false);
+    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, bool reload, std::string filePathName);
     void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members

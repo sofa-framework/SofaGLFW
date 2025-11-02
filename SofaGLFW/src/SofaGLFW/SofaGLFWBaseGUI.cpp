@@ -753,7 +753,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             if (action == GLFW_PRESS && isCtrlKeyPressed)
             {
                 // Reload using CTRL + R
-                loadFile(currentGUI);
+                loadFile(currentGUI, true);
             }
         case GLFW_KEY_O:
             if (action == GLFW_PRESS && isCtrlKeyPressed)
@@ -813,13 +813,13 @@ void SofaGLFWBaseGUI::openFile(sofaglfw::SofaGLFWBaseGUI* currentGUI)
     {
         if (helper::system::FileSystem::exists(outPath))
         {
-            loadFile(currentGUI, outPath);
+            loadFile(currentGUI, true, outPath);
         }
         NFD_FreePath(outPath);
     }
 }
 
-void SofaGLFWBaseGUI::loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, std::string filename)
+void SofaGLFWBaseGUI::loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, bool reload, std::string filename)
 {
     sofa::simulation::NodeSPtr groot = currentGUI->groot;
 
@@ -846,7 +846,10 @@ void SofaGLFWBaseGUI::loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, std::strin
             currentGUI->changeCamera(camera);
         }
 
-        node::initTextures(groot.get());
+        if(reload)
+            sofa::simulation::node::initTextures(groot.get()); // do not override OpenGL lights
+        else
+            currentGUI->initVisual();
 
         currentGUI->m_guiEngine->resetCounter();
 

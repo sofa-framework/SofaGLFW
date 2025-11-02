@@ -271,33 +271,9 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     }
 }
 
-void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName, bool reload)
+void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, bool reload, const std::string filePathName)
 {
-    sofa::simulation::node::unload(groot);
-
-    groot = sofa::simulation::node::load(filePathName.c_str());
-    if( !groot )
-        groot = sofa::simulation::getSimulation()->createNewGraph("");
-    baseGUI->setSimulation(groot, filePathName);
-    baseGUI->setWindowTitle(nullptr, std::string("SOFA - " + filePathName).c_str());
-    
-    sofa::simulation::node::initRoot(groot.get());
-    auto camera = baseGUI->getCamera();
-    if (camera)
-    {
-        camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
-        baseGUI->changeCamera(camera);
-    }
-
-    if(reload)
-        sofa::simulation::node::initTextures(groot.get()); // do not override OpenGL lights
-    else
-        baseGUI->initVisual();
-    
-    resetCounter();
-
-    // update camera if a sidecar file is present
-    baseGUI->restoreCamera(baseGUI->getCamera());
+    sofaglfw::SofaGLFWBaseGUI::loadFile(baseGUI, reload, filePathName);
 }
 
 void ImGuiGUIEngine::resetCounter()
@@ -397,53 +373,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN "  Open Simulation"))
             {
-                simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
-                std::vector<std::pair<std::string, std::string> > filterList;
-                filterList.reserve(loaders->size());
-                std::pair<std::string, std::string> allFilters {"SOFA files", {} };
-                for (auto it=loaders->begin(); it!=loaders->end(); ++it)
-                {
-                    const auto filterName = (*it)->getFileTypeDesc();
-
-                    sofa::simulation::SceneLoader::ExtensionList extensions;
-                    (*it)->getExtensionList(&extensions);
-                    std::string extensionsString;
-                    for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
-                    {
-                        extensionsString += *itExt;
-                        std::cout << *itExt << std::endl;
-                        if (itExt != extensions.end() - 1)
-                        {
-                            extensionsString += ",";
-                        }
-                    }
-
-                    filterList.emplace_back(filterName, extensionsString);
-
-                    allFilters.second += extensionsString;
-                    if (it != loaders->end()-1)
-                    {
-                        allFilters.second += ",";
-                    }
-                }
-                std::vector<nfdfilteritem_t> nfd_filters;
-                nfd_filters.reserve(filterList.size() + 1);
-                for (auto& f : filterList)
-                {
-                    nfd_filters.push_back({f.first.c_str(), f.second.c_str()});
-                }
-                nfd_filters.insert(nfd_filters.begin(), {allFilters.first.c_str(), allFilters.second.c_str()});
-
-                nfdchar_t *outPath;
-                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
-                if (result == NFD_OKAY)
-                {
-                    if (helper::system::FileSystem::exists(outPath))
-                    {
-                        loadFile(baseGUI, groot, outPath, false);
-                    }
-                    NFD_FreePath(outPath);
-                }
+                sofaglfw::SofaGLFWBaseGUI::openFile(baseGUI);
             }
 
             const auto filename = baseGUI->getSceneFileName();
@@ -452,7 +382,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 if (!filename.empty() && helper::system::FileSystem::exists(filename))
                 {
                     msg_info("GUI") << "Reloading file " << filename;
-                    loadFile(baseGUI, groot, filename, true);
+                    loadFile(baseGUI, true, filename);
                 }
             }
             if (ImGui::IsItemHovered())
@@ -636,7 +566,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::Button(ICON_FA_ROTATE_RIGHT))
         {
             groot->setTime(0.);
-            loadFile(baseGUI, groot, baseGUI->getSceneFileName(), true);
+            loadFile(baseGUI, true, baseGUI->getSceneFileName());
         }
 
         const auto posX = ImGui::GetCursorPosX();

@@ -66,6 +66,28 @@ if(Sofa.GUI.Common_FOUND)
     LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
 endif()
 
+sofa_find_package(nfd CONFIG QUIET)
+
+if(TARGET nfd::nfd)
+    if(CMAKE_SYSTEM_NAME STREQUAL Windows)
+        sofa_install_libraries(TARGETS nfd::nfd)
+    endif()
+elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES) OR (NOT DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES))
+    # Download if 
+    # 1) SOFA_ALLOW_FETCH_DEPENDENCIES is defined, meaning a in-tree project AND its value is TRUE
+    # 2) SOFA_ALLOW_FETCH_DEPENDENCIES is not defined, which means it is a out-of-tree project
+    message("${PROJECT_NAME}: nativefiledialog-extended not found and SOFA_ALLOW_FETCH_DEPENDENCIES is ON, fetching source code...")
+    set(NFD_INSTALL ON CACHE INTERNAL "")
+
+    sofa_fetch_dependency(nfd
+            GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended
+            GIT_TAG        v1.2.1
+    )
+    set_property(TARGET nfd  PROPERTY POSITION_INDEPENDENT_CODE ON)
+    set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
+    add_library(nfd::nfd ALIAS nfd) # introduced in nfd >= v1.2.1
+endif()
+
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Component.Visual)
