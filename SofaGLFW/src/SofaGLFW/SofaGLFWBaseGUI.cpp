@@ -50,6 +50,7 @@
 #include <sofa/core/loader/SceneLoader.h>
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/helper/ScopedAdvancedTimer.h>
+#include <nfd.h>
 
 #include <algorithm>
 
@@ -838,7 +839,7 @@ void SofaGLFWBaseGUI::loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, std::strin
         currentGUI->setWindowTitle(nullptr, std::string("SOFA - " + filename).c_str());
 
         sofa::simulation::node::initRoot(groot.get());
-        auto camera = currentGUI->findCamera(groot);
+        auto camera = currentGUI->getCamera();
         if (camera)
         {
             camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
@@ -850,7 +851,7 @@ void SofaGLFWBaseGUI::loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, std::strin
         currentGUI->m_guiEngine->resetCounter();
 
         // update camera if a sidecar file is present
-        currentGUI->restoreCamera(currentGUI->findCamera(groot));
+        currentGUI->restoreCamera(currentGUI->getCamera());
     }
 }
 
