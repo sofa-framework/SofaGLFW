@@ -686,34 +686,6 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     // Handle specific keys for additional functionality
     switch (key)
     {
-        case GLFW_KEY_B:
-            if (action == GLFW_PRESS)
-            {
-                currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
-                switch (currentGUI->m_backgroundID)
-                {
-                    case 0:
-                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
-                        break;
-                    case 1:
-                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
-                        break;
-                    case 2:
-                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
-                        break;
-                    case 3:
-                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
-                        break;
-                }
-                break;
-            }
-            break;
-        case GLFW_KEY_F:
-            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
-            {
-                currentGUI->switchFullScreen(window);
-            }
-            break;
         case GLFW_KEY_F11:
             if (action == GLFW_PRESS)
             {
@@ -744,6 +716,30 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                 {
                     currentGUI->getPickHandler()->deactivateRay();
                 }
+            }
+            break;
+        // List of regular keys
+        // (to be used with the control key pressed)
+        case GLFW_KEY_B:
+            if (action == GLFW_PRESS && isCtrlKeyPressed)
+            {
+                currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
+                switch (currentGUI->m_backgroundID)
+                {
+                    case 0:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+                        break;
+                    case 1:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
+                        break;
+                    case 2:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
+                        break;
+                    case 3:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
+                        break;
+                }
+                break;
             }
             break;
         case GLFW_KEY_R:
