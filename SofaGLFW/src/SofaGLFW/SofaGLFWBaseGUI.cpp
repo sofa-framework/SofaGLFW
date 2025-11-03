@@ -607,10 +607,12 @@ void SofaGLFWBaseGUI::runStep()
 {
     if(simulationIsRunning())
     {
-        SCOPED_TIMER("Animate");
+        helper::AdvancedTimer::begin("Animate");
 
         node::animate(this->groot.get(), this->groot->getDt());
         node::updateVisual(this->groot.get());
+
+        helper::AdvancedTimer::end("Animate");
     }
 }
 

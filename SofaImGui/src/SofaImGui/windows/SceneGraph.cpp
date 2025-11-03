@@ -166,7 +166,7 @@ namespace windows
 
                 if (data->getParent())
                 {
-                    const auto linkPath = data->getLinkPath();
+                    const auto linkPath = data->getParent()->getLinkPath();
                     if (!linkPath.empty())
                     {
                         ImGui::TextWrapped(linkPath.c_str());
@@ -510,6 +510,16 @@ namespace windows
             {
                 openedComponents.erase(it);
             }
+            auto boPtrToRemove = dynamic_cast<sofa::core::objectmodel::BaseObject *>(toRemove.back());
+            if(boPtrToRemove)
+            {
+              auto itBo = focusedComponents.find(boPtrToRemove);
+              if (itBo != focusedComponents.end())
+              {
+                  focusedComponents.erase(itBo);
+
+              }
+            }
             toRemove.pop_back();
         }
     }
@@ -580,6 +590,7 @@ namespace windows
         else
         {
             currentSelection.clear();
+            focusedComponents.clear();
         }
 
 
