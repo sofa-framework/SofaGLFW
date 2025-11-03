@@ -620,10 +620,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             if (!animate)
             {
-                SCOPED_TIMER("Animate");
+                sofa::helper::AdvancedTimer::begin("Animate");
 
                 sofa::simulation::node::animate(groot.get(), groot->getDt());
                 sofa::simulation::node::updateVisual(groot.get());
+
+                sofa::helper::AdvancedTimer::end("Animate");
             }
         }
         ImGui::PopButtonRepeat();
