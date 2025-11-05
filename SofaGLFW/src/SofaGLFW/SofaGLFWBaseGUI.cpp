@@ -43,6 +43,7 @@
 #include <sofa/simulation/SimulationLoop.h>
 #include <sofa/component/visual/InteractiveCamera.h>
 #include <sofa/component/visual/VisualStyle.h>
+#include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
@@ -688,40 +689,14 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     // Handle specific keys for additional functionality
     switch (key)
     {
-        case GLFW_KEY_B:
-            if (action == GLFW_PRESS)
-            {
-                currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
-                switch (currentGUI->m_backgroundID)
-                {
-                    case 0:
-                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
-                        break;
-                    case 1:
-                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
-                        break;
-                    case 2:
-                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
-                        break;
-                    case 3:
-                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
-                        break;
-                }
-                break;
-            }
-            break;
-        case GLFW_KEY_F:
-            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
-            {
-                currentGUI->switchFullScreen(window);
-            }
-            break;
+        // F11 goes fullscreen
         case GLFW_KEY_F11:
             if (action == GLFW_PRESS)
             {
                 currentGUI->switchFullScreen(window);
             }
             break;
+        // ESCAPE exits
         case GLFW_KEY_ESCAPE:
             if (action == GLFW_PRESS)
             {
@@ -748,10 +723,36 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                 }
             }
             break;
+        // List of regular keys
+        // (to be used with the control key pressed)
+        
+        // Change the background
+        case GLFW_KEY_B:
+            if (action == GLFW_PRESS && isCtrlKeyPressed)
+            {
+                currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
+                switch (currentGUI->m_backgroundID)
+                {
+                    case 0:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+                        break;
+                    case 1:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
+                        break;
+                    case 2:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
+                        break;
+                    case 3:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
+                        break;
+                }
+                break;
+            }
+            break;
+        // Reload using CTRL + R
         case GLFW_KEY_R:
             if (action == GLFW_PRESS && isCtrlKeyPressed)
             {
-                // Reload using CTRL + R
                 sofa::simulation::NodeSPtr groot = currentGUI->groot;
                 std::string filename = currentGUI->getSceneFileName();
 
@@ -783,10 +784,40 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                     currentGUI->restoreCamera(currentGUI->currentCamera);
                 }
             }
-
+        // Show scene axis
+        case GLFW_KEY_A:
+            if (action == GLFW_PRESS && isCtrlKeyPressed)
+            {
+                triggerSceneAxis(currentGUI->groot);
+            }
+            
 
         default:
             break;
+    }
+}
+
+void SofaGLFWBaseGUI::triggerSceneAxis(sofa::simulation::NodeSPtr groot)
+{
+    static const auto createdByGuiTag = sofa::core::objectmodel::Tag("createdByGUI");
+
+    auto axis = groot->get<sofa::component::visual::LineAxis>(createdByGuiTag);
+    if (!axis)
+    {
+        auto newAxis = sofa::core::objectmodel::New<sofa::component::visual::LineAxis>();
+        groot->addObject(newAxis);
+        newAxis->setName("viewportAxis");
+        newAxis->addTag(createdByGuiTag);
+        newAxis->d_enable.setValue(true);
+        auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
+        newAxis->d_size.setValue(*std::max_element(box.begin(), box.end()));
+        newAxis->d_infinite.setValue(true);
+        newAxis->d_vanishing.setValue(true);
+        newAxis->init();
+    }
+    else
+    {
+        axis->d_enable.setValue(!axis->d_enable.getValue());
     }
 }
 
