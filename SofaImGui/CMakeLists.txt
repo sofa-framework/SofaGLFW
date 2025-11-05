@@ -20,7 +20,7 @@ sofa_fetch_dependency(imgui
         DONT_BUILD
 )
 
-find_package(nfd CONFIG QUIET)
+sofa_find_package(nfd CONFIG QUIET)
 
 if(TARGET nfd::nfd)
     if(CMAKE_SYSTEM_NAME STREQUAL Windows)

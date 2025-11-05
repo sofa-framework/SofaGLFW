@@ -114,6 +114,9 @@ public:
     }
     void moveRayPickInteractor(int eventX, int eventY) override ;
 
+    static void openFile(sofaglfw::SofaGLFWBaseGUI* currentGUI);
+    static void loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, bool reload, std::string filename = "");
+
 private:
     // GLFW callbacks
     static void error_callback(int error, const char* description);
@@ -132,7 +135,7 @@ private:
 
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
-
+    
     inline static std::map<GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
     inline static std::map<GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
     inline static std::size_t s_numberOfActiveWindows = 0;

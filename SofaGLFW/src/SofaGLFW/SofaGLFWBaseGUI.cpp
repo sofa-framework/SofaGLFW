@@ -47,7 +47,10 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
 
+#include <sofa/core/loader/SceneLoader.h>
+#include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/helper/ScopedAdvancedTimer.h>
+#include <nfd.h>
 
 #include <algorithm>
 
@@ -752,41 +755,108 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             if (action == GLFW_PRESS && isCtrlKeyPressed)
             {
                 // Reload using CTRL + R
-                sofa::simulation::NodeSPtr groot = currentGUI->groot;
-                std::string filename = currentGUI->getSceneFileName();
-
-                if (!filename.empty() && helper::system::FileSystem::exists(filename))
-                {
-                    msg_info("GUI") << "Reloading file " << filename;
-                    sofa::simulation::node::unload(groot);
-
-                    groot = sofa::simulation::node::load(filename.c_str());
-                    if( !groot )
-                        groot = sofa::simulation::getSimulation()->createNewGraph("");
-
-                    currentGUI->setSimulation(groot, filename);
-                    currentGUI->load();
-                    currentGUI->setWindowTitle(nullptr, std::string("SOFA - " + filename).c_str());
-
-                    sofa::simulation::node::initRoot(groot.get());
-                    if (currentGUI->currentCamera)
-                    {
-                        currentGUI->currentCamera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
-                        currentGUI->changeCamera(currentGUI->currentCamera);
-                    }
-
-                    node::initTextures(groot.get());
-
-                    currentGUI->m_guiEngine->resetCounter();
-
-                    // update camera if a sidecar file is present
-                    currentGUI->restoreCamera(currentGUI->currentCamera);
-                }
+                loadFile(currentGUI, true);
+            }
+        case GLFW_KEY_O:
+            if (action == GLFW_PRESS && isCtrlKeyPressed)
+            {
+                // Open and load a new file using CTRL + O
+                openFile(currentGUI);
             }
 
 
         default:
             break;
+    }
+}
+
+void SofaGLFWBaseGUI::openFile(sofaglfw::SofaGLFWBaseGUI* currentGUI)
+{
+    simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
+    std::vector<std::pair<std::string, std::string> > filterList;
+    filterList.reserve(loaders->size());
+    std::pair<std::string, std::string> allFilters {"SOFA files", {} };
+    for (auto it=loaders->begin(); it!=loaders->end(); ++it)
+    {
+        const auto filterName = (*it)->getFileTypeDesc();
+
+        sofa::simulation::SceneLoader::ExtensionList extensions;
+        (*it)->getExtensionList(&extensions);
+        std::string extensionsString;
+        for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
+        {
+            extensionsString += *itExt;
+            std::cout << *itExt << std::endl;
+            if (itExt != extensions.end() - 1)
+            {
+                extensionsString += ",";
+            }
+        }
+
+        filterList.emplace_back(filterName, extensionsString);
+
+        allFilters.second += extensionsString;
+        if (it != loaders->end()-1)
+        {
+            allFilters.second += ",";
+        }
+    }
+    std::vector<nfdfilteritem_t> nfd_filters;
+    nfd_filters.reserve(filterList.size() + 1);
+    for (auto& f : filterList)
+    {
+        nfd_filters.push_back({f.first.c_str(), f.second.c_str()});
+    }
+    nfd_filters.insert(nfd_filters.begin(), {allFilters.first.c_str(), allFilters.second.c_str()});
+
+    nfdchar_t *outPath;
+    nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
+    if (result == NFD_OKAY)
+    {
+        if (helper::system::FileSystem::exists(outPath))
+        {
+            loadFile(currentGUI, true, outPath);
+        }
+        NFD_FreePath(outPath);
+    }
+}
+
+void SofaGLFWBaseGUI::loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, bool reload, std::string filename)
+{
+    sofa::simulation::NodeSPtr groot = currentGUI->groot;
+
+    if(filename == "")
+        filename = currentGUI->getSceneFileName();
+
+    if (!filename.empty() && helper::system::FileSystem::exists(filename))
+    {
+        msg_info("GUI") << "Reloading file " << filename;
+        sofa::simulation::node::unload(groot);
+
+        groot = sofa::simulation::node::load(filename.c_str());
+        if( !groot )
+            groot = sofa::simulation::getSimulation()->createNewGraph("");
+
+        currentGUI->setSimulation(groot, filename);
+        currentGUI->setWindowTitle(nullptr, std::string("SOFA - " + filename).c_str());
+
+        sofa::simulation::node::initRoot(groot.get());
+        auto camera = currentGUI->getCamera();
+        if (camera)
+        {
+            camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+            currentGUI->changeCamera(camera);
+        }
+
+        if(reload)
+            sofa::simulation::node::initTextures(groot.get()); // do not override OpenGL lights
+        else
+            currentGUI->initVisual();
+
+        currentGUI->m_guiEngine->resetCounter();
+
+        // update camera if a sidecar file is present
+        currentGUI->restoreCamera(currentGUI->getCamera());
     }
 }
 
