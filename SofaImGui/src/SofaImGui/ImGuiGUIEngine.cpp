@@ -825,8 +825,14 @@ void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
 
 void ImGuiGUIEngine::afterDraw()
 {
-    m_fbo->stop();
+    // Clear the alpha-component of the image so it is not interpreted
+    // by imgui as a content with transparency.
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
+    m_fbo->stop();
 }
 
 void ImGuiGUIEngine::terminate()
