@@ -40,6 +40,15 @@ elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES
 
 endif()
 
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
+    libavcodec
+    libavformat
+    libavutil
+    libswscale
+    libswresample
+)
 
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
@@ -66,6 +75,11 @@ if(Sofa.GUI.Common_FOUND)
     LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
 endif()
 
+if(TARGET PkgConfig::FFMPEG)
+    LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoder.h)
+    LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoder.cpp)
+endif()
+
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Graph Sofa.Component.Visual)
@@ -83,6 +97,8 @@ sofa_find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
     add_subdirectory(bindings)
 endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::FFMPEG)
 
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
 

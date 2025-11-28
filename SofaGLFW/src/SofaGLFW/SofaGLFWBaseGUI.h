@@ -32,6 +32,7 @@
 #include <memory>
 
 #include <SofaGLFW/SofaGLFWMouseManager.h>
+#include <SofaGLFW/utils/VideoEncoder.h>
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -158,6 +159,7 @@ private:
     std::size_t m_backgroundID{0};
 
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
+    VideoEncoder m_videoEncoder{};
 };
 
 } // namespace sofaglfw

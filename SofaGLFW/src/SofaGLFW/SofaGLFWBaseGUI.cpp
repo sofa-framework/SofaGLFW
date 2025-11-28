@@ -70,6 +70,8 @@ namespace sofaglfw
 SofaGLFWBaseGUI::SofaGLFWBaseGUI()
 {
     m_guiEngine = std::make_shared<NullGUIEngine>();
+    
+    m_videoEncoder.init("/Users/fred/test.mp4", 640, 480, 60);
 }
 
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
@@ -502,12 +504,28 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
                     m_guiEngine->startFrame(this);
                     m_guiEngine->endFrame();
+                    
+                    m_viewPortHeight = m_vparams->viewport()[3];
+                    m_viewPortWidth = m_vparams->viewport()[2];
+                    
+                    // FRED
+                    // Read framebuffer
+                    
+                    std::vector<uint8_t> pixels(m_viewPortWidth * m_viewPortHeight * 3);
+                    glReadPixels(0, 0, m_viewPortWidth, m_viewPortHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+                    
+                    // Flip vertically (OpenGL has origin at bottom-left)
+                    std::vector<uint8_t> flipped(m_viewPortWidth * m_viewPortHeight * 3);
+                    for (int y = 0; y < m_viewPortHeight; y++) {
+                        memcpy(&flipped[y * m_viewPortWidth * 3],
+                               &pixels[(m_viewPortHeight - 1 - y) * m_viewPortWidth * 3],
+                               m_viewPortWidth * 3);
+                    }
+                    
+                    m_videoEncoder.encodeFrame(flipped.data(), m_viewPortWidth, m_viewPortHeight);
 
                     glfwSwapBuffers(glfwWindow);
 
-
-                    m_viewPortHeight = m_vparams->viewport()[3];
-                    m_viewPortWidth = m_vparams->viewport()[2];
                 }
                 else
                 {
@@ -624,6 +642,8 @@ void SofaGLFWBaseGUI::terminate()
     if (m_guiEngine)
         m_guiEngine->terminate();
 
+    m_videoEncoder.finish();
+    
     glfwTerminate();
 }
 
