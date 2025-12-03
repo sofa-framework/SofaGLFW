@@ -127,6 +127,8 @@ public:
             msg_info("SofaGLFWBaseGUI") << "End recording";
         }
     }
+    
+    void encodeFrame();
 
 private:
     // GLFW callbacks

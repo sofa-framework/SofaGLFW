@@ -70,8 +70,6 @@ namespace sofaglfw
 SofaGLFWBaseGUI::SofaGLFWBaseGUI()
 {
     m_guiEngine = std::make_shared<NullGUIEngine>();
-    
-    m_videoEncoder.init("/Users/fred/test.mp4", 640, 480, 60);
 }
 
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
@@ -508,22 +506,10 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     m_viewPortHeight = m_vparams->viewport()[3];
                     m_viewPortWidth = m_vparams->viewport()[2];
                     
-                    // FRED
                     // Read framebuffer
                     if(this->groot->getAnimate() && this->m_bVideoRecording)
                     {
-                        std::vector<uint8_t> pixels(m_viewPortWidth * m_viewPortHeight * 3);
-                        glReadPixels(0, 0, m_viewPortWidth, m_viewPortHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
-                        
-                        // Flip vertically (OpenGL has origin at bottom-left)
-                        std::vector<uint8_t> flipped(m_viewPortWidth * m_viewPortHeight * 3);
-                        for (int y = 0; y < m_viewPortHeight; y++) {
-                            memcpy(&flipped[y * m_viewPortWidth * 3],
-                                   &pixels[(m_viewPortHeight - 1 - y) * m_viewPortWidth * 3],
-                                   m_viewPortWidth * 3);
-                        }
-                        
-                        m_videoEncoder.encodeFrame(flipped.data(), m_viewPortWidth, m_viewPortHeight);
+                        this->encodeFrame();
                     }
 
                     glfwSwapBuffers(glfwWindow);
@@ -1135,6 +1121,56 @@ bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
     }
 
     return true;
+}
+
+
+void SofaGLFWBaseGUI::encodeFrame()
+{
+    if(!m_videoEncoder.isInitialized())
+    {
+        using sofa::helper::system::FileSystem;
+        std::string baseSceneFilename{};
+        if (!this->getSceneFileName().empty())
+        {
+            std::filesystem::path path(this->getSceneFileName());
+            baseSceneFilename = path.stem().string();
+        }
+        
+        const auto videoDirectory = FileSystem::append(sofa::helper::Utils::getSofaDataDirectory(), "recordings");
+        FileSystem::ensureFolderExists(videoDirectory);
+        
+        std::string currentTimeString = [](){ auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()); std::ostringstream oss; oss << std::put_time(std::localtime(&t), "%Y%m%d%H%M%S"); return oss.str(); }();
+        
+        std::string videoExtension = ".mp4";
+        auto videoFilename = baseSceneFilename + "_" + currentTimeString + videoExtension;
+        auto videoPath = FileSystem::append(videoDirectory,videoFilename);
+        
+        // assuming that the video path is unique and does not exist
+        // it would overwrite otherwise
+        constexpr int nbFramePerSecond = 60;
+        if(m_videoEncoder.init(videoPath.c_str(), m_viewPortWidth, m_viewPortHeight, nbFramePerSecond))
+        {
+            msg_info("SofaGLFWBaseGUI") << "Writting in " << videoPath;
+        }
+        else
+        {
+            msg_error("SofaGLFWBaseGUI") << "Error while trying to write in " << videoPath;
+            return;
+        }
+    }
+    
+    std::vector<uint8_t> pixels(m_viewPortWidth * m_viewPortHeight * 3);
+    glReadPixels(0, 0, m_viewPortWidth, m_viewPortHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+    
+    // Flip vertically (OpenGL has origin at bottom-left)
+    std::vector<uint8_t> flipped(m_viewPortWidth * m_viewPortHeight * 3);
+    for (int y = 0; y < m_viewPortHeight; y++) {
+        memcpy(&flipped[y * m_viewPortWidth * 3],
+               &pixels[(m_viewPortHeight - 1 - y) * m_viewPortWidth * 3],
+               m_viewPortWidth * 3);
+    }
+    
+    m_videoEncoder.encodeFrame(flipped.data(), m_viewPortWidth, m_viewPortHeight);
 }
 
 } // namespace sofaglfw
