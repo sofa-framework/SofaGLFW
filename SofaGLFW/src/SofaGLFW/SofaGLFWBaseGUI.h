@@ -114,6 +114,19 @@ public:
         return m_guiEngine;
     }
     void moveRayPickInteractor(int eventX, int eventY) override ;
+    
+    void toggleVideoRecording()
+    {
+        m_bVideoRecording = !m_bVideoRecording;
+        if(m_bVideoRecording)
+        {
+            msg_info("SofaGLFWBaseGUI") << "Start recording";
+        }
+        else
+        {
+            msg_info("SofaGLFWBaseGUI") << "End recording";
+        }
+    }
 
 private:
     // GLFW callbacks
@@ -159,6 +172,8 @@ private:
     std::size_t m_backgroundID{0};
 
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
+    
+    bool m_bVideoRecording {false};
     VideoEncoder m_videoEncoder{};
 };
 

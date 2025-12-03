@@ -510,19 +510,21 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     
                     // FRED
                     // Read framebuffer
-                    
-                    std::vector<uint8_t> pixels(m_viewPortWidth * m_viewPortHeight * 3);
-                    glReadPixels(0, 0, m_viewPortWidth, m_viewPortHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
-                    
-                    // Flip vertically (OpenGL has origin at bottom-left)
-                    std::vector<uint8_t> flipped(m_viewPortWidth * m_viewPortHeight * 3);
-                    for (int y = 0; y < m_viewPortHeight; y++) {
-                        memcpy(&flipped[y * m_viewPortWidth * 3],
-                               &pixels[(m_viewPortHeight - 1 - y) * m_viewPortWidth * 3],
-                               m_viewPortWidth * 3);
+                    if(this->groot->getAnimate() && this->m_bVideoRecording)
+                    {
+                        std::vector<uint8_t> pixels(m_viewPortWidth * m_viewPortHeight * 3);
+                        glReadPixels(0, 0, m_viewPortWidth, m_viewPortHeight, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+                        
+                        // Flip vertically (OpenGL has origin at bottom-left)
+                        std::vector<uint8_t> flipped(m_viewPortWidth * m_viewPortHeight * 3);
+                        for (int y = 0; y < m_viewPortHeight; y++) {
+                            memcpy(&flipped[y * m_viewPortWidth * 3],
+                                   &pixels[(m_viewPortHeight - 1 - y) * m_viewPortWidth * 3],
+                                   m_viewPortWidth * 3);
+                        }
+                        
+                        m_videoEncoder.encodeFrame(flipped.data(), m_viewPortWidth, m_viewPortHeight);
                     }
-                    
-                    m_videoEncoder.encodeFrame(flipped.data(), m_viewPortWidth, m_viewPortHeight);
 
                     glfwSwapBuffers(glfwWindow);
 
@@ -734,6 +736,12 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
             {
                 currentGUI->switchFullScreen(window);
+            }
+            break;
+        case GLFW_KEY_V:
+            if (action == GLFW_PRESS)
+            {
+                currentGUI->toggleVideoRecording();
             }
             break;
         case GLFW_KEY_F11:
