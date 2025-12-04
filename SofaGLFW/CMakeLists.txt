@@ -40,15 +40,24 @@ elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES
 
 endif()
 
-find_package(PkgConfig REQUIRED)
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
 
-pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
-    libavcodec
-    libavformat
-    libavutil
-    libswscale
-    libswresample
-)
+    pkg_check_modules(FFMPEG IMPORTED_TARGET
+        libavcodec
+        libavformat
+        libavutil
+        libswscale
+        libswresample
+    )
+endif()
+
+if(TARGET PkgConfig::FFMPEG)
+    message("Enabling the Video Recorder for GLFW.")
+else()
+    message("PkgConfig and libav libraries are required to enable the Video Recorder for GLFW.")
+endif()
+
 
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
@@ -98,7 +107,9 @@ if(SofaPython3_FOUND)
     add_subdirectory(bindings)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::FFMPEG)
+if(TARGET PkgConfig::FFMPEG)
+    target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::FFMPEG)
+endif()
 
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
 
