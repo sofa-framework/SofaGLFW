@@ -20,33 +20,43 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+
 #include <SofaGLFW/config.h>
 
-#include <sofa/type/fwd.h>
-#include <vector>
-
-struct GLFWwindow;
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
+}
 
 namespace sofaglfw
 {
 
-class SofaGLFWBaseGUI;
-
-class BaseGUIEngine
+class VideoEncoder
 {
 public:
+    VideoEncoder() = default;
+    ~VideoEncoder() = default;
     
-    virtual void init() = 0;
-    virtual void initBackend(GLFWwindow*) = 0;
-    virtual void startFrame(SofaGLFWBaseGUI*) = 0;
-    virtual void endFrame() = 0;
-    virtual void beforeDraw(GLFWwindow* window) = 0;
-    virtual void afterDraw() = 0;
-    virtual void terminate() = 0;
-    virtual bool isTerminated() const = 0;
-    virtual bool dispatchMouseEvents() = 0;
-    virtual void resetCounter() = 0;
-    virtual sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) = 0;
+    bool init(const char* filename, int width, int height, int fps);
+    void encodeFrame(uint8_t* rgbData, int width, int height);
+    void finish();
+    
+    [[nodiscard]] bool isInitialized() const { return m_bIsInitialized; }
+    
+private:
+    AVFormatContext* m_fmtCtx = nullptr;
+    AVCodecContext* m_codecCtx = nullptr;
+    AVStream* m_stream = nullptr;
+    AVFrame* m_frame = nullptr;
+    AVPacket* m_pkt = nullptr;
+    SwsContext* m_swsCtx = nullptr;
+    int m_frameCount = 0;
+    int m_encoderWidth = 0;
+    int m_encoderHeight = 0;
+    
+    bool m_bIsInitialized = false;
 };
 
 } // namespace sofaglfw

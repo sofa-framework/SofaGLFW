@@ -67,6 +67,9 @@ public:
 
     // reset counters
     void resetCounter() override;
+    
+    sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) override;
+
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;

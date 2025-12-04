@@ -888,4 +888,17 @@ void ImGuiGUIEngine::setScale(double globalScale, GLFWmonitor* monitor)
     io.FontGlobalScale = globalScale / yscale;
 }
 
+type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
+{
+    m_fbo->start();
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    pixels.resize(viewport[2] * viewport[3] * 3);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+    m_fbo->stop();
+    
+    return {viewport[2], viewport[3]};
+}
+
 } //namespace sofaimgui
