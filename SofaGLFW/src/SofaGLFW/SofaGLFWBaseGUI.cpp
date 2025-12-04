@@ -49,6 +49,10 @@
 
 #include <sofa/helper/ScopedAdvancedTimer.h>
 
+#if SOFAGLFW_HAVE_FFMPEG == 1
+#include <SofaGLFW/utils/VideoEncoderFFMPEG.h>
+#endif
+
 #include <algorithm>
 
 using namespace sofa;
@@ -70,6 +74,9 @@ namespace sofaglfw
 SofaGLFWBaseGUI::SofaGLFWBaseGUI()
 {
     m_guiEngine = std::make_shared<NullGUIEngine>();
+#if SOFAGLFW_HAVE_FFMPEG == 1
+    m_videoEncoder = std::make_unique<VideoEncoderFFMPEG>();
+#endif
 }
 
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
@@ -630,7 +637,10 @@ void SofaGLFWBaseGUI::terminate()
     if (m_guiEngine)
         m_guiEngine->terminate();
 
-    m_videoEncoder.finish();
+    if(m_videoEncoder)
+    {
+        m_videoEncoder->finish();
+    }
     
     glfwTerminate();
 }
@@ -1126,10 +1136,15 @@ bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
 
 void SofaGLFWBaseGUI::encodeFrame()
 {
+    if(!m_videoEncoder)
+    {
+        return;
+    }
+    
     std::vector<uint8_t> pixels;
     const auto [width, height] = this->m_guiEngine->getFrameBufferPixels(pixels);
     
-    if(!m_videoEncoder.isInitialized())
+    if(!m_videoEncoder->isInitialized())
     {
         using sofa::helper::system::FileSystem;
         std::string baseSceneFilename{};
@@ -1151,7 +1166,7 @@ void SofaGLFWBaseGUI::encodeFrame()
         // assuming that the video path is unique and does not exist
         // it would overwrite otherwise
         constexpr int nbFramePerSecond = 60;
-        if(m_videoEncoder.init(videoPath.c_str(), width, height, nbFramePerSecond))
+        if(m_videoEncoder->init(videoPath.c_str(), width, height, nbFramePerSecond))
         {
             msg_info("SofaGLFWBaseGUI") << "Writting in " << videoPath;
         }
@@ -1171,7 +1186,7 @@ void SofaGLFWBaseGUI::encodeFrame()
                width * 3);
     }
     
-    m_videoEncoder.encodeFrame(flipped.data(), width, height);
+    m_videoEncoder->encodeFrame(flipped.data(), width, height);
 }
 
 } // namespace sofaglfw

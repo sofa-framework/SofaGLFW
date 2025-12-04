@@ -69,6 +69,7 @@ set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWMouseManager.h
+    ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoder.h
 )
 
 set(SOURCE_FILES
@@ -85,8 +86,8 @@ if(Sofa.GUI.Common_FOUND)
 endif()
 
 if(TARGET PkgConfig::FFMPEG)
-    LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoder.h)
-    LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoder.cpp)
+    LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoderFFMPEG.h)
+    LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoderFFMPEG.cpp)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
@@ -109,6 +110,7 @@ endif()
 
 if(TARGET PkgConfig::FFMPEG)
     target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::FFMPEG)
+    set(SOFAGLFW_HAVE_FFMPEG 1)
 endif()
 
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")

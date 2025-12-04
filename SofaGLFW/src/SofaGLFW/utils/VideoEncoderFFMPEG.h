@@ -22,20 +22,39 @@
 #pragma once
 
 #include <SofaGLFW/config.h>
+#include <SofaGLFW/utils/VideoEncoder.h>
+
+struct AVFormatContext;
+struct AVCodecContext;
+struct AVStream;
+struct AVFrame;
+struct AVPacket;
+struct SwsContext;
 
 namespace sofaglfw
 {
 
-class VideoEncoder
+class VideoEncoderFFMPEG : public VideoEncoder
 {
 public:
-    virtual bool init(const char* filename, int width, int height, int fps) = 0;
-    virtual void encodeFrame(uint8_t* rgbData, int width, int height) = 0;
-    virtual void finish() = 0;
+    VideoEncoderFFMPEG() = default;
+    ~VideoEncoderFFMPEG() = default;
     
-    [[nodiscard]] bool isInitialized() const { return m_bIsInitialized; }
-protected:
-    bool m_bIsInitialized = false;
+    bool init(const char* filename, int width, int height, int fps) override;
+    void encodeFrame(uint8_t* rgbData, int width, int height) override;
+    void finish() override;
+    
+private:
+    AVFormatContext* m_fmtCtx = nullptr;
+    AVCodecContext* m_codecCtx = nullptr;
+    AVStream* m_stream = nullptr;
+    AVFrame* m_frame = nullptr;
+    AVPacket* m_pkt = nullptr;
+    SwsContext* m_swsCtx = nullptr;
+    int m_frameCount = 0;
+    int m_encoderWidth = 0;
+    int m_encoderHeight = 0;
+    
 };
 
 } // namespace sofaglfw

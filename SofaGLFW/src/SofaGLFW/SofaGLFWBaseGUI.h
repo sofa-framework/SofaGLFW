@@ -117,14 +117,17 @@ public:
     
     void toggleVideoRecording()
     {
-        m_bVideoRecording = !m_bVideoRecording;
-        if(m_bVideoRecording)
+        if(m_videoEncoder)
         {
-            msg_info("SofaGLFWBaseGUI") << "Start recording";
-        }
-        else
-        {
-            msg_info("SofaGLFWBaseGUI") << "End recording";
+            m_bVideoRecording = !m_bVideoRecording;
+            if(m_bVideoRecording)
+            {
+                msg_info("SofaGLFWBaseGUI") << "Start recording";
+            }
+            else
+            {
+                msg_info("SofaGLFWBaseGUI") << "End recording";
+            }
         }
     }
     
@@ -176,7 +179,7 @@ private:
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
     
     bool m_bVideoRecording {false};
-    VideoEncoder m_videoEncoder{};
+    std::unique_ptr<VideoEncoder> m_videoEncoder;
 };
 
 } // namespace sofaglfw

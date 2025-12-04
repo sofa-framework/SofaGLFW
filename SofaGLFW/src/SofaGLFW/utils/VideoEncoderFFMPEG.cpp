@@ -19,12 +19,19 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaGLFW/utils/VideoEncoder.h>
+#include <SofaGLFW/utils/VideoEncoderFFMPEG.h>
+
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
+}
 
 namespace sofaglfw
 {
 
-bool VideoEncoder::init(const char* filename, int width, int height, int fps)
+bool VideoEncoderFFMPEG::init(const char* filename, int width, int height, int fps)
 {
     // Print only error messages from ffmpeg
     av_log_set_level(AV_LOG_ERROR);
@@ -83,7 +90,7 @@ bool VideoEncoder::init(const char* filename, int width, int height, int fps)
     return true;
 }
 
-void VideoEncoder::encodeFrame(uint8_t* rgbData, int fbWidth, int fbHeight)
+void VideoEncoderFFMPEG::encodeFrame(uint8_t* rgbData, int fbWidth, int fbHeight)
 {
     if(!m_bIsInitialized)
     {
@@ -116,7 +123,7 @@ void VideoEncoder::encodeFrame(uint8_t* rgbData, int fbWidth, int fbHeight)
     }
 }
 
-void VideoEncoder::finish()
+void VideoEncoderFFMPEG::finish()
 {
     if(!m_bIsInitialized)
     {
