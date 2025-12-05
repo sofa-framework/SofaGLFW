@@ -54,6 +54,7 @@
 #endif
 
 #include <algorithm>
+#include <filesystem>
 
 using namespace sofa;
 using namespace sofa::gui::common;
