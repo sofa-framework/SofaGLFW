@@ -730,9 +730,9 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             break;
         default:
     }
-    // List of regular GUI interactions
-    // (to be used with the control key pressed)
-    if(isCtrlKeyPressed && action == GLFW_PRESS)
+    // List of regular GUI keyboard interactions
+    // (to be used with the CTRL key pressed)
+    if(isCtrlKeyPressed && !isShiftKeyPressed && action == GLFW_PRESS)
     {
         switch (key)
         {
