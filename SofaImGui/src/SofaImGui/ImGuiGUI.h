@@ -31,7 +31,6 @@ class SOFAIMGUI_API ImGuiGUI : public sofaglfw::SofaGLFWGUI
 {
 public:
     ImGuiGUI();
-    
     ~ImGuiGUI() override = default;
 
     static sofa::gui::common::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
