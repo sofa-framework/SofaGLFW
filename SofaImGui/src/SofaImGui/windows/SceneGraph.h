@@ -65,7 +65,8 @@ namespace windows
     //Utilitaries to draw the graph
     bool drawExpandableObject(sofa::core::objectmodel::Base * obj, bool isNodeHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject);
     bool drawNonExpandableObject(sofa::core::objectmodel::Base * obj, bool isObjectHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject);
-
-
+    void drawDatasAsExpandable(std::vector<sofa::core::BaseData*> & datas,  std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents);
+    void drawObjectLinks(sofa::core::objectmodel::Base* component);
+    void drawObjectInfos(sofa::core::objectmodel::Base* component);
 
 } // namespace sofaimgui

@@ -146,6 +146,133 @@ namespace windows
         return objectOpen;
     }
 
+    void drawDatasAsExpandable(std::vector<sofa::core::BaseData*> & datas,
+                               std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents)
+    {
+        for (auto& data : datas)
+        {
+            const bool isOpen = ImGui::CollapsingHeader(data->m_name.c_str());
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextDisabled(data->getHelp().c_str());
+                ImGui::TextDisabled("Type: %s", data->getValueTypeString().c_str());
+                ImGui::EndTooltip();
+            }
+            if (isOpen)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+                ImGui::TextWrapped(data->getHelp().c_str());
+
+                if (data->getParent())
+                {
+                    const auto linkPath = data->getParent()->getLinkPath();
+                    if (!linkPath.empty())
+                    {
+                        ImGui::TextWrapped(linkPath.c_str());
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                        }
+                        if (ImGui::IsItemClicked())
+                        {
+                            auto* owner = dynamic_cast<sofa::core::objectmodel::BaseObject*>(data->getParent()->getOwner());
+                            focusedComponents.insert(owner);
+                        }
+                    }
+                }
+
+                ImGui::PopStyleColor();
+                sofaimgui::showWidget(*data);
+            }
+        }
+    }
+
+    void drawObjectLinks(sofa::core::objectmodel::Base* component)
+    {
+        for (const auto* link : component->getLinks())
+        {
+            const auto linkValue = link->getValueString();
+            const auto linkTitle = link->getName();
+
+            const bool isOpenData = ImGui::CollapsingHeader(linkTitle.c_str());
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextDisabled(link->getHelp().c_str());
+                ImGui::EndTooltip();
+            }
+            if (isOpenData)
+            {
+                ImGui::TextDisabled(link->getHelp().c_str());
+                ImGui::TextWrapped(linkValue.c_str());
+            }
+        }
+    }
+
+    void drawObjectInfos(sofa::core::objectmodel::Base* component)
+    {
+        ImGui::Text("Name: %s", component->getClassName().c_str());
+        ImGui::Spacing();
+        ImGui::TextDisabled("Template:");
+        ImGui::TextWrapped(component->getClass()->templateName.c_str());
+        ImGui::Spacing();
+        ImGui::TextDisabled("Namespace:");
+        ImGui::TextWrapped(component->getClass()->namespaceName.c_str());
+
+        sofa::core::ObjectFactory::ClassEntry entry = sofa::core::ObjectFactory::getInstance()->getEntry(component->getClassName());
+        if (! entry.creatorMap.empty())
+        {
+            ImGui::Spacing();
+            ImGui::TextDisabled("Description:");
+            ImGui::TextWrapped(entry.description.c_str());
+        }
+
+        const std::string instantiationSourceFilename = component->getInstanciationSourceFileName();
+        if (!instantiationSourceFilename.empty())
+        {
+            ImGui::Spacing();
+            ImGui::TextDisabled("Definition:");
+            ImGui::TextWrapped(component->getInstanciationSourceFileName().c_str());
+        }
+
+    }
+
+    void drawObjectLogs(sofa::core::objectmodel::Base* component)
+    {
+        const auto& messages = component->getLoggedMessages();
+        if (ImGui::BeginTable(std::string("logTableComponent"+component->getName()).c_str(), 2, ImGuiTableFlags_RowBg))
+        {
+            ImGui::TableSetupColumn("message type", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("message", ImGuiTableColumnFlags_WidthStretch);
+            for (const auto& message : messages)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+
+                constexpr auto writeMessageType = [](const sofa::helper::logging::Message::Type t)
+                {
+                    switch (t)
+                    {
+                        case sofa::helper::logging::Message::Advice     : return ImGui::TextColored(ImVec4(0.f, 0.5686f, 0.9176f, 1.f), "[SUGGESTION]");
+                        case sofa::helper::logging::Message::Deprecated : return ImGui::TextColored(ImVec4(0.5529f, 0.4314f, 0.3882f, 1.f), "[DEPRECATED]");
+                        case sofa::helper::logging::Message::Warning    : return ImGui::TextColored(ImVec4(1.f, 0.4275f, 0.f, 1.f), "[WARNING]");
+                        case sofa::helper::logging::Message::Info       : return ImGui::Text("[INFO]");
+                        case sofa::helper::logging::Message::Error      : return ImGui::TextColored(ImVec4(0.8667f, 0.1725f, 0.f, 1.f), "[ERROR]");
+                        case sofa::helper::logging::Message::Fatal      : return ImGui::TextColored(ImVec4(0.8353, 0.f, 0.f, 1.f), "[FATAL]");
+                        case sofa::helper::logging::Message::TEmpty     : return ImGui::Text("[EMPTY]");
+                        default: return;
+                    }
+                };
+                writeMessageType(message.type());
+
+                ImGui::TableNextColumn();
+                ImGui::TextWrapped(message.message().str().c_str());
+            }
+            ImGui::EndTable();
+        }
+    }
+
     void showSceneGraph(sofa::core::sptr<sofa::simulation::Node> groot,
                         const char* const& windowNameSceneGraph,
                         std::set<sofa::core::objectmodel::Base*>& openedComponents,
@@ -341,132 +468,24 @@ namespace windows
                         // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                         if (ImGui::BeginTabItem(groupName.c_str()))
                         {
-                            for (auto& data : datas)
-                            {
-                                const bool isOpenData = ImGui::CollapsingHeader(data->m_name.c_str());
-                                if (ImGui::IsItemHovered())
-                                {
-                                    ImGui::BeginTooltip();
-                                    ImGui::TextDisabled(data->getHelp().c_str());
-                                    ImGui::TextDisabled("Type: %s", data->getValueTypeString().c_str());
-                                    ImGui::EndTooltip();
-                                }
-                                if (isOpenData)
-                                {
-                                    ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-                                    ImGui::TextWrapped(data->getHelp().c_str());
-
-                                    if (data->getParent())
-                                    {
-                                        const auto linkPath = data->getLinkPath();
-                                        if (!linkPath.empty())
-                                        {
-                                            ImGui::TextWrapped(linkPath.c_str());
-
-                                            if (ImGui::IsItemHovered())
-                                            {
-                                                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                                            }
-                                            if (ImGui::IsItemClicked())
-                                            {
-                                                auto* owner = dynamic_cast<sofa::core::objectmodel::BaseObject*>(data->getParent()->getOwner());
-                                                focusedComponents.insert(owner);
-                                            }
-                                        }
-                                    }
-
-                                    ImGui::PopStyleColor();
-                                    sofaimgui::showWidget(*data);
-                                }
-                            }
+                            drawDatasAsExpandable(datas, focusedComponents);
                             ImGui::EndTabItem();
                         }
                     }
                     // ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
                     if (ImGui::BeginTabItem("Links"))
                     {
-                        for (const auto* link : component->getLinks())
-                        {
-                            const auto linkValue = link->getValueString();
-                            const auto linkTitle = link->getName();
-
-                            const bool isOpenData = ImGui::CollapsingHeader(linkTitle.c_str());
-                            if (ImGui::IsItemHovered())
-                            {
-                                ImGui::BeginTooltip();
-                                ImGui::TextDisabled(link->getHelp().c_str());
-                                ImGui::EndTooltip();
-                            }
-                            if (isOpenData)
-                            {
-                                ImGui::TextDisabled(link->getHelp().c_str());
-                                ImGui::TextWrapped(linkValue.c_str());
-                            }
-                        }
+                        drawObjectLinks(component);
                         ImGui::EndTabItem();
                     }
                     if (ImGui::BeginTabItem("Infos"))
                     {
-                        ImGui::Text("Name: %s", component->getClassName().c_str());
-                        ImGui::Spacing();
-                        ImGui::TextDisabled("Template:");
-                        ImGui::TextWrapped(component->getClass()->templateName.c_str());
-                        ImGui::Spacing();
-                        ImGui::TextDisabled("Namespace:");
-                        ImGui::TextWrapped(component->getClass()->namespaceName.c_str());
-
-                        sofa::core::ObjectFactory::ClassEntry entry = sofa::core::ObjectFactory::getInstance()->getEntry(component->getClassName());
-                        if (! entry.creatorMap.empty())
-                        {
-                            ImGui::Spacing();
-                            ImGui::TextDisabled("Description:");
-                            ImGui::TextWrapped(entry.description.c_str());
-                        }
-
-                        const std::string instantiationSourceFilename = component->getInstanciationSourceFileName();
-                        if (!instantiationSourceFilename.empty())
-                        {
-                            ImGui::Spacing();
-                            ImGui::TextDisabled("Definition:");
-                            ImGui::TextWrapped(component->getInstanciationSourceFileName().c_str());
-                        }
-
+                        drawObjectInfos(component);
                         ImGui::EndTabItem();
                     }
                     if (ImGui::BeginTabItem("Messages"))
                     {
-                        const auto& messages = component->getLoggedMessages();
-                        if (ImGui::BeginTable(std::string("logTableComponent"+component->getName()).c_str(), 2, ImGuiTableFlags_RowBg))
-                        {
-                            ImGui::TableSetupColumn("message type", ImGuiTableColumnFlags_WidthFixed);
-                            ImGui::TableSetupColumn("message", ImGuiTableColumnFlags_WidthStretch);
-                            for (const auto& message : messages)
-                            {
-                                ImGui::TableNextRow();
-                                ImGui::TableNextColumn();
-
-                                constexpr auto writeMessageType = [](const sofa::helper::logging::Message::Type t)
-                                {
-                                    switch (t)
-                                    {
-                                        case sofa::helper::logging::Message::Advice     : return ImGui::TextColored(ImVec4(0.f, 0.5686f, 0.9176f, 1.f), "[SUGGESTION]");
-                                        case sofa::helper::logging::Message::Deprecated : return ImGui::TextColored(ImVec4(0.5529f, 0.4314f, 0.3882f, 1.f), "[DEPRECATED]");
-                                        case sofa::helper::logging::Message::Warning    : return ImGui::TextColored(ImVec4(1.f, 0.4275f, 0.f, 1.f), "[WARNING]");
-                                        case sofa::helper::logging::Message::Info       : return ImGui::Text("[INFO]");
-                                        case sofa::helper::logging::Message::Error      : return ImGui::TextColored(ImVec4(0.8667f, 0.1725f, 0.f, 1.f), "[ERROR]");
-                                        case sofa::helper::logging::Message::Fatal      : return ImGui::TextColored(ImVec4(0.8353, 0.f, 0.f, 1.f), "[FATAL]");
-                                        case sofa::helper::logging::Message::TEmpty     : return ImGui::Text("[EMPTY]");
-                                        default: return;
-                                    }
-                                };
-                                writeMessageType(message.type());
-
-                                ImGui::TableNextColumn();
-                                ImGui::TextWrapped(message.message().str().c_str());
-                            }
-                            ImGui::EndTable();
-                        }
-
+                        drawObjectLogs(component);
                         ImGui::EndTabItem();
                     }
 
@@ -490,6 +509,16 @@ namespace windows
             if (it != openedComponents.end())
             {
                 openedComponents.erase(it);
+            }
+            auto boPtrToRemove = dynamic_cast<sofa::core::objectmodel::BaseObject *>(toRemove.back());
+            if(boPtrToRemove)
+            {
+              auto itBo = focusedComponents.find(boPtrToRemove);
+              if (itBo != focusedComponents.end())
+              {
+                  focusedComponents.erase(itBo);
+
+              }
             }
             toRemove.pop_back();
         }
@@ -526,43 +555,7 @@ namespace windows
                             if (ImGui::CollapsingHeader(groupName.c_str()))
                             {
                                 ImGui::Indent();
-                                for (auto& data : datas)
-                                {
-                                    const bool isOpen = ImGui::CollapsingHeader(data->m_name.c_str());
-                                    if (ImGui::IsItemHovered())
-                                    {
-                                        ImGui::BeginTooltip();
-                                        ImGui::TextDisabled(data->getHelp().c_str());
-                                        ImGui::TextDisabled("Type: %s", data->getValueTypeString().c_str());
-                                        ImGui::EndTooltip();
-                                    }
-                                    if (isOpen)
-                                    {
-                                        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-                                        ImGui::TextWrapped(data->getHelp().c_str());
-
-                                        if (data->getParent())
-                                        {
-                                            const auto linkPath = data->getLinkPath();
-                                            if (!linkPath.empty())
-                                            {
-                                                ImGui::TextWrapped(linkPath.c_str());
-                                                if (ImGui::IsItemHovered())
-                                                {
-                                                    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                                                }
-                                                if (ImGui::IsItemClicked())
-                                                {
-                                                    auto* owner = dynamic_cast<sofa::core::objectmodel::BaseObject*>(data->getParent()->getOwner());
-                                                    focusedComponents.insert(owner);
-                                                }
-                                            }
-                                        }
-
-                                        ImGui::PopStyleColor();
-                                        sofaimgui::showWidget(*data);
-                                    }
-                                }
+                                drawDatasAsExpandable(datas, focusedComponents);
                                 ImGui::Unindent();
                             }
                         }
@@ -570,24 +563,19 @@ namespace windows
                         if (ImGui::CollapsingHeader("Links"))
                         {
                             ImGui::Indent();
-                            for (const auto* link : clickedObject->getLinks())
-                            {
-                                const auto linkValue = link->getValueString();
-                                const auto linkTitle = link->getName();
-
-                                const bool isOpen = ImGui::CollapsingHeader(linkTitle.c_str());
-                                if (ImGui::IsItemHovered())
-                                {
-                                    ImGui::BeginTooltip();
-                                    ImGui::TextDisabled(link->getHelp().c_str());
-                                    ImGui::EndTooltip();
-                                }
-                                if (isOpen)
-                                {
-                                    ImGui::TextDisabled(link->getHelp().c_str());
-                                    ImGui::TextWrapped(linkValue.c_str());
-                                }
-                            }
+                            drawObjectLinks(clickedObject);
+                            ImGui::Unindent();
+                        }
+                        if (ImGui::CollapsingHeader("Infos"))
+                        {
+                            ImGui::Indent();
+                            drawObjectInfos(clickedObject);
+                            ImGui::Unindent();
+                        }
+                        if (ImGui::CollapsingHeader("Messages"))
+                        {
+                            ImGui::Indent();
+                            drawObjectLogs(clickedObject);
                             ImGui::Unindent();
                         }
                     }
@@ -602,6 +590,7 @@ namespace windows
         else
         {
             currentSelection.clear();
+            focusedComponents.clear();
         }
 
 
