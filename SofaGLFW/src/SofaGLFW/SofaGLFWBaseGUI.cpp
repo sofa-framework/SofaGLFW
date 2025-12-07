@@ -729,6 +729,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
             }
             break;
         default:
+            break;
     }
     // List of regular GUI keyboard interactions
     // (to be used with the CTRL key pressed)
@@ -767,6 +768,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                 triggerSceneAxis(currentGUI->groot);
                 break;
             default:
+                break;
         }
     }
 }
