@@ -81,7 +81,7 @@ namespace windows
 
         ImGui::SetCursorPosX(XPos);
 
-        ImGui::Text(obj->getName().c_str());
+        ImGui::Text("%s", obj->getName().c_str());
         if (doHighLight)
         {
             ImGui::PopStyleColor();
@@ -133,7 +133,7 @@ namespace windows
         {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
         }
-        ImGui::Text(objectName.c_str());
+        ImGui::Text("%s", objectName.c_str());
         ImGui::TableNextColumn();
         ImGui::TextDisabled(objectClassName.c_str());
         ImGui::PopID();

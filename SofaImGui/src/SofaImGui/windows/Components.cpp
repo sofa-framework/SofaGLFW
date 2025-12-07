@@ -160,7 +160,7 @@ namespace windows
                             if (colorIt != colorMap.end())
                                 ImGui::TextColored(colorIt->second, colorIt->first.c_str());
                             else
-                                ImGui::Text(entry.category.c_str());
+                                ImGui::Text("%s", entry.category.c_str());
                         }
                         ImGui::EndTable();
                     }
