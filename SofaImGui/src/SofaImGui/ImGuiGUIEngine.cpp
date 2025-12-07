@@ -127,7 +127,7 @@ void ImGuiGUIEngine::init()
     ini.SetUnicode();
     if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getAppIniFile()))
     {
-        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        [[maybe_unused]] SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
         msg_info("ImGuiGUIEngine") << "Fetching settings from " << sofaimgui::AppIniFile::getAppIniFile();
     }
