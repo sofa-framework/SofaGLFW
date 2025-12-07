@@ -116,6 +116,7 @@ public:
 
     static void openFile(sofaglfw::SofaGLFWBaseGUI* currentGUI);
     static void loadFile(sofaglfw::SofaGLFWBaseGUI* currentGUI, bool reload, std::string filename = "");
+    static void triggerSceneAxis(sofa::simulation::NodeSPtr groot);
 
 private:
     // GLFW callbacks
