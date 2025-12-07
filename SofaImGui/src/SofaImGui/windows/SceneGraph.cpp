@@ -530,6 +530,7 @@ namespace windows
                         std::set<sofa::core::objectmodel::BaseObject*>& focusedComponents,
                         WindowState& winSelectionDescription)
     {
+        SOFA_UNUSED(groot);
         if (*winSelectionDescription.getStatePtr())
         {
             if (ImGui::Begin(windowNameSelectionDescription, winSelectionDescription.getStatePtr()))
