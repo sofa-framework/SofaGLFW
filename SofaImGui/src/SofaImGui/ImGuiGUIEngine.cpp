@@ -534,7 +534,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK"  Save Screenshot"))
             {
                 nfdchar_t *outPath;
-                std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
+                std::array<nfdfilteritem_t, 1> filterItem{ { {"Image", "jpg,png"} } };
                 const auto sceneFilename = baseGUI->getSceneFileName();
                 std::string baseFilename{};
                 if (!sceneFilename.empty())
