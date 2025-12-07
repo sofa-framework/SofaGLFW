@@ -80,7 +80,7 @@ namespace windows {
                     sofa::type::vector<sofa::helper::Record> _records = sofa::helper::AdvancedTimer::getRecords("Animate");
                     allRecords.emplace_back(std::move(_records));
 
-                    while (allRecords.size() >= bufferSize)
+                    while (allRecords.size() >= static_cast<size_t>(bufferSize))
                     {
                         allRecords.pop_front();
                     }
@@ -126,7 +126,7 @@ namespace windows {
                             sofa::helper::system::thread::ctime_t t0;
                             for (const auto& rec : records)
                             {
-                                if (timerId == rec.id)
+                                if (static_cast<size_t>(timerId) == rec.id)
                                 {
                                     chart.label = rec.label;
                                     if (rec.type == sofa::helper::Record::RBEGIN || rec.type == sofa::helper::Record::RSTEP_BEGIN || rec.type == sofa::helper::Record::RSTEP)
@@ -168,7 +168,7 @@ namespace windows {
                 ImGui::SliderInt("Frame", &selectedFrame, 0, allRecords.size());
 
 
-                if (selectedFrame >= 0 && selectedFrame < allRecords.size())
+                if (selectedFrame >= 0 && static_cast<size_t>(selectedFrame) < allRecords.size())
                 {
                     const auto records = allRecords[selectedFrame];
                     if (!records.empty())
