@@ -52,7 +52,6 @@
 #include "windows/Settings.h"
 #include "windows/ViewPort.h"
 #include "windows/WindowState.h"
-#include <IconsFontAwesome4.h>
 #include <IconsFontAwesome6.h>
 #include <Roboto-Medium.h>
 #include <SofaImGui/ImGuiDataWidget.h>
