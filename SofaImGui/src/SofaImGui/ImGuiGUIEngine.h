@@ -68,6 +68,9 @@ public:
     // reset counters
     void resetCounter() override;
 
+    // save screenshot
+    void saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
