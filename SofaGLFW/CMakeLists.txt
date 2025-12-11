@@ -55,7 +55,7 @@ endif()
 if(TARGET PkgConfig::FFMPEG)
     message("Enabling the Video Recorder for GLFW.")
 else()
-    message("PkgConfig and libav libraries are required to enable the Video Recorder for GLFW.")
+    message("Disabling the Video Recorder for GLFW. PkgConfig and libav libraries are required to enable the Video Recorder.")
 endif()
 
 
