@@ -68,7 +68,7 @@ namespace windows
          * @param threshold The precision threshold to determine significant movement.
          * @return True if the viewport has moved beyond the threshold, false otherwise.
          */
-        [[maybe_unused]] static bool hasViewportMoved(float currentX,
+        static bool hasViewportMoved(float currentX,
                               float currentY,
                               float lastX,
                               float lastY,
