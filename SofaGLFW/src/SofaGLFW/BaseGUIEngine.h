@@ -21,6 +21,7 @@
 ******************************************************************************/
 #pragma once
 #include <SofaGLFW/config.h>
+#include <sofa/simulation/Node.h>
 
 struct GLFWwindow;
 
@@ -43,6 +44,8 @@ public:
     virtual bool isTerminated() const = 0;
     virtual bool dispatchMouseEvents() = 0;
     virtual void resetCounter() = 0;
+    virtual void openFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot) {};
+    virtual void loadFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false) {};
 };
 
 } // namespace sofaglfw

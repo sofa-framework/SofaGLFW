@@ -30,7 +30,6 @@
 #include "windows/WindowState.h"
 #include <SimpleIni.h>
 #include <imgui.h>
-#include <sofa/simulation/Node.h>
 
 using windows::WindowState;
 
@@ -68,6 +67,12 @@ public:
     // reset counters
     void resetCounter() override;
 
+    // open file
+    void openFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot) override;
+
+    // load file
+    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false) override;
+    
     // save screenshot
     void saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI);
 
@@ -77,7 +82,6 @@ protected:
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
-    void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false);
     void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members
