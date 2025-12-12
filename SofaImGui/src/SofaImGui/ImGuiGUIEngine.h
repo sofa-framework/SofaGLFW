@@ -72,6 +72,9 @@ public:
 
     // load file
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false) override;
+    
+    // save screenshot
+    void saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI);
 
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
