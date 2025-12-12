@@ -249,7 +249,7 @@ namespace windows {
                                         if (ImGui::IsItemHovered())
                                         {
                                             ImGui::BeginTooltip();
-                                            ImGui::TextDisabled(rec.label.c_str());
+                                            ImGui::TextDisabled("%s", rec.label.c_str());
                                             ImGui::TextDisabled("ID: %s", std::to_string(rec.id).c_str());
                                             ImGui::EndTooltip();
                                         }

@@ -39,7 +39,7 @@ using namespace sofa;
 
 void BaseDataWidget::showWidgetAsText(sofa::core::objectmodel::BaseData& data)
 {
-    ImGui::TextWrapped(data.getValueString().c_str());
+    ImGui::TextWrapped("%s", data.getValueString().c_str());
 }
 
 template<>
@@ -642,7 +642,7 @@ Data<linearalgebra::CompressedRowSparseMatrixConstraint<TBlock, TPolicy>>& data)
 {
     std::stringstream ss;
     data.getValue().prettyPrint(ss);
-    ImGui::TextWrapped(ss.str().c_str());
+    ImGui::TextWrapped("%s", ss.str().c_str());
 }
 
 template<>

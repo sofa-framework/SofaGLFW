@@ -158,9 +158,9 @@ namespace windows
 
                             const auto colorIt = colorMap.find(entry.category);
                             if (colorIt != colorMap.end())
-                                ImGui::TextColored(colorIt->second, colorIt->first.c_str());
+                                ImGui::TextColored(colorIt->second, "%s", colorIt->first.c_str());
                             else
-                                ImGui::Text(entry.category.c_str());
+                                ImGui::Text("%s", entry.category.c_str());
                         }
                         ImGui::EndTable();
                     }
@@ -172,7 +172,7 @@ namespace windows
                         ImGui::Text("Name: %s", selectedEntry->className.c_str());
                         ImGui::Spacing();
                         ImGui::TextDisabled("Description:");
-                        ImGui::TextWrapped(selectedEntry->description.c_str());
+                        ImGui::TextWrapped("%s", selectedEntry->description.c_str());
                         ImGui::Spacing();
 
                         bool hasTemplate = false;
@@ -188,7 +188,7 @@ namespace windows
                             ImGui::TextDisabled("Templates:");
                             for (const auto& [templateInstance, creator] : selectedEntry->creatorMap)
                             {
-                                ImGui::BulletText(templateInstance.c_str());
+                                ImGui::BulletText("%s", templateInstance.c_str());
                             }
                         }
 
@@ -198,7 +198,7 @@ namespace windows
                             ImGui::TextDisabled("Aliases:");
                             for (const auto& alias : selectedEntry->aliases)
                             {
-                                ImGui::BulletText(alias.c_str());
+                                ImGui::BulletText("%s", alias.c_str());
                             }
                         }
 
@@ -213,7 +213,7 @@ namespace windows
                             ImGui::TextDisabled("Namespaces:");
                             for (const auto& nm : namespaces)
                             {
-                                ImGui::BulletText(nm.c_str());
+                                ImGui::BulletText("%s", nm.c_str());
                             }
                         }
 
@@ -231,7 +231,7 @@ namespace windows
                             ImGui::TextDisabled("Parents:");
                             for (const auto& p : parents)
                             {
-                                ImGui::BulletText(p.c_str());
+                                ImGui::BulletText("%s", p.c_str());
                             }
                         }
 
@@ -246,7 +246,7 @@ namespace windows
                             ImGui::TextDisabled("Targets:");
                             for (const auto& t : targets)
                             {
-                                ImGui::BulletText(t.c_str());
+                                ImGui::BulletText("%s", t.c_str());
                             }
                         }
 
@@ -296,11 +296,11 @@ namespace windows
                                         if (ImGui::CollapsingHeader(data.first.c_str()))
                                         {
                                             ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-                                            ImGui::TextWrapped(data.second.description.c_str());
+                                            ImGui::TextWrapped("%s", data.second.description.c_str());
                                             const std::string defaultValue = "default value: " + data.second.defaultValue;
-                                            ImGui::TextWrapped(defaultValue.c_str());
+                                            ImGui::TextWrapped("%s", defaultValue.c_str());
                                             const std::string type = "type: " + data.second.type;
-                                            ImGui::TextWrapped(type.c_str());
+                                            ImGui::TextWrapped("%s", type.c_str());
 
                                             ImGui::PopStyleColor();
                                         }

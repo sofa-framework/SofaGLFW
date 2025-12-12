@@ -650,8 +650,8 @@ int SofaGLFWBaseGUI::handleArrowKeys(int key)
 
 void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    [[maybe_unused]] int unused_scancode = scancode;
-    [[maybe_unused]] int unused_mods = mods;
+    SOFA_UNUSED(scancode);
+    SOFA_UNUSED(mods);
 
     const char keyName = handleArrowKeys(key);
     const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
