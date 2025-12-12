@@ -653,6 +653,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
 
     const char keyName = handleArrowKeys(key);
     const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+    const bool isShiftKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS;
 
     const bool foundGUI = s_mapGUIs.contains(window);
     if (!foundGUI)
@@ -671,7 +672,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
         return;
     }
 
-    if (isCtrlKeyPressed)
+    // Key events are forwarded to SOFA using: CTRL + SHIFT
+    if (isCtrlKeyPressed && isShiftKeyPressed)
     {
         if (action == GLFW_PRESS)
         {
@@ -688,34 +690,6 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     // Handle specific keys for additional functionality
     switch (key)
     {
-        case GLFW_KEY_B:
-            if (action == GLFW_PRESS)
-            {
-                currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
-                switch (currentGUI->m_backgroundID)
-                {
-                    case 0:
-                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
-                        break;
-                    case 1:
-                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
-                        break;
-                    case 2:
-                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
-                        break;
-                    case 3:
-                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
-                        break;
-                }
-                break;
-            }
-            break;
-        case GLFW_KEY_F:
-            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
-            {
-                currentGUI->switchFullScreen(window);
-            }
-            break;
         case GLFW_KEY_F11:
             if (action == GLFW_PRESS)
             {
@@ -748,45 +722,76 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                 }
             }
             break;
-        case GLFW_KEY_R:
-            if (action == GLFW_PRESS && isCtrlKeyPressed)
-            {
-                // Reload using CTRL + R
-                sofa::simulation::NodeSPtr groot = currentGUI->groot;
-                std::string filename = currentGUI->getSceneFileName();
-
-                if (!filename.empty() && helper::system::FileSystem::exists(filename))
-                {
-                    msg_info("GUI") << "Reloading file " << filename;
-                    sofa::simulation::node::unload(groot);
-
-                    groot = sofa::simulation::node::load(filename.c_str());
-                    if( !groot )
-                        groot = sofa::simulation::getSimulation()->createNewGraph("");
-
-                    currentGUI->setSimulation(groot, filename);
-                    currentGUI->load();
-                    currentGUI->setWindowTitle(nullptr, std::string("SOFA - " + filename).c_str());
-
-                    sofa::simulation::node::initRoot(groot.get());
-                    if (currentGUI->currentCamera)
-                    {
-                        currentGUI->currentCamera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
-                        currentGUI->changeCamera(currentGUI->currentCamera);
-                    }
-
-                    node::initTextures(groot.get());
-
-                    currentGUI->m_guiEngine->resetCounter();
-
-                    // update camera if a sidecar file is present
-                    currentGUI->restoreCamera(currentGUI->currentCamera);
-                }
-            }
-
-
         default:
             break;
+    }
+    // List of regular GUI interactions
+    // (to be used with the control key pressed)
+    if(isCtrlKeyPressed)
+    {
+        switch (key)
+        {
+            // B: Switch background
+            case GLFW_KEY_B:
+                if (action == GLFW_PRESS)
+                {
+                    currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
+                    switch (currentGUI->m_backgroundID)
+                    {
+                        case 0:
+                            currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+                            break;
+                        case 1:
+                            currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
+                            break;
+                        case 2:
+                            currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
+                            break;
+                        case 3:
+                            currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
+                            break;
+                    }
+                    break;
+                }
+                break;
+            // R: Reload the file
+            case GLFW_KEY_R:
+                if (action == GLFW_PRESS)
+                {
+                    sofa::simulation::NodeSPtr groot = currentGUI->groot;
+                    std::string filename = currentGUI->getSceneFileName();
+
+                    if (!filename.empty() && helper::system::FileSystem::exists(filename))
+                    {
+                        msg_info("GUI") << "Reloading file " << filename;
+                        sofa::simulation::node::unload(groot);
+
+                        groot = sofa::simulation::node::load(filename.c_str());
+                        if( !groot )
+                            groot = sofa::simulation::getSimulation()->createNewGraph("");
+
+                        currentGUI->setSimulation(groot, filename);
+                        currentGUI->load();
+                        currentGUI->setWindowTitle(nullptr, std::string("SOFA - " + filename).c_str());
+
+                        sofa::simulation::node::initRoot(groot.get());
+                        if (currentGUI->currentCamera)
+                        {
+                            currentGUI->currentCamera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+                            currentGUI->changeCamera(currentGUI->currentCamera);
+                        }
+
+                        node::initTextures(groot.get());
+
+                        currentGUI->m_guiEngine->resetCounter();
+
+                        // update camera if a sidecar file is present
+                        currentGUI->restoreCamera(currentGUI->currentCamera);
+                    }
+                }
+            default:
+                break;
+        }
     }
 }
 
