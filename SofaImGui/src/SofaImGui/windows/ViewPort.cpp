@@ -129,24 +129,7 @@ namespace windows
                         }
                         if (ImGui::Selectable(ICON_FA_UP_DOWN_LEFT_RIGHT "  Show Axis"))
                         {
-                            auto axis = groot->get<sofa::component::visual::LineAxis>(createdByGuiTag);
-                            if (!axis)
-                            {
-                                auto newAxis = sofa::core::objectmodel::New<sofa::component::visual::LineAxis>();
-                                groot->addObject(newAxis);
-                                newAxis->setName("viewportAxis");
-                                newAxis->addTag(createdByGuiTag);
-                                newAxis->d_enable.setValue(true);
-                                auto box = groot->f_bbox.getValue().maxBBox() - groot->f_bbox.getValue().minBBox();
-                                newAxis->d_size.setValue(*std::max_element(box.begin(), box.end()));
-                                newAxis->d_infinite.setValue(true);
-                                newAxis->d_vanishing.setValue(true);
-                                newAxis->init();
-                            }
-                            else
-                            {
-                                axis->d_enable.setValue(!axis->d_enable.getValue());
-                            }
+                            sofaglfw::SofaGLFWBaseGUI::triggerSceneAxis(groot);
                         }
                         if (ImGui::Selectable(ICON_FA_SQUARE_FULL "  Show Frame"))
                         {
