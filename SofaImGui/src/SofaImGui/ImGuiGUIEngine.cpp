@@ -306,6 +306,40 @@ void ImGuiGUIEngine::resetCounter()
     m_screenshotCounter = 0;
 }
 
+void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
+{
+    nfdchar_t *outPath;
+    std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
+    const auto sceneFilename = baseGUI->getSceneFileName();
+    std::string baseFilename{};
+    if (!sceneFilename.empty())
+    {
+        std::filesystem::path path(sceneFilename);
+        baseFilename = path.stem().string();
+    }
+    
+    std::ostringstream oss{};
+    oss << baseFilename << "_" << std::setfill('0') << std::setw(4) << m_screenshotCounter << ".png";
+    m_screenshotCounter++;
+
+    nfdresult_t result = NFD_SaveDialog(&outPath,
+        filterItem.data(), filterItem.size(), nullptr, oss.str().c_str());
+    if (result == NFD_OKAY)
+    {
+        helper::io::STBImage image;
+        image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
+
+        glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
+
+        // Read the pixel data from the OpenGL texture
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        image.save(outPath, 90);
+    }
+}
+
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     m_localeBackup = std::setlocale(LC_NUMERIC, nullptr);
@@ -486,7 +520,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 baseGUI->switchFullScreen();
             }
             ImGui::Separator();
-            if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_CROSSHAIRS"  Center Camera"))
+            if (ImGui::MenuItem(ICON_FA_CROSSHAIRS"  Center Camera"))
             {
                 sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
@@ -504,7 +538,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
 
             const std::string viewFileName = baseGUI->getSceneFileName() + std::string(baseGUI->getCameraFileExtension());
-            if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_RIGHT"  Save Camera"))
+            if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK"  Save Camera"))
             {
                 sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
@@ -522,7 +556,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
             bool fileExists = sofa::helper::system::FileSystem::exists(viewFileName);
             ImGui::BeginDisabled(!fileExists);
-            if (ImGui::MenuItem(ICON_FA_CAMERA ICON_FA_ARROW_LEFT"  Restore Camera"))
+            if (ImGui::MenuItem(ICON_FA_CAMERA_ROTATE"  Restore Camera"))
             {
                 sofa::component::visual::BaseCamera::SPtr camera;
                 groot->get(camera);
@@ -532,38 +566,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::EndDisabled();
 
             ImGui::Separator();
-            if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK"  Save Screenshot"))
+            if (ImGui::MenuItem(ICON_FA_CAMERA"  Save Screenshot"))
             {
-                nfdchar_t *outPath;
-                std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
-                const auto sceneFilename = baseGUI->getSceneFileName();
-                std::string baseFilename{};
-                if (!sceneFilename.empty())
-                {
-                    std::filesystem::path path(sceneFilename);
-                    baseFilename = path.stem().string();
-                }
-                
-                std::ostringstream oss{};
-                oss << baseFilename << "_" << std::setfill('0') << std::setw(4) << m_screenshotCounter << ".png";
-                m_screenshotCounter++;
-
-                nfdresult_t result = NFD_SaveDialog(&outPath,
-                    filterItem.data(), filterItem.size(), nullptr, oss.str().c_str());
-                if (result == NFD_OKAY)
-                {
-                    helper::io::STBImage image;
-                    image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
-
-                    glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
-
-                    // Read the pixel data from the OpenGL texture
-                    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
-
-                    glBindTexture(GL_TEXTURE_2D, 0);
-
-                    image.save(outPath, 90);
-                }
+                saveScreenshot(baseGUI);
             }
             ImGui::Separator();
             if (ImGui::MenuItem(ICON_FA_ARROWS_ROTATE  "  Reset UI Layout"))

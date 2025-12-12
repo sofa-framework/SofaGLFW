@@ -88,10 +88,19 @@ namespace windows
                 pos.x += 10;
                 pos.y += 40;
                 ImGui::SetNextWindowPos(pos);
+
                 static const auto createdByGuiTag = sofa::core::objectmodel::Tag("createdByGUI");
 
                 if (ImGui::Begin("viewportSettingsMenuWindow", winManagerViewPort.getStatePtr(), window_flags))
                 {
+
+                    if (ImGui::Button(ICON_FA_CAMERA))
+                    {
+                        auto guiEnginePtr = std::static_pointer_cast<sofaimgui::ImGuiGUIEngine>(baseGUI->getGUIEngine());
+                        if (guiEnginePtr)
+                            guiEnginePtr->saveScreenshot(baseGUI);
+                    }
+                    
                     if (ImGui::Button(ICON_FA_GEAR))
                     {
                         ImGui::OpenPopup("viewportSettingsMenu");
