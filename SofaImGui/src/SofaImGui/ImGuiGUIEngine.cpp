@@ -52,7 +52,6 @@
 #include "windows/Settings.h"
 #include "windows/ViewPort.h"
 #include "windows/WindowState.h"
-#include <IconsFontAwesome4.h>
 #include <IconsFontAwesome6.h>
 #include <Roboto-Medium.h>
 #include <SofaImGui/ImGuiDataWidget.h>
@@ -78,7 +77,6 @@
 #include <sofa/helper/io/File.h>
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/helper/system/PluginManager.h>
-#include <sofa/simulation/Node.h>
 
 #include <clocale>
 
@@ -128,7 +126,7 @@ void ImGuiGUIEngine::init()
     ini.SetUnicode();
     if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getAppIniFile()))
     {
-        SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        [[maybe_unused]] SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
         msg_info("ImGuiGUIEngine") << "Fetching settings from " << sofaimgui::AppIniFile::getAppIniFile();
     }
@@ -306,6 +304,57 @@ void ImGuiGUIEngine::resetCounter()
     m_screenshotCounter = 0;
 }
 
+void ImGuiGUIEngine::openFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot)
+{
+    simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
+    std::vector<std::pair<std::string, std::string> > filterList;
+    filterList.reserve(loaders->size());
+    std::pair<std::string, std::string> allFilters {"SOFA files", {} };
+    for (auto it=loaders->begin(); it!=loaders->end(); ++it)
+    {
+        const auto filterName = (*it)->getFileTypeDesc();
+
+        sofa::simulation::SceneLoader::ExtensionList extensions;
+        (*it)->getExtensionList(&extensions);
+        std::string extensionsString;
+        for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
+        {
+            extensionsString += *itExt;
+            std::cout << *itExt << std::endl;
+            if (itExt != extensions.end() - 1)
+            {
+                extensionsString += ",";
+            }
+        }
+
+        filterList.emplace_back(filterName, extensionsString);
+
+        allFilters.second += extensionsString;
+        if (it != loaders->end()-1)
+        {
+            allFilters.second += ",";
+        }
+    }
+    std::vector<nfdfilteritem_t> nfd_filters;
+    nfd_filters.reserve(filterList.size() + 1);
+    for (auto& f : filterList)
+    {
+        nfd_filters.push_back({f.first.c_str(), f.second.c_str()});
+    }
+    nfd_filters.insert(nfd_filters.begin(), {allFilters.first.c_str(), allFilters.second.c_str()});
+
+    nfdchar_t *outPath;
+    nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
+    if (result == NFD_OKAY)
+    {
+        if (helper::system::FileSystem::exists(outPath))
+        {
+            loadFile(baseGUI, groot, outPath, false);
+        }
+        NFD_FreePath(outPath);
+    }
+}
+
 void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     nfdchar_t *outPath;
@@ -431,53 +480,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         {
             if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN "  Open Simulation"))
             {
-                simulation::SceneLoaderFactory::SceneLoaderList* loaders =simulation::SceneLoaderFactory::getInstance()->getEntries();
-                std::vector<std::pair<std::string, std::string> > filterList;
-                filterList.reserve(loaders->size());
-                std::pair<std::string, std::string> allFilters {"SOFA files", {} };
-                for (auto it=loaders->begin(); it!=loaders->end(); ++it)
-                {
-                    const auto filterName = (*it)->getFileTypeDesc();
-
-                    sofa::simulation::SceneLoader::ExtensionList extensions;
-                    (*it)->getExtensionList(&extensions);
-                    std::string extensionsString;
-                    for (auto itExt=extensions.begin(); itExt!=extensions.end(); ++itExt)
-                    {
-                        extensionsString += *itExt;
-                        std::cout << *itExt << std::endl;
-                        if (itExt != extensions.end() - 1)
-                        {
-                            extensionsString += ",";
-                        }
-                    }
-
-                    filterList.emplace_back(filterName, extensionsString);
-
-                    allFilters.second += extensionsString;
-                    if (it != loaders->end()-1)
-                    {
-                        allFilters.second += ",";
-                    }
-                }
-                std::vector<nfdfilteritem_t> nfd_filters;
-                nfd_filters.reserve(filterList.size() + 1);
-                for (auto& f : filterList)
-                {
-                    nfd_filters.push_back({f.first.c_str(), f.second.c_str()});
-                }
-                nfd_filters.insert(nfd_filters.begin(), {allFilters.first.c_str(), allFilters.second.c_str()});
-
-                nfdchar_t *outPath;
-                nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
-                if (result == NFD_OKAY)
-                {
-                    if (helper::system::FileSystem::exists(outPath))
-                    {
-                        loadFile(baseGUI, groot, outPath, false);
-                    }
-                    NFD_FreePath(outPath);
-                }
+                msg_info("GUI") << "Open file";
+                openFile(baseGUI, groot);
             }
 
             const auto filename = baseGUI->getSceneFileName();
