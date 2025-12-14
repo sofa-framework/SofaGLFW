@@ -71,6 +71,9 @@ public:
     sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) override;
 
 
+    // save screenshot
+    void saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI);
+
 protected:
     std::unique_ptr<sofa::gl::FrameBufferObject> m_fbo;
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
