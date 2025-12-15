@@ -188,8 +188,6 @@ namespace windows
                         }
                         if (ImGui::BeginMenu(ICON_FA_ARROW_POINTER " Selection parameters"))
                         {
-
-
                             ImGui::Checkbox("Enable selection drawing", &baseGUI->m_enableSelectionDraw);
                             ImGui::Checkbox("Show Node bounding box", &baseGUI->m_showSelectedNodeBoundingBox);
                             ImGui::Checkbox("Show Object bounding box", &baseGUI->m_showSelectedObjectBoundingBox);
