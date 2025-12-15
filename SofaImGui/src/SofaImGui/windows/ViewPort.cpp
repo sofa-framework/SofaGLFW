@@ -32,6 +32,9 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include "ViewPort.h"
 #include "SofaGLFW/SofaGLFWBaseGUI.h"
+#include <SofaImGui/widgets/DisplayFlagsWidget.h>
+#include <sofa/component/visual/VisualStyle.h>
+
 #include <iomanip>
 namespace windows
 {
@@ -193,6 +196,13 @@ namespace windows
                             ImGui::Checkbox("Show Object volume", &baseGUI->m_showSelectedObjectVolumes);
                             ImGui::Checkbox("Show Object indices", &baseGUI->m_showSelectedObjectIndices);
                             ImGui::InputFloat("Visual scaling", &baseGUI->m_visualScaling);
+                            ImGui::EndMenu();
+                        }
+                        sofa::component::visual::VisualStyle::SPtr visualStyle = nullptr;
+                        groot->get(visualStyle);
+                        if (visualStyle && ImGui::BeginMenu(ICON_FA_EYE " Display flags"))
+                        {
+                            sofaimgui::showDisplayFlagsWidget(visualStyle->d_displayFlags);
                             ImGui::EndMenu();
                         }
 
