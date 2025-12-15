@@ -76,4 +76,4 @@ namespace windows
 
         constexpr float precisionThreshold = 1.0f;
 
-} // namespace sofaimgui
+} // namespace windows

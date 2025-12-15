@@ -50,7 +50,12 @@
 
 #include <sofa/helper/ScopedAdvancedTimer.h>
 
+#if SOFAGLFW_HAVE_FFMPEG == 1
+#include <SofaGLFW/utils/VideoEncoderFFMPEG.h>
+#endif
+
 #include <algorithm>
+#include <filesystem>
 
 using namespace sofa;
 using namespace sofa::gui::common;
@@ -71,6 +76,9 @@ namespace sofaglfw
 SofaGLFWBaseGUI::SofaGLFWBaseGUI()
 {
     m_guiEngine = std::make_shared<NullGUIEngine>();
+#if SOFAGLFW_HAVE_FFMPEG == 1
+    m_videoEncoder = std::make_unique<VideoEncoderFFMPEG>();
+#endif
 }
 
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
@@ -503,12 +511,18 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
                     m_guiEngine->startFrame(this);
                     m_guiEngine->endFrame();
+                    
+                    m_viewPortHeight = m_vparams->viewport()[3];
+                    m_viewPortWidth = m_vparams->viewport()[2];
+                    
+                    // Read framebuffer
+                    if(this->groot->getAnimate() && this->m_bVideoRecording)
+                    {
+                        this->encodeFrame();
+                    }
 
                     glfwSwapBuffers(glfwWindow);
 
-
-                    m_viewPortHeight = m_vparams->viewport()[3];
-                    m_viewPortWidth = m_vparams->viewport()[2];
                 }
                 else
                 {
@@ -625,6 +639,11 @@ void SofaGLFWBaseGUI::terminate()
     if (m_guiEngine)
         m_guiEngine->terminate();
 
+    if(m_videoEncoder)
+    {
+        m_videoEncoder->finish();
+    }
+    
     glfwTerminate();
 }
 
@@ -692,6 +711,40 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     // Handle specific keys for additional functionality
     switch (key)
     {
+        case GLFW_KEY_B:
+            if (action == GLFW_PRESS)
+            {
+                currentGUI->m_backgroundID = (currentGUI->m_backgroundID + 1) % 4;
+                switch (currentGUI->m_backgroundID)
+                {
+                    case 0:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+                        break;
+                    case 1:
+                        currentGUI->setWindowBackgroundImage("textures/SOFA_logo_white.bmp", 0);
+                        break;
+                    case 2:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::black());
+                        break;
+                    case 3:
+                        currentGUI->setWindowBackgroundColor(sofa::type::RGBAColor::white());
+                        break;
+                }
+                break;
+            }
+            break;
+        case GLFW_KEY_F:
+            if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL))
+            {
+                currentGUI->switchFullScreen(window);
+            }
+            break;
+        case GLFW_KEY_V:
+            if (action == GLFW_PRESS)
+            {
+                currentGUI->toggleVideoRecording();
+            }
+            break;
         // F11 goes fullscreen
         case GLFW_KEY_F11:
             if (action == GLFW_PRESS)
@@ -1129,6 +1182,62 @@ bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
     }
 
     return true;
+}
+
+
+void SofaGLFWBaseGUI::encodeFrame()
+{
+    if(!m_videoEncoder)
+    {
+        return;
+    }
+    
+    std::vector<uint8_t> pixels;
+    const auto [width, height] = this->m_guiEngine->getFrameBufferPixels(pixels);
+    
+    if(!m_videoEncoder->isInitialized())
+    {
+        using sofa::helper::system::FileSystem;
+        std::string baseSceneFilename{};
+        if (!this->getSceneFileName().empty())
+        {
+            std::filesystem::path path(this->getSceneFileName());
+            baseSceneFilename = path.stem().string();
+        }
+        
+        const auto videoDirectory = FileSystem::append(sofa::helper::Utils::getSofaDataDirectory(), "recordings");
+        FileSystem::ensureFolderExists(videoDirectory);
+        
+        const std::string currentTimeString = [](){ auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()); std::ostringstream oss; oss << std::put_time(std::localtime(&t), "%Y%m%d%H%M%S"); return oss.str(); }();
+        
+        const std::string videoExtension = ".mp4";
+        const auto videoFilename = baseSceneFilename + "_" + currentTimeString + videoExtension;
+        const auto videoPath = FileSystem::append(videoDirectory,videoFilename);
+        
+        // assuming that the video path is unique and does not exist
+        // it would overwrite otherwise
+        constexpr int nbFramePerSecond = 60;
+        if(m_videoEncoder->init(videoPath.c_str(), width, height, nbFramePerSecond))
+        {
+            msg_info("SofaGLFWBaseGUI") << "Writting in " << videoPath;
+        }
+        else
+        {
+            msg_error("SofaGLFWBaseGUI") << "Error while trying to write in " << videoPath;
+            return;
+        }
+    }
+    
+    
+    // Flip vertically (OpenGL has origin at bottom-left)
+    std::vector<uint8_t> flipped(width * height * 3);
+    for (int y = 0; y < height; y++) {
+        memcpy(&flipped[y * width * 3],
+               &pixels[(height - 1 - y) * width * 3],
+               width * 3);
+    }
+    
+    m_videoEncoder->encodeFrame(flipped.data(), width, height);
 }
 
 } // namespace sofaglfw

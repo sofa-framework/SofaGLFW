@@ -32,6 +32,7 @@
 #include <memory>
 
 #include <SofaGLFW/SofaGLFWMouseManager.h>
+#include <SofaGLFW/utils/VideoEncoder.h>
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -113,6 +114,30 @@ public:
         return m_guiEngine;
     }
     void moveRayPickInteractor(int eventX, int eventY) override ;
+    
+    void toggleVideoRecording()
+    {
+        if(m_videoEncoder)
+        {
+            m_bVideoRecording = !m_bVideoRecording;
+            if(m_bVideoRecording)
+            {
+                msg_info("SofaGLFWBaseGUI") << "Start recording";
+            }
+            else
+            {
+                msg_info("SofaGLFWBaseGUI") << "End recording";
+            }
+        }
+    }
+
+    bool isVideoRecording() const
+    {
+        return m_bVideoRecording;
+    }
+
+    
+    void encodeFrame();
 
     static void triggerSceneAxis(sofa::simulation::NodeSPtr groot);
 
@@ -160,6 +185,9 @@ private:
     std::size_t m_backgroundID{0};
 
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
+    
+    bool m_bVideoRecording {false};
+    std::unique_ptr<VideoEncoder> m_videoEncoder;
 };
 
 } // namespace sofaglfw

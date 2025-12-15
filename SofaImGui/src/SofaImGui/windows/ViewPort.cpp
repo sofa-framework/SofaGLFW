@@ -100,6 +100,22 @@ namespace windows
                         if (guiEnginePtr)
                             guiEnginePtr->saveScreenshot(baseGUI);
                     }
+
+                    if(baseGUI->isVideoRecording())
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(255, 0, 0)));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(ImColor(255, 0, 0)));
+                    }
+                    else
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+                    }
+                    if (ImGui::Button(ICON_FA_VIDEO))
+                    {
+                        baseGUI->toggleVideoRecording();
+                    }
+                    ImGui::PopStyleColor(2);
                     
                     if (ImGui::Button(ICON_FA_GEAR))
                     {

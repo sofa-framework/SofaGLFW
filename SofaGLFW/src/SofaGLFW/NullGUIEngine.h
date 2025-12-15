@@ -43,6 +43,7 @@ public:
     bool isTerminated() const override { return false; };
     bool dispatchMouseEvents() override;
     void resetCounter() override;
+    sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) override;
 };
 
 } // namespace sofaglfw

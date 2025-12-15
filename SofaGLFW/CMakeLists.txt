@@ -40,6 +40,24 @@ elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES
 
 endif()
 
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+
+    pkg_check_modules(FFMPEG IMPORTED_TARGET
+        libavcodec
+        libavformat
+        libavutil
+        libswscale
+        libswresample
+    )
+endif()
+
+if(TARGET PkgConfig::FFMPEG)
+    message("Enabling the Video Recorder for GLFW.")
+else()
+    message("Disabling the Video Recorder for GLFW. PkgConfig and libav libraries are required to enable the Video Recorder.")
+endif()
+
 
 set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 
@@ -51,6 +69,7 @@ set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWMouseManager.h
+    ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoder.h
 )
 
 set(SOURCE_FILES
@@ -64,6 +83,11 @@ set(SOURCE_FILES
 if(Sofa.GUI.Common_FOUND)
     LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.h)
     LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/SofaGLFWGUI.cpp)
+endif()
+
+if(TARGET PkgConfig::FFMPEG)
+    LIST(APPEND HEADER_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoderFFMPEG.h)
+    LIST(APPEND SOURCE_FILES ${SOFAGLFW_SOURCE_DIR}/utils/VideoEncoderFFMPEG.cpp)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
@@ -82,6 +106,11 @@ endif()
 sofa_find_package(SofaPython3 QUIET)
 if(SofaPython3_FOUND)
     add_subdirectory(bindings)
+endif()
+
+if(TARGET PkgConfig::FFMPEG)
+    target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::FFMPEG)
+    set(SOFAGLFW_HAVE_FFMPEG 1)
 endif()
 
 add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")

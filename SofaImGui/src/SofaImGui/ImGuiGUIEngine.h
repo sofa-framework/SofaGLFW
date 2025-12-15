@@ -66,6 +66,8 @@ public:
 
     // reset counters
     void resetCounter() override;
+    
+    sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) override;
 
     // open file
     void openFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot) override;

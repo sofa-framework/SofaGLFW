@@ -20,36 +20,41 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+
 #include <SofaGLFW/config.h>
-#include <sofa/simulation/Node.h>
+#include <SofaGLFW/utils/VideoEncoder.h>
 
-#include <sofa/type/fwd.h>
-#include <vector>
-
-struct GLFWwindow;
+struct AVFormatContext;
+struct AVCodecContext;
+struct AVStream;
+struct AVFrame;
+struct AVPacket;
+struct SwsContext;
 
 namespace sofaglfw
 {
 
-class SofaGLFWBaseGUI;
-
-class BaseGUIEngine
+class VideoEncoderFFMPEG : public VideoEncoder
 {
 public:
+    VideoEncoderFFMPEG() = default;
+    ~VideoEncoderFFMPEG() = default;
     
-    virtual void init() = 0;
-    virtual void initBackend(GLFWwindow*) = 0;
-    virtual void startFrame(SofaGLFWBaseGUI*) = 0;
-    virtual void endFrame() = 0;
-    virtual void beforeDraw(GLFWwindow* window) = 0;
-    virtual void afterDraw() = 0;
-    virtual void terminate() = 0;
-    virtual bool isTerminated() const = 0;
-    virtual bool dispatchMouseEvents() = 0;
-    virtual void resetCounter() = 0;
-    virtual sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) = 0;
-    virtual void openFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot) {};
-    virtual void loadFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false) {};
+    bool init(const char* filename, int width, int height, int fps) override;
+    void encodeFrame(uint8_t* rgbData, int width, int height) override;
+    void finish() override;
+    
+private:
+    AVFormatContext* m_fmtCtx = nullptr;
+    AVCodecContext* m_codecCtx = nullptr;
+    AVStream* m_stream = nullptr;
+    AVFrame* m_frame = nullptr;
+    AVPacket* m_pkt = nullptr;
+    SwsContext* m_swsCtx = nullptr;
+    int m_frameCount = 0;
+    int m_encoderWidth = 0;
+    int m_encoderHeight = 0;
+    
 };
 
 } // namespace sofaglfw
