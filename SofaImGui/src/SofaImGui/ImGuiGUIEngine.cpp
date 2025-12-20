@@ -267,6 +267,8 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
             msg_error("ImGuiGUIEngine") << "Cannot set window size from settings.";
         }
     }
+    
+    glGenBuffers(s_NB_PBOS, m_pbos);
 }
 
 void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, const std::string filePathName, bool reload)
@@ -393,7 +395,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     m_localeBackup = std::setlocale(LC_NUMERIC, nullptr);
     std::setlocale(LC_NUMERIC, "C.UTF-8");
-
 
     auto groot = baseGUI->getRootNode();
 
@@ -772,7 +773,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::RenderPlatformWindowsDefault();
     }
 
-
+    m_frameCount++;
 
 }
 
@@ -860,6 +861,8 @@ void ImGuiGUIEngine::terminate()
         [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
 
         NFD_Quit();
+        
+        glDeleteBuffers(s_NB_PBOS, m_pbos);
 
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
         ImGui_ImplOpenGL2_Shutdown();
@@ -899,14 +902,49 @@ void ImGuiGUIEngine::setScale(double globalScale, GLFWmonitor* monitor)
 
 type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
 {
+    int readIndex = m_frameCount % s_NB_PBOS;
+    int processIndex = (m_frameCount + 1) % s_NB_PBOS;
+    
     m_fbo->start();
+    
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-    pixels.resize(viewport[2] * viewport[3] * 3);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
-    m_fbo->stop();
     
+    if(m_pboSize[0] != viewport[2] || m_pboSize[1] != viewport[3])
+    {
+        // Size for your frame (e.g., 1920x1080 RGB)
+        int size = viewport[2] * viewport[3] * 3;
+
+        for (int i = 0; i < s_NB_PBOS; i++) {
+            glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[i]);
+            glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_READ);
+        }
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+        
+        m_pboSize[0] = viewport[2];
+        m_pboSize[1] = viewport[3];
+    }
+    
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    
+    // Read to PBO (asynchronous)
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[readIndex]);
+    glReadPixels(0, 0, viewport[2], viewport[3], GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    // Map and process previous frame
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[processIndex]);
+    void* data = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+    if (data)
+    {
+        int size = viewport[2] * viewport[3] * 3;
+        pixels.resize(size);
+        memcpy(pixels.data(), data, size);
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    }
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+    
+    m_fbo->stop();
+        
     return {viewport[2], viewport[3]};
 }
 
