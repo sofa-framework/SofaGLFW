@@ -409,7 +409,7 @@ namespace windows
                     ImGui::EndTable();
                 }
 
-                if (clickedObject)
+                if (clickedObject && *winManagerSceneGraph.getStatePtr())
                 {
                     if(!currentSelection.contains(clickedObject)){
                         currentSelection.clear();
