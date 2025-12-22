@@ -71,16 +71,6 @@ elseif (NOT SimpleIni::SimpleIni)
     message(FATAL_ERROR "{PROJECT_NAME}: SimpleIni not found and SOFA_ALLOW_FETCH_DEPENDENCIES is OFF and thus cannot be fetched. Install SimpleIni, or enable SOFA_ALLOW_FETCH_DEPENDENCIES to fix this issue.")
 endif()
 
-set(IMGUI_HEADER_FILES
-    ${ImPlot_SOURCE_DIR}/implot.h
-    ${ImPlot_SOURCE_DIR}/implot_internal.h
-    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome4.h
-    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome6.h
-    resources/fa-regular-400.h
-    resources/fa-solid-900.h
-    resources/Roboto-Medium.h
-    resources/Style.h
-)
 set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
@@ -156,7 +146,7 @@ set(SOURCE_FILES
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${ImPlot_SOURCE_DIR} ${IconFontCppHeaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${IMGUI_SOURCE_DIR}>")
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd)
