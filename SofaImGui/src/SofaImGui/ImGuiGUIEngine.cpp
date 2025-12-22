@@ -80,6 +80,13 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
+#include <sofa/core/objectmodel/SnapshotFactory.h>
+using sofa::core::objectmodel::SnapshotType;
+
+#include <sofa/simulation/SnapshotVisitor.h>
+using sofa::simulation::SnapshotVisitor;
+
+
 #include <clocale>
 
 
@@ -431,7 +438,35 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 sofa::simulation::node::initRoot(baseGUI->getRootNode().get());
                 return;
             }
+
             ImGui::Separator();
+
+            if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Save Snapshot"))
+            {
+                // sofa::core::objectmodel::Base* b;
+                
+                auto JSONSnapCont = createSnapshot(SnapshotType::JSON);
+                auto visitor = SnapshotVisitor(nullptr,*JSONSnapCont);
+                groot->execute(visitor);
+                JSONSnapCont->exportToJSON();
+                return;
+
+                // Node* root = c.root.get() ;
+                // auto JSONSnapCont = createSnapshot(SnapshotType::JSON);
+                // auto visitor = SnapshotVisitor(nullptr,*JSONSnapCont);
+                // root->execute(visitor);
+                // JSONSnapCont->exportToJSON();
+                // sofa::simulation::node::animate(groot.get(), groot->getDt());
+                // sofa::simulation::node::updateVisual(groot.get());
+            }
+
+            if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Load Snapshot"))
+            {
+                return;
+            }
+
+            ImGui::Separator();
+
             if (ImGui::MenuItem("Exit"))
             {
                 this->terminate();
