@@ -23,6 +23,7 @@
 
 #include <sofa/simulation/Node.h>
 #include "WindowState.h"
+#include <SimpleIni.h>
 
 namespace sofaimgui
 {
