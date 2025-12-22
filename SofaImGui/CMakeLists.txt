@@ -126,6 +126,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/RigidMass.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/ScalarWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.cpp

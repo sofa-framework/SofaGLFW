@@ -21,24 +21,19 @@
 ******************************************************************************/
 #pragma once
 #include <sofa/core/objectmodel/Data.h>
+#include <imgui.h>
 
 namespace sofaimgui
 {
 
-inline bool showScalarWidget(const std::string& label, const std::string& id, float& value);
-
-inline bool showScalarWidget(const std::string& label, const std::string& id, double& value);
-
-template<typename Scalar>
-void showScalarWidget(sofa::Data<Scalar>& data)
+bool showScalarWidget(const std::string& label, const std::string& id, float& value)
 {
-    Scalar initialValue = data.getValue();
-    const auto& label = data.getName();
-    const auto id = data.getName() + data.getOwner()->getPathName();
-    if (showScalarWidget(label, id, initialValue))
-    {
-        data.setValue(initialValue);
-    }
+    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
+}
+
+bool showScalarWidget(const std::string& label, const std::string& id, double& value)
+{
+    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
 }
 
 }
