@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <ostream>
 #include <unordered_set>
+#include <type_traits>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 #include <sofa/core/CategoryLibrary.h>
@@ -781,8 +782,9 @@ void ImGuiGUIEngine::endFrame()
     std::setlocale(LC_NUMERIC, m_localeBackup.c_str());
 }
 
-void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char* winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport)
+void ImGuiGUIEngine::resetView(_ImGuiID dockspace_id, const char* windowNameSceneGraph, const char* winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport)
 {
+    static_assert(std::is_same<_ImGuiID, ImGuiID>::value, "_ImGuiID and ImGuiID types must be identical. _ImGuiID must be adjusted.");
     ImGuiViewport* viewport = ImGui::GetMainViewport();
 
     ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout

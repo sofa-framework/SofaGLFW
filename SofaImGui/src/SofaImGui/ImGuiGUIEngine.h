@@ -29,7 +29,6 @@
 #include "guis/AdditionalGUIRegistry.h"
 #include "windows/WindowState.h"
 #include <SimpleIni.h>
-#include <imgui.h>
 
 using windows::WindowState;
 
@@ -84,7 +83,9 @@ protected:
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
-    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
+
+    using _ImGuiID = unsigned int;
+    void resetView(_ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members
     windows::WindowState winManagerProfiler;
