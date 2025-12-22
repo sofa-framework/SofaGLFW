@@ -67,7 +67,7 @@ if(NOT TARGET SimpleIni::SimpleIni AND ((DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES A
             GIT_REPOSITORY https://github.com/brofield/simpleini
             GIT_TAG        09c21bda1dc1b578fa55f4a005d79b0afd481296 # v4.22
     )
-elseif (NOT SimpleIni::SimpleIni)
+elseif(NOT TARGET SimpleIni::SimpleIni)
     message(FATAL_ERROR "{PROJECT_NAME}: SimpleIni not found and SOFA_ALLOW_FETCH_DEPENDENCIES is OFF and thus cannot be fetched. Install SimpleIni, or enable SOFA_ALLOW_FETCH_DEPENDENCIES to fix this issue.")
 endif()
 
