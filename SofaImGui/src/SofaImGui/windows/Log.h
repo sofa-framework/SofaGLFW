@@ -27,9 +27,7 @@
 #include <memory>
 #include <SofaGLFW/BaseGUIEngine.h>
 
-#include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
 #include "WindowState.h"
 
 
