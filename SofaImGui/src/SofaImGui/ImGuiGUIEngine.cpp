@@ -80,6 +80,13 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
+#include <sofa/core/objectmodel/SnapshotFactory.h>
+using sofa::core::objectmodel::SnapshotType;
+
+#include <sofa/simulation/SnapshotVisitor.h>
+using sofa::simulation::SnapshotVisitor;
+
+
 #include <clocale>
 
 
@@ -214,7 +221,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     sofa::simulation::node::unload(groot);
 
     groot = sofa::simulation::node::load(filePathName.c_str());
-    
+
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
 
