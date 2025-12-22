@@ -62,13 +62,6 @@ sofa_fetch_dependency(simpleini
 )
 
 set(IMGUI_HEADER_FILES
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl2.h
-    ${imgui_SOURCE_DIR}/imconfig.h
-    ${imgui_SOURCE_DIR}/imgui.h
-    ${imgui_SOURCE_DIR}/imgui_internal.h
-    ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
     ${ImPlot_SOURCE_DIR}/implot.h
     ${ImPlot_SOURCE_DIR}/implot_internal.h
     ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome4.h
