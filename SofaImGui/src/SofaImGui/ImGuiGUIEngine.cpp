@@ -463,19 +463,38 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 // sofa::core::objectmodel::Base* b;
 
+
+
                 auto JSONSnapCont = createSnapshot(SnapshotType::JSON);
                 auto visitor = SnapshotVisitor(nullptr,*JSONSnapCont);
                 groot->execute(visitor);
-                JSONSnapCont->exportToJSON();
-                return;
+                NFD_Init();
 
-                // Node* root = c.root.get() ;
-                // auto JSONSnapCont = createSnapshot(SnapshotType::JSON);
-                // auto visitor = SnapshotVisitor(nullptr,*JSONSnapCont);
-                // root->execute(visitor);
-                // JSONSnapCont->exportToJSON();
-                // sofa::simulation::node::animate(groot.get(), groot->getDt());
-                // sofa::simulation::node::updateVisual(groot.get());
+                nfdchar_t* savePath;
+
+                nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
+
+
+                nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
+                if (result == NFD_OKAY) {
+                    puts("Success!");
+                    puts(savePath);
+
+                    std::string path(savePath);
+
+                    JSONSnapCont->exportToJSON(path);
+                    // remember to free the memory (since NFD_OKAY is returned)
+                    NFD_FreePath(savePath);
+                } else if (result == NFD_CANCEL) {
+                    puts("User pressed cancel.");
+                } else {
+                    printf("Error: %s\n", NFD_GetError());
+                }
+
+                // Quit NFD
+                NFD_Quit();
+
+                return;
             }
 
             if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Load Snapshot"))
