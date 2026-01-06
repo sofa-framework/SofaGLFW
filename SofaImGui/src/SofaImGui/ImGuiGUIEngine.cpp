@@ -402,6 +402,15 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static bool animate;
     animate = groot->animate_.getValue();
 
+    enum class SaveStep
+    {
+        None,
+        ChooseType,
+        OpenFileDialog
+    };
+
+    static SaveStep saveStep = SaveStep::None;
+
     /***************************************
      * Main menu bar
      **************************************/
@@ -442,39 +451,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Separator();
 
             if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Save Snapshot"))
-            {
-                
-                
-                auto JSONSnapCont = createSnapshot(SnapshotType::JSON);
-                auto visitor = SnapshotVisitor(nullptr,*JSONSnapCont);
-                groot->execute(visitor);
-                NFD_Init();
-
-                nfdchar_t* savePath;
-
-                nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
-                
-                
-                nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
-                if (result == NFD_OKAY) {
-                    puts("Success!");
-                    puts(savePath);
-
-                    std::string path(savePath);
-
-                    JSONSnapCont->exportToJSON(path);
-                    // remember to free the memory (since NFD_OKAY is returned)
-                    NFD_FreePath(savePath);
-                } else if (result == NFD_CANCEL) {
-                    puts("User pressed cancel.");
-                } else {
-                    printf("Error: %s\n", NFD_GetError());
-                }
-
-                // Quit NFD
-                NFD_Quit();
-                
-                return;
+            {            
+                saveStep = SaveStep::ChooseType;               
             }
 
             if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Load Snapshot"))
@@ -683,6 +661,62 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
+    }
+
+    if (saveStep == SaveStep::ChooseType)
+    {
+        ImGui::OpenPopup("SnapshotTypeChoice");
+    }
+
+    if ( ImGui::BeginPopupModal("SnapshotTypeChoice", nullptr,
+    ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Choose type of snapshot");
+        ImGui::Separator();
+        if (ImGui::Button("JSON"))
+        {
+            saveStep = SaveStep::OpenFileDialog;
+            
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("nothing"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    if(saveStep == SaveStep::OpenFileDialog)
+    {
+        
+        auto SnapCont = createSnapshot(SnapshotType::JSON);
+        auto visitor = SnapshotVisitor(nullptr,*SnapCont);
+        groot->execute(visitor);
+
+        NFD_Init();
+
+        nfdchar_t* savePath;
+
+        nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
+        
+        nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
+        if (result == NFD_OKAY) {
+            puts("Save Snapshot success!");
+            puts(savePath);
+
+            std::string path(savePath);
+
+            SnapCont->exportToJSON(path); // Problem : i want to change this (avoid JSON)
+            // remember to free the memory (since NFD_OKAY is returned)
+            NFD_FreePath(savePath);
+        } else {
+            printf("Error: %s\n", NFD_GetError());
+        }
+
+        // Quit NFD
+        NFD_Quit();
+        saveStep = SaveStep::None;
     }
 
     if (m_imguiNeedViewReset)
@@ -1053,5 +1087,7 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
         
     return {viewport[2], viewport[3]};
 }
+
+
 
 } //namespace sofaimgui
