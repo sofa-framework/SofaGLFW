@@ -184,7 +184,7 @@ void showVecTableHeader(Data<type::vector<type::Vec<N, ValueType> > >&)
     ImGui::TableSetupColumn("");
     for (unsigned int i = 0; i < N; ++i)
     {
-        ImGui::TableSetupColumn(std::to_string(i).c_str());
+        ImGui::TableSetupColumn(std::to_string(i).c_str(), ImGuiTableColumnFlags_WidthStretch);
     }
 }
 
@@ -192,31 +192,31 @@ template<typename ValueType>
 void showVecTableHeader(Data<type::vector<ValueType> >&)
 {
     ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("Value");
+    ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
 }
 
 template<typename ValueType>
 void showVecTableHeader(Data<type::vector<type::Vec<1, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X");
+    ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthStretch);
 }
 
 template<typename ValueType>
 void showVecTableHeader(Data<type::vector<type::Vec<2, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X");
-    ImGui::TableSetupColumn("Y");
+    ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Y", ImGuiTableColumnFlags_WidthStretch);
 }
 
 template<typename ValueType>
 void showVecTableHeader(Data<type::vector<type::Vec<3, ValueType> > >&)
 {
     ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X");
-    ImGui::TableSetupColumn("Y");
-    ImGui::TableSetupColumn("Z");
+    ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Y", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Z", ImGuiTableColumnFlags_WidthStretch);
 }
 
 template<Size N, typename ValueType>
