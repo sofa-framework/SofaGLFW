@@ -31,6 +31,7 @@
 #include <SofaImGui/widgets/LinearSpringWidget.h>
 #include <SofaImGui/widgets/MaterialWidget.h>
 #include <SofaImGui/widgets/RigidMass.h>
+#include <unordered_map>
 
 namespace sofaimgui
 {
@@ -241,9 +242,29 @@ template<class T>
 void showVectorWidget(Data<T>& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
-    ImGui::Text("%d elements", data.getValue().size());
+    static std::unordered_map<std::string, bool> expandedState; // true = expanded, false = collapsed
+
     const auto nbColumns = data.getValueTypeInfo()->size() + 1;
     const auto tableLabel = data.getName() + data.getOwner()->getPathName();
+    const auto size = data.getValue().size();
+
+    // Initialize state to collapsed (false) if not present
+    if (expandedState.find(tableLabel) == expandedState.end())
+    {
+        expandedState[tableLabel] = false;
+    }
+
+    bool& isExpanded = expandedState[tableLabel];
+    constexpr std::size_t collapsedRowCount = 5; // Number of rows to show when collapsed
+
+    // Display element count and toggle button on the same line
+    ImGui::Text("%d elements", size);
+    ImGui::SameLine();
+    if (ImGui::Button(std::string(isExpanded ? "Collapse##" + tableLabel : "Expand##" + tableLabel).c_str()))
+    {
+        isExpanded = !isExpanded;
+    }
+
     if (ImGui::BeginTable(tableLabel.c_str(), nbColumns, flags))
     {
         showVecTableHeader(data);
@@ -252,18 +273,57 @@ void showVectorWidget(Data<T>& data)
 
         auto accessor = helper::getWriteAccessor(data);
         bool anyChange = false;
-        for (std::size_t i = 0; i < accessor.size(); ++i)
+
+        if (isExpanded)
         {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::Text("%d", i);
-            auto& vec = accessor[i];
-            if (showLine(i, tableLabel, vec))
+            // Expanded mode: show all rows
+            for (std::size_t i = 0; i < accessor.size(); ++i)
             {
-                anyChange = true;
-                data.setDirtyValue();
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", i);
+                auto& vec = accessor[i];
+                if (showLine(i, tableLabel, vec))
+                {
+                    anyChange = true;
+                    data.setDirtyValue();
+                }
             }
         }
+        else
+        {
+            // Collapsed mode: show only first few rows
+            const std::size_t rowsToShow = std::min(collapsedRowCount, accessor.size());
+            for (std::size_t i = 0; i < rowsToShow; ++i)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", i);
+                auto& vec = accessor[i];
+                if (showLine(i, tableLabel, vec))
+                {
+                    anyChange = true;
+                    data.setDirtyValue();
+                }
+            }
+
+            // Show indicator row if there are more rows
+            if (accessor.size() > collapsedRowCount)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                for (std::size_t col = 1; col < nbColumns; ++col)
+                {
+                    ImGui::TableNextColumn();
+                    if (ImGui::SmallButton(std::string("...##" + tableLabel + std::to_string(col)).c_str()))
+                    {
+                        isExpanded = !isExpanded;
+                    }
+                }
+            }
+        }
+
         if (anyChange)
         {
             data.updateIfDirty();
