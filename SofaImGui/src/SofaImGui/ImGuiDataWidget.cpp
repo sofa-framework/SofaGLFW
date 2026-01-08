@@ -31,8 +31,7 @@
 #include <SofaImGui/widgets/LinearSpringWidget.h>
 #include <SofaImGui/widgets/MaterialWidget.h>
 #include <SofaImGui/widgets/RigidMass.h>
-#include <SofaImGui/widgets/VectorWidget.h>
-#include <unordered_map>
+#include <SofaImGui/widgets/VecVectorWidget.h>
 
 namespace sofaimgui
 {
