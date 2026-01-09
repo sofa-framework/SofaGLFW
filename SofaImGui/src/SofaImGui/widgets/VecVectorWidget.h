@@ -122,11 +122,12 @@ namespace
     }
 
     // Helper function to display element count and toggle button
-    void showVectorWidgetHeader(std::size_t size, const std::string& tableLabel, TableExpansionState& expansionState)
+    void showVectorWidgetHeader(std::size_t elementsCount, const std::string& tableLabel, TableExpansionState& expansionState)
     {
-        ImGui::Text("%d elements", size);
+        ImGui::Text("%d elements", elementsCount);
         ImGui::SameLine();
         const bool isExpanded = (expansionState == TableExpansionState::Expanded);
+
         if (ImGui::Button(std::string(isExpanded ? "Collapse##" + tableLabel : "Expand##" + tableLabel).c_str()))
         {
             toggleExpansionState(expansionState);
@@ -134,71 +135,25 @@ namespace
     }
 
     // Helper function to render a single table row
-    template<class AccessorType, class DataType>
-    bool renderTableRow(std::size_t index, const std::string& tableLabel, AccessorType& accessor, DataType& data)
+    template<class AccessorType>
+    bool renderTableRow(std::size_t index, const std::string& tableLabel, AccessorType& accessor)
     {
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
         ImGui::Text("%d", index);
         auto& vec = accessor[index];
-        if (showLine(index, tableLabel, vec))
-        {
-            data.setDirtyValue();
-            return true;
-        }
-        return false;
+        return showLine(index, tableLabel, vec);
     }
 
     // Helper function to render all rows when expanded
-    template<class AccessorType, class DataType>
-    bool renderExpandedTableRows(AccessorType& accessor, const std::string& tableLabel, DataType& data)
+    template<class AccessorType>
+    bool renderExpandedTableRows(AccessorType& accessor, const std::string& tableLabel)
     {
         bool anyChange = false;
         for (std::size_t i = 0; i < accessor.size(); ++i)
         {
-            if (renderTableRow(i, tableLabel, accessor, data))
-            {
-                anyChange = true;
-            }
+            anyChange |= renderTableRow(i, tableLabel, accessor);
         }
-        return anyChange;
-    }
-
-    // Helper function to render collapsed rows with indicator
-    template<class AccessorType, class DataType>
-    bool renderCollapsedTableRows(AccessorType& accessor, const std::string& tableLabel, std::size_t nbColumns, DataType& data, TableExpansionState& expansionState)
-    {
-        constexpr std::size_t collapsedRowCount = 5; // Number of rows to show when collapsed
-        bool anyChange = false;
-
-        const std::size_t rowsToShow = std::min(collapsedRowCount, accessor.size());
-        for (std::size_t i = 0; i < rowsToShow; ++i)
-        {
-            if (renderTableRow(i, tableLabel, accessor, data))
-            {
-                anyChange = true;
-            }
-        }
-
-        // Show indicator row if there are more rows
-        if (accessor.size() > collapsedRowCount)
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            if (ImGui::SmallButton(std::string("...##" + tableLabel + "0").c_str()))
-            {
-                toggleExpansionState(expansionState);
-            }
-            for (std::size_t col = 1; col < nbColumns; ++col)
-            {
-                ImGui::TableNextColumn();
-                if (ImGui::SmallButton(std::string("...##" + tableLabel + std::to_string(col)).c_str()))
-                {
-                    toggleExpansionState(expansionState);
-                }
-            }
-        }
-
         return anyChange;
     }
 }
@@ -206,7 +161,7 @@ namespace
 template<class T>
 void showVectorWidget(Data<T>& data)
 {
-    static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
+    static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
 
     const auto nbColumns = data.getValueTypeInfo()->size() + 1;
     const auto tableLabel = data.getName() + data.getOwner()->getPathName();
@@ -215,24 +170,25 @@ void showVectorWidget(Data<T>& data)
     TableExpansionState& expansionState = getOrInitializeExpandedState(tableLabel);
     showVectorWidgetHeader(size, tableLabel, expansionState);
 
-    if (ImGui::BeginTable(tableLabel.c_str(), nbColumns, flags))
+    if (expansionState == TableExpansionState::Collapsed)
     {
+        flags |= ImGuiTableFlags_ScrollY;
+    }
+    else
+    {
+        flags &= ~ImGuiTableFlags_ScrollY;
+    }
+
+    ImVec2 outerSize =ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8.5);
+    if (ImGui::BeginTable(tableLabel.c_str(), nbColumns, flags, outerSize))
+    {
+        ImGui::TableSetupScrollFreeze(0, 1);
         showVecTableHeader(data);
         ImGui::TableHeadersRow();
 
         auto accessor = helper::getWriteAccessor(data);
-        bool anyChange = false;
 
-        if (expansionState == TableExpansionState::Expanded)
-        {
-            anyChange = renderExpandedTableRows(accessor, tableLabel, data);
-        }
-        else
-        {
-            anyChange = renderCollapsedTableRows(accessor, tableLabel, nbColumns, data, expansionState);
-        }
-
-        if (anyChange)
+        if (renderExpandedTableRows(accessor, tableLabel))
         {
             data.updateIfDirty();
         }
