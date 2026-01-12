@@ -79,15 +79,12 @@ namespace windows
             if (node)
             {
                 const auto isActivated = node->is_activated.getValue();
-                if (isActivated)
+                if (ImGui::MenuItem(isActivated ? "Deactivate Node" : "Activate Node"))
                 {
-                    if (ImGui::MenuItem("Deactivate Node"))
-                    {
-                        node->setActive(false);
+                    node->setActive(!isActivated);
 
-                        sofa::simulation::DeactivationVisitor v(sofa::core::execparams::defaultInstance(), false);
-                        node->executeVisitor(&v);
-                    }
+                    sofa::simulation::DeactivationVisitor v(sofa::core::execparams::defaultInstance(), !isActivated);
+                    node->executeVisitor(&v);
                 }
             }
             ImGui::EndPopup();
