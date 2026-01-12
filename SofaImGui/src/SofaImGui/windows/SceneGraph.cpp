@@ -45,6 +45,7 @@ namespace windows
     bool drawExpandableObject(sofa::core::objectmodel::Base * obj, bool isNodeHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject)
     {
         const auto& objName = obj->getName();
+        auto* node = dynamic_cast<sofa::simulation::Node*>(obj);
 
         ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
 
@@ -75,7 +76,7 @@ namespace windows
         if (ImGui::BeginPopupContextItem())
         {
             ImGui::Text("%s", obj->getPathName().c_str());
-            if (auto* node = dynamic_cast<sofa::simulation::Node*>(obj))
+            if (node)
             {
                 const auto isActivated = node->is_activated.getValue();
                 if (isActivated)
@@ -100,6 +101,11 @@ namespace windows
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
         }
 
+        if (node && !node->isActive())
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0,0,1));
+        }
+
         ImGui::SetCursorPosX(XPos);
 
         ImGui::Text("%s", obj->getName().c_str());
@@ -108,12 +114,14 @@ namespace windows
             ImGui::PopStyleColor();
         }
 
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("%s", obj->getClassName().c_str());
-        if (isNodeHighlighted)
+        if (node && !node->isActive())
         {
             ImGui::PopStyleColor();
         }
+
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled("%s", obj->getClassName().c_str());
+
         ImGui::PopStyleColor();
 
         ImGui::PopID();
