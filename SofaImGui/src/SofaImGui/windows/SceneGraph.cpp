@@ -37,6 +37,7 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include "SceneGraph.h"
+#include <sofa/simulation/DeactivatedNodeVisitor.h>
 
 namespace windows
 {
@@ -69,6 +70,26 @@ namespace windows
             {
                 clickedObject = obj;
             }
+        }
+
+        if (ImGui::BeginPopupContextItem())
+        {
+            ImGui::Text("%s", obj->getPathName().c_str());
+            if (auto* node = dynamic_cast<sofa::simulation::Node*>(obj))
+            {
+                const auto isActivated = node->is_activated.getValue();
+                if (isActivated)
+                {
+                    if (ImGui::MenuItem("Deactivate Node"))
+                    {
+                        node->setActive(false);
+
+                        sofa::simulation::DeactivationVisitor v(sofa::core::execparams::defaultInstance(), false);
+                        node->executeVisitor(&v);
+                    }
+                }
+            }
+            ImGui::EndPopup();
         }
 
         ImGui::SameLine();
