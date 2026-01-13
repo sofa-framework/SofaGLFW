@@ -178,14 +178,15 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         
         ImGuiIO& io = ImGui::GetIO();
 
-        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, 16 * yscale);
+        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, 16.f * yscale);
 
         ImFontConfig config;
         config.MergeMode = true;
-        config.GlyphMinAdvanceX = 16.0f; // Use if you want to make the icon monospaced
+        config.GlyphMinAdvanceX = 16.f * yscale;
+
         static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 16 * yscale, &config, icon_ranges);
-        io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 16 * yscale, &config, icon_ranges);
+        io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 16.f * yscale, &config, icon_ranges);
+        io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 16.f * yscale, &config, icon_ranges);
 
         // restore the global scale stored in the Settings ini file
         const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
@@ -885,19 +886,10 @@ bool ImGuiGUIEngine::dispatchMouseEvents()
 }
 
 
-void ImGuiGUIEngine::setScale(double globalScale, GLFWmonitor* monitor)
+void ImGuiGUIEngine::setScale(float globalScale, GLFWmonitor* monitor)
 {
-    if(!monitor)
-    {
-        monitor = glfwGetPrimaryMonitor();
-    }
-    
     ImGuiIO& io = ImGui::GetIO();
-    
-    float xscale{}, yscale{};
-    glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-    
-    io.FontGlobalScale = globalScale / yscale;
+    io.FontGlobalScale = globalScale;
 }
 
 type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)

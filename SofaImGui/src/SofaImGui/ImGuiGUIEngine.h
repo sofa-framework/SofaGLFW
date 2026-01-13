@@ -62,7 +62,7 @@ public:
     bool dispatchMouseEvents() override;
     
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
-    void setScale(double globalScale, GLFWmonitor* monitor);
+    void setScale(float globalScale, GLFWmonitor* monitor);
 
     // reset counters
     void resetCounter() override;
