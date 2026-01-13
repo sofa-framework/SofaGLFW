@@ -74,7 +74,7 @@ namespace windows
                     constexpr float MAX_SCALE = 2.0f;
                     ImGui::DragFloat("global scale", &globalScale, 0.005f, MIN_SCALE, MAX_SCALE, "%.2f", ImGuiSliderFlags_AlwaysClamp); // Scale everything
                     
-                    engine->setScale(globalScale, nullptr);
+                    engine->setScale(globalScale);
                     
                     ini.SetDoubleValue("Visualization", "globalScale", static_cast<double>(globalScale));
                     if (std::abs(iniGlobalScale - globalScale) > 0.005f)

@@ -62,7 +62,7 @@ public:
     bool dispatchMouseEvents() override;
     
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
-    void setScale(float globalScale, GLFWmonitor* monitor);
+    void setScale(float globalScale);
 
     // reset counters
     void resetCounter() override;
@@ -85,6 +85,7 @@ protected:
     bool isMouseOnViewport { false };
     CSimpleIniA ini;
     void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
+    GLFWmonitor* findMyMonitor(GLFWwindow* glfwWindow);
 
     // WindowState members
     windows::WindowState winManagerProfiler;

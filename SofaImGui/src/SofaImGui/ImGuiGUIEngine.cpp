@@ -166,86 +166,29 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
     ImGui_ImplOpenGL3_Init(nullptr);
 #endif // SOFAIMGUI_FORCE_OPENGL2 == 1
 
-    GLFWmonitor* windowMonitor = glfwGetWindowMonitor(glfwWindow);
-    if (!windowMonitor)
+    float yscale { 1.f };
+    if (GLFWmonitor* windowMonitor = findMyMonitor(glfwWindow))
     {
-        windowMonitor = glfwGetPrimaryMonitor();
-    }
-    if (windowMonitor)
-    {
-        float xscale{}, yscale{};
+        float xscale{};
         glfwGetMonitorContentScale(windowMonitor, &xscale, &yscale);
-        
-        ImGuiIO& io = ImGui::GetIO();
-
-        io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, 16.f * yscale);
-
-        ImFontConfig config;
-        config.MergeMode = true;
-        config.GlyphMinAdvanceX = 16.f * yscale;
-
-        static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, 16.f * yscale, &config, icon_ranges);
-        io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, 16.f * yscale, &config, icon_ranges);
-
-        // restore the global scale stored in the Settings ini file
-        const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
-        this->setScale(globalScale, windowMonitor);
     }
- 
-    // restore window settings if set
-    const bool rememberWindowPosition = ini.GetBoolValue("Window", "rememberWindowPosition", true);
-    if(rememberWindowPosition)
-    {
-        if(ini.KeyExists("Window", "windowPosX") && ini.KeyExists("Window", "windowPosY"))
-        {
-            const long windowPosX = ini.GetLongValue("Window", "windowPosX");
-            const long windowPosY = ini.GetLongValue("Window", "windowPosY");
 
-            int monitorCount;
-            GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+    constexpr float fontSize = 16.f;
+    ImGuiIO& io = ImGui::GetIO();
 
-            bool foundValidMonitor = false;
-            for (int i = 0; i < monitorCount; ++i)
-            {
-                if (GLFWmonitor* monitor = monitors[i])
-                {
-                    //retrieve the work area of the monitor in the whole desktop space, in screen coordinates
-                    int monitorXPos{0}, monitorYPos{0}, monitorWidth{0}, monitorHeight{0};
-                    glfwGetMonitorWorkarea(monitor, &monitorXPos, &monitorYPos, &monitorWidth, &monitorHeight);
-                    if(!monitorWidth || !monitorHeight)
-                    {
-                        msg_error("ImGuiGUIEngine") << "Unknown error while trying to fetch the monitor information.";
-                    }
-                    else
-                    {
-                        constexpr long margin = 5; // avoid the case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
+    io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, fontSize * yscale);
 
-                        if(windowPosX  >= (monitorXPos) &&
-                           windowPosX  <= (monitorXPos + monitorWidth-margin) &&
-                           windowPosY  >= (monitorYPos) &&
-                           windowPosY  <= (monitorYPos + monitorHeight-margin))
-                        {
-                            glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
-                            foundValidMonitor = true;
-                            break;
-                        }
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = fontSize * yscale;
 
-                    }
-                }
-            }
+    static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+    io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, fontSize * yscale, &config, icon_ranges);
+    io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, fontSize * yscale, &config, icon_ranges);
 
-            if (!foundValidMonitor)
-            {
-                msg_error("ImGuiGUIEngine") << "The window position from settings is invalid for any monitor.";
-            }
-        }
-        else
-        {
-            msg_error("ImGuiGUIEngine") << "Cannot set window position from settings.";
-        }
-
-    }
+    // restore the global scale stored in the Settings ini file
+    const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
+    this->setScale(globalScale);
 
     const bool rememberWindowSize = ini.GetBoolValue("Window", "rememberWindowSize", true);
     if(rememberWindowSize)
@@ -806,6 +749,71 @@ void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameScene
     firstRunState.setState(true);// Mark first run as complete
 }
 
+GLFWmonitor* ImGuiGUIEngine::findMyMonitor(GLFWwindow* glfwWindow)
+{
+    GLFWmonitor* foundMonitor { nullptr };
+
+    const bool rememberWindowPosition = ini.GetBoolValue("Window", "rememberWindowPosition", true);
+    if(rememberWindowPosition)
+    {
+        if(ini.KeyExists("Window", "windowPosX") && ini.KeyExists("Window", "windowPosY"))
+        {
+            const long windowPosX = ini.GetLongValue("Window", "windowPosX");
+            const long windowPosY = ini.GetLongValue("Window", "windowPosY");
+
+            int monitorCount;
+            GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+
+            bool foundValidMonitor = false;
+            for (int i = 0; i < monitorCount; ++i)
+            {
+                if (GLFWmonitor* monitor = monitors[i])
+                {
+                    //retrieve the work area of the monitor in the whole desktop space, in screen coordinates
+                    int monitorXPos{0}, monitorYPos{0}, monitorWidth{0}, monitorHeight{0};
+                    glfwGetMonitorWorkarea(monitor, &monitorXPos, &monitorYPos, &monitorWidth, &monitorHeight);
+                    if(!monitorWidth || !monitorHeight)
+                    {
+                        msg_error("ImGuiGUIEngine") << "Unknown error while trying to fetch the monitor information.";
+                    }
+                    else
+                    {
+                        constexpr long margin = 5; // avoid the case where the window is positioned on the border of the monitor (almost invisible/non-selectable)
+
+                        if(windowPosX  >= (monitorXPos) &&
+                           windowPosX  <= (monitorXPos + monitorWidth-margin) &&
+                           windowPosY  >= (monitorYPos) &&
+                           windowPosY  <= (monitorYPos + monitorHeight-margin))
+                        {
+                            glfwSetWindowPos(glfwWindow, static_cast<int>(windowPosX), static_cast<int>(windowPosY));
+                            foundValidMonitor = true;
+                            foundMonitor = monitor;
+                            break;
+                        }
+
+                    }
+                }
+            }
+
+            if (!foundValidMonitor)
+            {
+                msg_error("ImGuiGUIEngine") << "The window position from settings is invalid for any monitor.";
+            }
+        }
+        else
+        {
+            msg_error("ImGuiGUIEngine") << "Cannot set window position from settings.";
+        }
+    }
+
+    if (!foundMonitor)
+    {
+        foundMonitor = glfwGetPrimaryMonitor();
+    }
+
+    return foundMonitor;
+}
+
 void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
 {
 
@@ -886,7 +894,7 @@ bool ImGuiGUIEngine::dispatchMouseEvents()
 }
 
 
-void ImGuiGUIEngine::setScale(float globalScale, GLFWmonitor* monitor)
+void ImGuiGUIEngine::setScale(float globalScale)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.FontGlobalScale = globalScale;
