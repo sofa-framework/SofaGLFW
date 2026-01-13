@@ -173,22 +173,7 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
         glfwGetMonitorContentScale(windowMonitor, &xscale, &yscale);
     }
 
-    constexpr float fontSize = 16.f;
-    ImGuiIO& io = ImGui::GetIO();
-
-    io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, fontSize * yscale);
-
-    ImFontConfig config;
-    config.MergeMode = true;
-    config.GlyphMinAdvanceX = fontSize * yscale;
-
-    static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-    io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, fontSize * yscale, &config, icon_ranges);
-    io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, fontSize * yscale, &config, icon_ranges);
-
-    // restore the global scale stored in the Settings ini file
-    const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
-    this->setScale(globalScale);
+    loadFont(yscale);
 
     const bool rememberWindowSize = ini.GetBoolValue("Window", "rememberWindowSize", true);
     if(rememberWindowSize)
@@ -814,6 +799,38 @@ GLFWmonitor* ImGuiGUIEngine::findMyMonitor(GLFWwindow* glfwWindow)
     return foundMonitor;
 }
 
+void ImGuiGUIEngine::loadFont(float yscale)
+{
+    constexpr float fontSize = 16.f;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->Clear();
+
+    io.Fonts->AddFontFromMemoryCompressedTTF(ROBOTO_MEDIUM_compressed_data, ROBOTO_MEDIUM_compressed_size, fontSize * yscale);
+
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = fontSize * yscale;
+
+    static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+    io.Fonts->AddFontFromMemoryCompressedTTF(FA_REGULAR_400_compressed_data, FA_REGULAR_400_compressed_size, fontSize * yscale, &config, icon_ranges);
+    io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, fontSize * yscale, &config, icon_ranges);
+
+    // restore the global scale stored in the Settings ini file
+    const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
+    this->setScale(globalScale);
+
+    io.Fonts->Build();
+
+#if SOFAIMGUI_FORCE_OPENGL2 == 1
+    ImGui_ImplOpenGL2_DestroyFontsTexture();
+    ImGui_ImplOpenGL2_CreateFontsTexture();
+#else
+    ImGui_ImplOpenGL3_DestroyFontsTexture();
+    ImGui_ImplOpenGL3_CreateFontsTexture();
+#endif
+}
+
 void ImGuiGUIEngine::beforeDraw(GLFWwindow*)
 {
 
@@ -893,6 +910,10 @@ bool ImGuiGUIEngine::dispatchMouseEvents()
     return !ImGui::GetIO().WantCaptureMouse || isMouseOnViewport;
 }
 
+void ImGuiGUIEngine::contentScaleChanged(float xscale, float yscale)
+{
+    loadFont(yscale);
+}
 
 void ImGuiGUIEngine::setScale(float globalScale)
 {

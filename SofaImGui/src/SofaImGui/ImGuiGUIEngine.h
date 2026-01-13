@@ -60,6 +60,7 @@ public:
     void terminate() override;
     bool isTerminated() const override { return m_isTerminated; };
     bool dispatchMouseEvents() override;
+    void contentScaleChanged(float xscale, float yscale) override;
     
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
     void setScale(float globalScale);
@@ -86,6 +87,7 @@ protected:
     CSimpleIniA ini;
     void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
     GLFWmonitor* findMyMonitor(GLFWwindow* glfwWindow);
+    void loadFont(float yscale);
 
     // WindowState members
     windows::WindowState winManagerProfiler;

@@ -305,6 +305,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
         glfwSetCursorEnterCallback(glfwWindow, cursor_enter_callback);
         glfwSetMonitorCallback(monitor_callback);
         glfwSetCharCallback(glfwWindow, character_callback);
+        glfwSetWindowContentScaleCallback(glfwWindow, content_scale_callback);
 
         glfwSetWindowUserPointer(glfwWindow, this);
 
@@ -993,6 +994,15 @@ void SofaGLFWBaseGUI::mouse_button_callback(GLFWwindow* window, int button, int 
 void SofaGLFWBaseGUI::translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos)
 {
     gui->m_translatedCursorPos = Vec2d{xpos, ypos} - (gui->m_viewPortPosition - gui->m_windowPosition);
+}
+
+void SofaGLFWBaseGUI::content_scale_callback(GLFWwindow *window, float xscale, float yscale)
+{
+    auto currentGUI = s_mapGUIs[window];
+    if (currentGUI && currentGUI->m_guiEngine)
+    {
+        currentGUI->m_guiEngine->contentScaleChanged(xscale, yscale);
+    }
 }
 
 void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)

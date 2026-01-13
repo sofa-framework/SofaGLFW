@@ -156,6 +156,7 @@ private:
     static void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
     static int handleArrowKeys(int key);
     static void translateToViewportCoordinates (SofaGLFWBaseGUI* gui,double xpos, double ypos);
+    static void content_scale_callback(GLFWwindow* window, float xscale, float yscale);
 
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
