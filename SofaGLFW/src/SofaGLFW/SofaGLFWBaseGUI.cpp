@@ -50,12 +50,17 @@
 
 #include <sofa/helper/ScopedAdvancedTimer.h>
 
-#if SOFAGLFW_HAVE_FFMPEG == 1
-#include <SofaGLFW/utils/VideoEncoderFFMPEG.h>
-#endif
+#include <sofa/helper/system/FileRepository.h>
+#include <sofa/helper/system/FileSystem.h>
+using sofa::helper::system::FileSystem;
+#include <sofa/helper/system/SetDirectory.h>
+using sofa::helper::system::SetDirectory;
+#include <sofa/helper/Utils.h>
+using sofa::helper::Utils;
 
 #include <algorithm>
 #include <filesystem>
+#include <map>
 
 using namespace sofa;
 using namespace sofa::gui::common;
@@ -76,9 +81,6 @@ namespace sofaglfw
 SofaGLFWBaseGUI::SofaGLFWBaseGUI()
 {
     m_guiEngine = std::make_shared<NullGUIEngine>();
-#if SOFAGLFW_HAVE_FFMPEG == 1
-    m_videoEncoder = std::make_unique<VideoEncoderFFMPEG>();
-#endif
 }
 
 SofaGLFWBaseGUI::~SofaGLFWBaseGUI()
@@ -518,7 +520,9 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     // Read framebuffer
                     if(this->groot->getAnimate() && this->m_bVideoRecording)
                     {
-                        this->encodeFrame();
+                        std::vector<uint8_t> pixels;
+                        const auto [width, height] = this->m_guiEngine->getFrameBufferPixels(pixels);
+                        m_videoRecorderFFMPEG.addFrame(pixels.data(), width, height);
                     }
 
                     glfwSwapBuffers(glfwWindow);
@@ -639,9 +643,9 @@ void SofaGLFWBaseGUI::terminate()
     if (m_guiEngine)
         m_guiEngine->terminate();
 
-    if(m_videoEncoder)
+    if(m_bVideoRecording)
     {
-        m_videoEncoder->finish();
+        m_videoRecorderFFMPEG.finishVideo();
     }
     
     glfwTerminate();
@@ -1185,59 +1189,62 @@ bool SofaGLFWBaseGUI::centerWindow(GLFWwindow* window)
 }
 
 
-void SofaGLFWBaseGUI::encodeFrame()
+void SofaGLFWBaseGUI::toggleVideoRecording()
 {
-    if(!m_videoEncoder)
+    if(m_bVideoRecording)
     {
-        return;
+        m_bVideoRecording = false;
+        m_videoRecorderFFMPEG.finishVideo();
+        msg_info("SofaGLFWBaseGUI") << "End recording";
     }
-    
-    std::vector<uint8_t> pixels;
-    const auto [width, height] = this->m_guiEngine->getFrameBufferPixels(pixels);
-    
-    if(!m_videoEncoder->isInitialized())
+    else
     {
-        using sofa::helper::system::FileSystem;
-        std::string baseSceneFilename{};
-        if (!this->getSceneFileName().empty())
+        // Initialize recorder with default parameters
+        const int width = std::max(1, m_viewPortWidth);
+        const int height = std::max(1, m_viewPortHeight);
+        const unsigned int framerate = 60;
+        const unsigned int bitrate = 2000000;
+        const std::string codecExtension = "mp4";
+        const std::string codecName = "yuv420p";
+        
+        if(initRecorder(width, height, framerate, bitrate, codecExtension, codecName))
         {
-            std::filesystem::path path(this->getSceneFileName());
-            baseSceneFilename = path.stem().string();
-        }
-        
-        const auto videoDirectory = FileSystem::append(sofa::helper::Utils::getSofaDataDirectory(), "recordings");
-        FileSystem::ensureFolderExists(videoDirectory);
-        
-        const std::string currentTimeString = [](){ auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()); std::ostringstream oss; oss << std::put_time(std::localtime(&t), "%Y%m%d%H%M%S"); return oss.str(); }();
-        
-        const std::string videoExtension = ".mp4";
-        const auto videoFilename = baseSceneFilename + "_" + currentTimeString + videoExtension;
-        const auto videoPath = FileSystem::append(videoDirectory,videoFilename);
-        
-        // assuming that the video path is unique and does not exist
-        // it would overwrite otherwise
-        constexpr int nbFramePerSecond = 60;
-        if(m_videoEncoder->init(videoPath.c_str(), width, height, nbFramePerSecond))
-        {
-            msg_info("SofaGLFWBaseGUI") << "Writting in " << videoPath;
+            m_bVideoRecording = true;
+            msg_info("SofaGLFWBaseGUI") << "Start recording";
         }
         else
         {
-            msg_error("SofaGLFWBaseGUI") << "Error while trying to write in " << videoPath;
-            return;
+            msg_error("SofaGLFWBaseGUI") << "Failed to initialize recorder";
         }
     }
-    
-    
-    // Flip vertically (OpenGL has origin at bottom-left)
-    std::vector<uint8_t> flipped(width * height * 3);
-    for (int y = 0; y < height; y++) {
-        memcpy(&flipped[y * width * 3],
-               &pixels[(height - 1 - y) * width * 3],
-               width * 3);
-    }
-    
-    m_videoEncoder->encodeFrame(flipped.data(), width, height);
 }
+
+bool SofaGLFWBaseGUI::initRecorder(int width, int height, unsigned int framerate, unsigned int bitrate, const std::string& codecExtension, const std::string& codecName)
+{
+    // Validate parameters
+    if (width <= 0 || height <= 0)
+    {
+        msg_error("SofaGLFWBaseGUI") << "Invalid video dimensions: " << width << "x" << height;
+        return false;
+    }
+
+    bool res = true;
+    std::string ffmpeg_exec_path = "";
+    const std::string ffmpegIniFilePath = sofa::helper::Utils::getSofaPathTo("etc/SofaGLFW.ini");
+    std::map<std::string, std::string> iniFileValues = sofa::helper::Utils::readBasicIniFile(ffmpegIniFilePath);
+    if (iniFileValues.find("FFMPEG_EXEC_PATH") != iniFileValues.end())
+    {
+        // get absolute path of FFMPEG executable
+        ffmpeg_exec_path = sofa::helper::system::SetDirectory::GetRelativeFromProcess(iniFileValues["FFMPEG_EXEC_PATH"].c_str());
+    }
+
+    const std::string videoFilename = m_videoRecorderFFMPEG.findFilename(framerate, bitrate / 1024, codecExtension);
+
+    res = m_videoRecorderFFMPEG.init(ffmpeg_exec_path, videoFilename, width, height, framerate, bitrate, codecName);
+
+    return res;
+}
+
+
 
 } // namespace sofaglfw

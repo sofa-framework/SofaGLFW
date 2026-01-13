@@ -21,10 +21,9 @@
 ******************************************************************************/
 #pragma once
 
-#include <sofa/simulation/Simulation.h>
+#include <sofa/simulation/Node.h>
 #include <sofa/gl/DrawToolGL.h>
 #include <sofa/component/visual/BaseCamera.h>
-#include <sofa/simulation/Node.h>
 
 #include <SofaGLFW/BaseGUIEngine.h>
 #include <SofaGLFW/NullGUIEngine.h>
@@ -32,7 +31,7 @@
 #include <memory>
 
 #include <SofaGLFW/SofaGLFWMouseManager.h>
-#include <SofaGLFW/utils/VideoEncoder.h>
+#include <sofa/gl/VideoRecorderFFMPEG.h>
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -115,29 +114,13 @@ public:
     }
     void moveRayPickInteractor(int eventX, int eventY) override ;
     
-    void toggleVideoRecording()
-    {
-        if(m_videoEncoder)
-        {
-            m_bVideoRecording = !m_bVideoRecording;
-            if(m_bVideoRecording)
-            {
-                msg_info("SofaGLFWBaseGUI") << "Start recording";
-            }
-            else
-            {
-                msg_info("SofaGLFWBaseGUI") << "End recording";
-            }
-        }
-    }
+    void toggleVideoRecording();
+    bool initRecorder(int width, int height, unsigned int framerate, unsigned int bitrate, const std::string& codecExtension, const std::string& codecName);
 
     bool isVideoRecording() const
     {
         return m_bVideoRecording;
     }
-
-    
-    void encodeFrame();
 
     static void triggerSceneAxis(sofa::simulation::NodeSPtr groot);
 
@@ -187,7 +170,7 @@ private:
     std::shared_ptr<BaseGUIEngine> m_guiEngine;
     
     bool m_bVideoRecording {false};
-    std::unique_ptr<VideoEncoder> m_videoEncoder;
+    sofa::gl::VideoRecorderFFMPEG m_videoRecorderFFMPEG;
 };
 
 } // namespace sofaglfw
