@@ -410,7 +410,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     };
 
     static SaveStep saveStep = SaveStep::None;
-
+    static SnapshotType chosenType = SnapshotType::Print;
     /***************************************
      * Main menu bar
      **************************************/
@@ -675,6 +675,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::Separator();
         if (ImGui::Button("JSON"))
         {
+            chosenType = SnapshotType::JSON;
             saveStep = SaveStep::OpenFileDialog;
             
             ImGui::CloseCurrentPopup();
@@ -690,7 +691,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if(saveStep == SaveStep::OpenFileDialog)
     {
         
-        auto SnapCont = createSnapshot(SnapshotType::JSON);
+        // auto SnapCont = createSnapshot(SnapshotType::JSON);
+        auto SnapCont = createSnapshot(chosenType);
         auto visitor = SnapshotVisitor(nullptr,*SnapCont);
         groot->execute(visitor);
 
@@ -707,7 +709,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             std::string path(savePath);
 
-            SnapCont->exportToJSON(path); // Problem : i want to change this (avoid JSON)
+            SnapCont->exportTo(path);
             // remember to free the memory (since NFD_OKAY is returned)
             NFD_FreePath(savePath);
         } else {
