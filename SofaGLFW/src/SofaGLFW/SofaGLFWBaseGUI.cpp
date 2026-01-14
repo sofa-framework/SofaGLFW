@@ -487,6 +487,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
     bool running = true;
     std::size_t currentNbIterations = 0;
     std::stringstream tmpStr;
+    std::vector<uint8_t> pixels;
+
     while (s_numberOfActiveWindows > 0 && running)
     {
         SIMULATION_LOOP_SCOPE
@@ -520,7 +522,6 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     // Read framebuffer
                     if(this->groot->getAnimate() && this->m_bVideoRecording)
                     {
-                        std::vector<uint8_t> pixels;
                         const auto [width, height] = this->m_guiEngine->getFrameBufferPixels(pixels);
                         m_videoRecorderFFMPEG.addFrame(pixels.data(), width, height);
                     }
