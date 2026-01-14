@@ -41,22 +41,14 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/SimulationLoop.h>
-#include <sofa/component/visual/InteractiveCamera.h>
 #include <sofa/component/visual/VisualStyle.h>
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseViewer.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/gui/common/PickHandler.h>
 
-#include <sofa/helper/ScopedAdvancedTimer.h>
-
-#include <sofa/helper/system/FileRepository.h>
-#include <sofa/helper/system/FileSystem.h>
-using sofa::helper::system::FileSystem;
 #include <sofa/helper/system/SetDirectory.h>
-using sofa::helper::system::SetDirectory;
 #include <sofa/helper/Utils.h>
-using sofa::helper::Utils;
 
 #include <algorithm>
 #include <filesystem>
