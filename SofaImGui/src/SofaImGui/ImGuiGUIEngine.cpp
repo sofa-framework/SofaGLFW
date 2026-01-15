@@ -139,7 +139,7 @@ void ImGuiGUIEngine::init()
         SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         if (rc != SI_OK)
         {
-            msg_error("ImGuiGUIEngine") << std::strerror(errno) << "'" << sofaimgui::AppIniFile::getAppIniFile() << "'";
+            msg_error("ImGuiGUIEngine") << "Saving file '" << sofaimgui::AppIniFile::getAppIniFile() << "' failed. " << std::strerror(errno) << ". Error code " << rc;
         }
         assert(rc == SI_OK);
         pv = sofaimgui::defaultStyle.c_str();
