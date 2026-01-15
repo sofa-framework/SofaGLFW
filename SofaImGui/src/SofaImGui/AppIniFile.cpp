@@ -34,7 +34,7 @@ namespace sofaimgui
     {
         static const std::string configPath(
             helper::system::FileSystem::append(sofa::gui::common::BaseGUI::getConfigDirectoryPath(), "imgui"));
-        helper::system::FileSystem::ensureFolderExists("imgui");
+        helper::system::FileSystem::ensureFolderExists(configPath);
         return configPath;
     }
 

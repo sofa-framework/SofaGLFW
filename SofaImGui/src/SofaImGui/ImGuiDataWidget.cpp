@@ -31,6 +31,7 @@
 #include <SofaImGui/widgets/LinearSpringWidget.h>
 #include <SofaImGui/widgets/MaterialWidget.h>
 #include <SofaImGui/widgets/RigidMass.h>
+#include <SofaImGui/widgets/VecVectorWidget.h>
 
 namespace sofaimgui
 {
@@ -177,101 +178,6 @@ void DataWidget<type::Vec<4, float> >::showWidget(MyData& data)
 /***********************************************************************************************************************
  * Vectors of Vec
  **********************************************************************************************************************/
-
-template< Size N, typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<N, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    for (unsigned int i = 0; i < N; ++i)
-    {
-        ImGui::TableSetupColumn(std::to_string(i).c_str());
-    }
-}
-
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<ValueType> >&)
-{
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("Value");
-}
-
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<1, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X");
-}
-
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<2, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X");
-    ImGui::TableSetupColumn("Y");
-}
-
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<3, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X");
-    ImGui::TableSetupColumn("Y");
-    ImGui::TableSetupColumn("Z");
-}
-
-template<Size N, typename ValueType>
-bool showLine(unsigned int lineNumber, const std::string& tableLabel, type::Vec<N, ValueType>& vec)
-{
-    for (const auto& v : vec)
-    {
-        ImGui::TableNextColumn();
-        ImGui::Text("%f", v);
-    }
-    return false;
-}
-
-template<typename ValueType>
-bool showLine(unsigned int lineNumber, const std::string& tableLabel, ValueType& value)
-{
-    ImGui::TableNextColumn();
-    return showScalarWidget("", tableLabel + std::to_string(lineNumber), value);
-}
-
-template<class T>
-void showVectorWidget(Data<T>& data)
-{
-    static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
-    ImGui::Text("%d elements", data.getValue().size());
-    const auto nbColumns = data.getValueTypeInfo()->size() + 1;
-    const auto tableLabel = data.getName() + data.getOwner()->getPathName();
-    if (ImGui::BeginTable(tableLabel.c_str(), nbColumns, flags))
-    {
-        showVecTableHeader(data);
-
-        ImGui::TableHeadersRow();
-
-        auto accessor = helper::getWriteAccessor(data);
-        bool anyChange = false;
-        for (std::size_t i = 0; i < accessor.size(); ++i)
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::Text("%d", i);
-            auto& vec = accessor[i];
-            if (showLine(i, tableLabel, vec))
-            {
-                anyChange = true;
-                data.setDirtyValue();
-            }
-        }
-        if (anyChange)
-        {
-            data.updateIfDirty();
-        }
-
-        ImGui::EndTable();
-    }
-}
 
 template<>
 void DataWidget<type::vector<double> >::showWidget(MyData& data)
