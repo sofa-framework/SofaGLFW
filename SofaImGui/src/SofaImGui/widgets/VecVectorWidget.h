@@ -179,7 +179,8 @@ void showVectorWidget(Data<T>& data)
         flags &= ~ImGuiTableFlags_ScrollY;
     }
 
-    ImVec2 outerSize =ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8.5);
+    static constexpr float NumberOfLinesToShowWhenCollapsed = 8.5f;
+    ImVec2 outerSize =ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * NumberOfLinesToShowWhenCollapsed );
     if (ImGui::BeginTable(tableLabel.c_str(), nbColumns, flags, outerSize))
     {
         ImGui::TableSetupScrollFreeze(0, 1);
