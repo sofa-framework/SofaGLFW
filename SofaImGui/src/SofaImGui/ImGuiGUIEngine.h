@@ -28,8 +28,6 @@
 
 #include "guis/AdditionalGUIRegistry.h"
 #include "windows/WindowState.h"
-#include <SimpleIni.h>
-#include <imgui.h>
 
 using windows::WindowState;
 
@@ -49,7 +47,7 @@ class ImGuiGUIEngine : public sofaglfw::BaseGUIEngine
 public:
 
     ImGuiGUIEngine() ;
-    ~ImGuiGUIEngine() = default;
+    ~ImGuiGUIEngine();
 
     void init() override;
     void initBackend(GLFWwindow*) override;
@@ -83,8 +81,12 @@ protected:
     std::pair<unsigned int, unsigned int> m_currentFBOSize;
     std::pair<float, float> m_viewportWindowSize;
     bool isMouseOnViewport { false };
-    CSimpleIniA ini;
-    void resetView(ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
+
+    struct Settings;
+    std::unique_ptr<Settings> settings;
+
+    using _ImGuiID = unsigned int;
+    void resetView(_ImGuiID dockspace_id, const char *windowNameSceneGraph, const char *winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport) ;
 
     // WindowState members
     windows::WindowState winManagerProfiler;
