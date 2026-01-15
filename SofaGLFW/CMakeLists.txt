@@ -94,7 +94,7 @@ add_definitions("-DSOFAGLFW_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/resource
 sofa_find_package(FFMPEG_exec BOTH_SCOPES)
 # FFMPEG
 if(FFMPEG_EXEC_FOUND)
-    install(PROGRAMS "${FFMPEG_EXEC_FILE}" DESTINATION bin COMPONENT applications)
+    install(PROGRAMS "${FFMPEG_EXEC_FILE}" DESTINATION ${CMAKE_INSTALL_PREFIX}/bin COMPONENT applications)
 endif()
 
 # Create build and install versions of .ini file for resources finding
@@ -106,7 +106,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/etc/${PROJECT_NAME}.ini.in "${CMAKE_B
 get_filename_component(FFMPEG_EXEC_FILENAME "${FFMPEG_EXEC_FILE}" NAME)
 set(FFMPEG_EXEC_PATH "../bin/${FFMPEG_EXEC_FILENAME}") # relative path for install dir, see .ini file
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/etc/${PROJECT_NAME}.ini.in "${CMAKE_BINARY_DIR}/etc/installed${PROJECT_NAME}.ini")
-install(FILES "${CMAKE_BINARY_DIR}/etc/installed${PROJECT_NAME}.ini" DESTINATION etc RENAME ${PROJECT_NAME}.ini COMPONENT applications)
+install(FILES "${CMAKE_BINARY_DIR}/etc/installed${PROJECT_NAME}.ini" DESTINATION ${CMAKE_INSTALL_PREFIX}/etc  RENAME ${PROJECT_NAME}.ini COMPONENT applications)
 
 
 

@@ -1228,7 +1228,13 @@ bool SofaGLFWBaseGUI::initRecorder(int width, int height, unsigned int framerate
     if (iniFileValues.find("FFMPEG_EXEC_PATH") != iniFileValues.end())
     {
         // get absolute path of FFMPEG executable
+        msg_info("SofaGLFWBaseGUI") << " The file " << ffmpegIniFilePath << " points to " << ffmpeg_exec_path << " for the ffmpeg executable.";
         ffmpeg_exec_path = sofa::helper::system::SetDirectory::GetRelativeFromProcess(iniFileValues["FFMPEG_EXEC_PATH"].c_str());
+    }
+    else
+    {
+        msg_warning("SofaGLFWBaseGUI") << " The file " << Utils::getSofaPathPrefix() <<"/etc/SofaGLFW.ini either doesn't exist or doesn't contain the string FFMPEG_EXEC_PATH."
+        " The initialization of the FFMPEG video recorder will likely fail. To fix this, provide a valid path to the ffmpeg executable inside this file using the syntax \"FFMPEG_EXEC_PATH=/usr/bin/ffmpeg\".";
     }
 
     const std::string videoFilename = m_videoRecorderFFMPEG.findFilename(framerate, bitrate / 1024, codecExtension);
