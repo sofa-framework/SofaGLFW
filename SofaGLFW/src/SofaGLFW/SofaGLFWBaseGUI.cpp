@@ -1233,7 +1233,7 @@ bool SofaGLFWBaseGUI::initRecorder(int width, int height, unsigned int framerate
     }
     else
     {
-        msg_warning("SofaGLFWBaseGUI") << " The file " << Utils::getSofaPathPrefix() <<"/etc/SofaGLFW.ini either doesn't exist or doesn't contain the string FFMPEG_EXEC_PATH."
+        msg_warning("SofaGLFWBaseGUI") << " The file " << helper::Utils::getSofaPathPrefix() <<"/etc/SofaGLFW.ini either doesn't exist or doesn't contain the string FFMPEG_EXEC_PATH."
         " The initialization of the FFMPEG video recorder will likely fail. To fix this, provide a valid path to the ffmpeg executable inside this file using the syntax \"FFMPEG_EXEC_PATH=/usr/bin/ffmpeg\".";
     }
 
