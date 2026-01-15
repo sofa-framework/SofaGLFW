@@ -20,55 +20,23 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
+
+#include <SofaImGui/config.h>
+
 #include <sofa/core/objectmodel/Data.h>
-#include <imgui.h>
 
 namespace sofaimgui
 {
 
 template<sofa::Size N, typename real>
-inline void showRigidMass(const sofa::defaulttype::RigidMass<N,real>& rigidMass)
-{
-    ImGui::Text("Mass: %f", rigidMass.mass);
-    ImGui::Text("Volume: %f", rigidMass.volume);
-
-    std::stringstream ss;
-    ss << rigidMass.inertiaMatrix;
-    ImGui::Text("Inertia Matrix: %s", ss.str().c_str());
-}
+inline void showRigidMass(const sofa::defaulttype::RigidMass<N,real>& rigidMass);
 
 template<sofa::Size N, typename real>
-inline void showRigidMasses(const sofa::Data<sofa::type::vector<sofa::defaulttype::RigidMass<N, real>>>& data)
-{
-    static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
-    ImGui::Text("%d elements", data.getValue().size());
-    if (ImGui::BeginTable((data.getName() + data.getOwner()->getPathName()).c_str(), 4, flags))
-    {
-        ImGui::TableSetupColumn("");
-        ImGui::TableSetupColumn("Mass");
-        ImGui::TableSetupColumn("Volume");
-        ImGui::TableSetupColumn("Inertia Matrix");
+inline void showRigidMasses(const sofa::Data<sofa::type::vector<sofa::defaulttype::RigidMass<N, real>>>& data);
 
-        ImGui::TableHeadersRow();
+extern template void SOFAIMGUI_API showRigidMass<2, SReal>(const sofa::defaulttype::RigidMass<2, SReal>&);
+extern template void SOFAIMGUI_API showRigidMass<3, SReal>(const sofa::defaulttype::RigidMass<3, SReal>&);
 
-        unsigned int counter {};
-        for (const auto& rigidMass : *sofa::helper::getReadAccessor(data))
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::Text("%d", counter++);
-            ImGui::TableNextColumn();
-            ImGui::Text("%f", rigidMass.mass);
-            ImGui::TableNextColumn();
-            ImGui::Text("%f", rigidMass.volume);
-
-            ImGui::TableNextColumn();
-            std::stringstream ss;
-            ss << rigidMass.inertiaMatrix;
-            ImGui::Text("Inertia Matrix: %s", ss.str().c_str());
-        }
-        ImGui::EndTable();
-    }
-}
-
+extern template void SOFAIMGUI_API showRigidMasses<2, SReal>(const sofa::Data<sofa::type::vector<sofa::defaulttype::RigidMass<2, SReal>>>&);
+extern template void SOFAIMGUI_API showRigidMasses<3, SReal>(const sofa::Data<sofa::type::vector<sofa::defaulttype::RigidMass<3, SReal>>>&);
 }

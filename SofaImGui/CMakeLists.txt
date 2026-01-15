@@ -20,6 +20,7 @@ sofa_fetch_dependency(imgui
         DONT_BUILD
 )
 
+# nfd (nativefiledialog-extended)
 find_package(nfd CONFIG QUIET)
 
 if(TARGET nfd::nfd)
@@ -42,43 +43,34 @@ elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES
     add_library(nfd::nfd ALIAS nfd) # introduced in nfd >= v1.2.1
 endif()
 
-
+# ImPlot
 sofa_fetch_dependency(ImPlot
         GIT_REPOSITORY https://github.com/epezent/implot
         GIT_TAG        18c72431f8265e2b0b5378a3a73d8a883b2175ff # v0.16
         DONT_BUILD
 )
 
+# IconFontCppHeaders
 sofa_fetch_dependency(IconFontCppHeaders
         GIT_REPOSITORY https://github.com/juliettef/IconFontCppHeaders
         GIT_TAG        bf610efb2e5d4361df799d0dfb5ae3977d7bba2e
         DONT_BUILD
 )
 
-sofa_fetch_dependency(simpleini
-        GIT_REPOSITORY https://github.com/brofield/simpleini
-        GIT_TAG        09c21bda1dc1b578fa55f4a005d79b0afd481296 # v4.22
+# SimpleIni
+find_package(SimpleIni QUIET)
 
-)
+if(NOT TARGET SimpleIni::SimpleIni AND ((DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES) OR (NOT DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES)))
+    message("${PROJECT_NAME}: SimpleIni not found and SOFA_ALLOW_FETCH_DEPENDENCIES is ON, fetching source code...")
 
-set(IMGUI_HEADER_FILES
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl2.h
-    ${imgui_SOURCE_DIR}/imconfig.h
-    ${imgui_SOURCE_DIR}/imgui.h
-    ${imgui_SOURCE_DIR}/imgui_internal.h
-    ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
-    ${ImPlot_SOURCE_DIR}/implot.h
-    ${ImPlot_SOURCE_DIR}/implot_internal.h
-    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome4.h
-    ${IconFontCppHeaders_SOURCE_DIR}/IconsFontAwesome6.h
-    ${simpleini_SOURCE_DIR}/SimpleIni.h
-    resources/fa-regular-400.h
-    resources/fa-solid-900.h
-    resources/Roboto-Medium.h
-    resources/Style.h
-)
+    sofa_fetch_dependency(simpleini
+            GIT_REPOSITORY https://github.com/brofield/simpleini
+            GIT_TAG        09c21bda1dc1b578fa55f4a005d79b0afd481296 # v4.22
+    )
+elseif(NOT TARGET SimpleIni::SimpleIni)
+    message(FATAL_ERROR "{PROJECT_NAME}: SimpleIni not found and SOFA_ALLOW_FETCH_DEPENDENCIES is OFF and thus cannot be fetched. Install SimpleIni, or enable SOFA_ALLOW_FETCH_DEPENDENCIES to fix this issue.")
+endif()
+
 set(IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
@@ -102,14 +94,13 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiDataWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
-    ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.h
     ${SOFAIMGUI_SOURCE_DIR}/UIStrings.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/LinearSpringWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/RigidMass.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/ScalarWidget.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/VecVectorWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
@@ -117,8 +108,6 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.h
     ${SOFAIMGUI_SOURCE_DIR}/guis/BaseAdditionalGUI.h
@@ -133,6 +122,8 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/RigidMass.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/ScalarWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.cpp
@@ -153,10 +144,11 @@ set(SOURCE_FILES
 
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${ImPlot_SOURCE_DIR} ${IconFontCppHeaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${IMGUI_SOURCE_DIR}>")
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd)
+target_link_libraries(${PROJECT_NAME} PRIVATE SimpleIni::SimpleIni)
 
 # setup the same API exports for imgui
 target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_API=SOFAIMGUI_API)

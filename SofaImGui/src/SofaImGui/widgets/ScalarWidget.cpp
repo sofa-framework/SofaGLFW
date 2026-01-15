@@ -20,33 +20,20 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #pragma once
-
-#include <sofa/simulation/Node.h>
-#include <SofaImGui/config.h>
-
-#include <memory>
-#include <SofaGLFW/BaseGUIEngine.h>
-#include <sofa/gl/FrameBufferObject.h>
-
+#include <sofa/core/objectmodel/Data.h>
 #include <imgui.h>
-#include <sofa/simulation/Node.h>
-#include "WindowState.h"
 
-
-
-namespace windows
+namespace sofaimgui
 {
-        /**
-         * @brief Shows the Performance window.
-         *
-         * This function displays performance metrics including the average frame time, frames per second (FPS), number of vertices, indices, triangles, visible windows, and active allocations. It also plots the frame times over a certain period.
-         *
-         * @param windowNamePerformances The name of the Performance window.
-         * @param io The ImGuiIO structure containing ImGui's I/O configuration settings.
-         * @param isPerformancesWindowOpen A reference to a boolean flag indicating if the Performance window is open.
-         */
-         void showPerformances(const char* const& windowNamePerformances,
-                               const ImGuiIO& io,
-                               WindowState& winManagerPerformances);
 
-} // namespace sofaimgui
+bool showScalarWidget(const std::string& label, const std::string& id, float& value)
+{
+    return ImGui::InputFloat((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
+}
+
+bool showScalarWidget(const std::string& label, const std::string& id, double& value)
+{
+    return ImGui::InputDouble((label + "##" + id).c_str(), &value, 0.0f, 0.0f, "%.8f", ImGuiInputTextFlags_None);
+}
+
+}
