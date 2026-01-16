@@ -919,11 +919,11 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
     
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-    
+
     if(m_pboSize[0] != viewport[2] || m_pboSize[1] != viewport[3])
     {
-        // Size for your frame (e.g., 1920x1080 RGB)
-        int size = viewport[2] * viewport[3] * 3;
+        // Size for your frame (e.g., 1920x1080 RGBA)
+        int size = viewport[2] * viewport[3] * 4;
 
         for (int i = 0; i < s_NB_PBOS; i++) {
             glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[i]);
@@ -939,14 +939,14 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
     
     // Read to PBO (asynchronous)
     glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[readIndex]);
-    glReadPixels(0, 0, viewport[2], viewport[3], GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     // Map and process previous frame
     glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[processIndex]);
     void* data = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
     if (data)
     {
-        int size = viewport[2] * viewport[3] * 3;
+        int size = viewport[2] * viewport[3] * 4;
         pixels.resize(size);
         memcpy(pixels.data(), data, size);
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
