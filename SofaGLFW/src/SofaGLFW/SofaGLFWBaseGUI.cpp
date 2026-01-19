@@ -1228,8 +1228,8 @@ bool SofaGLFWBaseGUI::initRecorder(int width, int height, unsigned int framerate
     if (iniFileValues.find("FFMPEG_EXEC_PATH") != iniFileValues.end())
     {
         // get absolute path of FFMPEG executable
-        msg_info("SofaGLFWBaseGUI") << " The file " << ffmpegIniFilePath << " points to " << ffmpeg_exec_path << " for the ffmpeg executable.";
         ffmpeg_exec_path = sofa::helper::system::SetDirectory::GetRelativeFromProcess(iniFileValues["FFMPEG_EXEC_PATH"].c_str());
+        msg_info("SofaGLFWBaseGUI") << " The file " << ffmpegIniFilePath << " points to " << ffmpeg_exec_path << " for the ffmpeg executable.";
     }
     else
     {
