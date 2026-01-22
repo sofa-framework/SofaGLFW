@@ -37,6 +37,7 @@
 #include <sofa/component/visual/LineAxis.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include "SceneGraph.h"
+#include <sofa/simulation/DeactivatedNodeVisitor.h>
 
 namespace windows
 {
@@ -44,6 +45,7 @@ namespace windows
     bool drawExpandableObject(sofa::core::objectmodel::Base * obj, bool isNodeHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject)
     {
         const auto& objName = obj->getName();
+        auto* node = dynamic_cast<sofa::simulation::Node*>(obj);
 
         ImGui::PushStyleColor(ImGuiCol_Text, objectColor);
 
@@ -71,12 +73,34 @@ namespace windows
             }
         }
 
+        if (ImGui::BeginPopupContextItem())
+        {
+            ImGui::Text("%s", obj->getPathName().c_str());
+            if (node)
+            {
+                const auto isActivated = node->is_activated.getValue();
+                if (ImGui::MenuItem(isActivated ? "Deactivate Node" : "Activate Node"))
+                {
+                    node->setActive(!isActivated);
+
+                    sofa::simulation::DeactivationVisitor v(sofa::core::execparams::defaultInstance(), !isActivated);
+                    node->executeVisitor(&v);
+                }
+            }
+            ImGui::EndPopup();
+        }
+
         ImGui::SameLine();
         //Now actually write the name
         bool doHighLight = isNodeHighlighted || ((clickedObject == obj) !=  currentSelection.contains(obj));
         if (doHighLight)
         {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
+        }
+
+        if (node && !node->isActive())
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0,0,1));
         }
 
         ImGui::SetCursorPosX(XPos);
@@ -87,12 +111,14 @@ namespace windows
             ImGui::PopStyleColor();
         }
 
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("%s", obj->getClassName().c_str());
-        if (isNodeHighlighted)
+        if (node && !node->isActive())
         {
             ImGui::PopStyleColor();
         }
+
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled("%s", obj->getClassName().c_str());
+
         ImGui::PopStyleColor();
 
         ImGui::PopID();
@@ -409,7 +435,7 @@ namespace windows
                     ImGui::EndTable();
                 }
 
-                if (clickedObject)
+                if (clickedObject && *winManagerSceneGraph.getStatePtr())
                 {
                     if(!currentSelection.contains(clickedObject)){
                         currentSelection.clear();

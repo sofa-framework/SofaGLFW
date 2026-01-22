@@ -21,8 +21,8 @@
 ******************************************************************************/
 #include <SofaGLFW/config.h>
 #include <SofaGLFW/NullGUIEngine.h>
-#include <GLFW/glfw3.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <GLFW/glfw3.h>
 
 namespace sofaglfw
 {
@@ -70,8 +70,8 @@ sofa::type::Vec2i NullGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixe
 {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-    pixels.resize(viewport[2] * viewport[3] * 3);
-    glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+    pixels.resize(viewport[2] * viewport[3] * 4);
+    glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     
     return {viewport[2], viewport[3]};
 }

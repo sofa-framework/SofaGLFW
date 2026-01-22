@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <ostream>
 #include <unordered_set>
+#include <type_traits>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 #include <sofa/core/CategoryLibrary.h>
@@ -68,6 +69,7 @@
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <implot.h>
 #include <nfd.h>
+#include <SimpleIni.h>
 #include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/core/visual/VisualParams.h>
@@ -86,6 +88,11 @@ using namespace sofa;
 namespace sofaimgui
 {
 
+struct ImGuiGUIEngine::Settings
+{
+    CSimpleIniA ini;
+};
+
 ImGuiGUIEngine::ImGuiGUIEngine()
     : winManagerProfiler(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("profiler.txt")))
     , winManagerSceneGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("scenegraph.txt")))
@@ -102,6 +109,9 @@ ImGuiGUIEngine::ImGuiGUIEngine()
     , m_imguiNeedViewReset(false)
 {
 }
+
+ImGuiGUIEngine::~ImGuiGUIEngine()
+{}
 
 void ImGuiGUIEngine::init()
 {
@@ -121,25 +131,24 @@ void ImGuiGUIEngine::init()
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-
-
-    ini.SetUnicode();
+    settings = std::make_unique<Settings>();
+    settings->ini.SetUnicode();
     if (sofa::helper::system::FileSystem::exists(sofaimgui::AppIniFile::getAppIniFile()))
     {
-        [[maybe_unused]] SI_Error rc = ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        [[maybe_unused]] SI_Error rc = settings->ini.LoadFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         assert(rc == SI_OK);
         msg_info("ImGuiGUIEngine") << "Fetching settings from " << sofaimgui::AppIniFile::getAppIniFile();
     }
 
     const char* pv;
-    pv = ini.GetValue("Style", "theme");
+    pv = settings->ini.GetValue("Style", "theme");
     if (!pv)
     {
-        ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), ini::styleDescription);
-        SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        settings->ini.SetValue("Style", "theme", sofaimgui::defaultStyle.c_str(), ini::styleDescription);
+        SI_Error rc = settings->ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
         if (rc != SI_OK)
         {
-            msg_error("ImGuiGUIEngine") << std::strerror(errno) << "'" << sofaimgui::AppIniFile::getAppIniFile() << "'";
+            msg_error("ImGuiGUIEngine") << "Saving file '" << sofaimgui::AppIniFile::getAppIniFile() << "' failed. " << std::strerror(errno) << ". Error code " << rc;
         }
         assert(rc == SI_OK);
         pv = sofaimgui::defaultStyle.c_str();
@@ -175,13 +184,13 @@ void ImGuiGUIEngine::initBackend(GLFWwindow* glfwWindow)
 
     loadFont(yscale);
 
-    const bool rememberWindowSize = ini.GetBoolValue("Window", "rememberWindowSize", true);
+    const bool rememberWindowSize = settings->ini.GetBoolValue("Window", "rememberWindowSize", true);
     if(rememberWindowSize)
     {
-        if(ini.KeyExists("Window", "windowSizeX") && ini.KeyExists("Window", "windowSizeY"))
+        if(settings->ini.KeyExists("Window", "windowSizeX") && settings->ini.KeyExists("Window", "windowSizeY"))
         {
-            const long windowSizeX = ini.GetLongValue("Window", "windowSizeX");
-            const long windowSizeY = ini.GetLongValue("Window", "windowSizeY");
+            const long windowSizeX = settings->ini.GetLongValue("Window", "windowSizeX");
+            const long windowSizeY = settings->ini.GetLongValue("Window", "windowSizeY");
             if(windowSizeX > 0 && windowSizeY > 0)
             {
                 glfwSetWindowSize(glfwWindow, static_cast<int>(windowSizeX), static_cast<int>(windowSizeY));
@@ -327,7 +336,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     auto groot = baseGUI->getRootNode();
 
-    bool alwaysShowFrame = ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
+    bool alwaysShowFrame = settings->ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
     if (alwaysShowFrame)
     {
         auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>();
@@ -611,7 +620,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Viewport window
      **************************************/
-    windows::showViewPort(groot, windowNameViewport, ini, m_fbo, m_viewportWindowSize,
+    windows::showViewPort(groot, windowNameViewport, settings->ini, m_fbo, m_viewportWindowSize,
                           isMouseOnViewport, winManagerViewPort, baseGUI,
                           isViewportDisplayedForTheFirstTime, lastViewPortPos);
 
@@ -685,7 +694,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Settings window
      **************************************/
-    windows::showSettings(windowNameSettings,ini, winManagerSettings, this);
+    windows::showSettings(windowNameSettings, settings->ini, winManagerSettings, this);
     
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
@@ -711,8 +720,9 @@ void ImGuiGUIEngine::endFrame()
     std::setlocale(LC_NUMERIC, m_localeBackup.c_str());
 }
 
-void ImGuiGUIEngine::resetView(ImGuiID dockspace_id, const char* windowNameSceneGraph, const char* winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport)
+void ImGuiGUIEngine::resetView(_ImGuiID dockspace_id, const char* windowNameSceneGraph, const char* winNameSelectionDescription, const char *windowNameLog, const char *windowNameViewport)
 {
+    static_assert(std::is_same<_ImGuiID, ImGuiID>::value, "_ImGuiID and ImGuiID types must be identical. _ImGuiID must be adjusted.");
     ImGuiViewport* viewport = ImGui::GetMainViewport();
 
     ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
@@ -738,13 +748,13 @@ GLFWmonitor* ImGuiGUIEngine::findMyMonitor(GLFWwindow* glfwWindow)
 {
     GLFWmonitor* foundMonitor { nullptr };
 
-    const bool rememberWindowPosition = ini.GetBoolValue("Window", "rememberWindowPosition", true);
+    const bool rememberWindowPosition = settings->ini.GetBoolValue("Window", "rememberWindowPosition", true);
     if(rememberWindowPosition)
     {
-        if(ini.KeyExists("Window", "windowPosX") && ini.KeyExists("Window", "windowPosY"))
+        if(settings->ini.KeyExists("Window", "windowPosX") && settings->ini.KeyExists("Window", "windowPosY"))
         {
-            const long windowPosX = ini.GetLongValue("Window", "windowPosX");
-            const long windowPosY = ini.GetLongValue("Window", "windowPosY");
+            const long windowPosX = settings->ini.GetLongValue("Window", "windowPosX");
+            const long windowPosY = settings->ini.GetLongValue("Window", "windowPosY");
 
             int monitorCount;
             GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
@@ -817,7 +827,7 @@ void ImGuiGUIEngine::loadFont(float yscale)
     io.Fonts->AddFontFromMemoryCompressedTTF(FA_SOLID_900_compressed_data, FA_SOLID_900_compressed_size, fontSize * yscale, &config, icon_ranges);
 
     // restore the global scale stored in the Settings ini file
-    const float globalScale = static_cast<float>(ini.GetDoubleValue("Visualization", "globalScale", 1.0));
+    const float globalScale = static_cast<float>(settings->ini.GetDoubleValue("Visualization", "globalScale", 1.0));
     this->setScale(globalScale);
 
     io.Fonts->Build();
@@ -880,11 +890,11 @@ void ImGuiGUIEngine::terminate()
         const auto lastWindowSize = ImGui::GetMainViewport()->Size;
 
         // save latest window state
-        ini.SetLongValue("Window", "windowPosX", static_cast<long>(lastWindowPos.x));
-        ini.SetLongValue("Window", "windowPosY", static_cast<long>(lastWindowPos.y));
-        ini.SetLongValue("Window", "windowSizeX", static_cast<long>(lastWindowSize.x));
-        ini.SetLongValue("Window", "windowSizeY", static_cast<long>(lastWindowSize.y));
-        [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        settings->ini.SetLongValue("Window", "windowPosX", static_cast<long>(lastWindowPos.x));
+        settings->ini.SetLongValue("Window", "windowPosY", static_cast<long>(lastWindowPos.y));
+        settings->ini.SetLongValue("Window", "windowSizeX", static_cast<long>(lastWindowSize.x));
+        settings->ini.SetLongValue("Window", "windowSizeY", static_cast<long>(lastWindowSize.y));
+        [[maybe_unused]] SI_Error rc = settings->ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
 
         NFD_Quit();
         
@@ -930,11 +940,11 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
     
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-    
+
     if(m_pboSize[0] != viewport[2] || m_pboSize[1] != viewport[3])
     {
-        // Size for your frame (e.g., 1920x1080 RGB)
-        int size = viewport[2] * viewport[3] * 3;
+        // Size for your frame (e.g., 1920x1080 RGBA)
+        int size = viewport[2] * viewport[3] * 4;
 
         for (int i = 0; i < s_NB_PBOS; i++) {
             glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[i]);
@@ -950,14 +960,14 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
     
     // Read to PBO (asynchronous)
     glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[readIndex]);
-    glReadPixels(0, 0, viewport[2], viewport[3], GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     // Map and process previous frame
     glBindBuffer(GL_PIXEL_PACK_BUFFER, m_pbos[processIndex]);
     void* data = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
     if (data)
     {
-        int size = viewport[2] * viewport[3] * 3;
+        int size = viewport[2] * viewport[3] * 4;
         pixels.resize(size);
         memcpy(pixels.data(), data, size);
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);

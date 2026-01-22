@@ -30,7 +30,6 @@
 
 #include <imgui.h>
 #include <sofa/simulation/Node.h>
-#include <SimpleIni.h>
 #include "WindowState.h"
 
 

@@ -23,7 +23,6 @@
 #include <sofa/helper/Utils.h>
 #include <sofa/helper/system/FileSystem.h>
 #include <sofa/gui/common/BaseGUI.h>
-#include "windows/Performances.h"
 #include "AppIniFile.h"
 
 
@@ -35,7 +34,7 @@ namespace sofaimgui
     {
         static const std::string configPath(
             helper::system::FileSystem::append(sofa::gui::common::BaseGUI::getConfigDirectoryPath(), "imgui"));
-        helper::system::FileSystem::ensureFolderExists("imgui");
+        helper::system::FileSystem::ensureFolderExists(configPath);
         return configPath;
     }
 
