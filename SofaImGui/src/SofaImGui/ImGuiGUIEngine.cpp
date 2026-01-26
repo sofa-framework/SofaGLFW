@@ -410,6 +410,16 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     };
 
     static SaveStep saveStep = SaveStep::None;
+
+    enum class LoadStep
+    {
+        None,
+        ChooseType,
+        OpenFileDialog
+    };
+
+    static LoadStep loadStep = LoadStep::None;
+
     static SnapshotType chosenType = SnapshotType::Print;
     /***************************************
      * Main menu bar
@@ -457,7 +467,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Load Snapshot"))
             {
-                return;
+                loadStep = LoadStep::ChooseType;
+                
             }
 
             ImGui::Separator();
@@ -668,6 +679,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::OpenPopup("SnapshotTypeChoice");
     }
 
+    if (loadStep == LoadStep::ChooseType)
+    {
+        ImGui::OpenPopup("LoadSnapshotTypeChoice");
+    }
+
     if ( ImGui::BeginPopupModal("SnapshotTypeChoice", nullptr,
     ImGuiWindowFlags_AlwaysAutoResize))
     {
@@ -688,14 +704,57 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         ImGui::EndPopup();
     }
 
+    if ( ImGui::BeginPopupModal("LoadSnapshotTypeChoice", nullptr,
+    ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Choose type of snapshot");
+        ImGui::Separator();
+        if (ImGui::Button("JSON"))
+        {
+            chosenType = SnapshotType::JSON;
+            loadStep = LoadStep::OpenFileDialog;
+            
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("nothing"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
     if(saveStep == SaveStep::OpenFileDialog)
     {
         
         // auto SnapCont = createSnapshot(SnapshotType::JSON);
         auto SnapCont = createSnapshot(chosenType);
-        auto visitor = SnapshotVisitor(nullptr,*SnapCont);
+        auto rootSnapNode = std::make_shared<sofa::core::objectmodel::BaseSnapshot::SnapNode>();
+        rootSnapNode->name = "root";
+        // SnapNode_.nodeName = "root";
+        std::cout << "IMGUI " << std::endl;
+        auto visitor = SnapshotVisitor(nullptr,*SnapCont, *rootSnapNode);
         groot->execute(visitor);
 
+        std::ofstream file("dumpStateTest.txt");
+        sofa::simulation::node::dumpState(groot.get(),file);
+        file.close();
+
+        for(auto element : rootSnapNode->componentList)
+        {
+            std::cout <<"dans rootSnapNode : " << element.name << std::endl;
+        }
+
+        std::cout << "######" << std::endl;
+
+        for(auto element : rootSnapNode->childNode)
+        {
+            std::cout <<"dans rootSnapNode : " << element->name << std::endl;
+            for(auto compelement : element->componentList)
+            {
+                std::cout << "components: " << compelement.name << std::endl;
+            }
+        }
         NFD_Init();
 
         nfdchar_t* savePath;
@@ -719,6 +778,40 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         // Quit NFD
         NFD_Quit();
         saveStep = SaveStep::None;
+    }
+
+    if(loadStep == LoadStep::OpenFileDialog)
+    {
+        auto SnapCont = createSnapshot(chosenType);
+
+        nfdchar_t *outPath = NULL;
+        nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
+        nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
+        // nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
+        if ( result == NFD_OKAY )
+        {
+            puts("Success!");
+            puts(outPath);
+            
+            if (helper::system::FileSystem::exists(outPath))
+            {
+                //loadFile(baseGUI, groot, outPath, false);
+                SnapCont->importSnapshot(outPath);
+
+            }
+            free(outPath);
+        }
+        else if ( result == NFD_CANCEL )
+        {
+            puts("User pressed cancel.");
+        }
+        else 
+        {
+            printf("Error: %s\n", NFD_GetError() );
+        }
+        NFD_Quit();
+        loadStep = LoadStep::None;
+        // call loadSnapshot ? to transfer data/link into their fields
     }
 
     if (m_imguiNeedViewReset)
