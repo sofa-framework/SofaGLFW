@@ -116,6 +116,8 @@ protected:
     static inline constexpr int s_NB_PBOS = 2;
     GLuint m_pbos[s_NB_PBOS];
     sofa::type::Vec2i m_pboSize;
+
+    std::shared_ptr<sofa::core::objectmodel::BaseSnapshot> m_baseSnapshot;
 };
 
 } // namespace sofaimgui
