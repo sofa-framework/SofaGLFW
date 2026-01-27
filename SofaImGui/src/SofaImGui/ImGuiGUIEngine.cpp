@@ -88,6 +88,9 @@ using sofa::core::objectmodel::SnapshotType;
 #include <sofa/simulation/SnapshotVisitor.h>
 using sofa::simulation::SnapshotVisitor;
 
+#include <sofa/simulation/LoadSnapshotVisitor.h>
+using sofa::simulation::LoadSnapshotVisitor;
+
 
 #include <clocale>
 
@@ -424,7 +427,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     {
         None,
         ChooseType,
-        OpenFileDialog
+        OpenFileDialog,
+        MemorySave
     };
 
     static SaveStep saveStep = SaveStep::None;
@@ -433,7 +437,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     {
         None,
         ChooseType,
-        OpenFileDialog
+        OpenFileDialog,
+        MemorySave
     };
 
     static LoadStep loadStep = LoadStep::None;
@@ -764,8 +769,17 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::Button("nothing"))
         {
             ImGui::CloseCurrentPopup();
+            saveStep = SaveStep::None;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Memory"))
+        {
+            chosenType = SnapshotType::Memory;
+            saveStep = SaveStep::MemorySave;
+            ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
+
     }
 
     if ( ImGui::BeginPopupModal("LoadSnapshotTypeChoice", nullptr,
@@ -784,8 +798,17 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::Button("nothing"))
         {
             ImGui::CloseCurrentPopup();
+            loadStep = LoadStep::None;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Memory"))
+        {
+            chosenType = SnapshotType::Memory;
+            loadStep = LoadStep::MemorySave;
+            ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
+
     }
 
     if(saveStep == SaveStep::OpenFileDialog)
@@ -821,6 +844,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 std::cout << "components: " << compelement.name << std::endl;
             }
         }
+        //auto SnapCont = createSnapshot(chosenType);
+        //SnapCont->printSnapshot();
+        m_baseSnapshot = createSnapshot(chosenType);
+        m_baseSnapshot->printSnapshot();
+        // auto visitor = SnapshotVisitor(nullptr,*SnapCont);
+
         NFD_Init();
 
         nfdchar_t* savePath;
@@ -833,8 +862,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             puts(savePath);
 
             std::string path(savePath);
-
-            SnapCont->exportTo(path);
+            auto visitor = SnapshotVisitor(nullptr,*m_baseSnapshot);
+            groot->execute(visitor);
+            // SnapCont->exportTo(path);
+            m_baseSnapshot->exportTo(path);
             // remember to free the memory (since NFD_OKAY is returned)
             NFD_FreePath(savePath);
         } else {
@@ -843,12 +874,29 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         // Quit NFD
         NFD_Quit();
+        // SnapCont->printSnapshot();
+        m_baseSnapshot->printSnapshot();
+        saveStep = SaveStep::None;
+    }
+
+    if (saveStep == SaveStep::MemorySave)
+    {
+        std::cout << "MemorySave begin : " << std::endl;
+        m_baseSnapshot = createSnapshot(chosenType);
+        m_baseSnapshot->printSnapshot();
+        auto visitor = SnapshotVisitor(nullptr,*m_baseSnapshot);
+        groot->execute(visitor);
+        m_baseSnapshot->printSnapshot();
         saveStep = SaveStep::None;
     }
 
     if(loadStep == LoadStep::OpenFileDialog)
     {
-        auto SnapCont = createSnapshot(chosenType);
+        if(!m_baseSnapshot)
+        {
+            m_baseSnapshot = createSnapshot(chosenType);
+        }
+
 
         nfdchar_t *outPath = NULL;
         nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
@@ -862,8 +910,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             if (helper::system::FileSystem::exists(outPath))
             {
                 //loadFile(baseGUI, groot, outPath, false);
-                SnapCont->importSnapshot(outPath);
-
+                m_baseSnapshot->importFrom(outPath);
+                //m_baseSnapshot->printSnapshot();
+                //auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+                //groot->execute(visitor);
             }
             free(outPath);
         }
@@ -876,8 +926,23 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             printf("Error: %s\n", NFD_GetError() );
         }
         NFD_Quit();
+
+
+
         loadStep = LoadStep::None;
         // call loadSnapshot ? to transfer data/link into their fields
+    }
+
+    if (loadStep == LoadStep::MemorySave)
+    {
+        if(!m_baseSnapshot)
+        {
+            m_baseSnapshot = createSnapshot(chosenType);
+        }
+
+        m_baseSnapshot->printSnapshot();
+
+        loadStep = LoadStep::None;
     }
 
     if (m_imguiNeedViewReset)
