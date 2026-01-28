@@ -748,12 +748,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 
     if(saveStep == SaveStep::OpenFileDialog)
-    {
-        //auto SnapCont = createSnapshot(chosenType);    
-        //SnapCont->printSnapshot();    
+    {   
         m_baseSnapshot = createSnapshot(chosenType);
         m_baseSnapshot->printSnapshot();
-        // auto visitor = SnapshotVisitor(nullptr,*SnapCont);
         
         NFD_Init();
 
@@ -769,7 +766,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             std::string path(savePath);
             auto visitor = SnapshotVisitor(nullptr,*m_baseSnapshot);
             groot->execute(visitor);
-            // SnapCont->exportTo(path);
+            
             m_baseSnapshot->exportTo(path);
             // remember to free the memory (since NFD_OKAY is returned)
             NFD_FreePath(savePath);
@@ -779,7 +776,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         // Quit NFD
         NFD_Quit();
-        // SnapCont->printSnapshot();
         m_baseSnapshot->printSnapshot();
         saveStep = SaveStep::None;
     }
@@ -802,11 +798,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             m_baseSnapshot = createSnapshot(chosenType);
         }
         
-
         nfdchar_t *outPath = NULL;
         nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
         nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
-        // nfdresult_t result = NFD_OpenDialog(&outPath, nfd_filters.data(), nfd_filters.size(), NULL);
+        
         if ( result == NFD_OKAY )
         {
             puts("Success!");
@@ -832,10 +827,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         NFD_Quit();
 
-        
-
         loadStep = LoadStep::None;
-        // call loadSnapshot ? to transfer data/link into their fields
+
     }
 
     if (loadStep == LoadStep::MemorySave)
