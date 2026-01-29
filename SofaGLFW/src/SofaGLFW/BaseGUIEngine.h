@@ -50,6 +50,7 @@ public:
     virtual sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) = 0;
     virtual void openFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot) {};
     virtual void loadFile(SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false) {};
+    virtual void contentScaleChanged(float xscale, float yscale) {}
 };
 
 } // namespace sofaglfw
