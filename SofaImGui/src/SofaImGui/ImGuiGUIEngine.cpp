@@ -298,7 +298,7 @@ void ImGuiGUIEngine::openFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
 void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     nfdchar_t *outPath;
-    std::array<nfdfilteritem_t, 1> filterItem{ {"Image", "jpg,png"} };
+    std::array<nfdfilteritem_t, 1> filterItem{ { {"Image", "jpg,png"} } };
     const auto sceneFilename = baseGUI->getSceneFileName();
     std::string baseFilename{};
     if (!sceneFilename.empty())
@@ -922,6 +922,7 @@ bool ImGuiGUIEngine::dispatchMouseEvents()
 
 void ImGuiGUIEngine::contentScaleChanged(float xscale, float yscale)
 {
+    SOFA_UNUSED(xscale);
     loadFont(yscale);
 }
 
