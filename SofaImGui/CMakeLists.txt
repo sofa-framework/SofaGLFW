@@ -95,6 +95,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUI.h
     ${SOFAIMGUI_SOURCE_DIR}/ImGuiGUIEngine.h
     ${SOFAIMGUI_SOURCE_DIR}/UIStrings.h
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/BoundingBoxWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/BoolWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/LinearSpringWidget.h

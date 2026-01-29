@@ -32,6 +32,7 @@
 #include <SofaImGui/widgets/MaterialWidget.h>
 #include <SofaImGui/widgets/RigidMass.h>
 #include <SofaImGui/widgets/VecVectorWidget.h>
+#include <SofaImGui/widgets/BoundingBoxWidget.h>
 #include <SofaImGui/widgets/BoolWidget.h>
 
 namespace sofaimgui
@@ -652,6 +653,16 @@ void DataWidget<sofa::type::vector<sofa::defaulttype::Rigid2Mass>>::showWidget(M
 }
 
 /***********************************************************************************************************************
+ * Bounding Box
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<sofa::type::BoundingBox>::showWidget(MyData& data)
+{
+    showBoundingBoxWidget(data);
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -742,4 +753,6 @@ const bool dw_rigid2mass = DataWidgetFactory::Add<sofa::defaulttype::Rigid2Mass>
 const bool dw_vector_rigid2mass = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::Rigid2Mass>>();
 const bool dw_rigid3mass = DataWidgetFactory::Add<sofa::defaulttype::Rigid3Mass>();
 const bool dw_vector_rigid3mass = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::Rigid3Mass>>();
+
+const bool dw_boundingbox = DataWidgetFactory::Add<sofa::type::BoundingBox>();
 }
