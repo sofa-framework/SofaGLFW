@@ -33,6 +33,7 @@
 #include <SofaImGui/widgets/RigidMass.h>
 #include <SofaImGui/widgets/VecVectorWidget.h>
 #include <SofaImGui/widgets/BoundingBoxWidget.h>
+#include <SofaImGui/widgets/BoolWidget.h>
 
 namespace sofaimgui
 {
@@ -47,16 +48,7 @@ void BaseDataWidget::showWidgetAsText(sofa::core::objectmodel::BaseData& data)
 template<>
 void DataWidget<bool>::showWidget(MyData& data)
 {
-    const bool initialValue = data.getValue();
-    bool changeableValue = initialValue;
-    const auto& label = data.getName();
-    const auto id = data.getName() + data.getOwner()->getPathName();
-
-    ImGui::Checkbox((label + "##" + id).c_str(), &changeableValue);
-    if (changeableValue != initialValue)
-    {
-        data.setValue(changeableValue);
-    }
+    showBoolWidget(data);
 }
 
 template<>
