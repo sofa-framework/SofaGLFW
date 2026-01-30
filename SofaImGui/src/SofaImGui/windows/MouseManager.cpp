@@ -29,8 +29,6 @@
 namespace windows
 {
 
-
-
 void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             WindowState& winManagerMouse,
                             sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -56,6 +54,9 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                 if (ImGui::CollapsingHeader(buttonNames.at(button).c_str()))
                 {
                     auto* operation = pickHandler->getOperation(button);
+                    
+                    if(!operation) continue;
+
                     std::string currentOperationDescription;
 
                     for (const auto& [label, creator] : OperationFactory::getInstance()->registry)
@@ -73,6 +74,9 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             if (ImGui::Selectable(creator->getDescription().c_str(), isSelected))
                             {
                                 pickHandler->changeOperation(button, label);
+                                operation = pickHandler->getOperation(button); // Re-fetch the operation after call to changeOperation()
+    
+                                if (!operation) continue;
                             }
                             if (isSelected)
                                 ImGui::SetItemDefaultFocus();
@@ -108,7 +112,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                         float stiffness = fixOperation->getStiffness();
                         if (ImGui::SliderFloat("Stiffness", &stiffness, 0.0f, 100000.0f))
                         {
-                            attachOperation->setStiffness(stiffness);
+                            fixOperation->setStiffness(stiffness);
                         }
                     }
                     else if (auto* inciseOperation = dynamic_cast<InciseOperation*>(operation))
@@ -162,7 +166,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             }
                         }
 
-                        static float scale = topologyOperation->getScale();
+                        float scale = topologyOperation->getScale();
                         if (ImGui::SliderFloat("Selector scale", &scale, 0.0f, 100.0f))
                         {
                             topologyOperation->setScale(scale);
@@ -183,13 +187,13 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                     }
                     else if (auto* sutureOperation = dynamic_cast<AddSutureOperation*>(operation))
                     {
-                        static float stiffness = 10.0f;
+                        float stiffness = 10.0f;
                         if (ImGui::SliderFloat("Stiffness", &stiffness, 0.0f, 1000.0f))
                         {
                             sutureOperation->setStiffness(stiffness);
                         }
 
-                        static float damping = 1.0f;
+                        float damping = 1.0f;
                         if (ImGui::SliderFloat("Damping", &damping, 0.0f, 10.0f))
                         {
                             sutureOperation->setDamping(damping);
