@@ -79,6 +79,7 @@
 #include <sofa/helper/io/File.h>
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/helper/system/PluginManager.h>
+#include <sofa/version.h>
 
 #include <clocale>
 
@@ -550,6 +551,43 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(windowNameSettings, winManagerSettings.getStatePtr());
 
             ImGui::EndMenu();
+        }
+
+        bool openPopup = false;
+        if (ImGui::BeginMenu("Help"))
+        {
+            if (ImGui::MenuItem("About SOFA"))
+            {
+                openPopup = true;
+            }
+
+            ImGui::TextLinkOpenURL("SOFA documentation", "https://www.sofa-framework.org/community/doc/");
+            ImGui::EndMenu();
+        }
+
+        if (openPopup)
+        {
+            ImGui::OpenPopup("About SOFA");
+            openPopup = false;
+        }
+
+        // Always center this window when appearing
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+        bool closeButton = true;
+        if (ImGui::BeginPopupModal("About SOFA", &closeButton, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            std::stringstream version;
+            version << SOFA_VERSION / 10000 << "." << SOFA_VERSION / 100 % 100;
+
+            ImGui::Text("SOFA v%s", version.str().c_str());
+            ImGui::TextLinkOpenURL("Website", "https://www.sofa-framework.org/");
+            ImGui::TextLinkOpenURL("Documentation", "https://www.sofa-framework.org/community/doc/");
+            ImGui::TextLinkOpenURL("Sources", "https://github.com/sofa-framework/sofa/");
+            ImGui::TextLinkOpenURL("Changelog", "https://github.com/sofa-framework/sofa/blob/master/CHANGELOG.md");
+            ImGui::TextLinkOpenURL("Support SOFA", "https://www.sofa-framework.org/consortium/support-us/");
+            ImGui::EndPopup();
         }
 
         ImGui::SetCursorPosX(ImGui::GetColumnWidth() / 2); //approximatively the center of the menu bar
