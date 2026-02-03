@@ -852,6 +852,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         // auto visitor = SnapshotVisitor(nullptr,*SnapCont);
 
+        // m_baseSnapshot->printSnapshot();
+
         NFD_Init();
 
         nfdchar_t* savePath;
@@ -876,18 +878,16 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
         // Quit NFD
         NFD_Quit();
-        m_baseSnapshot->printSnapshot();
+        // m_baseSnapshot->printSnapshot();
         saveStep = SaveStep::None;
     }
 
     if (saveStep == SaveStep::MemorySave)
     {
-        std::cout << "MemorySave begin : " << std::endl;
+        std::cout << "MemorySave !" << std::endl;
         m_baseSnapshot = createSnapshot(chosenType);
-        m_baseSnapshot->printSnapshot();
         auto visitor = SnapshotVisitor(nullptr,*m_baseSnapshot);
         groot->execute(visitor);
-        m_baseSnapshot->printSnapshot();
         saveStep = SaveStep::None;
     }
 
@@ -913,7 +913,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 //loadFile(baseGUI, groot, outPath, false);
                 m_baseSnapshot->importFrom(outPath);
-                //m_baseSnapshot->printSnapshot();
+                // //m_baseSnapshot->printSnapshot();
                 //auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
                 //groot->execute(visitor);
             }
@@ -937,9 +937,15 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     if (loadStep == LoadStep::MemorySave)
     {
+        std::cout << "MemoryLoad !" << std::endl;
         if(!m_baseSnapshot)
         {
+            std::cout << "Nothing to load..." << std::endl;
             m_baseSnapshot = createSnapshot(chosenType);
+        }
+        else
+        {
+            m_baseSnapshot->importSnapshot("test");
         }
 
         m_baseSnapshot->printSnapshot();
