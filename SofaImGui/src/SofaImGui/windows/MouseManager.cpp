@@ -187,7 +187,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                     }
                     else if (auto* sutureOperation = dynamic_cast<AddSutureOperation*>(operation))
                     {
-                        float stiffness = 10.0f;
+                        static float stiffness = 10.0f;
                         if (ImGui::SliderFloat("Stiffness", &stiffness, 0.0f, 1000.0f))
                         {
                             sutureOperation->setStiffness(stiffness);
