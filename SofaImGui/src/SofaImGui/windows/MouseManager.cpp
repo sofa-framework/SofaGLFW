@@ -166,7 +166,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             }
                         }
 
-                        float scale = topologyOperation->getScale();
+                        static float scale = topologyOperation->getScale();
                         if (ImGui::SliderFloat("Selector scale", &scale, 0.0f, 100.0f))
                         {
                             topologyOperation->setScale(scale);
