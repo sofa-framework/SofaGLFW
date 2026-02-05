@@ -193,7 +193,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             sutureOperation->setStiffness(stiffness);
                         }
 
-                        float damping = 1.0f;
+                        static float damping = 1.0f;
                         if (ImGui::SliderFloat("Damping", &damping, 0.0f, 10.0f))
                         {
                             sutureOperation->setDamping(damping);
