@@ -839,7 +839,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         else
         {
-            m_baseSnapshot->importSnapshot("test");
+            m_baseSnapshot->importSnapshot("none");
+            auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+            groot->execute(visitor);
         }
 
         loadStep = LoadStep::None;
