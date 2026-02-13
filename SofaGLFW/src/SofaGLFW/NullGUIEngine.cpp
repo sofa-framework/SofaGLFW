@@ -29,7 +29,9 @@ namespace sofaglfw
     
 void NullGUIEngine::init()
 {
-    m_startTime = glfwGetTime();
+    m_lastTime = glfwGetTime();
+    m_lastDisplayTime = m_lastTime;
+    m_avgFrameTime = 0.0;
 }
 void NullGUIEngine::initBackend(GLFWwindow* window)
 {
@@ -40,21 +42,29 @@ void NullGUIEngine::startFrame(SofaGLFWBaseGUI*)
 }
 void NullGUIEngine::endFrame()
 {
-    constexpr double refreshTime = 1.0;
+    constexpr double displayRefreshInterval = 0.1;
+    constexpr double smoothingFactor = 0.05;
 
-    m_currentTime = glfwGetTime();
+    const double now = glfwGetTime();
+    const double dt = now - m_lastTime;
+    m_lastTime = now;
 
-    const auto diffTime = m_currentTime - m_startTime;
-    if (diffTime > refreshTime || m_nbFrames == 0)
+    if (dt > 0.0)
     {
+        if (m_avgFrameTime <= 0.0)
+            m_avgFrameTime = dt;
+        else
+            m_avgFrameTime += smoothingFactor * (dt - m_avgFrameTime);
+    }
+
+    if (now - m_lastDisplayTime >= displayRefreshInterval)
+    {
+        const double fps = (m_avgFrameTime > 0.0) ? 1.0 / m_avgFrameTime : 0.0;
         char title_string[32];
-        double fps = static_cast<double>(m_nbFrames) / diffTime;
         std::snprintf(title_string, sizeof(title_string), "FPS: %.1f", fps);
         glfwSetWindowTitle(m_window, title_string);
-        m_startTime = m_currentTime;
-        m_nbFrames = 0;
+        m_lastDisplayTime = now;
     }
-    m_nbFrames++;
 }
 
 void NullGUIEngine::beforeDraw(GLFWwindow* window)

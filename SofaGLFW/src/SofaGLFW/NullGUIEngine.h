@@ -46,9 +46,9 @@ public:
     sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) override;
 private:
     GLFWwindow* m_window{ nullptr };
-    double m_startTime{ 0.0 };
-    double m_currentTime{ 0.0 };
-    std::size_t m_nbFrames{ 0 };
+    double m_lastTime{ 0.0 };
+    double m_lastDisplayTime{ 0.0 };
+    double m_avgFrameTime{ 0.0 };
 };
 
 } // namespace sofaglfw
