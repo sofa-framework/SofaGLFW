@@ -29,19 +29,42 @@ namespace sofaglfw
     
 void NullGUIEngine::init()
 {
-    
+    m_lastTime = glfwGetTime();
+    m_lastDisplayTime = m_lastTime;
+    m_avgFrameTime = 0.0;
 }
-void NullGUIEngine::initBackend(GLFWwindow*)
+void NullGUIEngine::initBackend(GLFWwindow* window)
 {
-    
+    m_window = window;
 }
 void NullGUIEngine::startFrame(SofaGLFWBaseGUI*)
 {
-    
 }
 void NullGUIEngine::endFrame()
 {
-    
+    constexpr double displayRefreshInterval = 0.1;
+    constexpr double smoothingFactor = 0.05;
+
+    const double now = glfwGetTime();
+    const double dt = now - m_lastTime;
+    m_lastTime = now;
+
+    if (dt > 0.0)
+    {
+        if (m_avgFrameTime <= 0.0)
+            m_avgFrameTime = dt;
+        else
+            m_avgFrameTime += smoothingFactor * (dt - m_avgFrameTime);
+    }
+
+    if (now - m_lastDisplayTime >= displayRefreshInterval)
+    {
+        const double fps = (m_avgFrameTime > 0.0) ? 1.0 / m_avgFrameTime : 0.0;
+        char title_string[32];
+        std::snprintf(title_string, sizeof(title_string), "FPS: %.1f", fps);
+        glfwSetWindowTitle(m_window, title_string);
+        m_lastDisplayTime = now;
+    }
 }
 
 void NullGUIEngine::beforeDraw(GLFWwindow* window)
