@@ -83,7 +83,6 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                         }
                         ImGui::EndCombo();
                     }
-                    ImGui::PopID();
 
                     ImGui::Separator();
 
@@ -199,6 +198,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             sutureOperation->setDamping(damping);
                         }
                     }
+                    ImGui::PopID();
                 }
             }
 
