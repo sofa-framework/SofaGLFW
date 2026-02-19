@@ -45,6 +45,7 @@ namespace windows
     {
         if (*winManagerPlugins.getStatePtr())
         {
+            ImGui::SetNextWindowSize(ImVec2(700, 400), ImGuiCond_FirstUseEver);
             if (ImGui::Begin(windowNamePlugins, winManagerPlugins.getStatePtr()))
             {
                 if (ImGui::Button("Load"))

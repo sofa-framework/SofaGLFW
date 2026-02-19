@@ -125,6 +125,26 @@ namespace windows
         return open;
     }
 
+    void objectContextMenu(sofa::core::objectmodel::Base* obj, const char* popupId)
+    {
+        if (ImGui::BeginPopupContextItem(popupId))
+        {
+            ImGui::Text("%s", obj->getPathName().c_str());
+
+            sofa::core::ObjectFactory::ClassEntry entry =
+                sofa::core::ObjectFactory::getInstance()->getEntry(obj->getClassName());
+            if (!entry.creatorMap.empty())
+            {
+                if (!entry.documentationURL.empty() &&
+                    entry.documentationURL != std::string("TODO"))
+                {
+                    ImGui::TextLinkOpenURL("Go to documentation", entry.documentationURL.c_str());
+                }
+            }
+            ImGui::EndPopup();
+        }
+    }
+
     bool drawNonExpandableObject(sofa::core::objectmodel::Base * obj, bool isObjectHighlighted, const char* icon, const ImVec4 objectColor,  std::set<sofa::core::objectmodel::Base*>& componentToOpen, const std::set<sofa::core::objectmodel::Base*>& currentSelection, sofa::core::objectmodel::Base*  &clickedObject)
     {
         ImGui::PushID(obj);
@@ -152,6 +172,8 @@ namespace windows
             }
         }
 
+        objectContextMenu(obj, (obj->getPathName() + "_instance").c_str());
+
         ImGui::SameLine();
 
         bool doHighLight = isObjectHighlighted || ((clickedObject == obj) !=  currentSelection.contains(obj));
@@ -162,6 +184,7 @@ namespace windows
         ImGui::Text("%s", objectName.c_str());
         ImGui::TableNextColumn();
         ImGui::TextDisabled("%s", objectClassName.c_str());
+        objectContextMenu(obj, (obj->getPathName() + "_class").c_str());
         ImGui::PopID();
 
         if (doHighLight)

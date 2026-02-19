@@ -32,6 +32,8 @@
 #include <SofaImGui/widgets/MaterialWidget.h>
 #include <SofaImGui/widgets/RigidMass.h>
 #include <SofaImGui/widgets/VecVectorWidget.h>
+#include <SofaImGui/widgets/BoundingBoxWidget.h>
+#include <SofaImGui/widgets/BoolWidget.h>
 
 namespace sofaimgui
 {
@@ -46,16 +48,7 @@ void BaseDataWidget::showWidgetAsText(sofa::core::objectmodel::BaseData& data)
 template<>
 void DataWidget<bool>::showWidget(MyData& data)
 {
-    const bool initialValue = data.getValue();
-    bool changeableValue = initialValue;
-    const auto& label = data.getName();
-    const auto id = data.getName() + data.getOwner()->getPathName();
-
-    ImGui::Checkbox((label + "##" + id).c_str(), &changeableValue);
-    if (changeableValue != initialValue)
-    {
-        data.setValue(changeableValue);
-    }
+    showBoolWidget(data);
 }
 
 template<>
@@ -660,6 +653,16 @@ void DataWidget<sofa::type::vector<sofa::defaulttype::Rigid2Mass>>::showWidget(M
 }
 
 /***********************************************************************************************************************
+ * Bounding Box
+ **********************************************************************************************************************/
+
+template<>
+void DataWidget<sofa::type::BoundingBox>::showWidget(MyData& data)
+{
+    showBoundingBoxWidget(data);
+}
+
+/***********************************************************************************************************************
  * Factory
  **********************************************************************************************************************/
 
@@ -750,4 +753,6 @@ const bool dw_rigid2mass = DataWidgetFactory::Add<sofa::defaulttype::Rigid2Mass>
 const bool dw_vector_rigid2mass = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::Rigid2Mass>>();
 const bool dw_rigid3mass = DataWidgetFactory::Add<sofa::defaulttype::Rigid3Mass>();
 const bool dw_vector_rigid3mass = DataWidgetFactory::Add<sofa::type::vector<sofa::defaulttype::Rigid3Mass>>();
+
+const bool dw_boundingbox = DataWidgetFactory::Add<sofa::type::BoundingBox>();
 }
