@@ -151,7 +151,7 @@ add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_SOURC
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${IMGUI_SOURCE_DIR}>")
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE SimpleIni::SimpleIni)
-if (EXISTS nfd)
+if (TARGET nfd)
     target_link_libraries(${PROJECT_NAME} PRIVATE nfd)
 else()
     target_link_libraries(${PROJECT_NAME} PRIVATE nfd::nfd)
