@@ -55,7 +55,7 @@ namespace windows
     {
         if (*winManagerViewPort.getStatePtr())
         {
-            static bool frameGizmoEnabled = true;
+            static bool frameGizmoEnabled = ini.GetBoolValue("Visualization", "alwaysShowFrameGizmo", true);
             static bool orientationGizmoEnabled = false;
 
             ImVec2 pos;
@@ -63,6 +63,9 @@ namespace windows
             {
                 pos = ImGui::GetWindowPos();
 
+                // NoScrollbar and NoScrollWithMouse are required because the gizmo rendering
+                // sets DC.CursorPos to the bottom-right corner of this child, which makes ImGui
+                // register content there and treat the window as scrollable.
                 ImGui::BeginChild("Render", ImVec2(0, 0), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
                 ImVec2 wsize = ImGui::GetWindowSize();
                 m_viewportWindowSize = { wsize.x, wsize.y};
