@@ -337,7 +337,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     auto groot = baseGUI->getRootNode();
 
-    bool alwaysShowFrame = settings->ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
+    bool alwaysShowFrame = settings->ini.GetBoolValue("Visualization", "alwaysShowFrame", false);
     if (alwaysShowFrame)
     {
         auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>();
