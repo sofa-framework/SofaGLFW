@@ -173,6 +173,9 @@ namespace windows
                             ImGui::EndChild();
 
                             { // Handle orientation gizmo drag to rotate camera around lookAt point
+                                if (orientationAxisClicked[0] || orientationAxisClicked[1] || orientationAxisClicked[2])
+                                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
                                 const double distance = camera->getDistance();
                                 const sofa::type::Vec3 lookAt = camera->getLookAtFromOrientation(
                                     camera->getPosition(), distance, camera->getOrientation());
