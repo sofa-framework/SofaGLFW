@@ -750,8 +750,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     if(saveStep == SaveStep::OpenFileDialog)
     {   
         m_baseSnapshot = createSnapshot(chosenType);
-        // m_baseSnapshot->printSnapshot();
-        
+
         NFD_Init();
 
         nfdchar_t* savePath;
@@ -759,24 +758,22 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
         
         nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
-        if (result == NFD_OKAY) {
+        if (result == NFD_OKAY) 
+        {
             puts("Save Snapshot success!");
             puts(savePath);
-
             std::string path(savePath);
             auto visitor = SnapshotVisitor(nullptr,*m_baseSnapshot);
             groot->execute(visitor);
-            
             m_baseSnapshot->exportTo(path);
-            // remember to free the memory (since NFD_OKAY is returned)
             NFD_FreePath(savePath);
-        } else {
+        } 
+        else 
+        {
             printf("Error: %s\n", NFD_GetError());
         }
 
-        // Quit NFD
         NFD_Quit();
-        // m_baseSnapshot->printSnapshot();
         saveStep = SaveStep::None;
     }
 
@@ -807,11 +804,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             
             if (helper::system::FileSystem::exists(outPath))
             {
-                //loadFile(baseGUI, groot, outPath, false);
                 m_baseSnapshot->importFrom(outPath);
-                // //m_baseSnapshot->printSnapshot();
-                //auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
-                //groot->execute(visitor);
+                auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+                groot->execute(visitor);
+
             }
             free(outPath);
         }
