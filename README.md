@@ -58,6 +58,9 @@ Using the control (CTRL) key, you activate GUI shortcuts such as:
 
 Using the SHIFT key, you activate the scene interactions such as the mouse interaction.
 
+Using the SHIT + CTRL keys, you will trigger events on key pressed/released.
+
+
 ### Command Line Options
 
 `runSofaGLFW` accepts the following command line options:
