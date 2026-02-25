@@ -40,7 +40,9 @@ elseif( (DEFINED SOFA_ALLOW_FETCH_DEPENDENCIES AND SOFA_ALLOW_FETCH_DEPENDENCIES
     )
     set_property(TARGET nfd  PROPERTY POSITION_INDEPENDENT_CODE ON)
     set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX)
-    add_library(nfd::nfd ALIAS nfd) # introduced in nfd >= v1.2.1
+endif()
+if(TARGET nfd AND NOT TARGET nfd::nfd)
+  add_library(nfd::nfd ALIAS nfd) # introduced in nfd >= v1.2.1
 endif()
 
 # ImPlot
@@ -151,11 +153,7 @@ add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_SOURC
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${IMGUI_SOURCE_DIR}>")
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE SimpleIni::SimpleIni)
-if (TARGET nfd)
-    target_link_libraries(${PROJECT_NAME} PRIVATE nfd)
-else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE nfd::nfd)
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE nfd::nfd)
 
 # setup the same API exports for imgui
 target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_API=SOFAIMGUI_API)
