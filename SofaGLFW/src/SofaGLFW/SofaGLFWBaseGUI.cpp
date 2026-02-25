@@ -111,7 +111,7 @@ bool SofaGLFWBaseGUI::init(int nbMSAASamples)
         // max = 32 (MSAA with 32 samples)
         glfwWindowHint(GLFW_SAMPLES, std::clamp(nbMSAASamples, 0, 32) );
 
-        m_glDrawTool = new DrawToolGL();
+        m_glDrawTool = std::make_unique<DrawToolGL>();
         m_bGlfwIsInitialized = true;
         return true;
     }
@@ -132,7 +132,7 @@ void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename)
     this->groot = groot;
     this->sceneFileName = filename;
 
-    VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
+    VisualParams::defaultInstance()->drawTool() = m_glDrawTool.get();
     sofa::core::visual::VisualParams::defaultInstance()->setSupported(sofa::core::visual::API_OpenGL);
 
     if (this->groot)
@@ -550,6 +550,7 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                 s_numberOfActiveWindows--;
                 s_mapWindows.erase(currentSofaWindow);
             }
+            delete sofaGlfwWindow;
         }
 
         currentNbIterations++;
@@ -1020,7 +1021,7 @@ void SofaGLFWBaseGUI::cursor_position_callback(GLFWwindow* window, double xpos, 
 
     auto currentSofaWindow = s_mapWindows.find(window);
 
-    if (shiftPressed)
+    if (shiftPressed && currentSofaWindow != s_mapWindows.end() && currentSofaWindow->second)
     {
         for (const auto button : {GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_MIDDLE, GLFW_MOUSE_BUTTON_RIGHT})
         {

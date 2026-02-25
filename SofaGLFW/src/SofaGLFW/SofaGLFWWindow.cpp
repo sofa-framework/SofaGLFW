@@ -60,6 +60,7 @@ void SofaGLFWWindow::close()
     
     for(auto& [_, background] : m_backgrounds)
     {
+        delete background.image;
         delete background.texture;
     }
     
@@ -273,6 +274,7 @@ void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos, SofaGLFWBaseGUI* gui)
             auto rootNode = gui->getRootNode();
 
             rootNode->propagateEvent(core::execparams::defaultInstance(), mEvent);
+            delete mEvent;
 
             break;
         }
@@ -295,6 +297,7 @@ void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos, SofaGLFWBaseGUI* gui)
             auto rootNode = gui->getRootNode();
 
             rootNode->propagateEvent(core::execparams::defaultInstance(), mEvent);
+            delete mEvent;
 
             break;
         }

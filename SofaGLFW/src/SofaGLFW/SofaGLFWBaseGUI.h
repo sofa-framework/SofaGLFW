@@ -151,7 +151,7 @@ private:
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
 
-    sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
+    std::unique_ptr<sofa::gl::DrawToolGL> m_glDrawTool;
     sofa::core::visual::VisualParams* m_vparams{ nullptr };
     GLFWwindow* m_firstWindow{ nullptr };
     int m_windowWidth{ 0 };
