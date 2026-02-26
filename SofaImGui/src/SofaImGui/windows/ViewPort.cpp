@@ -34,7 +34,7 @@
 #include <SofaImGui/widgets/DisplayFlagsWidget.h>
 #include <sofa/component/visual/VisualStyle.h>
 #include <SofaGLFW/SofaGLFWWindow.h>
-#include <SofaImGui/widgets/Gizmos.h>
+#include <imoguizmo/imoguizmo.hpp>
 #include <sofa/component/visual/BaseCamera.h>
 #include <sofa/core/visual/VisualParams.h>
 
@@ -145,8 +145,8 @@ namespace windows
                                 { // Orientation gizmo (left of frame gizmo when both enabled)
                                     if (orientationGizmoEnabled)
                                     {
-                                        sofaimgui::widget::SetRect(position.x, position.y, orientationGizmoSize);
-                                        sofaimgui::widget::DrawOrientationGizmo(mview, proj, orientationAxisClicked);
+                                        sofa::imoguizmo::SetRect(position.x, position.y, orientationGizmoSize);
+                                        sofa::imoguizmo::DrawOrientationGizmo(mview, proj, orientationAxisClicked);
                                     }
                                 }
 
@@ -155,8 +155,8 @@ namespace windows
                                     {
                                         bool axisClicked[6]{false};
                                         const float frameX = position.x + float(orientationGizmoEnabled ? orientationGizmoSize : 0.0);
-                                        sofaimgui::widget::SetRect(frameX, position.y, frameGizmoSize);
-                                        sofaimgui::widget::DrawFrameGizmo(mview, proj, axisClicked);
+                                        sofa::imoguizmo::SetRect(frameX, position.y, frameGizmoSize);
+                                        sofa::imoguizmo::DrawFrameGizmo(mview, proj, axisClicked);
                                         if (axisClicked[0])
                                             sofaglfw::SofaGLFWWindow::alignCamera(baseGUI, sofaglfw::SofaGLFWWindow::CameraAlignement::LEFT);
                                         else if (axisClicked[1])
