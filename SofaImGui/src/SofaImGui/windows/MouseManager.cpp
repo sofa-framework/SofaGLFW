@@ -29,8 +29,6 @@
 namespace windows
 {
 
-
-
 void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             WindowState& winManagerMouse,
                             sofaglfw::SofaGLFWBaseGUI* baseGUI)
@@ -56,6 +54,9 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                 if (ImGui::CollapsingHeader(buttonNames.at(button).c_str()))
                 {
                     auto* operation = pickHandler->getOperation(button);
+                    
+                    if(!operation) continue;
+
                     std::string currentOperationDescription;
 
                     for (const auto& [label, creator] : OperationFactory::getInstance()->registry)
@@ -73,13 +74,15 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             if (ImGui::Selectable(creator->getDescription().c_str(), isSelected))
                             {
                                 pickHandler->changeOperation(button, label);
+                                operation = pickHandler->getOperation(button); // Re-fetch the operation after call to changeOperation()
+    
+                                if (!operation) continue;
                             }
                             if (isSelected)
                                 ImGui::SetItemDefaultFocus();
                         }
                         ImGui::EndCombo();
                     }
-                    ImGui::PopID();
 
                     ImGui::Separator();
 
@@ -108,7 +111,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                         float stiffness = fixOperation->getStiffness();
                         if (ImGui::SliderFloat("Stiffness", &stiffness, 0.0f, 100000.0f))
                         {
-                            attachOperation->setStiffness(stiffness);
+                            fixOperation->setStiffness(stiffness);
                         }
                     }
                     else if (auto* inciseOperation = dynamic_cast<InciseOperation*>(operation))
@@ -195,6 +198,7 @@ void showManagerMouseWindow(const char *const & windowNameMouseManager,
                             sutureOperation->setDamping(damping);
                         }
                     }
+                    ImGui::PopID();
                 }
             }
 
