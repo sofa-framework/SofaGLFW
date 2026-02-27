@@ -694,7 +694,8 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     // Key events are forwarded to SOFA using: CTRL + SHIFT
     if (isCtrlKeyPressed && isShiftKeyPressed)
     {
-        if (action == GLFW_PRESS)
+        
+        if (action == GLFW_PRESS || action == GLFW_REPEAT)
         {
             KeypressedEvent keyPressedEvent(keyName);
             rootNode->propagateEvent(core::ExecParams::defaultInstance(), &keyPressedEvent);
