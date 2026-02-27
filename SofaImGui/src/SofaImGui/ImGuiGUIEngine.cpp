@@ -604,7 +604,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 if(file.ends_with(".json"))
                                 {
                                     m_baseSnapshot = createSnapshot(SnapshotType::JSON);
-                                    std::cout << "file de MenuItem : " << file << std::endl;
                                     m_baseSnapshot->importFrom(file);
                                     auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
                                     groot->execute(visitor);
@@ -612,7 +611,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 else
                                 {
                                     m_baseSnapshot = createSnapshot(SnapshotType::Memory);
-                                    std::cout << "file de MenuItem : " << file << std::endl;
                                     m_baseSnapshot->importFrom(file);
                                     auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
                                     groot->execute(visitor);
@@ -624,7 +622,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                             if(ImGui::MenuItem(name.c_str()))
                             {
                                 m_baseSnapshot = file;
-                                std::cout << "file de MenuItem : " << name << std::endl;
                                 m_baseSnapshot->importFrom("none");
                                 auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
                                 groot->execute(visitor);
