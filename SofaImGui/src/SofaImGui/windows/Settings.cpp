@@ -83,10 +83,10 @@ namespace windows
                     }
                 }
 
-                bool alwaysShowFrame = ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
-                if (ImGui::Checkbox("Always show scene frame", &alwaysShowFrame))
+                bool alwaysShowFrameGizmo = ini.GetBoolValue("Visualization", "alwaysShowFrameGizmo", true);
+                if (ImGui::Checkbox("Always show frame gizmo", &alwaysShowFrameGizmo))
                 {
-                    ini.SetBoolValue("Visualization", "alwaysShowFrame", alwaysShowFrame);
+                    ini.SetBoolValue("Visualization", "alwaysShowFrameGizmo", alwaysShowFrameGizmo);
                     [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                 }
 

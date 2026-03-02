@@ -27,13 +27,16 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/component/visual/VisualGrid.h>
 #include <sofa/component/visual/LineAxis.h>
-#include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/component/visual/VisualBoundingBox.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include "ViewPort.h"
 #include "SofaGLFW/SofaGLFWBaseGUI.h"
 #include <SofaImGui/widgets/DisplayFlagsWidget.h>
 #include <sofa/component/visual/VisualStyle.h>
+#include <SofaGLFW/SofaGLFWWindow.h>
+#include <imoguizmo/imoguizmo.hpp>
+#include <sofa/component/visual/BaseCamera.h>
+#include <sofa/core/visual/VisualParams.h>
 
 #include <iomanip>
 namespace windows
@@ -52,12 +55,18 @@ namespace windows
     {
         if (*winManagerViewPort.getStatePtr())
         {
+            static bool frameGizmoEnabled = ini.GetBoolValue("Visualization", "alwaysShowFrameGizmo", true);
+            static bool orientationGizmoEnabled = false;
+
             ImVec2 pos;
             if (ImGui::Begin(windowNameViewport, winManagerViewPort.getStatePtr()/*, ImGuiWindowFlags_MenuBar*/))
             {
                 pos = ImGui::GetWindowPos();
 
-                ImGui::BeginChild("Render");
+                // NoScrollbar and NoScrollWithMouse are required because the gizmo rendering
+                // sets DC.CursorPos to the bottom-right corner of this child, which makes ImGui
+                // register content there and treat the window as scrollable.
+                ImGui::BeginChild("Render", ImVec2(0, 0), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
                 ImVec2 wsize = ImGui::GetWindowSize();
                 m_viewportWindowSize = { wsize.x, wsize.y};
 
@@ -80,6 +89,132 @@ namespace windows
                 ImGui::Image((ImTextureID)m_fbo->getColorTexture(), wsize, ImVec2(0, 1), ImVec2(1, 0));
 
                 isMouseOnViewport = ImGui::IsItemHovered();
+
+                // Frame and orientation gizmos (ported from SofaComplianceRobotics/SofaGLFW PR#79)
+                if (frameGizmoEnabled || orientationGizmoEnabled)
+                {
+                    sofa::component::visual::BaseCamera::SPtr camera;
+                    groot->get(camera);
+                    if (camera)
+                    {
+                        sofa::type::BoundingBox bb(camera->d_minBBox.getValue(), camera->d_maxBBox.getValue());
+                        if (bb.isValid() && !bb.isFlat())
+                        {
+                            const double frameGizmoSize = ImGui::GetFrameHeight() * 4;
+                            const double orientationGizmoSize = frameGizmoSize;
+                            const double totalGizmoWidth = static_cast<double>(frameGizmoEnabled) * frameGizmoSize
+                                                         + static_cast<double>(orientationGizmoEnabled) * orientationGizmoSize;
+                            bool orientationAxisClicked[3]{false};
+
+                            // Anchor gizmos to the bottom-right corner of the viewport
+                            constexpr float gizmoMargin = 8.0f;
+                            ImVec2 winPos = ImGui::GetWindowPos();
+                            ImVec2 position = ImVec2(winPos.x + wsize.x - float(totalGizmoWidth) - gizmoMargin,
+                                                     winPos.y + wsize.y - float(frameGizmoSize) - gizmoMargin);
+                            ImGui::GetCurrentWindow()->DC.CursorPos = position;
+
+                            // Base camera matrices are in double; convert to float for ImGui
+                            double modelview[16];
+                            double projection[16];
+                            const auto cameraType = camera->getCameraType();
+                            camera->setCameraType(sofa::core::visual::VisualParams::PERSPECTIVE_TYPE);
+                            camera->getOpenGLModelViewMatrix(modelview);
+                            camera->getOpenGLProjectionMatrix(projection);
+                            camera->setCameraType(cameraType);
+                            float mview[16], proj[16];
+                            for (int i = 0; i < 16; i++)
+                            {
+                                mview[i] = float(modelview[i]);
+                                proj[i]  = float(projection[i]);
+                            }
+
+                            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+                            const auto& wpos = ImGui::GetMainViewport()->Pos;
+                            if (ImGui::Begin("ViewportChildGizmos", winManagerViewPort.getStatePtr(),
+                                             ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_AlwaysAutoResize |
+                                             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+                                             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar |
+                                             ImGuiWindowFlags_NoScrollWithMouse))
+                            {
+                                ImRect wosize = ImRect(wpos, ImVec2(
+                                    wpos.x + totalGizmoWidth,
+                                    wpos.y + frameGizmoSize));
+                                ImGui::ItemSize(wosize);
+                                ImGui::ItemAdd(wosize, ImGui::GetID("ViewportGizmos"));
+
+                                { // Orientation gizmo (left of frame gizmo when both enabled)
+                                    if (orientationGizmoEnabled)
+                                    {
+                                        sofa::imoguizmo::SetRect(position.x, position.y, orientationGizmoSize);
+                                        sofa::imoguizmo::DrawOrientationGizmo(mview, proj, orientationAxisClicked);
+                                    }
+                                }
+
+                                { // Frame gizmo: click an axis to align the camera (rightmost)
+                                    if (frameGizmoEnabled)
+                                    {
+                                        bool axisClicked[6]{false};
+                                        const float frameX = position.x + float(orientationGizmoEnabled ? orientationGizmoSize : 0.0);
+                                        sofa::imoguizmo::SetRect(frameX, position.y, frameGizmoSize);
+                                        sofa::imoguizmo::DrawFrameGizmo(mview, proj, axisClicked);
+                                        if (axisClicked[0])
+                                            sofaglfw::SofaGLFWWindow::alignCamera(baseGUI, sofaglfw::SofaGLFWWindow::CameraAlignement::LEFT);
+                                        else if (axisClicked[1])
+                                            sofaglfw::SofaGLFWWindow::alignCamera(baseGUI, sofaglfw::SofaGLFWWindow::CameraAlignement::TOP);
+                                        else if (axisClicked[2])
+                                            sofaglfw::SofaGLFWWindow::alignCamera(baseGUI, sofaglfw::SofaGLFWWindow::CameraAlignement::FRONT);
+                                        else if (axisClicked[3])
+                                            sofaglfw::SofaGLFWWindow::alignCamera(baseGUI, sofaglfw::SofaGLFWWindow::CameraAlignement::RIGHT);
+                                        else if (axisClicked[4])
+                                            sofaglfw::SofaGLFWWindow::alignCamera(baseGUI, sofaglfw::SofaGLFWWindow::CameraAlignement::BOTTOM);
+                                        else if (axisClicked[5])
+                                            sofaglfw::SofaGLFWWindow::alignCamera(baseGUI, sofaglfw::SofaGLFWWindow::CameraAlignement::BACK);
+                                    }
+                                }
+                            }
+                            ImGui::PopStyleColor();
+                            ImGui::EndChild();
+
+                            { // Handle orientation gizmo drag to rotate camera around lookAt point
+                                if (orientationAxisClicked[0] || orientationAxisClicked[1] || orientationAxisClicked[2])
+                                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+                                const double distance = camera->getDistance();
+                                const sofa::type::Vec3 lookAt = camera->getLookAtFromOrientation(
+                                    camera->getPosition(), distance, camera->getOrientation());
+                                const auto dpos = ImGui::GetIO().MouseDelta;
+                                bool rotate = false;
+
+                                if (orientationAxisClicked[0])
+                                {
+                                    sofa::type::Quat<SReal> q(0.001 * dpos.x, 0., 0., 1.);
+                                    camera->rotateCameraAroundPoint(q, lookAt);
+                                    rotate = true;
+                                }
+                                else if (orientationAxisClicked[1])
+                                {
+                                    sofa::type::Quat<SReal> q(0., 0.001 * dpos.x, 0., 1.);
+                                    camera->rotateCameraAroundPoint(q, lookAt);
+                                    rotate = true;
+                                }
+                                else if (orientationAxisClicked[2])
+                                {
+                                    sofa::type::Quat<SReal> q(0., 0., 0.001 * dpos.x, 1.);
+                                    camera->rotateCameraAroundPoint(q, lookAt);
+                                    rotate = true;
+                                }
+
+                                if (rotate)
+                                {
+                                    auto orientation = camera->getOrientation();
+                                    orientation.normalize();
+                                    camera->setView(lookAt - orientation.rotate(sofa::type::Vec3(0, 0, -distance)), orientation);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 ImGui::EndChild();
 
             }
@@ -150,23 +285,10 @@ namespace windows
                         {
                             sofaglfw::SofaGLFWBaseGUI::triggerSceneAxis(groot);
                         }
-                        if (ImGui::Selectable(ICON_FA_SQUARE_FULL "  Show Frame"))
-                        {
-                            auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>(createdByGuiTag);
-                            if (!sceneFrame)
-                            {
-                                auto newSceneFrame = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglSceneFrame>();
-                                groot->addObject(newSceneFrame);
-                                newSceneFrame->setName("viewportFrame");
-                                newSceneFrame->addTag(createdByGuiTag);
-                                newSceneFrame->d_drawFrame.setValue(true);
-                                newSceneFrame->init();
-                            }
-                            else
-                            {
-                                sceneFrame->d_drawFrame.setValue(!sceneFrame->d_drawFrame.getValue());
-                            }
-                        }
+                        if (ImGui::Selectable(ICON_FA_SQUARE_FULL "  Show Frame Gizmo"))
+                            frameGizmoEnabled = !frameGizmoEnabled;
+                        if (ImGui::Selectable(ICON_FA_ROTATE "  Show Orientation Gizmo"))
+                            orientationGizmoEnabled = !orientationGizmoEnabled;
                         if (ImGui::Selectable(ICON_FA_CUBE "  Show Bounding Box"))
                         {
                             auto bboxVM = groot->get<sofa::component::visual::VisualBoundingBox>(createdByGuiTag);

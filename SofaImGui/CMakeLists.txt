@@ -20,6 +20,14 @@ sofa_fetch_dependency(imgui
         DONT_BUILD
 )
 
+
+
+sofa_fetch_dependency(imoguizmo
+        GIT_REPOSITORY https://github.com/sofa-framework/imoguizmo
+        GIT_TAG        SofaGLFW-version
+        DONT_BUILD
+)
+
 # nfd (nativefiledialog-extended)
 find_package(nfd CONFIG QUIET)
 
@@ -146,11 +154,11 @@ set(SOURCE_FILES
 )
 
 
-
 set(IMGUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources ${imgui_SOURCE_DIR} ${ImPlot_SOURCE_DIR} ${IconFontCppHeaders_SOURCE_DIR} ${simpleini_SOURCE_DIR})
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_SOURCE_FILES} )
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${IMGUI_SOURCE_DIR}>")
+target_include_directories(${PROJECT_NAME} PRIVATE "$<BUILD_INTERFACE:${imoguizmo_SOURCE_DIR}>")
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaGLFW Sofa.GL.Component.Rendering3D ${CMAKE_DL_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE SimpleIni::SimpleIni)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfd::nfd)

@@ -73,7 +73,6 @@
 #include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <sofa/gl/component/rendering3d/OglSceneFrame.h>
 #include <sofa/gui/common/BaseGUI.h>
 #include <sofa/helper/Utils.h>
 #include <sofa/helper/io/File.h>
@@ -336,21 +335,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     std::setlocale(LC_NUMERIC, "C.UTF-8");
 
     auto groot = baseGUI->getRootNode();
-
-    bool alwaysShowFrame = settings->ini.GetBoolValue("Visualization", "alwaysShowFrame", true);
-    if (alwaysShowFrame)
-    {
-        auto sceneFrame = groot->get<sofa::gl::component::rendering3d::OglSceneFrame>();
-        if (!sceneFrame)
-        {
-            auto newSceneFrame = sofa::core::objectmodel::New<sofa::gl::component::rendering3d::OglSceneFrame>();
-            groot->addObject(newSceneFrame);
-            newSceneFrame->setName("viewportFrame");
-            newSceneFrame->addTag(core::objectmodel::Tag("createdByGUI"));
-            newSceneFrame->d_drawFrame.setValue(true);
-            newSceneFrame->init();
-        }
-    }
 
     // Start the Dear ImGui frame
 #if SOFAIMGUI_FORCE_OPENGL2 == 1

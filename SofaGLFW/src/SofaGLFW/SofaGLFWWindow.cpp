@@ -222,6 +222,52 @@ void SofaGLFWWindow::drawBackgroundImage()
     glPopAttrib();
 }
 
+void SofaGLFWWindow::alignCamera(sofaglfw::SofaGLFWBaseGUI* baseGUI, const CameraAlignement& align)
+{
+    if (baseGUI)
+    {
+        sofa::core::sptr<sofa::simulation::Node> groot = baseGUI->getRootNode();
+        if (groot)
+        {
+            sofa::component::visual::BaseCamera::SPtr camera;
+            groot->get(camera);
+
+            if (camera)
+            {
+                sofa::type::Quat<float> orientation;
+
+                switch (align)
+                {
+                case CameraAlignement::TOP:
+                    orientation = sofa::type::Quat(-0.707f, 0.f, 0.f, 0.707f);
+                    break;
+                case CameraAlignement::BOTTOM:
+                    orientation = sofa::type::Quat(0.707f, 0.f, 0.f, 0.707f);
+                    break;
+                case CameraAlignement::FRONT:
+                    orientation = sofa::type::Quat(0.f, 0.f, 0.f, 1.f);
+                    break;
+                case CameraAlignement::BACK:
+                    orientation = sofa::type::Quat(0.f, 1.f, 0.f, 0.f);
+                    break;
+                case CameraAlignement::LEFT:
+                    orientation = sofa::type::Quat(0.f, 0.707f, 0.f, 0.707f);
+                    break;
+                case CameraAlignement::RIGHT:
+                    orientation = sofa::type::Quat(0.f, -0.707f, 0.f, 0.707f);
+                    break;
+                }
+
+                auto bbCenter = (groot->f_bbox.getValue().maxBBox() + groot->f_bbox.getValue().minBBox()) * 0.5f;
+                const auto cameraPosition = camera->getPositionFromOrientation(sofa::type::Vec3(0., 0., 0.), -camera->getDistance(), orientation);
+                camera->setView(cameraPosition + bbCenter, orientation);
+                camera->d_lookAt.setValue(bbCenter);
+                camera->setCameraType(sofa::core::visual::VisualParams::ORTHOGRAPHIC_TYPE);
+            }
+        }
+    }
+}
+
 void SofaGLFWWindow::setCamera(component::visual::BaseCamera::SPtr newCamera)
 {
     m_currentCamera = newCamera;

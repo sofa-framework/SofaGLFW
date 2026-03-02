@@ -61,6 +61,10 @@ public:
     void centerCamera(sofa::simulation::NodeSPtr node, sofa::core::visual::VisualParams* vparams) const;
     bool mouseEvent(GLFWwindow* window,int width,int height ,int button, int action, int mods, double xpos, double ypos) const;
 
+    enum class CameraAlignement { TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK };
+
+    static void alignCamera(sofaglfw::SofaGLFWBaseGUI* baseGUI, const CameraAlignement& align);
+
 private:
     GLFWwindow* m_glfwWindow{nullptr};
     sofa::component::visual::BaseCamera::SPtr m_currentCamera;
