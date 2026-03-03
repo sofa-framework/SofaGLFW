@@ -85,8 +85,8 @@
 #include <sofa/core/objectmodel/SnapshotFactory.h>
 using sofa::core::objectmodel::SnapshotType;
 
-#include <sofa/simulation/SnapshotVisitor.h>
-using sofa::simulation::SnapshotVisitor;
+#include <sofa/simulation/SaveSnapshotVisitor.h>
+using sofa::simulation::SaveSnapshotVisitor;
 
 #include <sofa/simulation/LoadSnapshotVisitor.h>
 using sofa::simulation::LoadSnapshotVisitor;
@@ -543,7 +543,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     chosenType = SnapshotType::Memory;
                     std::cout << "MemorySave !" << std::endl;
                     m_baseSnapshot = createSnapshot(chosenType);
-                    auto visitor = SnapshotVisitor(nullptr,*m_baseSnapshot);
+                    auto visitor = SaveSnapshotVisitor(nullptr,*m_baseSnapshot);
                     groot->execute(visitor);
                     std::string memorySnapshotName = "Memory Snapshot";
                     if(!recentSnapshotFiles.empty())
@@ -572,7 +572,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         puts("Save Snapshot success!");
                         puts(savePath);
                         std::string path(savePath);
-                        auto visitor = SnapshotVisitor(nullptr,*m_baseSnapshot);
+                        auto visitor = SaveSnapshotVisitor(nullptr,*m_baseSnapshot);
                         groot->execute(visitor);
                         m_baseSnapshot->exportTo(path);
                         std::cout << "filepath : " << filepath << std::endl;
