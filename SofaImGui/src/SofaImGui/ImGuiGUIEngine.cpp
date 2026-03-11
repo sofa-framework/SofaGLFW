@@ -83,6 +83,14 @@
 #include <sofa/core/objectmodel/SnapshotFactory.h>
 using sofa::core::objectmodel::SnapshotType;
 
+#include <sofa/simulation/SaveSnapshotVisitor.h>
+using sofa::simulation::SaveSnapshotVisitor;
+
+#include <sofa/simulation/LoadDataSnapshotVisitor.h>
+using sofa::simulation::LoadDataSnapshotVisitor;
+
+#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
+using sofa::simulation::LoadLinkSnapshotVisitor;
 #include <sofa/simulation/SnapshotVisitor.h>
 using sofa::simulation::SnapshotVisitor;
 
@@ -448,6 +456,181 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             if (ImGui::MenuItem(ICON_FA_CIRCLE_XMARK "  Close Simulation"))
                 doCloseSimulation = true;
+            {
+                sofa::simulation::node::unload(groot);
+                baseGUI->setSimulationIsRunning(false);
+                sofa::simulation::node::initRoot(baseGUI->getRootNode().get());
+                return;
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::BeginMenu("Save Snapshot"))
+            {
+                if(ImGui::MenuItem("Memory"))
+                {
+                    chosenType = SnapshotType::Memory;
+                    std::cout << "MemorySave !" << std::endl;
+                    m_baseSnapshot = createSnapshot(chosenType);
+                    auto visitor = SaveSnapshotVisitor(nullptr,*m_baseSnapshot);
+                    groot->execute(visitor);
+                    std::string memorySnapshotName = "Memory Snapshot";
+                    if(!recentSnapshotFiles.empty())
+                    {
+                        memorySnapshotName += " " + std::to_string(recentSnapshotFiles.size());
+
+                    }
+
+                    auto snapshotTime = groot->getTime();
+                    AddRecentSnapshot(recentSnapshots, m_baseSnapshot, snapshotTime);
+                }
+                if (ImGui::MenuItem("JSON"))
+                {
+                    chosenType = SnapshotType::JSON;
+                    m_baseSnapshot = createSnapshot(chosenType);
+
+                    NFD_Init();
+
+                    nfdchar_t* savePath;
+
+                    nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
+                    std::string filepath = "null";
+                    nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
+                    if (result == NFD_OKAY)
+                    {
+                        puts("Save Snapshot success!");
+                        puts(savePath);
+                        std::string path(savePath);
+                        auto visitor = SaveSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        groot->execute(visitor);
+                        m_baseSnapshot->exportTo(path);
+                        std::cout << "filepath : " << filepath << std::endl;
+                        std::cout << "savePath : " << savePath << std::endl;
+                        filepath = savePath;
+                        std::cout << "filepath after : " << filepath << std::endl;
+                        NFD_FreePath(savePath);
+                    }
+                    else
+                    {
+
+                        printf("Error: %s\n", NFD_GetError());
+                    }
+
+                    NFD_Quit();
+                    AddRecentFile(filepath, recentSnapshotFiles);
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Load Snapshot"))
+            {
+                if (ImGui::MenuItem("Memory (recent)"))
+                {
+                    std::cout << "MemoryLoad !" << std::endl;
+                    if(!m_baseSnapshot)
+                    {
+                        std::cout << "Nothing to load..." << std::endl;
+                        m_baseSnapshot = createSnapshot(SnapshotType::Memory);
+                    }
+                    else
+                    {
+                        m_baseSnapshot = recentSnapshots.rbegin()->second;
+                        auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        groot->execute(visitor);
+                        auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        groot->execute(linkvisitor);
+                    }
+                }
+
+                if (ImGui::MenuItem("JSON"))
+                {
+                    if(!m_baseSnapshot)
+                    {
+                        m_baseSnapshot = createSnapshot(SnapshotType::JSON);
+                    }
+
+                    nfdchar_t *outPath = NULL;
+                    nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
+                    nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
+                    std::string filepath = "null";
+                    if ( result == NFD_OKAY )
+                    {
+                        puts("Success!");
+                        puts(outPath);
+
+                        if (helper::system::FileSystem::exists(outPath))
+                        {
+                            m_baseSnapshot->importFrom(outPath);
+                            auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                            groot->execute(visitor);
+                            auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                            groot->execute(linkvisitor);
+
+                        }
+                        filepath = outPath;
+                        free(outPath);
+                    }
+                    else if ( result == NFD_CANCEL )
+                    {
+                        puts("User pressed cancel.");
+                    }
+                    else
+                    {
+                        printf("Error: %s\n", NFD_GetError() );
+                    }
+                    NFD_Quit();
+                    AddRecentFile(filepath, recentSnapshotFiles);
+                }
+
+                if(ImGui::BeginMenu("Recent Files"))
+                {
+                    if (recentSnapshotFiles.empty() && recentSnapshots.empty())
+                    {
+                        ImGui::MenuItem("(No recent files)", nullptr, false, false);
+                    }
+                    else
+                    {
+                        for (auto file : recentSnapshotFiles)
+                        {
+                            if (ImGui::MenuItem(file.c_str()))
+                            {
+                                if(file.ends_with(".json"))
+                                {
+                                    m_baseSnapshot = createSnapshot(SnapshotType::JSON);
+                                    m_baseSnapshot->importFrom(file);
+                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    groot->execute(visitor);
+                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    groot->execute(linkvisitor);
+                                }
+                                else
+                                {
+                                    m_baseSnapshot = createSnapshot(SnapshotType::Memory);
+                                    m_baseSnapshot->importFrom(file);
+                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    groot->execute(visitor);
+                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    groot->execute(linkvisitor);
+                                }
+                            }
+                        }
+                        for (auto [name, file] : recentSnapshots)
+                        {
+                            if(ImGui::MenuItem(name.c_str()))
+                            {
+                                m_baseSnapshot = file;
+                                m_baseSnapshot->importFrom("none");
+                                auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                groot->execute(visitor);
+                            }
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenu();
+            }
+
             ImGui::Separator();
             if (ImGui::MenuItem("Exit"))
             {
