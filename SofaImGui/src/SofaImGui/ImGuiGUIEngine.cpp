@@ -86,8 +86,11 @@ using sofa::core::objectmodel::SnapshotType;
 #include <sofa/simulation/SaveSnapshotVisitor.h>
 using sofa::simulation::SaveSnapshotVisitor;
 
-#include <sofa/simulation/LoadSnapshotVisitor.h>
-using sofa::simulation::LoadSnapshotVisitor;
+#include <sofa/simulation/LoadDataSnapshotVisitor.h>
+using sofa::simulation::LoadDataSnapshotVisitor;
+
+#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
+using sofa::simulation::LoadLinkSnapshotVisitor;
 
 
 #include <clocale>
@@ -544,10 +547,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                     else
                     {
-                        m_baseSnapshot = recentSnapshots.rbegin()->second; 
-                        m_baseSnapshot->importSnapshot("none");
-                        auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        m_baseSnapshot = recentSnapshots.rbegin()->second;
+                        auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
                         groot->execute(visitor);
+                        auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        groot->execute(linkvisitor);
                     }
                 }
 
@@ -570,8 +574,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         if (helper::system::FileSystem::exists(outPath))
                         {
                             m_baseSnapshot->importFrom(outPath);
-                            auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+                            auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
                             groot->execute(visitor);
+                            auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                            groot->execute(linkvisitor);
 
                         }
                         filepath = outPath;
@@ -605,15 +611,19 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 {
                                     m_baseSnapshot = createSnapshot(SnapshotType::JSON);
                                     m_baseSnapshot->importFrom(file);
-                                    auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
                                     groot->execute(visitor);
+                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    groot->execute(linkvisitor);
                                 }
                                 else
                                 {
                                     m_baseSnapshot = createSnapshot(SnapshotType::Memory);
                                     m_baseSnapshot->importFrom(file);
-                                    auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
                                     groot->execute(visitor);
+                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    groot->execute(linkvisitor);
                                 }
                             }
                         }
@@ -623,7 +633,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                             {
                                 m_baseSnapshot = file;
                                 m_baseSnapshot->importFrom("none");
-                                auto visitor = LoadSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
                                 groot->execute(visitor);
                             }
                         }
