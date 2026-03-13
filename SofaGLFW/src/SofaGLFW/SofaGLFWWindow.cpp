@@ -60,7 +60,6 @@ void SofaGLFWWindow::close()
     
     for(auto& [_, background] : m_backgrounds)
     {
-        delete background.image;
         delete background.texture;
     }
     
