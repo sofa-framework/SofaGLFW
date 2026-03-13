@@ -391,6 +391,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static bool showTime = true;
 
     ImVec2 mainMenuBarSize;
+    bool doCloseSimulation = false;
 
     static bool animate;
     animate = groot->animate_.getValue();
@@ -425,12 +426,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             }
 
             if (ImGui::MenuItem(ICON_FA_CIRCLE_XMARK "  Close Simulation"))
-            {
-                sofa::simulation::node::unload(groot);
-                baseGUI->setSimulationIsRunning(false);
-                sofa::simulation::node::initRoot(baseGUI->getRootNode().get());
-                return;
-            }
+                doCloseSimulation = true;
             ImGui::Separator();
             if (ImGui::MenuItem("Exit"))
             {
@@ -631,6 +627,14 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
+    }
+
+    if (doCloseSimulation)
+    {
+        sofa::simulation::node::unload(groot);
+        baseGUI->setSimulationIsRunning(false);
+        sofa::simulation::node::initRoot(baseGUI->getRootNode().get());
+        return;
     }
 
     if (m_imguiNeedViewReset)
