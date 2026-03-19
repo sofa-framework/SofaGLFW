@@ -68,6 +68,7 @@
 #include <imgui.h>
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <implot.h>
+#include <iostream>
 #include <nfd.h>
 #include <SimpleIni.h>
 #include <sofa/component/visual/VisualStyle.h>
@@ -592,7 +593,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         printf("Error: %s\n", NFD_GetError() );
                     }
                     NFD_Quit();
+                    std::cout << "JSON file loaded !" << std::endl;
                     AddRecentFile(filepath, recentSnapshotFiles);
+
                 }
 
                 if(ImGui::BeginMenu("Recent Files"))
