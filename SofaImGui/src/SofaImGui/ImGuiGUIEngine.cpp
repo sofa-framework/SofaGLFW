@@ -657,7 +657,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         printf("Error: %s\n", NFD_GetError() );
                     }
                     NFD_Quit();
+                    std::cout << "JSON file loaded !" << std::endl;
                     AddRecentFile(filepath, recentSnapshotFiles);
+
                 }
 
                 if(ImGui::BeginMenu("Recent Files"))
