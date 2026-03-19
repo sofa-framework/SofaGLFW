@@ -359,6 +359,29 @@ void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 }
 
+void AddRecentFile(const std::string& path, std::vector<std::string>& recentFiles, int maxFiles = 10)
+{
+    recentFiles.erase(
+        std::remove(recentFiles.begin(), recentFiles.end(), path),
+        recentFiles.end()
+    );
+    //recentFiles.insert(recentFiles.begin(), path);
+    recentFiles.push_back(path);
+    if (recentFiles.size() > maxFiles)
+        recentFiles.resize(maxFiles);
+}
+
+void AddRecentSnapshot(std::map<std::string, std::shared_ptr<sofa::core::objectmodel::Snapshot>>& recentSnapshots, std::shared_ptr<sofa::core::objectmodel::Snapshot> snapshot, double snapshotTime, int maxSnapshots = 10)
+{
+    static int index = 0;
+    recentSnapshots["Memory_Snapshot " + std::to_string(index++) + " at " + std::to_string(snapshotTime)] = snapshot;
+    if (recentSnapshots.size() > maxSnapshots)
+        recentSnapshots.erase(recentSnapshots.begin());
+}
+
+std::vector<std::string> recentSnapshotFiles;
+std::map<std::string, std::shared_ptr<sofa::core::objectmodel::Snapshot>> recentSnapshots;
+
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     m_localeBackup = std::setlocale(LC_NUMERIC, nullptr);
@@ -472,8 +495,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 {
                     chosenType = SnapshotType::Memory;
                     std::cout << "MemorySave !" << std::endl;
-                    m_baseSnapshot = createSnapshot(chosenType);
-                    auto visitor = SaveSnapshotVisitor(nullptr,*m_baseSnapshot);
+                    m_snapshot = createSnapshot(chosenType);
+                    auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
                     groot->execute(visitor);
                     std::string memorySnapshotName = "Memory Snapshot";
                     if(!recentSnapshotFiles.empty())
@@ -483,12 +506,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
 
                     auto snapshotTime = groot->getTime();
-                    AddRecentSnapshot(recentSnapshots, m_baseSnapshot, snapshotTime);
+                    AddRecentSnapshot(recentSnapshots, m_snapshot, snapshotTime);
                 }
                 if (ImGui::MenuItem("JSON"))
                 {
                     chosenType = SnapshotType::JSON;
-                    m_baseSnapshot = createSnapshot(chosenType);
+                    m_snapshot = createSnapshot(chosenType);
 
                     NFD_Init();
 
@@ -502,9 +525,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         puts("Save Snapshot success!");
                         puts(savePath);
                         std::string path(savePath);
-                        auto visitor = SaveSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
                         groot->execute(visitor);
-                        m_baseSnapshot->exportTo(path);
+                        m_snapshot->exportTo(path);
                         std::cout << "filepath : " << filepath << std::endl;
                         std::cout << "savePath : " << savePath << std::endl;
                         filepath = savePath;
@@ -529,26 +552,26 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 if (ImGui::MenuItem("Memory (recent)"))
                 {
                     std::cout << "MemoryLoad !" << std::endl;
-                    if(!m_baseSnapshot)
+                    if(!m_snapshot)
                     {
                         std::cout << "Nothing to load..." << std::endl;
-                        m_baseSnapshot = createSnapshot(SnapshotType::Memory);
+                        m_snapshot = createSnapshot(SnapshotType::Memory);
                     }
                     else
                     {
-                        m_baseSnapshot = recentSnapshots.rbegin()->second;
-                        auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        m_snapshot = recentSnapshots.rbegin()->second;
+                        auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                         groot->execute(visitor);
-                        auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                        auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
                         groot->execute(linkvisitor);
                     }
                 }
 
                 if (ImGui::MenuItem("JSON"))
                 {
-                    if(!m_baseSnapshot)
+                    if(!m_snapshot)
                     {
-                        m_baseSnapshot = createSnapshot(SnapshotType::JSON);
+                        m_snapshot = createSnapshot(SnapshotType::JSON);
                     }
 
                     nfdchar_t *outPath = NULL;
@@ -562,10 +585,10 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                         if (helper::system::FileSystem::exists(outPath))
                         {
-                            m_baseSnapshot->importFrom(outPath);
-                            auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                            m_snapshot->importFrom(outPath);
+                            auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                             groot->execute(visitor);
-                            auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                            auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
                             groot->execute(linkvisitor);
 
                         }
@@ -600,20 +623,20 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                             {
                                 if(file.ends_with(".json"))
                                 {
-                                    m_baseSnapshot = createSnapshot(SnapshotType::JSON);
-                                    m_baseSnapshot->importFrom(file);
-                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    m_snapshot = createSnapshot(SnapshotType::JSON);
+                                    m_snapshot->importFrom(file);
+                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(visitor);
-                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(linkvisitor);
                                 }
                                 else
                                 {
-                                    m_baseSnapshot = createSnapshot(SnapshotType::Memory);
-                                    m_baseSnapshot->importFrom(file);
-                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    m_snapshot = createSnapshot(SnapshotType::Memory);
+                                    m_snapshot->importFrom(file);
+                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(visitor);
-                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(linkvisitor);
                                 }
                             }
@@ -622,9 +645,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         {
                             if(ImGui::MenuItem(name.c_str()))
                             {
-                                m_baseSnapshot = file;
-                                m_baseSnapshot->importFrom("none");
-                                auto visitor = LoadDataSnapshotVisitor(nullptr,*m_baseSnapshot);
+                                m_snapshot = file;
+                                m_snapshot->importFrom("none");
+                                auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                 groot->execute(visitor);
                             }
                         }
