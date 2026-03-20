@@ -82,10 +82,11 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
-#include <sofa/core/objectmodel/SnapshotFactory.h>
-using sofa::core::objectmodel::SnapshotType;
+#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
 
 #include <sofa/simulation/SaveSnapshotVisitor.h>
+
+#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
 using sofa::simulation::SaveSnapshotVisitor;
 
 #include <sofa/simulation/LoadDataSnapshotVisitor.h>
@@ -450,7 +451,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static bool animate;
     animate = groot->animate_.getValue();
 
-    static SnapshotType chosenType = SnapshotType::Print;
+    //static SnapshotType chosenType = SnapshotType::Print;
 
 
     const int MAX_RECENT_FILES = 10;
@@ -543,16 +544,14 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 if(ImGui::MenuItem("Memory"))
                 {
-                    chosenType = SnapshotType::Memory;
                     std::cout << "MemorySave !" << std::endl;
-                    m_snapshot = createSnapshot(chosenType);
+                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                     auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
                     groot->execute(visitor);
                     std::string memorySnapshotName = "Memory Snapshot";
                     if(!recentSnapshotFiles.empty())
                     {
                         memorySnapshotName += " " + std::to_string(recentSnapshotFiles.size());
-
                     }
 
                     auto snapshotTime = groot->getTime();
@@ -560,9 +559,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 }
                 if (ImGui::MenuItem("JSON"))
                 {
-                    chosenType = SnapshotType::JSON;
-                    m_snapshot = createSnapshot(chosenType);
-
+                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                     NFD_Init();
 
                     nfdchar_t* savePath;
@@ -577,11 +574,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         std::string path(savePath);
                         auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
                         groot->execute(visitor);
-                        m_snapshot->exportTo(path);
-                        std::cout << "filepath : " << filepath << std::endl;
-                        std::cout << "savePath : " << savePath << std::endl;
+                        exportTo(*m_snapshot,path);
                         filepath = savePath;
-                        std::cout << "filepath after : " << filepath << std::endl;
                         NFD_FreePath(savePath);
                     }
                     else
@@ -601,11 +595,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             {
                 if (ImGui::MenuItem("Memory (recent)"))
                 {
+                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                     std::cout << "MemoryLoad !" << std::endl;
                     if(!m_snapshot)
                     {
                         std::cout << "Nothing to load..." << std::endl;
-                        m_snapshot = createSnapshot(SnapshotType::Memory);
                     }
                     else
                     {
@@ -624,6 +618,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                 if (ImGui::MenuItem("JSON"))
                 {
+                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                     if(!m_snapshot)
                     {
                         m_snapshot = createSnapshot(SnapshotType::JSON);
@@ -640,7 +635,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                         if (helper::system::FileSystem::exists(outPath))
                         {
-                            m_snapshot->importFrom(outPath);
+                            importFrom(*m_snapshot,outPath);
                             auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                             groot->execute(visitor);
                             auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
@@ -678,17 +673,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                             {
                                 if(file.ends_with(".json"))
                                 {
-                                    m_snapshot = createSnapshot(SnapshotType::JSON);
-                                    m_snapshot->importFrom(file);
-                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                                    groot->execute(visitor);
-                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                                    groot->execute(linkvisitor);
-                                }
-                                else
-                                {
-                                    m_snapshot = createSnapshot(SnapshotType::Memory);
-                                    m_snapshot->importFrom(file);
+                                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
+                                    importFrom(*m_snapshot,file);
                                     auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(visitor);
                                     auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
@@ -700,8 +686,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                         {
                             if(ImGui::MenuItem(name.c_str()))
                             {
+                                auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                                 m_snapshot = file;
-                                m_snapshot->importFrom("none");
                                 auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                 groot->execute(visitor);
                             }

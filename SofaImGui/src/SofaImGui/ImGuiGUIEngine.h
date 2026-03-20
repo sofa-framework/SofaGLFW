@@ -121,6 +121,7 @@ protected:
     std::shared_ptr<sofa::core::objectmodel::Snapshot> m_snapshot;
 
     std::shared_ptr<sofa::core::objectmodel::BaseSnapshot> m_baseSnapshot;
+    // std::shared_ptr<sofa::core::objectmodel::Snapshot> m_snapshot;
 };
 
 } // namespace sofaimgui
