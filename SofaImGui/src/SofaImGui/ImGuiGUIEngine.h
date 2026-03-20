@@ -117,7 +117,7 @@ protected:
     GLuint m_pbos[s_NB_PBOS];
     sofa::type::Vec2i m_pboSize;
 
-    std::shared_ptr<sofa::core::objectmodel::Snapshot> m_snapshot;
+    // std::shared_ptr<sofa::core::objectmodel::Snapshot> m_snapshot;
 };
 
 } // namespace sofaimgui
