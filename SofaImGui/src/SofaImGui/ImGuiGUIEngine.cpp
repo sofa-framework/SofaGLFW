@@ -82,6 +82,20 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
+#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
+
+#include <sofa/simulation/SaveSnapshotVisitor.h>
+
+#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
+using sofa::simulation::SaveSnapshotVisitor;
+
+#include <sofa/simulation/LoadDataSnapshotVisitor.h>
+using sofa::simulation::LoadDataSnapshotVisitor;
+
+#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
+using sofa::simulation::LoadLinkSnapshotVisitor;
+
+
 #include <clocale>
 
 using namespace sofa;
@@ -510,12 +524,14 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
                     auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
 
+                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                     auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
                     groot->execute(visitor);
                     std::string memorySnapshotName = "Memory Snapshot";
                     if(!snapshot_manager.recentSnapshotFiles.empty())
                     {
                         memorySnapshotName += " " + std::to_string(snapshot_manager.recentSnapshotFiles.size());
+                        memorySnapshotName += " " + std::to_string(recentSnapshotFiles.size());
                     }
 
                     auto snapshotTime = groot->getTime();
