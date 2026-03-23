@@ -82,10 +82,14 @@
 #include <sofa/version.h>
 
 #include <sofa/core/objectmodel/SnapshotJSONExporter.h>
+#include <sofa/core/objectmodel/SnapshotManager.h>
 
+#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/Base.h"
+#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotManager.h"
+using sofa::core::objectmodel::SnapshotManager;
 #include <sofa/simulation/SaveSnapshotVisitor.h>
 
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
+// #include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
 using sofa::simulation::SaveSnapshotVisitor;
 
 #include <sofa/simulation/LoadDataSnapshotVisitor.h>
@@ -93,8 +97,6 @@ using sofa::simulation::LoadDataSnapshotVisitor;
 
 #include <sofa/simulation/LoadLinkSnapshotVisitor.h>
 using sofa::simulation::LoadLinkSnapshotVisitor;
-#include <sofa/simulation/SnapshotVisitor.h>
-using sofa::simulation::SnapshotVisitor;
 
 
 #include <clocale>
@@ -360,28 +362,7 @@ void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 }
 
-void AddRecentFile(const std::string& path, std::vector<std::string>& recentFiles, int maxFiles = 10)
-{
-    recentFiles.erase(
-        std::remove(recentFiles.begin(), recentFiles.end(), path),
-        recentFiles.end()
-    );
-    //recentFiles.insert(recentFiles.begin(), path);
-    recentFiles.push_back(path);
-    if (recentFiles.size() > maxFiles)
-        recentFiles.resize(maxFiles);
-}
-
-void AddRecentSnapshot(std::map<std::string, std::shared_ptr<sofa::core::objectmodel::Snapshot>>& recentSnapshots, std::shared_ptr<sofa::core::objectmodel::Snapshot> snapshot, double snapshotTime, int maxSnapshots = 10)
-{
-    static int index = 0;
-    recentSnapshots["Memory_Snapshot " + std::to_string(index++) + " at " + std::to_string(snapshotTime)] = snapshot;
-    if (recentSnapshots.size() > maxSnapshots)
-        recentSnapshots.erase(recentSnapshots.begin());
-}
-
-std::vector<std::string> recentSnapshotFiles;
-std::map<std::string, std::shared_ptr<sofa::core::objectmodel::Snapshot>> recentSnapshots;
+SnapshotManager snapshot_manager;
 
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
@@ -501,17 +482,21 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 if(ImGui::MenuItem("Memory"))
                 {
                     std::cout << "MemorySave !" << std::endl;
+
                     auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
+
                     auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
                     groot->execute(visitor);
                     std::string memorySnapshotName = "Memory Snapshot";
-                    if(!recentSnapshotFiles.empty())
+                    if(!snapshot_manager.recentSnapshotFiles.empty())
                     {
-                        memorySnapshotName += " " + std::to_string(recentSnapshotFiles.size());
+                        memorySnapshotName += " " + std::to_string(snapshot_manager.recentSnapshotFiles.size());
                     }
 
                     auto snapshotTime = groot->getTime();
-                    AddRecentSnapshot(recentSnapshots, m_snapshot, snapshotTime);
+
+                    // SnapshotManager::AddRecentSnapshot(recentSnapshots, m_snapshot, snapshotTime);
+                    SnapshotManager::AddRecentSnapshot(snapshot_manager.recentSnapshots, m_snapshot, snapshotTime);
                 }
                 if (ImGui::MenuItem("JSON"))
                 {
@@ -541,7 +526,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
 
                     NFD_Quit();
-                    AddRecentFile(filepath, recentSnapshotFiles);
+                    SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
                 }
 
                 ImGui::EndMenu();
@@ -559,7 +544,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                     else
                     {
-                        m_snapshot = recentSnapshots.rbegin()->second;
+                        m_snapshot = snapshot_manager.recentSnapshots.rbegin()->second;
                         auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                         groot->execute(visitor);
                         auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
@@ -601,19 +586,19 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                     }
                     NFD_Quit();
                     std::cout << "JSON file loaded !" << std::endl;
-                    AddRecentFile(filepath, recentSnapshotFiles);
+                    SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
 
                 }
 
                 if(ImGui::BeginMenu("Recent Files"))
                 {
-                    if (recentSnapshotFiles.empty() && recentSnapshots.empty())
+                    if (snapshot_manager.recentSnapshotFiles.empty() && snapshot_manager.recentSnapshots.empty())
                     {
                         ImGui::MenuItem("(No recent files)", nullptr, false, false);
                     }
                     else
                     {
-                        for (auto file : recentSnapshotFiles)
+                        for (auto file : snapshot_manager.recentSnapshotFiles)
                         {
                             if (ImGui::MenuItem(file.c_str()))
                             {
@@ -628,7 +613,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                                 }
                             }
                         }
-                        for (auto [name, file] : recentSnapshots)
+                        for (auto [name, file] : snapshot_manager.recentSnapshots)
                         {
                             if(ImGui::MenuItem(name.c_str()))
                             {
@@ -840,6 +825,18 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 position -= ImGui::CalcTextSize("1000.0 FPS ").x;
             ImGui::SetCursorPosX(position);
             ImGui::Text("Time: %.3f", groot->getTime());
+            ImGui::SetCursorPosX(posX);
+        }
+        if (showMemorySnapshot)
+        {            
+            auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("Snapshot in memory : 00 items  ").x
+                - 2 * ImGui::GetStyle().ItemSpacing.x;
+            if (showFPSInMenuBar)
+                position -= ImGui::CalcTextSize("1000.0 FPS ").x;
+            if (showTime)
+                position -= ImGui::CalcTextSize("Time: 000.000  ").x;
+            ImGui::SetCursorPosX(position);
+            ImGui::Text("Snapshot in memory : %d items  ", static_cast<int>(snapshot_manager.recentSnapshots.size()));
             ImGui::SetCursorPosX(posX);
         }
         mainMenuBarSize = ImGui::GetWindowSize();
