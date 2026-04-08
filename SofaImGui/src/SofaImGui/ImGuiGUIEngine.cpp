@@ -214,17 +214,31 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     sofa::simulation::node::unload(groot);
 
     groot = sofa::simulation::node::load(filePathName.c_str());
+    
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
+
     baseGUI->setSimulation(groot, filePathName);
     baseGUI->setWindowTitle(nullptr, std::string("SOFA - " + filePathName).c_str());
     
     sofa::simulation::node::initRoot(groot.get());
+
     auto camera = baseGUI->getCamera();
     if (camera)
     {
-        camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+        if( groot->f_bbox.getValue().isValid())
+        {
+            camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+        }
+        else
+        {
+            msg_warning_when(!groot->f_bbox.getValue().isValid(), "GUI") << "Global bounding box is invalid: " << groot->f_bbox.getValue();
+        }
         baseGUI->changeCamera(camera);
+    }
+    else
+    {
+        msg_warning("GUI") << "No camera found in the scene";
     }
 
     if(reload)
