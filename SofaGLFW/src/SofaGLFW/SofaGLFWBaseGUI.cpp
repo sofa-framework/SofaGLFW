@@ -672,7 +672,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
     SOFA_UNUSED(mods);
 
     const char keyName = handleArrowKeys(key);
-    const bool isCtrlKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+    const bool isCtrlKeyPressed = (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS);
     const bool isShiftKeyPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS;
 
     const bool foundGUI = s_mapGUIs.contains(window);
