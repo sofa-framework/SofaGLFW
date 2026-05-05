@@ -46,6 +46,7 @@
 #include "windows/DisplayFlags.h"
 #include "windows/Log.h"
 #include "windows/MouseManager.h"
+#include "windows/Snapshot.h"
 #include "windows/Performances.h"
 #include "windows/Plugins.h"
 #include "windows/Profiler.h"
@@ -81,26 +82,7 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
-#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
-#include <sofa/core/objectmodel/SnapshotManager.h>
-
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/Base.h"
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotManager.h"
-using sofa::core::objectmodel::SnapshotManager;
-#include <sofa/simulation/SaveSnapshotVisitor.h>
-
-// #include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
-using sofa::simulation::SaveSnapshotVisitor;
-
-#include <sofa/simulation/LoadDataSnapshotVisitor.h>
-using sofa::simulation::LoadDataSnapshotVisitor;
-
-#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
-using sofa::simulation::LoadLinkSnapshotVisitor;
-
-
 #include <clocale>
-
 
 using namespace sofa;
 
@@ -122,6 +104,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
     , winManagerComponents(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("components.txt")))
     , winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt")))
     , winManagerMouse(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mouse.txt")))
+    , winManagerSnapshot(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("snapshot.txt")))
     , winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt")))
     , winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt")))
     , firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
@@ -348,8 +331,6 @@ void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 }
 
-SnapshotManager snapshot_manager;
-
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     m_localeBackup = std::setlocale(LC_NUMERIC, nullptr);
@@ -397,6 +378,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameMouse = ICON_FA_COMPUTER_MOUSE "  Mouse Manager";
+    static constexpr auto windowNameSnapshot = ICON_FA_FLOPPY_DISK "  Snapshot";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
 
     if (!*firstRunState.getStatePtr())
@@ -410,19 +392,12 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     static bool showFPSInMenuBar = true;
     static bool showTime = true;
-    static bool showMemorySnapshot = true;
 
     ImVec2 mainMenuBarSize;
 
     static bool animate;
     animate = groot->animate_.getValue();
 
-    //static SnapshotType chosenType = SnapshotType::Print;
-
-    
-    const int MAX_RECENT_FILES = 10;
-
-    
     /***************************************
      * Main menu bar
      **************************************/
@@ -458,159 +433,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 baseGUI->setSimulationIsRunning(false);
                 sofa::simulation::node::initRoot(baseGUI->getRootNode().get());
                 return;
-            }
-
-            ImGui::Separator();
-
-            if (ImGui::BeginMenu("Save Snapshot"))
-            {
-                if(ImGui::MenuItem("Memory"))
-                {
-                    std::cout << "MemorySave !" << std::endl;
-
-                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-
-                    auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
-                    groot->execute(visitor);
-                    std::string memorySnapshotName = "Memory Snapshot";
-                    if(!snapshot_manager.recentSnapshotFiles.empty())
-                    {
-                        memorySnapshotName += " " + std::to_string(snapshot_manager.recentSnapshotFiles.size());
-                    }
-
-                    auto snapshotTime = groot->getTime();
-
-                    // SnapshotManager::AddRecentSnapshot(recentSnapshots, m_snapshot, snapshotTime);
-                    SnapshotManager::AddRecentSnapshot(snapshot_manager.recentSnapshots, m_snapshot, snapshotTime);
-                }
-                if (ImGui::MenuItem("JSON"))
-                {
-                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                    NFD_Init();
-
-                    nfdchar_t* savePath;
-
-                    nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
-                    std::string filepath = "null";
-                    nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
-                    if (result == NFD_OKAY) 
-                    {
-                        puts("Save Snapshot success!");
-                        puts(savePath);
-                        std::string path(savePath);
-                        auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
-                        groot->execute(visitor);
-                        exportTo(*m_snapshot,path);
-                        filepath = savePath;
-                        NFD_FreePath(savePath);
-                    } 
-                    else 
-                    {
-                        printf("Error: %s\n", NFD_GetError());
-                    }
-
-                    NFD_Quit();
-                    SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
-                }
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Load Snapshot"))
-            {
-                if (ImGui::MenuItem("Memory (recent)"))
-                {
-                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                    std::cout << "MemoryLoad !" << std::endl;
-                    if(!m_snapshot)
-                    {
-                        std::cout << "Nothing to load..." << std::endl;
-                    }
-                    else
-                    {
-                        m_snapshot = snapshot_manager.recentSnapshots.rbegin()->second;
-                        auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                        groot->execute(visitor);
-                        auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                        groot->execute(linkvisitor);
-                    }
-                }
-
-                if (ImGui::MenuItem("JSON"))
-                {
-                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                    nfdchar_t *outPath = NULL;
-                    nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
-                    nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
-                    std::string filepath = "null";
-                    if ( result == NFD_OKAY )
-                    {
-                        puts("Success!");
-                        puts(outPath);
-                        
-                        if (helper::system::FileSystem::exists(outPath))
-                        {
-                            importFrom(*m_snapshot,outPath);
-                            auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                            groot->execute(visitor);
-                            auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                            groot->execute(linkvisitor);
-
-                        }
-                        filepath = outPath;
-                        free(outPath);
-                    }
-                    else if ( result == NFD_CANCEL )
-                    {
-                        puts("User pressed cancel.");
-                    }
-                    else 
-                    {
-                        printf("Error: %s\n", NFD_GetError() );
-                    }
-                    NFD_Quit();
-                    std::cout << "JSON file loaded !" << std::endl;
-                    SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
-
-                }
-
-                if(ImGui::BeginMenu("Recent Files"))
-                {
-                    if (snapshot_manager.recentSnapshotFiles.empty() && snapshot_manager.recentSnapshots.empty())
-                    {
-                        ImGui::MenuItem("(No recent files)", nullptr, false, false);
-                    }
-                    else
-                    {
-                        for (auto file : snapshot_manager.recentSnapshotFiles)
-                        {
-                            if (ImGui::MenuItem(file.c_str()))
-                            {
-                                if(file.ends_with(".json"))
-                                {
-                                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                                    importFrom(*m_snapshot,file);
-                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                                    groot->execute(visitor);
-                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                                    groot->execute(linkvisitor);
-                                }
-                            }
-                        }
-                        for (auto [name, file] : snapshot_manager.recentSnapshots)
-                        {
-                            if(ImGui::MenuItem(name.c_str()))
-                            {
-                                auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                                m_snapshot = file;
-                                auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                                groot->execute(visitor);
-                            }
-                        }
-                    }
-                    ImGui::EndMenu();
-                }
-                ImGui::EndMenu();
             }
 
             ImGui::Separator();
@@ -706,6 +528,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(windowNameLog, winManagerLog.getStatePtr());
 
             ImGui::Checkbox(windowNameMouse, winManagerMouse.getStatePtr());
+
+            ImGui::Checkbox(windowNameSnapshot, winManagerSnapshot.getStatePtr());
 
             if (guis::MainAdditionGUIRegistry::getAllGUIs().empty() == false)
             {
@@ -812,18 +636,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Text("Time: %.3f", groot->getTime());
             ImGui::SetCursorPosX(posX);
         }
-        if (showMemorySnapshot)
-        {            
-            auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("Snapshot in memory : 00 items  ").x
-                - 2 * ImGui::GetStyle().ItemSpacing.x;
-            if (showFPSInMenuBar)
-                position -= ImGui::CalcTextSize("1000.0 FPS ").x;
-            if (showTime)
-                position -= ImGui::CalcTextSize("Time: 000.000  ").x;
-            ImGui::SetCursorPosX(position);
-            ImGui::Text("Snapshot in memory : %d items  ", static_cast<int>(snapshot_manager.recentSnapshots.size()));
-            ImGui::SetCursorPosX(posX);
-        }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
     }
@@ -902,6 +714,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      * Mouse window
      **************************************/
     windows::showManagerMouseWindow(windowNameMouse, winManagerMouse, baseGUI);
+
+    /***************************************
+     * Snapshot window
+     **************************************/
+    windows::showSnapshot(windowNameSnapshot, winManagerSnapshot, groot);
 
     /***************************************
      * Additional GUIs

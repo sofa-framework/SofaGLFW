@@ -101,6 +101,7 @@ protected:
     windows::WindowState winManagerComponents;
     windows::WindowState winManagerLog;
     windows::WindowState winManagerMouse;
+    windows::WindowState winManagerSnapshot;
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
     std::map<std::string, windows::WindowState> winManagerAdditionalGUIs;
@@ -117,7 +118,6 @@ protected:
     GLuint m_pbos[s_NB_PBOS];
     sofa::type::Vec2i m_pboSize;
 
-    // std::shared_ptr<sofa::core::objectmodel::Snapshot> m_snapshot;
 };
 
 } // namespace sofaimgui
