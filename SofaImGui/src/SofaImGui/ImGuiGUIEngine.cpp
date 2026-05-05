@@ -82,24 +82,6 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
-#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
-#include <sofa/core/objectmodel/SnapshotManager.h>
-
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/Base.h"
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotManager.h"
-using sofa::core::objectmodel::SnapshotManager;
-#include <sofa/simulation/SaveSnapshotVisitor.h>
-
-// #include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
-using sofa::simulation::SaveSnapshotVisitor;
-
-#include <sofa/simulation/LoadDataSnapshotVisitor.h>
-using sofa::simulation::LoadDataSnapshotVisitor;
-
-#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
-using sofa::simulation::LoadLinkSnapshotVisitor;
-
-
 #include <clocale>
 
 using namespace sofa;
@@ -363,8 +345,6 @@ void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 }
 
-SnapshotManager snapshot_manager;
-
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     m_localeBackup = std::setlocale(LC_NUMERIC, nullptr);
@@ -426,7 +406,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
     static bool showFPSInMenuBar = true;
     static bool showTime = true;
-    static bool showMemorySnapshot = true;
 
     ImVec2 mainMenuBarSize;
     bool doCloseSimulation = false;
