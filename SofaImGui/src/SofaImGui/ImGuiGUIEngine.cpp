@@ -46,6 +46,7 @@
 #include "windows/DisplayFlags.h"
 #include "windows/Log.h"
 #include "windows/MouseManager.h"
+#include "windows/Snapshot.h"
 #include "windows/Performances.h"
 #include "windows/Plugins.h"
 #include "windows/Profiler.h"
@@ -81,26 +82,7 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
-#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
-#include <sofa/core/objectmodel/SnapshotManager.h>
-
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/Base.h"
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotManager.h"
-using sofa::core::objectmodel::SnapshotManager;
-#include <sofa/simulation/SaveSnapshotVisitor.h>
-
-// #include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
-using sofa::simulation::SaveSnapshotVisitor;
-
-#include <sofa/simulation/LoadDataSnapshotVisitor.h>
-using sofa::simulation::LoadDataSnapshotVisitor;
-
-#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
-using sofa::simulation::LoadLinkSnapshotVisitor;
-
-
 #include <clocale>
-
 
 using namespace sofa;
 
@@ -122,6 +104,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
     , winManagerComponents(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("components.txt")))
     , winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt")))
     , winManagerMouse(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mouse.txt")))
+    , winManagerSnapshot(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("snapshot.txt")))
     , winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt")))
     , winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt")))
     , firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
@@ -362,8 +345,6 @@ void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     }
 }
 
-SnapshotManager snapshot_manager;
-
 void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
     m_localeBackup = std::setlocale(LC_NUMERIC, nullptr);
@@ -411,6 +392,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameMouse = ICON_FA_COMPUTER_MOUSE "  Mouse Manager";
+    static constexpr auto windowNameSnapshot = ICON_FA_FLOPPY_DISK "  Snapshot";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
 
     if (!*firstRunState.getStatePtr())
@@ -431,12 +413,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static bool animate;
     animate = groot->animate_.getValue();
 
-    //static SnapshotType chosenType = SnapshotType::Print;
-
-    
-    const int MAX_RECENT_FILES = 10;
-
-    
     /***************************************
      * Main menu bar
      **************************************/
@@ -722,6 +698,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 
             ImGui::Checkbox(windowNameMouse, winManagerMouse.getStatePtr());
 
+            ImGui::Checkbox(windowNameSnapshot, winManagerSnapshot.getStatePtr());
+
             if (guis::MainAdditionGUIRegistry::getAllGUIs().empty() == false)
             {
                 ImGui::Separator();
@@ -827,18 +805,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Text("Time: %.3f", groot->getTime());
             ImGui::SetCursorPosX(posX);
         }
-        if (showMemorySnapshot)
-        {            
-            auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("Snapshot in memory : 00 items  ").x
-                - 2 * ImGui::GetStyle().ItemSpacing.x;
-            if (showFPSInMenuBar)
-                position -= ImGui::CalcTextSize("1000.0 FPS ").x;
-            if (showTime)
-                position -= ImGui::CalcTextSize("Time: 000.000  ").x;
-            ImGui::SetCursorPosX(position);
-            ImGui::Text("Snapshot in memory : %d items  ", static_cast<int>(snapshot_manager.recentSnapshots.size()));
-            ImGui::SetCursorPosX(posX);
-        }
         mainMenuBarSize = ImGui::GetWindowSize();
         ImGui::EndMainMenuBar();
     }
@@ -925,6 +891,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      * Mouse window
      **************************************/
     windows::showManagerMouseWindow(windowNameMouse, winManagerMouse, baseGUI);
+
+    /***************************************
+     * Snapshot window
+     **************************************/
+    windows::showSnapshot(windowNameSnapshot, winManagerSnapshot, groot);
 
     /***************************************
      * Additional GUIs
