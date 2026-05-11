@@ -605,7 +605,9 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 ImGui::EndMenu();
             }
 
+
             ImGui::Separator();
+
             if (ImGui::MenuItem("Exit"))
             {
                 this->terminate();
@@ -1190,5 +1192,7 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
         
     return {viewport[2], viewport[3]};
 }
+
+
 
 } //namespace sofaimgui
