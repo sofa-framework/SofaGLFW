@@ -29,12 +29,10 @@
 namespace windows
 {
         /**
-        * @brief Shows the Components window.
+        * @brief Shows the Snapshot window.
         *
-        * This function displays a window listing all available components along with their categories. It allows users to select a component to view its details, including name, description, templates, aliases, namespaces, parents, targets, and data properties.
+        * This function displays a window which user can save and load snapshots.
         *
-        * @param windowNameComponents The name of the Components window.
-        * @param isComponentsWindowOpen A reference to a boolean flag indicating if the Components window is open.
         */
          void showSnapshot(const char* const& windowNameSnapshot,
                              WindowState& winManagerSnapshot,sofa::core::sptr<sofa::simulation::Node>& groot);
