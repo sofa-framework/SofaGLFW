@@ -178,12 +178,8 @@ namespace windows
                         else
                         {
                             m_snapshot = snapshot_manager.recentSnapshots.rbegin()->second;
-                            // auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                             auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
-                            auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                             groot->execute(visitor);
-                            // auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                            // groot->execute(linkvisitor);
                             auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
                             groot->execute(linkvisitor);
                         }
@@ -203,15 +199,8 @@ namespace windows
                             if (sofa::helper::system::FileSystem::exists(outPath))
                             {
                                 importFrom(*m_snapshot,outPath);
-                                auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                                // auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                 auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
                                 groot->execute(visitor);
-                                auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                                groot->execute(linkvisitor);
-                                // auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                                // groot->execute(linkvisitor);
-
                             }
                             filepath = outPath;
                             free(outPath);
@@ -284,14 +273,8 @@ namespace windows
                                 {
                                     auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                                     importFrom(*m_snapshot,file);
-                                    auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                                    // auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                     auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(visitor);
-                                    auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                                    groot->execute(linkvisitor);
-                                    // auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                                    // groot->execute(linkvisitor);
                                 }
                             }
                         }
@@ -301,8 +284,6 @@ namespace windows
                             {
                                 auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
                                 m_snapshot = file;
-                                auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
-                                // auto visitor = LoadDataSnapshotVisitor(nullptr,*m_snapshot);
                                 auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
                                 groot->execute(visitor);
                             }

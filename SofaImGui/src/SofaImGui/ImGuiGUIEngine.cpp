@@ -82,20 +82,6 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
 
-#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
-
-#include <sofa/simulation/SaveSnapshotVisitor.h>
-
-#include "../../../../../src/Sofa/framework/Core/src/sofa/core/objectmodel/SnapshotJSONExporter.h"
-using sofa::simulation::SaveSnapshotVisitor;
-
-#include <sofa/simulation/LoadDataSnapshotVisitor.h>
-using sofa::simulation::LoadDataSnapshotVisitor;
-
-#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
-using sofa::simulation::LoadLinkSnapshotVisitor;
-
-
 #include <clocale>
 
 using namespace sofa;
@@ -656,18 +642,6 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 position -= ImGui::CalcTextSize("1000.0 FPS ").x;
             ImGui::SetCursorPosX(position);
             ImGui::Text("Time: %.3f", groot->getTime());
-            ImGui::SetCursorPosX(posX);
-        }
-        if (showMemorySnapshot)
-        {
-            auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("Snapshot in memory : 00 items  ").x
-                - 2 * ImGui::GetStyle().ItemSpacing.x;
-            if (showFPSInMenuBar)
-                position -= ImGui::CalcTextSize("1000.0 FPS ").x;
-            if (showTime)
-                position -= ImGui::CalcTextSize("Time: 000.000  ").x;
-            ImGui::SetCursorPosX(position);
-            ImGui::Text("Snapshot in memory : %d items  ", static_cast<int>(snapshot_manager.recentSnapshots.size()));
             ImGui::SetCursorPosX(posX);
         }
         mainMenuBarSize = ImGui::GetWindowSize();
