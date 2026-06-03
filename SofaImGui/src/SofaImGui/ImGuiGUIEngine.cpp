@@ -79,6 +79,7 @@
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
+#include <sofa/component/visual/InteractiveCamera.h>
 
 #include <clocale>
 
@@ -223,18 +224,21 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     
     sofa::simulation::node::initRoot(groot.get());
 
-    auto camera = baseGUI->getCamera();
-    if (camera)
+
+    baseGUI->addCameraIfRequired();
+
+    if (baseGUI->getCamera())
     {
+
         if( groot->f_bbox.getValue().isValid())
         {
-            camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+            baseGUI->getCamera()->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
         }
         else
         {
             msg_warning_when(!groot->f_bbox.getValue().isValid(), "GUI") << "Global bounding box is invalid: " << groot->f_bbox.getValue();
         }
-        baseGUI->changeCamera(camera);
+        baseGUI->changeCamera(baseGUI->getCamera());
     }
     else
     {
