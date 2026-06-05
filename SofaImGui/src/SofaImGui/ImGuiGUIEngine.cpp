@@ -313,7 +313,7 @@ void ImGuiGUIEngine::openFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     }
 }
 
-void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
+void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI, std::string filename )
 {
     nfdchar_t *outPath;
     std::array<nfdfilteritem_t, 1> filterItem{ { {"Image", "jpg,png"} } };

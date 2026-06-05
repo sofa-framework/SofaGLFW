@@ -151,4 +151,10 @@ void SofaGLFWGUI::setMouseButtonConfiguration(sofa::component::setting::MouseBut
     }
 }
 
+BaseViewer* SofaGLFWGUI::getViewer()
+{
+    return &(this->m_baseGUI);
+}
+
+
 } // namespace sofaglfw

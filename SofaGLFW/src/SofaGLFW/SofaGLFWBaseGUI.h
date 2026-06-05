@@ -84,7 +84,13 @@ public:
     void setWindowBackgroundColor(const RGBAColor& newColor, unsigned int windowID = 0);
     void setWindowBackgroundImage(const std::string& imageFileName, unsigned int windowID = 0);
     void setWindowTitle(GLFWwindow* window, const char* title);
-    
+
+    virtual void screenshot(const std::string& filename, int compression_level = 0) override
+    {
+        m_guiEngine->saveScreenshot(this, filename);
+    }
+
+
     virtual void setBackgroundColour(float r, float g, float b) override
     {
         setWindowBackgroundColor(RGBAColor{r, g, b, 1.0f}, 0);
