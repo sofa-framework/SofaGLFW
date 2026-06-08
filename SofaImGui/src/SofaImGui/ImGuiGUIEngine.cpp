@@ -313,10 +313,28 @@ void ImGuiGUIEngine::openFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     }
 }
 
-void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI, std::string filename )
+
+void ImGuiGUIEngine::saveNamedScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI, std::string filename, int compression_level)
 {
-    nfdchar_t *outPath;
-    std::array<nfdfilteritem_t, 1> filterItem{ { {"Image", "jpg,png"} } };
+    helper::io::STBImage image;
+    image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
+
+    glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
+
+    // Read the pixel data from the OpenGL texture
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if(compression_level < 0)
+        compression_level = 90;
+
+    image.save(filename, compression_level);
+
+}
+
+void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
+{
     const auto sceneFilename = baseGUI->getSceneFileName();
     std::string baseFilename{};
     if (!sceneFilename.empty())
@@ -324,26 +342,20 @@ void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI, std::str
         std::filesystem::path path(sceneFilename);
         baseFilename = path.stem().string();
     }
-    
+
     std::ostringstream oss{};
     oss << baseFilename << "_" << std::setfill('0') << std::setw(4) << m_screenshotCounter << ".png";
     m_screenshotCounter++;
 
+    nfdchar_t *outPath;
+    std::array<nfdfilteritem_t, 1> filterItem{ { {"Image", "jpg,png"} } };
+
     nfdresult_t result = NFD_SaveDialog(&outPath,
         filterItem.data(), filterItem.size(), nullptr, oss.str().c_str());
+
     if (result == NFD_OKAY)
     {
-        helper::io::STBImage image;
-        image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
-
-        glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
-
-        // Read the pixel data from the OpenGL texture
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        image.save(outPath, 90);
+        saveNamedScreenshot(baseGUI,std::string(outPath));
     }
 }
 

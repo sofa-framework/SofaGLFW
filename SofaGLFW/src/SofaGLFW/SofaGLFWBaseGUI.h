@@ -85,9 +85,9 @@ public:
     void setWindowBackgroundImage(const std::string& imageFileName, unsigned int windowID = 0);
     void setWindowTitle(GLFWwindow* window, const char* title);
 
-    virtual void screenshot(const std::string& filename, int compression_level = 0) override
+    virtual void screenshot(const std::string& filename, int compression_level = -1) override
     {
-        m_guiEngine->saveScreenshot(this, filename);
+        m_guiEngine->saveNamedScreenshot(this, filename,compression_level);
     }
 
 
