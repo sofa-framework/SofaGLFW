@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(SofaImGui LANGUAGES CXX)
 
+include(cmake/environment.cmake)
+
+
 # needed to find SofaGLFWConfig.cmake
 # if building both of them out-of-tree
-list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/lib/cmake)
+list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/${ARCHIVE_OUTPUT_DIRECTORY}/cmake)
 
 sofa_find_package(SofaGLFW REQUIRED)
 sofa_find_package(Sofa.GL.Component.Rendering3D REQUIRED)
