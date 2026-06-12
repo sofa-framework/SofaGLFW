@@ -44,6 +44,8 @@ public:
     bool dispatchMouseEvents() override;
     void resetCounter() override;
     sofa::type::Vec2i getFrameBufferPixels(std::vector<uint8_t>& pixels) override;
+    virtual void saveNamedScreenshot(SofaGLFWBaseGUI * baseGUI, std::string filename = std::string(""), int compression_level = -1) override;
+
 private:
     GLFWwindow* m_window{ nullptr };
     double m_lastTime{ 0.0 };

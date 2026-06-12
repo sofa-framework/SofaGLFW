@@ -81,6 +81,7 @@
 #include <sofa/helper/io/STBImage.h>
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/version.h>
+#include <sofa/component/visual/InteractiveCamera.h>
 
 #include <clocale>
 
@@ -225,18 +226,21 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     
     sofa::simulation::node::initRoot(groot.get());
 
-    auto camera = baseGUI->getCamera();
-    if (camera)
+
+    baseGUI->addCameraIfRequired();
+
+    if (baseGUI->getCamera())
     {
+
         if( groot->f_bbox.getValue().isValid())
         {
-            camera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
+            baseGUI->getCamera()->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
         }
         else
         {
             msg_warning_when(!groot->f_bbox.getValue().isValid(), "GUI") << "Global bounding box is invalid: " << groot->f_bbox.getValue();
         }
-        baseGUI->changeCamera(camera);
+        baseGUI->changeCamera(baseGUI->getCamera());
     }
     else
     {
@@ -311,10 +315,28 @@ void ImGuiGUIEngine::openFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     }
 }
 
+
+void ImGuiGUIEngine::saveNamedScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI, std::string filename, int compression_level)
+{
+    helper::io::STBImage image;
+    image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
+
+    glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
+
+    // Read the pixel data from the OpenGL texture
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if(compression_level < 0)
+        compression_level = 90;
+
+    image.save(filename, compression_level);
+
+}
+
 void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
 {
-    nfdchar_t *outPath;
-    std::array<nfdfilteritem_t, 1> filterItem{ { {"Image", "jpg,png"} } };
     const auto sceneFilename = baseGUI->getSceneFileName();
     std::string baseFilename{};
     if (!sceneFilename.empty())
@@ -322,26 +344,20 @@ void ImGuiGUIEngine::saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         std::filesystem::path path(sceneFilename);
         baseFilename = path.stem().string();
     }
-    
+
     std::ostringstream oss{};
     oss << baseFilename << "_" << std::setfill('0') << std::setw(4) << m_screenshotCounter << ".png";
     m_screenshotCounter++;
 
+    nfdchar_t *outPath;
+    std::array<nfdfilteritem_t, 1> filterItem{ { {"Image", "jpg,png"} } };
+
     nfdresult_t result = NFD_SaveDialog(&outPath,
         filterItem.data(), filterItem.size(), nullptr, oss.str().c_str());
+
     if (result == NFD_OKAY)
     {
-        helper::io::STBImage image;
-        image.init(m_currentFBOSize.first, m_currentFBOSize.second, 1, 1, sofa::helper::io::Image::DataType::UINT32, sofa::helper::io::Image::ChannelFormat::RGBA);
-
-        glBindTexture(GL_TEXTURE_2D, m_fbo->getColorTexture());
-
-        // Read the pixel data from the OpenGL texture
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        image.save(outPath, 90);
+        saveNamedScreenshot(baseGUI,std::string(outPath));
     }
 }
 
