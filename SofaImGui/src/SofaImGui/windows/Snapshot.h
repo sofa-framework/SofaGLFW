@@ -39,5 +39,7 @@ namespace windows
 
         void doMemorySave(sofa::core::sptr<sofa::simulation::Node>& groot);
         void doMemoryLoad(sofa::core::sptr<sofa::simulation::Node>& groot);
+        void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup);
+        void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup);
 
 } // namespace sofaimgui

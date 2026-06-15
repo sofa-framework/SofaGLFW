@@ -40,8 +40,12 @@
 #include <memory>
 
 #include <sofa/helper/system/FileSystem.h>
+
+#include "../../../../../../src/Sofa/framework/Helper/src/sofa/helper/logging/Messaging.h"
+using sofa::helper::system::FileSystem;
 #include <sofa/core/objectmodel/SnapshotJSONExporter.h>
 #include <sofa/core/objectmodel/SnapshotManager.h>
+
 
 using sofa::core::objectmodel::SnapshotManager;
 #include <sofa/simulation/SaveSnapshotVisitor.h>
@@ -62,7 +66,6 @@ namespace windows
 {
     SnapshotManager snapshot_manager;
 
-    /// TODO : Refactoring/Cleaning
     void showSnapshot(const char* const& windowNameSnapshot,
                         WindowState& winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node>& groot)
     {
@@ -90,65 +93,20 @@ namespace windows
                     {
                         doMemorySave(groot);
                     }
-                    if (ImGui::Button("JSON"))
+                    if (ImGui::Button("File"))
                     {
-                        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                        NFD_Init();
-
-                        nfdchar_t* savePath;
-
-                        nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
-                        std::string filepath = "null";
-                        nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
-                        if (result == NFD_OKAY)
-                        {
-                            msg_info("SaveSnapshot") << "Snapshot " << savePath << " saved";
-                            std::string path(savePath);
-                            auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
-                            groot->execute(visitor);
-                            exportTo(*m_snapshot,path);
-                            filepath = savePath;
-                            NFD_FreePath(savePath);
-                        }
-                        else
-                        {
-                            printf("Error: %s\n", NFD_GetError());
-                        }
-
-                        NFD_Quit();
-                        SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
+                        doFileSave(groot, false);
                     }
                     if (ImGui::Button("Groups"))
                     {
                         if (!snapshot_manager.recentSnapshots.empty())
                         {
-                            NFD_Init();
-
-                            nfdchar_t* savePath;
-
-                            nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
-                            std::string filepath = "null";
-                            nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
-                            if (result == NFD_OKAY)
-                            {
-                                puts(savePath);
-                                std::string path(savePath);
-                                exportTo(snapshot_manager.recentSnapshots, path);
-                                filepath = savePath;
-                                NFD_FreePath(savePath);
-                            }
-                            else
-                            {
-                                printf("Error: %s\n", NFD_GetError());
-                            }
-
+                            doFileSave(groot, true);
                         }
                         else
                             std::cout << "No snapshot" << std::endl;
 
                     }
-
-
                     ImGui::EndChild();
 
                     ImGui::BeginChild("Load Snapshot", ImVec2(0, halfHeight), true);
@@ -158,68 +116,14 @@ namespace windows
                     {
                         doMemoryLoad(groot);
                     }
-                    if (ImGui::Button("JSON"))
+                    if (ImGui::Button("File"))
                     {
-                        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                        nfdchar_t *outPath = NULL;
-                        nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
-                        nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
-                        std::string filepath = "null";
-                        if ( result == NFD_OKAY )
-                        {
-                            puts("Success!");
-                            puts(outPath);
-
-                            if (sofa::helper::system::FileSystem::exists(outPath))
-                            {
-                                importFrom(*m_snapshot,outPath);
-                                auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
-                                groot->execute(visitor);
-                            }
-                            filepath = outPath;
-                            free(outPath);
-                        }
-                        else if ( result == NFD_CANCEL )
-                        {
-                            puts("User pressed cancel.");
-                        }
-                        else
-                        {
-                            printf("Error: %s\n", NFD_GetError() );
-                        }
-                        NFD_Quit();
-                        std::cout << "JSON file loaded !" << std::endl;
-                        SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
-
+                        doFileLoad(groot, false);
                     }
 
                     if (ImGui::Button("Groups"))
                     {
-                        nfdchar_t *outPath = NULL;
-                        nfdfilteritem_t filterItem[2] = {{"Snapshot code", "json,txt"}, {"Scene file", "py,xml"}};
-                        nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
-                        std::string filepath = "null";
-                        if ( result == NFD_OKAY )
-                        {
-                            puts("Success!");
-                            puts(outPath);
-
-                            if (sofa::helper::system::FileSystem::exists(outPath))
-                            {
-                                sofa::core::objectmodel::separateSnapshots(outPath, snapshot_manager);
-                            }
-                            filepath = outPath;
-                            free(outPath);
-                        }
-                        else if ( result == NFD_CANCEL )
-                        {
-                            puts("User pressed cancel.");
-                        }
-                        else
-                        {
-                            printf("Error: %s\n", NFD_GetError() );
-                        }
-                        NFD_Quit();
+                        doFileLoad(groot, true);
                     }
                     ImGui::EndChild();
 
@@ -227,11 +131,7 @@ namespace windows
 
                     float listHeight = ImGui::GetContentRegionAvail().y - 8.0f;
 
-
-
                     ImGui::BeginChild("Recents", ImVec2(0, listHeight), true);
-
-
 
                     if (snapshot_manager.recentSnapshotFiles.empty() && snapshot_manager.recentSnapshots.empty())
                     {
@@ -295,6 +195,92 @@ namespace windows
             msg_warning("MemoryLoad") << "No Snapshot in memory";
         }
 
+    }
+
+    void doSaveTo(sofa::core::sptr<sofa::simulation::Node>& groot, nfdchar_t* savePath, std::string filepath, bool isGroup)
+    {
+        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
+
+        std::string path(savePath);
+        auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
+        groot->execute(visitor);
+
+        std::string FileExtension = FileSystem::getExtension(path);
+        if (FileExtension == "json" && !isGroup)
+            exportToJSON(*m_snapshot,path);
+        else if (FileExtension == "json" && isGroup)
+            exportToJSON(snapshot_manager.recentSnapshots,path);
+        else
+            msg_error("SaveSnapshot") << "Snapshot " << filepath << " not supported";
+
+        filepath = savePath;
+        SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
+        msg_info("SaveSnapshot") << "Snapshot " << savePath << " saved";
+        NFD_FreePath(savePath);
+    }
+
+
+    void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup)
+    {
+        NFD_Init();
+        nfdchar_t* savePath;
+        nfdfilteritem_t filterItem[1] = {{"Snapshot code", "json,txt"}};
+        std::string filepath = "null";
+        nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 1, NULL, "Untitled.json");
+        if (result == NFD_OKAY)
+        {
+            doSaveTo(groot,savePath,filepath, isGroup);
+        }
+        else
+        {
+            msg_error("SaveSnapshot") << "Error of saving snapshot" ;
+        }
+        NFD_Quit();
+    }
+
+    void doLoadTo(sofa::core::sptr<sofa::simulation::Node>& groot, nfdchar_t* outPath, std::string filepath)
+    {
+
+        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
+        if (sofa::helper::system::FileSystem::exists(outPath))
+        {
+            importFrom(*m_snapshot,outPath);
+            auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
+            groot->execute(visitor);
+        }
+        filepath = outPath;
+        SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
+        msg_info("LoadSnapshot") << "Snapshot " << filepath << " loaded";
+        NFD_FreePath(outPath);
+    }
+
+    void doLoadToGroup(nfdchar_t* outPath, SnapshotManager& snapshot_manager)
+    {
+        if (sofa::helper::system::FileSystem::exists(outPath))
+        {
+            sofa::core::objectmodel::separateSnapshots(outPath, snapshot_manager);
+        }
+        msg_info("LoadSnapshot") << "Snapshot " << outPath << " loaded";
+        NFD_FreePath(outPath);
+    }
+
+    void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup)
+    {
+        nfdchar_t *outPath = NULL;
+        nfdfilteritem_t filterItem[1] = {{"Snapshot code", "json"}};
+        nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
+        std::string filepath = "null";
+        if ( result == NFD_OKAY && !isGroup)
+        {
+            doLoadTo(groot,outPath,filepath);
+        }
+        else if (result == NFD_OKAY && isGroup)
+            doLoadToGroup(outPath,snapshot_manager);
+        else
+        {
+            msg_error("LoadSnapshot") << "Error of loading snapshot" ;
+        }
+        NFD_Quit();
     }
 
 }
