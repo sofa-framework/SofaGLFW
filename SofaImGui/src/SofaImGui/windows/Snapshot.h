@@ -34,7 +34,10 @@ namespace windows
         * This function displays a window which user can save and load snapshots.
         *
         */
-         void showSnapshot(const char* const& windowNameSnapshot,
+        void showSnapshot(const char* const& windowNameSnapshot,
                              WindowState& winManagerSnapshot,sofa::core::sptr<sofa::simulation::Node>& groot);
+
+        void doMemorySave(sofa::core::sptr<sofa::simulation::Node>& groot);
+        void doMemoryLoad(sofa::core::sptr<sofa::simulation::Node>& groot);
 
 } // namespace sofaimgui

@@ -62,8 +62,10 @@ namespace windows
 {
     SnapshotManager snapshot_manager;
 
+    /// TODO : Refactoring/Cleaning
     void showSnapshot(const char* const& windowNameSnapshot,
-                        WindowState& winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node>& groot) {
+                        WindowState& winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node>& groot)
+    {
 
         if (*winManagerSnapshot.getStatePtr())
         {
@@ -86,21 +88,7 @@ namespace windows
                     ImGui::Separator();
                     if (ImGui::Button("Memory"))
                     {
-                        std::cout << "MemorySave !" << std::endl;
-
-                        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-
-                        auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
-                        groot->execute(visitor);
-                        std::string memorySnapshotName = "Memory Snapshot";
-                        if(!snapshot_manager.recentSnapshotFiles.empty())
-                        {
-                            memorySnapshotName += " " + std::to_string(snapshot_manager.recentSnapshotFiles.size());
-                        }
-
-                        auto snapshotTime = groot->getTime();
-
-                        SnapshotManager::AddRecentSnapshot(snapshot_manager.recentSnapshots, m_snapshot, snapshotTime);
+                        doMemorySave(groot);
                     }
                     if (ImGui::Button("JSON"))
                     {
@@ -114,8 +102,7 @@ namespace windows
                         nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 2, NULL, "Untitled.json");
                         if (result == NFD_OKAY)
                         {
-                            puts("Save Snapshot success!");
-                            puts(savePath);
+                            msg_info("SaveSnapshot") << "Snapshot " << savePath << " saved";
                             std::string path(savePath);
                             auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
                             groot->execute(visitor);
@@ -169,20 +156,7 @@ namespace windows
                     ImGui::Separator();
                     if (ImGui::Button("Memory (recent)"))
                     {
-                        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                        std::cout << "MemoryLoad !" << std::endl;
-                        if(!m_snapshot)
-                        {
-                            std::cout << "Nothing to load..." << std::endl;
-                        }
-                        else
-                        {
-                            m_snapshot = snapshot_manager.recentSnapshots.rbegin()->second;
-                            auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
-                            groot->execute(visitor);
-                            auto linkvisitor = LoadLinkSnapshotVisitor(nullptr,*m_snapshot);
-                            groot->execute(linkvisitor);
-                        }
+                        doMemoryLoad(groot);
                     }
                     if (ImGui::Button("JSON"))
                     {
@@ -298,5 +272,29 @@ namespace windows
     }
 
 
+    void doMemorySave(sofa::core::sptr<sofa::simulation::Node>& groot)
+    {
+        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
+        auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
+        groot->execute(visitor);
+        auto snapshotTime = groot->getTime();
+        SnapshotManager::AddRecentSnapshot(snapshot_manager.recentSnapshots, m_snapshot, snapshotTime);
+    }
+
+    void doMemoryLoad(sofa::core::sptr<sofa::simulation::Node>& groot)
+    {
+        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
+        if(snapshot_manager.recentSnapshots.size() > 0)
+        {
+            m_snapshot = snapshot_manager.recentSnapshots.rbegin()->second;
+            auto visitor = LoadSnapshotVisitor(nullptr, *m_snapshot);
+            groot->execute(visitor);
+        }
+        else
+        {
+            msg_warning("MemoryLoad") << "No Snapshot in memory";
+        }
+
+    }
 
 }
