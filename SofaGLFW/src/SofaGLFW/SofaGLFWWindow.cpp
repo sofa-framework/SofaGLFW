@@ -319,6 +319,7 @@ void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos, SofaGLFWBaseGUI* gui)
             auto rootNode = gui->getRootNode();
 
             rootNode->propagateEvent(core::execparams::defaultInstance(), mEvent);
+            delete mEvent;
 
             break;
         }
@@ -341,6 +342,7 @@ void SofaGLFWWindow::mouseMoveEvent(int xpos, int ypos, SofaGLFWBaseGUI* gui)
             auto rootNode = gui->getRootNode();
 
             rootNode->propagateEvent(core::execparams::defaultInstance(), mEvent);
+            delete mEvent;
 
             break;
         }

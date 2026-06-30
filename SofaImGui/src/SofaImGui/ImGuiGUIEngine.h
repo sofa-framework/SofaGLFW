@@ -75,6 +75,7 @@ public:
     void loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sptr<sofa::simulation::Node>& groot, std::string filePathName, bool reload = false) override;
     
     // save screenshot
+    void saveNamedScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI, std::string filename = std::string(""), int compression_level = -1) override;
     void saveScreenshot(sofaglfw::SofaGLFWBaseGUI* baseGUI);
 
 protected:

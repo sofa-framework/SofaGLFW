@@ -84,7 +84,13 @@ public:
     void setWindowBackgroundColor(const RGBAColor& newColor, unsigned int windowID = 0);
     void setWindowBackgroundImage(const std::string& imageFileName, unsigned int windowID = 0);
     void setWindowTitle(GLFWwindow* window, const char* title);
-    
+
+    virtual void screenshot(const std::string& filename, int compression_level = -1) override
+    {
+        m_guiEngine->saveNamedScreenshot(this, filename,compression_level);
+    }
+
+
     virtual void setBackgroundColour(float r, float g, float b) override
     {
         setWindowBackgroundColor(RGBAColor{r, g, b, 1.0f}, 0);
@@ -151,7 +157,7 @@ private:
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
 
-    sofa::gl::DrawToolGL* m_glDrawTool{ nullptr };
+    std::unique_ptr<sofa::gl::DrawToolGL> m_glDrawTool;
     sofa::core::visual::VisualParams* m_vparams{ nullptr };
     GLFWwindow* m_firstWindow{ nullptr };
     int m_windowWidth{ 0 };

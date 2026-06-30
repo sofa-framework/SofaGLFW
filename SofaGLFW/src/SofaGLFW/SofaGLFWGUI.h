@@ -53,6 +53,8 @@ public:
     void setBackgroundImage(const std::string& image) override;
     static sofa::gui::common::BaseGUI * CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
     void setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting) override;
+
+    virtual BaseViewer* getViewer() override;
 protected:
     SofaGLFWBaseGUI m_baseGUI;
     bool m_bCreateWithFullScreen{ false };

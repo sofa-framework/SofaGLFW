@@ -106,12 +106,13 @@ namespace windows
         ImGui::SetCursorPosX(XPos);
 
         ImGui::Text("%s", obj->getName().c_str());
-        if (doHighLight)
+
+        // Pop in reverse push order: isActive was pushed last, so pop it first.
+        if (node && !node->isActive())
         {
             ImGui::PopStyleColor();
         }
-
-        if (node && !node->isActive())
+        if (doHighLight)
         {
             ImGui::PopStyleColor();
         }
@@ -226,7 +227,8 @@ namespace windows
                         if (ImGui::IsItemClicked())
                         {
                             auto* owner = dynamic_cast<sofa::core::objectmodel::BaseObject*>(data->getParent()->getOwner());
-                            focusedComponents.insert(owner);
+                            if (owner)
+                                focusedComponents.insert(owner);
                         }
                     }
                 }
@@ -330,6 +332,21 @@ namespace windows
                         WindowState& winManagerSceneGraph, WindowState& winManagerSelectionDescription)
     {
         std::set<sofa::core::objectmodel::Base*> componentToOpen;
+
+        // Clear all raw pointer sets when the scene root changes (e.g. reload / close)
+        // to avoid dereferencing dangling pointers from the previous scene.
+        static std::map<sofa::core::objectmodel::Base*, int> resizeWindow;
+        static sofa::simulation::Node* s_lastGroot = nullptr;
+        if (s_lastGroot != groot.get())
+        {
+            openedComponents.clear();
+            focusedComponents.clear();
+            currentSelection.clear();
+            resizeWindow.clear();
+            winManagerSelectionDescription.setState(false);
+            s_lastGroot = groot.get();
+        }
+
         if (*winManagerSceneGraph.getStatePtr())
         {
             if (ImGui::Begin(windowNameSceneGraph, winManagerSceneGraph.getStatePtr()))
@@ -483,7 +500,6 @@ namespace windows
         openedComponents.insert(focusedComponents.begin(), focusedComponents.end());
 
         sofa::type::vector<sofa::core::objectmodel::Base*> toRemove;
-        static std::map<sofa::core::objectmodel::Base*, int> resizeWindow;
         for (auto* component : openedComponents)
         {
             bool isOpen = true;
@@ -559,6 +575,7 @@ namespace windows
             {
                 openedComponents.erase(it);
             }
+            resizeWindow.erase(toRemove.back());
             auto boPtrToRemove = dynamic_cast<sofa::core::objectmodel::BaseObject *>(toRemove.back());
             if(boPtrToRemove)
             {

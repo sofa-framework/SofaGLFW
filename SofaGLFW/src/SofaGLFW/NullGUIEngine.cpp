@@ -24,6 +24,9 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <GLFW/glfw3.h>
 
+#include <sofa/helper/io/File.h>
+#include <sofa/helper/io/STBImage.h>
+
 namespace sofaglfw
 {
     
@@ -98,5 +101,26 @@ sofa::type::Vec2i NullGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixe
     
     return {viewport[2], viewport[3]};
 }
+
+void NullGUIEngine::saveNamedScreenshot(SofaGLFWBaseGUI * baseGUI, std::string filename , int compression_level )
+{
+    sofa::helper::io::STBImage image;
+
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    image.init(viewport[2], viewport[3], 1, 1,
+               sofa::helper::io::Image::DataType::UINT32,
+               sofa::helper::io::Image::ChannelFormat::RGBA);
+
+    glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3],
+                 GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels());
+
+    if(compression_level < 0)
+        compression_level = 90;
+
+    image.save(filename, compression_level);
+
+};
 
 } // namespace sofaglfw
