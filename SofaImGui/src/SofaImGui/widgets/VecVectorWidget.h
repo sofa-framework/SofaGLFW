@@ -22,9 +22,8 @@
 #pragma once
 #include <sofa/core/objectmodel/Data.h>
 #include <SofaImGui/widgets/ScalarWidget.h>
+#include <SofaImGui/widgets/VectorWidgetCommon.h>
 #include <imgui.h>
-#include <unordered_map>
-#include <string>
 
 namespace sofaimgui
 {
@@ -94,69 +93,6 @@ bool showLine(unsigned int lineNumber, const std::string& tableLabel, ValueType&
     return showScalarWidget("", tableLabel + std::to_string(lineNumber), value);
 }
 
-namespace
-{
-    enum class TableExpansionState
-    {
-        Collapsed,
-        Expanded
-    };
-
-    // Helper function to toggle expansion state
-    void toggleExpansionState(TableExpansionState& expansionState)
-    {
-        expansionState = (expansionState == TableExpansionState::Expanded) 
-            ? TableExpansionState::Collapsed 
-            : TableExpansionState::Expanded;
-    }
-
-    // Helper function to get or initialize expanded state for a table
-    TableExpansionState& getOrInitializeExpandedState(const std::string& tableLabel)
-    {
-        static std::unordered_map<std::string, TableExpansionState> expandedState;
-        if (!expandedState.contains(tableLabel))
-        {
-            expandedState[tableLabel] = TableExpansionState::Collapsed;
-        }
-        return expandedState[tableLabel];
-    }
-
-    // Helper function to display element count and toggle button
-    void showVectorWidgetHeader(std::size_t elementsCount, const std::string& tableLabel, TableExpansionState& expansionState)
-    {
-        ImGui::Text("%d elements", elementsCount);
-        ImGui::SameLine();
-        const bool isExpanded = (expansionState == TableExpansionState::Expanded);
-
-        if (ImGui::Button(std::string(isExpanded ? "Collapse##" + tableLabel : "Expand##" + tableLabel).c_str()))
-        {
-            toggleExpansionState(expansionState);
-        }
-    }
-
-    // Helper function to render a single table row
-    template<class AccessorType>
-    bool renderTableRow(std::size_t index, const std::string& tableLabel, AccessorType& accessor)
-    {
-        ImGui::TableNextRow();
-        ImGui::TableNextColumn();
-        ImGui::Text("%d", index);
-        auto& vec = accessor[index];
-        return showLine(index, tableLabel, vec);
-    }
-
-    // Helper function to render all rows when expanded
-    template<class AccessorType>
-    bool renderExpandedTableRows(AccessorType& accessor, const std::string& tableLabel)
-    {
-        bool anyChange = false;
-        for (std::size_t i = 0; i < accessor.size(); ++i)
-        {
-            anyChange |= renderTableRow(i, tableLabel, accessor);
-        }
-        return anyChange;
-    }
-}
 
 template<class T>
 void showVectorWidget(Data<T>& data)
@@ -189,7 +125,9 @@ void showVectorWidget(Data<T>& data)
 
         auto accessor = helper::getWriteAccessor(data);
 
-        if (renderExpandedTableRows(accessor, tableLabel))
+        if (renderExpandedTableRows(accessor, tableLabel, [](unsigned int i, const std::string& label, auto& element) {
+            return showLine(i, label, element);
+        }))
         {
             data.updateIfDirty();
         }

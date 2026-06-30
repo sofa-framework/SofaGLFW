@@ -22,9 +22,8 @@
 #pragma once
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/topology/Element.h>
+#include <SofaImGui/widgets/VectorWidgetCommon.h>
 #include <imgui.h>
-#include <unordered_map>
-#include <string>
 
 namespace sofaimgui
 {
@@ -35,45 +34,16 @@ using namespace sofa;
  * Vectors of Topology Elements
  **********************************************************************************************************************/
 
-namespace
+
+template<typename GeometryElement>
+bool showLine(unsigned int /*lineNumber*/, const std::string& /*tableLabel*/, const topology::Element<GeometryElement>& element)
 {
-    enum class ElementTableExpansionState
+    for (const auto& v : element)
     {
-        Collapsed,
-        Expanded
-    };
-
-    // Helper function to toggle expansion state
-    void toggleExpansionState(ElementTableExpansionState& expansionState)
-    {
-        expansionState = (expansionState == ElementTableExpansionState::Expanded) 
-            ? ElementTableExpansionState::Collapsed 
-            : ElementTableExpansionState::Expanded;
+        ImGui::TableNextColumn();
+        ImGui::Text("%d", (int)v);
     }
-
-    // Helper function to get or initialize expanded state for a table
-    ElementTableExpansionState& getOrInitializeElementExpandedState(const std::string& tableLabel)
-    {
-        static std::unordered_map<std::string, ElementTableExpansionState> expandedState;
-        if (!expandedState.contains(tableLabel))
-        {
-            expandedState[tableLabel] = ElementTableExpansionState::Collapsed;
-        }
-        return expandedState[tableLabel];
-    }
-
-    // Helper function to display element count and toggle button
-    void showVectorWidgetHeader(std::size_t elementsCount, const std::string& tableLabel, ElementTableExpansionState& expansionState)
-    {
-        ImGui::Text("%d elements", (int)elementsCount);
-        ImGui::SameLine();
-        const bool isExpanded = (expansionState == ElementTableExpansionState::Expanded);
-
-        if (ImGui::Button(std::string(isExpanded ? "Collapse##" + tableLabel : "Expand##" + tableLabel).c_str()))
-        {
-            toggleExpansionState(expansionState);
-        }
-    }
+    return false;
 }
 
 template<typename GeometryElement>
@@ -86,10 +56,10 @@ void showTopologyElementVectorWidget(Data<type::vector<topology::Element<Geometr
     const auto tableLabel = data.getName() + data.getOwner()->getPathName();
     const auto size = data.getValue().size();
 
-    ElementTableExpansionState& expansionState = getOrInitializeElementExpandedState(tableLabel);
+    TableExpansionState& expansionState = getOrInitializeExpandedState(tableLabel);
     showVectorWidgetHeader(size, tableLabel, expansionState);
 
-    if (expansionState == ElementTableExpansionState::Collapsed)
+    if (expansionState == TableExpansionState::Collapsed)
     {
         flags |= ImGuiTableFlags_ScrollY;
     }
@@ -112,17 +82,9 @@ void showTopologyElementVectorWidget(Data<type::vector<topology::Element<Geometr
 
         auto accessor = helper::getReadAccessor(data);
 
-        for (std::size_t i = 0; i < accessor.size(); ++i)
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::Text("%d", (int)i);
-            for (const auto& v : accessor[i])
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", (int)v);
-            }
-        }
+        renderExpandedTableRows(accessor, tableLabel, [](unsigned int i, const std::string& label, const auto& element) {
+            return showLine(i, label, element);
+        });
 
         ImGui::EndTable();
     }
