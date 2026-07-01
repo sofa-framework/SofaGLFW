@@ -141,14 +141,69 @@ namespace windows
         {
             const auto& messages = sofa::helper::logging::MainLoggingMessageHandler::getInstance().getMessages();
 
+            struct MessageTypeFilter
+            {
+                sofa::helper::logging::Message::Type type;
+                const char* name;
+                bool show;
+            };
+
+            static MessageTypeFilter filters[] = {
+                {sofa::helper::logging::Message::Info, "Info", true},
+                {sofa::helper::logging::Message::Warning, "Warning", true},
+                {sofa::helper::logging::Message::Error, "Error", true},
+                {sofa::helper::logging::Message::Fatal, "Fatal", true},
+                {sofa::helper::logging::Message::Advice, "Suggestion", true},
+                {sofa::helper::logging::Message::Deprecated, "Deprecated", true},
+                {sofa::helper::logging::Message::TEmpty, "Empty", true}
+            };
+
+            const auto getFilterStateBitmask = [&]() {
+                std::size_t mask = 0;
+                for (std::size_t i = 0; i < 7; ++i)
+                {
+                    if (filters[i].show)
+                        mask |= (1ULL << i);
+                }
+                return mask;
+            };
+
+            const auto isMessageTypeEnabled = [&](sofa::helper::logging::Message::Type type) {
+                for (const auto& filter : filters)
+                {
+                    if (filter.type == type)
+                        return filter.show;
+                }
+                return true;
+            };
+
             static bool autoScroll{ true };
-            static bool showInfo{ true };
             static bool wordWrap{ true };
 
             ImGui::Checkbox("AutoScroll", &autoScroll);
             ImGui::SameLine();
-            ImGui::Checkbox("Show Info", &showInfo);
+
+            ImGui::SetNextItemWidth(150.0f);
+            if (ImGui::BeginCombo("##MessageTypes", "Message Types"))
+            {
+                for (auto& filter : filters)
+                {
+                    const auto& style = messageTypeStyle(filter.type);
+                    if (style.colored)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, style.color);
+                        ImGui::Checkbox(filter.name, &filter.show);
+                        ImGui::PopStyleColor();
+                    }
+                    else
+                    {
+                        ImGui::Checkbox(filter.name, &filter.show);
+                    }
+                }
+                ImGui::EndCombo();
+            }
             ImGui::SameLine();
+
             ImGui::Checkbox("Word Wrap", &wordWrap);
             ImGui::SameLine();
 
@@ -168,7 +223,7 @@ namespace windows
             visibleMessages.reserve(messages.size());
             for (const auto& message : messages)
             {
-                if (!showInfo && message.type() == sofa::helper::logging::Message::Info)
+                if (!isMessageTypeEnabled(message.type()))
                     continue;
                 visibleMessages.push_back({&message, message.message().str()});
             }
@@ -187,14 +242,15 @@ namespace windows
             {
                 static std::size_t cachedCount = 0;
                 static float cachedWidth = 0.0f;
-                static bool cachedShowInfo = showInfo;
+                static std::size_t cachedFilterState = getFilterStateBitmask();
 
-                if (showInfo != cachedShowInfo || visibleMessages.size() < cachedCount)
+                const std::size_t currentFilterState = getFilterStateBitmask();
+                if (currentFilterState != cachedFilterState || visibleMessages.size() < cachedCount)
                 {
                     // Filter changed, or messages were cleared/reset - recompute from scratch.
                     cachedCount = 0;
                     cachedWidth = 0.0f;
-                    cachedShowInfo = showInfo;
+                    cachedFilterState = currentFilterState;
                 }
 
                 for (std::size_t i = cachedCount; i < visibleMessages.size(); ++i)
