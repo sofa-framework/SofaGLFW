@@ -41,6 +41,7 @@
 #include <vector>
 
 #include "WindowState.h"
+#include "SofaImGui/AppIniFile.h"
 
 namespace windows
 {
@@ -132,7 +133,7 @@ void saveLogToFile(const Messages& messages)
 }
 }
 
-void showLog(const char* const& windowNameLog, WindowState& winManagerLog)
+void showLog(const char* const& windowNameLog, CSimpleIniA &ini, WindowState& winManagerLog)
 {
     if (!*winManagerLog.getStatePtr())
         return;
@@ -177,10 +178,14 @@ void showLog(const char* const& windowNameLog, WindowState& winManagerLog)
             return true;
         };
 
-        static bool autoScroll{ true };
-        static bool wordWrap{ true };
+        bool autoScroll = ini.GetBoolValue("Window", "autoScroll", true);
+        bool wordWrap = ini.GetBoolValue("Window", "wordWrap", true);
 
-        ImGui::Checkbox("AutoScroll", &autoScroll);
+        if (ImGui::Checkbox("AutoScroll", &autoScroll))
+        {
+            ini.SetBoolValue("Window", "autoScroll", autoScroll);
+            [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        }
         ImGui::SameLine();
 
         ImGui::SetNextItemWidth(150.0f);
@@ -204,7 +209,11 @@ void showLog(const char* const& windowNameLog, WindowState& winManagerLog)
         }
         ImGui::SameLine();
 
-        ImGui::Checkbox("Word Wrap", &wordWrap);
+        if (ImGui::Checkbox("Word Wrap", &wordWrap))
+        {
+            ini.SetBoolValue("Window", "wordWrap", wordWrap);
+            [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
+        }
         ImGui::SameLine();
 
         if (ImGui::Button(ICON_FA_FLOPPY_DISK" "))

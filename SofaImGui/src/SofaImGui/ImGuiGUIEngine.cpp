@@ -735,7 +735,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Log window
      **************************************/
-    windows::showLog(windowNameLog, winManagerLog);
+    windows::showLog(windowNameLog, settings->ini, winManagerLog);
 
     /***************************************
      * Mouse window
