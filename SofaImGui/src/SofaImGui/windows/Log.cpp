@@ -207,14 +207,15 @@ namespace windows
             }
 
             ImGuiTableFlags tableFlags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
-                             ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
-                             ImGuiTableFlags_NoSavedSettings;
+                             ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg |
+                             ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBodyUntilResize;
             if (!wordWrap)
-                tableFlags |= ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoKeepColumnsVisible;
+                tableFlags |= ImGuiTableFlags_ScrollX;
 
             const ImVec2 outerSize(0.0f, ImGui::GetContentRegionAvail().y);
-            if (ImGui::BeginTable("logTable_v3", 4, tableFlags, outerSize))
+            if (ImGui::BeginTable("logTable", 4, tableFlags, outerSize))
             {
+                ImGui::TableSetupScrollFreeze(0, 1);
                 ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableSetupColumn("Sender", ImGuiTableColumnFlags_WidthFixed);
