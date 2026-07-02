@@ -54,11 +54,6 @@ using sofa::simulation::SaveSnapshotVisitor;
 #include <sofa/simulation/LoadSnapshotVisitor.h>
 using sofa::simulation::LoadSnapshotVisitor;
 
-#include <sofa/simulation/LoadDataSnapshotVisitor.h>
-using sofa::simulation::LoadDataSnapshotVisitor;
-
-#include <sofa/simulation/LoadLinkSnapshotVisitor.h>
-using sofa::simulation::LoadLinkSnapshotVisitor;
 
 #include "Snapshot.h"
 
