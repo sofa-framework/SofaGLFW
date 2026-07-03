@@ -94,7 +94,7 @@ namespace windows
                     }
                     if (ImGui::Button("Groups"))
                     {
-                        if (!snapshot_manager.recentSnapshots.empty())
+                        if (!snapshot_manager.m_recentSnapshots.empty())
                         {
                             doFileSave(groot, true);
                         }
@@ -128,13 +128,13 @@ namespace windows
 
                     ImGui::BeginChild("Recents", ImVec2(0, listHeight), true);
 
-                    if (snapshot_manager.recentSnapshotFiles.empty() && snapshot_manager.recentSnapshots.empty())
+                    if (snapshot_manager.m_recentSnapshotFiles.empty() && snapshot_manager.m_recentSnapshots.empty())
                     {
                         ImGui::TextDisabled("(No recent files)");
                     }
                     else
                     {
-                        for (auto file : snapshot_manager.recentSnapshotFiles)
+                        for (auto file : snapshot_manager.m_recentSnapshotFiles)
                         {
                             if (ImGui::Selectable(file.c_str()))
                             {
@@ -147,7 +147,7 @@ namespace windows
                                 }
                             }
                         }
-                        for (auto [name, file] : snapshot_manager.recentSnapshots)
+                        for (auto [name, file] : snapshot_manager.m_recentSnapshots)
                         {
                             if(ImGui::Selectable(name.c_str()))
                             {
@@ -173,15 +173,15 @@ namespace windows
         auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
         groot->execute(visitor);
         auto snapshotTime = groot->getTime();
-        SnapshotManager::AddRecentSnapshot(snapshot_manager.recentSnapshots, m_snapshot, snapshotTime);
+        SnapshotManager::AddRecentSnapshot(snapshot_manager.m_recentSnapshots, m_snapshot, snapshotTime);
     }
 
     void doMemoryLoad(sofa::core::sptr<sofa::simulation::Node>& groot)
     {
         auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-        if(snapshot_manager.recentSnapshots.size() > 0)
+        if(snapshot_manager.m_recentSnapshots.size() > 0)
         {
-            m_snapshot = snapshot_manager.recentSnapshots.rbegin()->second;
+            m_snapshot = snapshot_manager.m_recentSnapshots.rbegin()->second;
             auto visitor = LoadSnapshotVisitor(nullptr, *m_snapshot);
             groot->execute(visitor);
         }
@@ -204,12 +204,12 @@ namespace windows
         if (FileExtension == "json" && !isGroup)
             exportToJSON(*m_snapshot,path);
         else if (FileExtension == "json" && isGroup)
-            exportToJSON(snapshot_manager.recentSnapshots,path);
+            exportToJSON(snapshot_manager.m_recentSnapshots,path);
         else
             msg_error("SaveSnapshot") << "Snapshot " << filepath << " not supported";
 
         filepath = savePath;
-        SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
+        SnapshotManager::AddRecentFile(filepath, snapshot_manager.m_recentSnapshotFiles);
         msg_info("SaveSnapshot") << "Snapshot " << savePath << " saved";
         NFD_FreePath(savePath);
     }
@@ -244,7 +244,7 @@ namespace windows
             groot->execute(visitor);
         }
         filepath = outPath;
-        SnapshotManager::AddRecentFile(filepath, snapshot_manager.recentSnapshotFiles);
+        SnapshotManager::AddRecentFile(filepath, snapshot_manager.m_recentSnapshotFiles);
         msg_info("LoadSnapshot") << "Snapshot " << filepath << " loaded";
         NFD_FreePath(outPath);
     }
