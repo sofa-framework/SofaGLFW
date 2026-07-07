@@ -41,13 +41,11 @@
 
 #include <sofa/helper/system/FileSystem.h>
 
-#include "../../../../../../src/Sofa/framework/Helper/src/sofa/helper/logging/Messaging.h"
 using sofa::helper::system::FileSystem;
+#include <sofa/simulation/SnapshotManager.h>
 #include <sofa/core/objectmodel/SnapshotJSONExporter.h>
-#include <sofa/core/objectmodel/SnapshotManager.h>
 
-
-using sofa::core::objectmodel::SnapshotManager;
+using sofa::simulation::SnapshotManager;
 #include <sofa/simulation/SaveSnapshotVisitor.h>
 using sofa::simulation::SaveSnapshotVisitor;
 
@@ -86,7 +84,7 @@ namespace windows
                     ImGui::Separator();
                     if (ImGui::Button("Memory"))
                     {
-                        doMemorySave(groot);
+                        snapshot_manager.doMemorySave(groot);
                     }
                     if (ImGui::Button("File"))
                     {
@@ -94,7 +92,7 @@ namespace windows
                     }
                     if (ImGui::Button("Groups"))
                     {
-                        if (!snapshot_manager.m_recentSnapshots.empty())
+                        if (!snapshot_manager.m_recentSnapshotsFromMemory.empty())
                         {
                             doFileSave(groot, true);
                         }
@@ -109,7 +107,7 @@ namespace windows
                     ImGui::Separator();
                     if (ImGui::Button("Memory (recent)"))
                     {
-                        doMemoryLoad(groot);
+                        snapshot_manager.doMemoryLoad(groot);
                     }
                     if (ImGui::Button("File"))
                     {
@@ -128,13 +126,13 @@ namespace windows
 
                     ImGui::BeginChild("Recents", ImVec2(0, listHeight), true);
 
-                    if (snapshot_manager.m_recentSnapshotFiles.empty() && snapshot_manager.m_recentSnapshots.empty())
+                    if (snapshot_manager.m_recentSnapshotsFromFiles.empty() && snapshot_manager.m_recentSnapshotsFromMemory.empty())
                     {
                         ImGui::TextDisabled("(No recent files)");
                     }
                     else
                     {
-                        for (auto file : snapshot_manager.m_recentSnapshotFiles)
+                        for (auto file : snapshot_manager.m_recentSnapshotsFromFiles)
                         {
                             if (ImGui::Selectable(file.c_str()))
                             {
@@ -147,7 +145,7 @@ namespace windows
                                 }
                             }
                         }
-                        for (auto [name, file] : snapshot_manager.m_recentSnapshots)
+                        for (auto [name, file] : snapshot_manager.m_recentSnapshotsFromMemory)
                         {
                             if(ImGui::Selectable(name.c_str()))
                             {
@@ -166,55 +164,6 @@ namespace windows
         }
     }
 
-
-    void doMemorySave(sofa::core::sptr<sofa::simulation::Node>& groot)
-    {
-        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-        auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
-        groot->execute(visitor);
-        auto snapshotTime = groot->getTime();
-        SnapshotManager::AddRecentSnapshot(snapshot_manager.m_recentSnapshots, m_snapshot, snapshotTime);
-    }
-
-    void doMemoryLoad(sofa::core::sptr<sofa::simulation::Node>& groot)
-    {
-        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-        if(snapshot_manager.m_recentSnapshots.size() > 0)
-        {
-            m_snapshot = snapshot_manager.m_recentSnapshots.rbegin()->second;
-            auto visitor = LoadSnapshotVisitor(nullptr, *m_snapshot);
-            groot->execute(visitor);
-        }
-        else
-        {
-            msg_warning("MemoryLoad") << "No Snapshot in memory";
-        }
-
-    }
-
-    void doSaveTo(sofa::core::sptr<sofa::simulation::Node>& groot, nfdchar_t* savePath, std::string filepath, bool isGroup)
-    {
-        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-
-        std::string path(savePath);
-        auto visitor = SaveSnapshotVisitor(nullptr,*m_snapshot);
-        groot->execute(visitor);
-
-        std::string FileExtension = FileSystem::getExtension(path);
-        if (FileExtension == "json" && !isGroup)
-            exportToJSON(*m_snapshot,path);
-        else if (FileExtension == "json" && isGroup)
-            exportToJSON(snapshot_manager.m_recentSnapshots,path);
-        else
-            msg_error("SaveSnapshot") << "Snapshot " << filepath << " not supported";
-
-        filepath = savePath;
-        SnapshotManager::AddRecentFile(filepath, snapshot_manager.m_recentSnapshotFiles);
-        msg_info("SaveSnapshot") << "Snapshot " << savePath << " saved";
-        NFD_FreePath(savePath);
-    }
-
-
     void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup)
     {
         NFD_Init();
@@ -224,39 +173,14 @@ namespace windows
         nfdresult_t result = NFD_SaveDialog(&savePath, filterItem, 1, NULL, "Untitled.json");
         if (result == NFD_OKAY)
         {
-            doSaveTo(groot,savePath,filepath, isGroup);
+            std::string path(savePath);
+            snapshot_manager.doSaveTo(groot,path,isGroup);
         }
         else
         {
             msg_error("SaveSnapshot") << "Error of saving snapshot" ;
         }
         NFD_Quit();
-    }
-
-    void doLoadTo(sofa::core::sptr<sofa::simulation::Node>& groot, nfdchar_t* outPath, std::string filepath)
-    {
-
-        auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-        if (sofa::helper::system::FileSystem::exists(outPath))
-        {
-            importFrom(*m_snapshot,outPath);
-            auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
-            groot->execute(visitor);
-        }
-        filepath = outPath;
-        SnapshotManager::AddRecentFile(filepath, snapshot_manager.m_recentSnapshotFiles);
-        msg_info("LoadSnapshot") << "Snapshot " << filepath << " loaded";
-        NFD_FreePath(outPath);
-    }
-
-    void doLoadToGroup(nfdchar_t* outPath, SnapshotManager& snapshot_manager)
-    {
-        if (sofa::helper::system::FileSystem::exists(outPath))
-        {
-            sofa::core::objectmodel::separateSnapshots(outPath, snapshot_manager);
-        }
-        msg_info("LoadSnapshot") << "Snapshot " << outPath << " loaded";
-        NFD_FreePath(outPath);
     }
 
     void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup)
@@ -267,10 +191,14 @@ namespace windows
         std::string filepath = "null";
         if ( result == NFD_OKAY && !isGroup)
         {
-            doLoadTo(groot,outPath,filepath);
+            std::string path(outPath);
+            snapshot_manager.doLoadTo(groot,path);
         }
         else if (result == NFD_OKAY && isGroup)
-            doLoadToGroup(outPath,snapshot_manager);
+        {
+            std::string path(outPath);
+            snapshot_manager.doLoadToGroup(path);
+        }
         else
         {
             msg_error("LoadSnapshot") << "Error of loading snapshot" ;
