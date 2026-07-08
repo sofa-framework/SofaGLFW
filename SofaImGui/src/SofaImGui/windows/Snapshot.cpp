@@ -92,7 +92,7 @@ namespace windows
                     }
                     if (ImGui::Button("Groups"))
                     {
-                        if (!snapshot_manager.m_recentSnapshotsFromMemory.empty())
+                        if (!snapshot_manager.m_snapshotsFromMemory.empty())
                         {
                             doFileSave(groot, true);
                         }
@@ -126,13 +126,13 @@ namespace windows
 
                     ImGui::BeginChild("Recents", ImVec2(0, listHeight), true);
 
-                    if (snapshot_manager.m_recentSnapshotsFromFiles.empty() && snapshot_manager.m_recentSnapshotsFromMemory.empty())
+                    if (snapshot_manager.m_snapshotsFromFiles.empty() && snapshot_manager.m_snapshotsFromMemory.empty())
                     {
                         ImGui::TextDisabled("(No recent files)");
                     }
                     else
                     {
-                        for (auto file : snapshot_manager.m_recentSnapshotsFromFiles)
+                        for (auto file : snapshot_manager.m_snapshotsFromFiles)
                         {
                             if (ImGui::Selectable(file.c_str()))
                             {
@@ -145,7 +145,7 @@ namespace windows
                                 }
                             }
                         }
-                        for (auto [name, file] : snapshot_manager.m_recentSnapshotsFromMemory)
+                        for (auto [name, file] : snapshot_manager.m_snapshotsFromMemory)
                         {
                             if(ImGui::Selectable(name.c_str()))
                             {
