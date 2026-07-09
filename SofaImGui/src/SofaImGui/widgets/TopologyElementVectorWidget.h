@@ -21,7 +21,7 @@
 ******************************************************************************/
 #pragma once
 #include <sofa/core/objectmodel/Data.h>
-#include <SofaImGui/widgets/ScalarWidget.h>
+#include <sofa/topology/Element.h>
 #include <SofaImGui/widgets/VectorWidgetCommon.h>
 #include <imgui.h>
 
@@ -31,75 +31,28 @@ namespace sofaimgui
 using namespace sofa;
 
 /***********************************************************************************************************************
- * Vectors of Vec
+ * Vectors of Topology Elements
  **********************************************************************************************************************/
 
-template< Size N, typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<N, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    for (unsigned int i = 0; i < N; ++i)
-    {
-        ImGui::TableSetupColumn(std::to_string(i).c_str(), ImGuiTableColumnFlags_WidthStretch);
-    }
-}
 
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<ValueType> >&)
+template<typename GeometryElement>
+bool showLine(unsigned int /*lineNumber*/, const std::string& /*tableLabel*/, const topology::Element<GeometryElement>& element)
 {
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
-}
-
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<1, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthStretch);
-}
-
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<2, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthStretch);
-    ImGui::TableSetupColumn("Y", ImGuiTableColumnFlags_WidthStretch);
-}
-
-template<typename ValueType>
-void showVecTableHeader(Data<type::vector<type::Vec<3, ValueType> > >&)
-{
-    ImGui::TableSetupColumn("");
-    ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthStretch);
-    ImGui::TableSetupColumn("Y", ImGuiTableColumnFlags_WidthStretch);
-    ImGui::TableSetupColumn("Z", ImGuiTableColumnFlags_WidthStretch);
-}
-
-template<Size N, typename ValueType>
-bool showLine(unsigned int lineNumber, const std::string& tableLabel, type::Vec<N, ValueType>& vec)
-{
-    for (const auto& v : vec)
+    for (const auto& v : element)
     {
         ImGui::TableNextColumn();
-        ImGui::Text("%f", v);
+        ImGui::Text("%d", (int)v);
     }
     return false;
 }
 
-template<typename ValueType>
-bool showLine(unsigned int lineNumber, const std::string& tableLabel, ValueType& value)
-{
-    ImGui::TableNextColumn();
-    return showScalarWidget("", tableLabel + std::to_string(lineNumber), value);
-}
-
-
-template<class T>
-void showVectorWidget(Data<T>& data)
+template<typename GeometryElement>
+void showTopologyElementVectorWidget(Data<type::vector<topology::Element<GeometryElement> > >& data)
 {
     static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableFlags_NoHostExtendX;
 
-    const auto nbColumns = data.getValueTypeInfo()->size() + 1;
+    constexpr auto N = topology::Element<GeometryElement>::static_size;
+    const auto nbColumns = N + 1;
     const auto tableLabel = data.getName() + data.getOwner()->getPathName();
     const auto size = data.getValue().size();
 
@@ -116,21 +69,22 @@ void showVectorWidget(Data<T>& data)
     }
 
     static constexpr float NumberOfLinesToShowWhenCollapsed = 8.5f;
-    ImVec2 outerSize =ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * NumberOfLinesToShowWhenCollapsed );
-    if (ImGui::BeginTable(tableLabel.c_str(), nbColumns, flags, outerSize))
+    ImVec2 outerSize = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * NumberOfLinesToShowWhenCollapsed );
+    if (ImGui::BeginTable(tableLabel.c_str(), (int)nbColumns, flags, outerSize))
     {
         ImGui::TableSetupScrollFreeze(0, 1);
-        showVecTableHeader(data);
+        ImGui::TableSetupColumn("");
+        for (unsigned int i = 0; i < N; ++i)
+        {
+            ImGui::TableSetupColumn(std::to_string(i).c_str(), ImGuiTableColumnFlags_WidthStretch);
+        }
         ImGui::TableHeadersRow();
 
-        auto accessor = helper::getWriteAccessor(data);
+        auto accessor = helper::getReadAccessor(data);
 
-        if (renderExpandedTableRows(accessor, tableLabel, [](unsigned int i, const std::string& label, auto& element) {
+        renderExpandedTableRows(accessor, tableLabel, [](unsigned int i, const std::string& label, const auto& element) {
             return showLine(i, label, element);
-        }))
-        {
-            data.updateIfDirty();
-        }
+        });
 
         ImGui::EndTable();
     }

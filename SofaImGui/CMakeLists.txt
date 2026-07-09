@@ -112,6 +112,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/RigidMass.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/ScalarWidget.h
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/VectorWidgetCommon.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/VecVectorWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.h
