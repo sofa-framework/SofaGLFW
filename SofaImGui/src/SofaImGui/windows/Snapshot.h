@@ -31,7 +31,7 @@ namespace windows
         /**
         * @brief Shows the Snapshot window.
         *
-        * This function displays a window which user can save and load snapshots.
+        * This function displays a window which user can use Snapshot's features.
         *
         */
         void showSnapshot(const char* const& windowNameSnapshot,

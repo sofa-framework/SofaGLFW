@@ -67,9 +67,8 @@ namespace windows
         {
             if (ImGui::Begin(windowNameSnapshot, winManagerSnapshot.getStatePtr()))
             {
-                static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_Sortable;
-                if(ImGui::BeginTable("MainTable",2,flags, ImVec2(0.f, 400.f)))
-                {
+                static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders| ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg;
+                if(ImGui::BeginTable("MainTable", 2, flags, ImVec2(0.f, 400.f))) {
                     ImGui::TableSetupColumn("Save/Load");
                     ImGui::TableSetupColumn("Snapshot in memory");
                     ImGui::TableHeadersRow();
@@ -79,7 +78,7 @@ namespace windows
                     float totalHeight = ImGui::GetContentRegionAvail().y;
                     float halfHeight = totalHeight * 0.5f - 4.0f;
 
-                    ImGui::BeginChild("Save Snapshot", ImVec2(0, halfHeight), true);
+                    ImGui::BeginChild("Save Snapshot", ImVec2(0, halfHeight), ImGuiChildFlags_Borders);
                     ImGui::Text("Save Snapshot");
                     ImGui::Separator();
                     if (ImGui::Button("Memory"))
@@ -102,7 +101,7 @@ namespace windows
                     }
                     ImGui::EndChild();
 
-                    ImGui::BeginChild("Load Snapshot", ImVec2(0, halfHeight), true);
+                    ImGui::BeginChild("Load Snapshot", ImVec2(0, halfHeight), ImGuiChildFlags_Borders);
                     ImGui::Text("Load Snapshot");
                     ImGui::Separator();
                     if (ImGui::Button("Memory (recent)"))
@@ -157,8 +156,8 @@ namespace windows
                         }
                     }
                     ImGui::EndChild();
+                    ImGui::EndTable();
                 }
-                ImGui::EndTable();
             }
             ImGui::End();
         }
