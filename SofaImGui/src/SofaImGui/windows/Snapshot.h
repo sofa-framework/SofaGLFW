@@ -24,6 +24,13 @@
 #include <sofa/simulation/Node.h>
 #include "WindowState.h"
 
+#include <sofa/helper/system/FileSystem.h>
+using sofa::helper::system::FileSystem;
+#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
+#include <sofa/simulation/SnapshotManager.h>
+using sofa::simulation::SnapshotManager;
+#include <sofa/simulation/LoadSnapshotVisitor.h>
+using sofa::simulation::LoadSnapshotVisitor;
 
 
 namespace windows
@@ -37,7 +44,7 @@ namespace windows
         void showSnapshot(const char* const& windowNameSnapshot,
                              WindowState& winManagerSnapshot,sofa::core::sptr<sofa::simulation::Node>& groot);
 
-        void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup);
-        void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup);
+        void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isSet);
+        void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isSet);
 
 } // namespace sofaimgui

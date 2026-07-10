@@ -39,20 +39,6 @@
 #include <iostream>
 #include <memory>
 
-#include <sofa/helper/system/FileSystem.h>
-
-using sofa::helper::system::FileSystem;
-#include <sofa/simulation/SnapshotManager.h>
-#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
-
-using sofa::simulation::SnapshotManager;
-#include <sofa/simulation/SaveSnapshotVisitor.h>
-using sofa::simulation::SaveSnapshotVisitor;
-
-#include <sofa/simulation/LoadSnapshotVisitor.h>
-using sofa::simulation::LoadSnapshotVisitor;
-
-
 #include "Snapshot.h"
 
 namespace windows
@@ -89,7 +75,7 @@ namespace windows
                     {
                         doFileSave(groot, false);
                     }
-                    if (ImGui::Button("Groups"))
+                    if (ImGui::Button("Set of Snapshots"))
                     {
                         if (!snapshot_manager.m_snapshotsFromMemory.empty())
                         {
@@ -113,7 +99,7 @@ namespace windows
                         doFileLoad(groot, false);
                     }
 
-                    if (ImGui::Button("Groups"))
+                    if (ImGui::Button("Set of Snapshots"))
                     {
                         doFileLoad(groot, true);
                     }
@@ -163,7 +149,7 @@ namespace windows
         }
     }
 
-    void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup)
+    void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isSet)
     {
         NFD_Init();
         nfdchar_t* savePath;
@@ -173,7 +159,7 @@ namespace windows
         if (result == NFD_OKAY)
         {
             std::string path(savePath);
-            snapshot_manager.doSaveTo(groot,path,isGroup);
+            snapshot_manager.doSaveTo(groot,path,isSet);
         }
         else
         {
@@ -182,21 +168,21 @@ namespace windows
         NFD_Quit();
     }
 
-    void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isGroup)
+    void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isSet)
     {
         nfdchar_t *outPath = NULL;
         nfdfilteritem_t filterItem[1] = {{"Snapshot code", "json"}};
         nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
         std::string filepath = "null";
-        if ( result == NFD_OKAY && !isGroup)
+        if ( result == NFD_OKAY && !isSet)
         {
             std::string path(outPath);
             snapshot_manager.doLoadTo(groot,path);
         }
-        else if (result == NFD_OKAY && isGroup)
+        else if (result == NFD_OKAY && isSet)
         {
             std::string path(outPath);
-            snapshot_manager.doLoadToGroup(path);
+            snapshot_manager.doLoadToSet(path);
         }
         else
         {
@@ -204,5 +190,4 @@ namespace windows
         }
         NFD_Quit();
     }
-
 }
