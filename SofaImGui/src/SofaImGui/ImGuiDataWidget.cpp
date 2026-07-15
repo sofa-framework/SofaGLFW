@@ -28,6 +28,7 @@
 #include <sofa/helper/OptionsGroup.h>
 #include <sofa/helper/SelectableItem.h>
 #include <SofaImGui/widgets/DisplayFlagsWidget.h>
+#include <SofaImGui/widgets/IntWidget.h>
 #include <SofaImGui/widgets/LinearSpringWidget.h>
 #include <SofaImGui/widgets/MaterialWidget.h>
 #include <SofaImGui/widgets/RigidMass.h>
@@ -61,6 +62,12 @@ template<>
 void DataWidget<double>::showWidget(MyData& data)
 {
     showScalarWidget(data);
+}
+
+template<>
+void DataWidget<int>::showWidget(MyData& data)
+{
+    showIntegerWidget(data);
 }
 
 /***********************************************************************************************************************
@@ -670,6 +677,8 @@ const bool dw_bool = DataWidgetFactory::Add<bool>();
 
 const bool dw_float = DataWidgetFactory::Add<float>();
 const bool dw_double = DataWidgetFactory::Add<double>();
+
+const bool dw_int = DataWidgetFactory::Add<int>();
 
 const bool dw_vec1d = DataWidgetFactory::Add<type::Vec<1, double> >();
 const bool dw_vec1f = DataWidgetFactory::Add<type::Vec<1, float> >();
