@@ -108,6 +108,7 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/widgets/BoundingBoxWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/BoolWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.h
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/IntWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/LinearSpringWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/RigidMass.h
@@ -134,6 +135,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/ObjectColor.cpp
     ${SOFAIMGUI_SOURCE_DIR}/initSofaImGui.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/DisplayFlagsWidget.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/widgets/IntWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/MaterialWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/RigidMass.cpp
     ${SOFAIMGUI_SOURCE_DIR}/widgets/ScalarWidget.cpp
