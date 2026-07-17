@@ -46,6 +46,7 @@
 #include "windows/DisplayFlags.h"
 #include "windows/Log.h"
 #include "windows/MouseManager.h"
+#include "windows/Snapshot.h"
 #include "windows/Performances.h"
 #include "windows/Plugins.h"
 #include "windows/Profiler.h"
@@ -68,6 +69,7 @@
 #include <imgui.h>
 #include <imgui_internal.h> //imgui_internal.h is included in order to use the DockspaceBuilder API (which is still in development)
 #include <implot.h>
+#include <iostream>
 #include <nfd.h>
 #include <SimpleIni.h>
 #include <sofa/component/visual/VisualStyle.h>
@@ -82,7 +84,6 @@
 #include <sofa/component/visual/InteractiveCamera.h>
 
 #include <clocale>
-
 
 using namespace sofa;
 
@@ -104,6 +105,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
     , winManagerComponents(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("components.txt")))
     , winManagerLog(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("log.txt")))
     , winManagerMouse(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mouse.txt")))
+    , winManagerSnapshot(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("snapshot.txt")))
     , winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt")))
     , winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt")))
     , firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
@@ -215,7 +217,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     sofa::simulation::node::unload(groot);
 
     groot = sofa::simulation::node::load(filePathName.c_str());
-    
+
     if( !groot )
         groot = sofa::simulation::getSimulation()->createNewGraph("");
 
@@ -406,6 +408,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameComponents = ICON_FA_LIST "  Components";
     static constexpr auto windowNameLog = ICON_FA_TERMINAL "  Log";
     static constexpr auto windowNameMouse = ICON_FA_COMPUTER_MOUSE "  Mouse Manager";
+    static constexpr auto windowNameSnapshot = ICON_FA_FLOPPY_DISK "  Snapshot";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
 
     if (!*firstRunState.getStatePtr())
@@ -549,6 +552,8 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             ImGui::Checkbox(windowNameLog, winManagerLog.getStatePtr());
 
             ImGui::Checkbox(windowNameMouse, winManagerMouse.getStatePtr());
+
+            ImGui::Checkbox(windowNameSnapshot, winManagerSnapshot.getStatePtr());
 
             if (guis::MainAdditionGUIRegistry::getAllGUIs().empty() == false)
             {
@@ -741,6 +746,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      * Mouse window
      **************************************/
     windows::showManagerMouseWindow(windowNameMouse, winManagerMouse, baseGUI);
+
+    /***************************************
+     * Snapshot window
+     **************************************/
+    windows::showSnapshot(windowNameSnapshot, winManagerSnapshot, groot);
 
     /***************************************
      * Additional GUIs
@@ -1035,5 +1045,7 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
         
     return {viewport[2], viewport[3]};
 }
+
+
 
 } //namespace sofaimgui
