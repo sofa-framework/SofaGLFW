@@ -137,6 +137,9 @@ void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename)
 
     if (this->groot)
     {
+        m_simulationLoop.groot = groot;
+        m_simulationLoop.start();
+
         // Initialize the pick handler
         this->pick->init(this->groot.get());
         m_sofaGLFWMouseManager.setPickHandler(getPickHandler());
@@ -484,10 +487,6 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
 
     while (s_numberOfActiveWindows > 0 && running)
     {
-        SIMULATION_LOOP_SCOPE
-
-        // Keep running
-        runStep();
         sofa::type::vector<std::pair<GLFWwindow*, SofaGLFWWindow*>> closedWindows;
         
         for (auto& [glfwWindow, sofaGlfwWindow] : s_mapWindows)
@@ -615,19 +614,6 @@ void SofaGLFWBaseGUI::initVisual()
     }
     
     setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
-}
-
-void SofaGLFWBaseGUI::runStep()
-{
-    if(simulationIsRunning())
-    {
-        helper::AdvancedTimer::begin("Animate");
-
-        node::animate(this->groot.get(), this->groot->getDt());
-        node::updateVisual(this->groot.get());
-
-        helper::AdvancedTimer::end("Animate");
-    }
 }
 
 void SofaGLFWBaseGUI::terminate()

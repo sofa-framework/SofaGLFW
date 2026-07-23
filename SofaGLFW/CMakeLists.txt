@@ -49,11 +49,13 @@ set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
+    ${SOFAGLFW_SOURCE_DIR}/SimulationLoop.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWMouseManager.h
 )
 
 set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/initSofaGLFW.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SimulationLoop.cpp
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.cpp
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.cpp
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
