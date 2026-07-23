@@ -621,6 +621,8 @@ void SofaGLFWBaseGUI::terminate()
     if (!m_bGlfwIsInitialized)
         return;
 
+    m_simulationLoop.terminate();
+
     if (m_guiEngine)
         m_guiEngine->terminate();
 

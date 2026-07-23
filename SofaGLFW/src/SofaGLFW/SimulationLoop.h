@@ -21,7 +21,7 @@
 ******************************************************************************/
 #pragma once
 #include <SofaGLFW/config.h>
-#include <sofa/helper/AdvancedTimer.h>
+
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/SimulationLoop.h>
@@ -40,18 +40,18 @@ public:
     /// the sofa root note of the current scene
     sofa::simulation::Node::SPtr groot;
 
-    bool simulationIsRunning();
+    bool simulationIsRunning() const;
 
-    void step();
+    void step() const;
 
-    void loop();
+    void loop() const;
 
     void start();
     void terminate();
 
 private:
 
-    bool m_running { false };
+    std::atomic<bool> m_running { false };
     std::unique_ptr<std::thread> m_thread;
 };
 
