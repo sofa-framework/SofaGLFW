@@ -29,6 +29,8 @@ public:
                    const RGBAColor& color) override;
     void drawLineStrip(const std::vector<Vec3>& points, float size,
                        const RGBAColor& color) override;
+    void drawLineStrip(const std::vector<Vec3>& points, float size,
+                       const std::vector<RGBAColor>& colors) override;
     void drawLineLoop(const std::vector<Vec3>& points, float size, const RGBAColor& color) override;
     void drawDisk(float radius, double from, double to, int resolution,
                   const RGBAColor& color) override;

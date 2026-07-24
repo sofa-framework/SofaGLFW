@@ -199,6 +199,26 @@ void CaptureSnapshotDrawTool::drawLineStrip(const std::vector<Vec3>& points, flo
 
     m_sceneSnapshot->m_draws.emplace_back(new DrawLineStrip(points, size, color));
 }
+void CaptureSnapshotDrawTool::drawLineStrip(const std::vector<Vec3>& points, float size,
+                                            const std::vector<RGBAColor>& colors)
+{
+    struct DrawLineStrip : public DrawToolSnapshot
+    {
+        std::vector<Vec3> m_points;
+        float m_size;
+        std::vector<RGBAColor> m_colors;
+
+        DrawLineStrip(const std::vector<Vec3>& points, float size, const std::vector<RGBAColor>& colors)
+            : m_points(points), m_size(size), m_colors(colors) {}
+
+        void draw(sofa::helper::visual::DrawTool* drawTool) const override
+        {
+            drawTool->drawLineStrip(m_points, m_size, m_colors);
+        }
+    };
+
+    m_sceneSnapshot->m_draws.emplace_back(new DrawLineStrip(points, size, colors));
+}
 
 void CaptureSnapshotDrawTool::drawLineLoop(const std::vector<Vec3>& points, float size,
                                            const RGBAColor& color)
