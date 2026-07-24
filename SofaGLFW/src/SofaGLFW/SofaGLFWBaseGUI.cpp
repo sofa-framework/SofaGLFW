@@ -525,6 +525,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                 }
                 else
                 {
+                    m_simulationLoop.terminate();
+
                     // otherwise close this window
                     closedWindows.emplace_back(glfwWindow, sofaGlfwWindow);
                 }
