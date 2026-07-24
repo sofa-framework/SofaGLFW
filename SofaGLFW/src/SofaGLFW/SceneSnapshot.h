@@ -11,11 +11,17 @@
 namespace sofaglfw
 {
 
+struct SOFAGLFW_API DrawToolSnapshot
+{
+    virtual ~DrawToolSnapshot() = default;
+    virtual void draw(sofa::helper::visual::DrawTool* drawTool) const = 0;
+};
+
 
 class SOFAGLFW_API SceneSnapshot
 {
 public:
-    std::vector<std::function<void(sofa::helper::visual::DrawTool*)>> m_draws;
+    std::vector<std::shared_ptr<DrawToolSnapshot>> m_draws;
     sofa::type::BoundingBox m_bbox;
 
 public:
