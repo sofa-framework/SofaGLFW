@@ -90,14 +90,14 @@ void SofaGLFWWindow::draw(const SceneSnapshot& sceneSnapshot, sofa::helper::visu
     int width, height;
     glfwGetFramebufferSize(m_glfwWindow, &width, &height);
     
-    // if (groot->f_bbox.getValue().isValid())
-    // {
-    //     vparams->sceneBBox() = groot->f_bbox.getValue();
-    //     m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
-    // }
-    // m_currentCamera->computeZ();
-    // m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
-    // m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
+    if (sceneSnapshot.m_bbox.isValid())
+    {
+        // vparams->sceneBBox() = sceneSnapshot.m_bbox;
+        m_currentCamera->setBoundingBox(sceneSnapshot.m_bbox.minBBox(), sceneSnapshot.m_bbox.maxBBox());
+    }
+    m_currentCamera->computeZ();
+    m_currentCamera->d_widthViewport.setValue(width);
+    m_currentCamera->d_heightViewport.setValue(height);
 
     // matrices
     double lastModelviewMatrix [16];
@@ -121,7 +121,6 @@ void SofaGLFWWindow::draw(const SceneSnapshot& sceneSnapshot, sofa::helper::visu
     // vparams->setProjectionMatrix(lastProjectionMatrix);
     // vparams->setModelViewMatrix(lastModelviewMatrix);
 
-    // simulation::node::draw(vparams, groot.get());
     sceneSnapshot.draw(drawTool);
 }
 
