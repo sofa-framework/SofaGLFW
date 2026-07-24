@@ -115,13 +115,16 @@ set(HEADER_FILES
     ${SOFAIMGUI_SOURCE_DIR}/widgets/ScalarWidget.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/VectorWidgetCommon.h
     ${SOFAIMGUI_SOURCE_DIR}/widgets/VecVectorWidget.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/DisplayFlags.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/Plugins.h
-    ${SOFAIMGUI_SOURCE_DIR}/windows/Components.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/Settings.h
+    ${SOFAIMGUI_SOURCE_DIR}/windows/ViewPort.h
     ${SOFAIMGUI_SOURCE_DIR}/AppIniFile.h
     ${SOFAIMGUI_SOURCE_DIR}/windows/WindowState.h
     ${SOFAIMGUI_SOURCE_DIR}/guis/BaseAdditionalGUI.h
