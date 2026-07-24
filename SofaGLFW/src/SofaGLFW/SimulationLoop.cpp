@@ -20,7 +20,11 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <SofaGLFW/SimulationLoop.h>
+#include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/AdvancedTimer.h>
+
+#include "CaptureSnapshotDrawTool.h"
+#include "SceneSnapshot.h"
 
 namespace sofaglfw
 {
@@ -49,6 +53,8 @@ void SimulationLoop::step() const
         sofa::simulation::node::animate(this->groot.get(), this->groot->getDt());
         sofa::simulation::node::updateVisual(this->groot.get());
 
+        commitVisual();
+
         sofa::helper::AdvancedTimer::end("Animate");
     }
 }
@@ -58,7 +64,6 @@ void SimulationLoop::loop() const
     while (m_running)
     {
         SIMULATION_LOOP_SCOPE
-
         step();
     }
 }
@@ -67,7 +72,13 @@ void SimulationLoop::start()
     if (!m_thread)
     {
         m_running = true;
-        m_thread = std::make_unique<std::thread>([this](){ this->loop(); });
+
+        this->commitVisual();
+
+        m_thread = std::make_unique<std::thread>([this]()
+        {
+            this->loop();
+        });
     }
 }
 
@@ -77,7 +88,33 @@ void SimulationLoop::terminate()
     if (m_thread)
     {
         m_thread->join();
+        m_thread = nullptr;
     }
+}
+
+void SimulationLoop::captureVisualizationData(std::shared_ptr<SceneSnapshot> newScene) const
+{
+    CaptureSnapshotDrawTool drawTool(newScene);
+
+    auto vparams = sofa::core::visual::VisualParams::defaultInstance();
+
+    sofa::helper::visual::DrawTool* currentDrawTool{vparams->drawTool()};
+    vparams->drawTool() = &drawTool;
+
+    sofa::simulation::node::draw(vparams, this->groot.get());
+
+    vparams->drawTool() = currentDrawTool;
+}
+
+void SimulationLoop::commitVisual() const
+{
+    auto newScene = std::make_shared<SceneSnapshot>();
+    newScene->m_bbox = this->groot->f_bbox.getValue();
+
+    captureVisualizationData(newScene);
+
+    // update the newly created snapshot
+    g_currentSceneSnapshot.store(newScene, std::memory_order_release);
 }
 
 }  // namespace sofaglfw

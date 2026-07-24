@@ -67,7 +67,7 @@ void SofaGLFWWindow::close()
 }
 
 
-void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams* vparams)
+void SofaGLFWWindow::draw(const SceneSnapshot& sceneSnapshot, sofa::helper::visual::DrawTool* drawTool)
 {
     glClearColor(m_backgroundColor.r(), m_backgroundColor.g(), m_backgroundColor.b(), m_backgroundColor.a());
     glClearDepth(1.0);
@@ -86,16 +86,18 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
         msg_error("SofaGLFWGUI") << "No camera defined.";
         return;
     }
+
+    int width, height;
+    glfwGetFramebufferSize(m_glfwWindow, &width, &height);
     
-    
-    if (groot->f_bbox.getValue().isValid())
-    {        
-        vparams->sceneBBox() = groot->f_bbox.getValue();
-        m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
-    }
-    m_currentCamera->computeZ();
-    m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
-    m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
+    // if (groot->f_bbox.getValue().isValid())
+    // {
+    //     vparams->sceneBBox() = groot->f_bbox.getValue();
+    //     m_currentCamera->setBoundingBox(vparams->sceneBBox().minBBox(), vparams->sceneBBox().maxBBox());
+    // }
+    // m_currentCamera->computeZ();
+    // m_currentCamera->d_widthViewport.setValue(vparams->viewport()[2]);
+    // m_currentCamera->d_heightViewport.setValue(vparams->viewport()[3]);
 
     // matrices
     double lastModelviewMatrix [16];
@@ -104,7 +106,7 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     m_currentCamera->getOpenGLProjectionMatrix(lastProjectionMatrix);
     m_currentCamera->getOpenGLModelViewMatrix(lastModelviewMatrix);
 
-    glViewport(0, 0, vparams->viewport()[2], vparams->viewport()[3]);
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glMultMatrixd(lastProjectionMatrix);
@@ -114,13 +116,13 @@ void SofaGLFWWindow::draw(simulation::NodeSPtr groot, core::visual::VisualParams
     glMultMatrixd(lastModelviewMatrix);
 
     // Update the visual params
-    vparams->zNear() = m_currentCamera->getZNear();
-    vparams->zFar() = m_currentCamera->getZFar();
-    vparams->setProjectionMatrix(lastProjectionMatrix);
-    vparams->setModelViewMatrix(lastModelviewMatrix);
+    // vparams->zNear() = m_currentCamera->getZNear();
+    // vparams->zFar() = m_currentCamera->getZFar();
+    // vparams->setProjectionMatrix(lastProjectionMatrix);
+    // vparams->setModelViewMatrix(lastModelviewMatrix);
 
-    simulation::node::draw(vparams, groot.get());
-    
+    // simulation::node::draw(vparams, groot.get());
+    sceneSnapshot.draw(drawTool);
 }
 
 void SofaGLFWWindow::setBackgroundColor(const RGBAColor& newColor)

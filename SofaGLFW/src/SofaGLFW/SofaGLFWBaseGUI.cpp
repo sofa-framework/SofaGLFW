@@ -23,36 +23,34 @@
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-
+#include <SofaGLFW/SofaGLFWMouseManager.h>
 #include <SofaGLFW/SofaGLFWWindow.h>
 #include <SofaGLFW/config.h>
-
-#include <SofaGLFW/SofaGLFWMouseManager.h>
-
-#include <sofa/helper/logging/Messaging.h>
-#include <sofa/helper/AdvancedTimer.h>
-#include <sofa/helper/io/STBImage.h>
-#include <sofa/helper/system/FileRepository.h>
-#include <sofa/helper/system/FileSystem.h>
-#include <sofa/core/visual/VisualParams.h>
+#include <sofa/component/visual/LineAxis.h>
+#include <sofa/component/visual/VisualStyle.h>
 #include <sofa/core/objectmodel/BaseClassNameHelper.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/objectmodel/KeyreleasedEvent.h>
+#include <sofa/core/visual/VisualParams.h>
+#include <sofa/gui/common/BaseGUI.h>
+#include <sofa/gui/common/BaseViewer.h>
+#include <sofa/gui/common/PickHandler.h>
+#include <sofa/helper/AdvancedTimer.h>
+#include <sofa/helper/Utils.h>
+#include <sofa/helper/io/STBImage.h>
+#include <sofa/helper/logging/Messaging.h>
+#include <sofa/helper/system/FileRepository.h>
+#include <sofa/helper/system/FileSystem.h>
+#include <sofa/helper/system/SetDirectory.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/SimulationLoop.h>
-#include <sofa/component/visual/VisualStyle.h>
-#include <sofa/component/visual/LineAxis.h>
-#include <sofa/gui/common/BaseViewer.h>
-#include <sofa/gui/common/BaseGUI.h>
-#include <sofa/gui/common/PickHandler.h>
-
-#include <sofa/helper/system/SetDirectory.h>
-#include <sofa/helper/Utils.h>
 
 #include <algorithm>
 #include <filesystem>
 #include <map>
+
+#include "SceneSnapshot.h"
 
 using namespace sofa;
 using namespace sofa::gui::common;
@@ -460,7 +458,7 @@ void SofaGLFWBaseGUI::setWindowTitle(GLFWwindow* window, const char* title)
 void SofaGLFWBaseGUI::makeCurrentContext(GLFWwindow* glfwWindow)
 {
     glfwMakeContextCurrent(glfwWindow);
-    glfwSwapInterval( 0 ); //request disabling vsync
+    glfwSwapInterval( 1 ); //request enabling vsync
     if (!m_bGlewIsInitialized)
     {
         glewInit();
@@ -499,7 +497,11 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     makeCurrentContext(glfwWindow);
                     
                     m_guiEngine->beforeDraw(glfwWindow);
-                    sofaGlfwWindow->draw(this->groot, m_vparams);
+
+                    if (auto scene = g_currentSceneSnapshot.load(std::memory_order_acquire))
+                    {
+                        sofaGlfwWindow->draw(*scene, this->m_glDrawTool.get());
+                    }
 
                     drawSelection(m_vparams);
 

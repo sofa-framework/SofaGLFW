@@ -21,18 +21,19 @@
 ******************************************************************************/
 #pragma once
 
-#include <sofa/simulation/Node.h>
-#include <sofa/gl/DrawToolGL.h>
-#include <sofa/component/visual/BaseCamera.h>
-
 #include <SofaGLFW/BaseGUIEngine.h>
 #include <SofaGLFW/NullGUIEngine.h>
 #include <SofaGLFW/SimulationLoop.h>
+#include <SofaGLFW/SofaGLFWMouseManager.h>
+#include <sofa/component/visual/BaseCamera.h>
+#include <sofa/gl/DrawToolGL.h>
+#include <sofa/gl/VideoRecorderFFMPEG.h>
 #include <sofa/gui/common/BaseViewer.h>
+#include <sofa/simulation/Node.h>
+
 #include <memory>
 
-#include <SofaGLFW/SofaGLFWMouseManager.h>
-#include <sofa/gl/VideoRecorderFFMPEG.h>
+#include "SceneSnapshot.h"
 
 struct GLFWwindow;
 struct GLFWmonitor;

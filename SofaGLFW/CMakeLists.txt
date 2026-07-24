@@ -45,12 +45,14 @@ set(SOFAGLFW_SOURCE_DIR src/SofaGLFW)
 set(HEADER_FILES
     ${SOFAGLFW_SOURCE_DIR}/config.h.in
     ${SOFAGLFW_SOURCE_DIR}/init.h
+    ${SOFAGLFW_SOURCE_DIR}/CaptureSnapshotDrawTool.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWWindow.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.h
     ${SOFAGLFW_SOURCE_DIR}/BaseGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.h
     ${SOFAGLFW_SOURCE_DIR}/SimulationLoop.h
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWMouseManager.h
+    ${SOFAGLFW_SOURCE_DIR}/SceneSnapshot.h
 )
 
 set(SOURCE_FILES
@@ -60,6 +62,8 @@ set(SOURCE_FILES
     ${SOFAGLFW_SOURCE_DIR}/NullGUIEngine.cpp
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWBaseGUI.cpp
     ${SOFAGLFW_SOURCE_DIR}/SofaGLFWMouseManager.cpp
+    ${SOFAGLFW_SOURCE_DIR}/SceneSnapshot.cpp
+    ${SOFAGLFW_SOURCE_DIR}/CaptureSnapshotDrawTool.cpp
 )
 
 if(Sofa.GUI.Common_FOUND)

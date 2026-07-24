@@ -21,12 +21,14 @@
 ******************************************************************************/
 #pragma once
 #include <SofaGLFW/config.h>
-
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/SimulationLoop.h>
 
+#include <shared_mutex>
 #include <thread>
+
+#include "SceneSnapshot.h"
 
 namespace sofaglfw
 {
@@ -35,6 +37,8 @@ class SOFAGLFW_API SimulationLoop
 {
 public:
 
+    using Mutex = std::shared_mutex;
+
     ~SimulationLoop();
 
     /// the sofa root note of the current scene
@@ -42,17 +46,22 @@ public:
 
     bool simulationIsRunning() const;
 
+
     void step() const;
 
     void loop() const;
 
     void start();
     void terminate();
+    void captureVisualizationData(std::shared_ptr<SceneSnapshot> newScene) const;
 
-private:
+   private:
 
     std::atomic<bool> m_running { false };
     std::unique_ptr<std::thread> m_thread;
+
+
+    void commitVisual() const;
 };
 
 
