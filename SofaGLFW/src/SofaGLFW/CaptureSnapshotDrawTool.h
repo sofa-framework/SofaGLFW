@@ -52,7 +52,7 @@ public:
                          const RGBAColor& color) override;
     void drawFrame(const Vec3& position, const Quaternion& orientation, const Vec3f& size) override;
     void drawFrame(const Vec3& position, const Quaternion& orientation, const Vec3f& size,
-                   const RGBAColor& color) override{}
+                   const RGBAColor& color) override;
     void drawSpheres(const std::vector<Vec3>& points, const std::vector<float>& radius,
                      const RGBAColor& color) override;
     void drawSpheres(const std::vector<Vec3>& points, float radius,
