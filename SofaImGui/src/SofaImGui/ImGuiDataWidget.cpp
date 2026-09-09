@@ -36,6 +36,7 @@
 #include <SofaImGui/widgets/TopologyElementVectorWidget.h>
 #include <SofaImGui/widgets/BoundingBoxWidget.h>
 #include <SofaImGui/widgets/BoolWidget.h>
+#include <SofaImGui/widgets/ClampedScalarWidget.h>
 
 namespace sofaimgui
 {
@@ -69,6 +70,21 @@ template<>
 void DataWidget<int>::showWidget(MyData& data)
 {
     showIntegerWidget(data);
+}
+
+/***********************************************************************************************************************
+ * ClampedScalar
+ **********************************************************************************************************************/
+template <>
+void DataWidget<type::ClampedScalar<float>>::showWidget(MyData& data)
+{
+    showClampedScalarWidget(data);
+}
+
+template <>
+void DataWidget<type::ClampedScalar<double>>::showWidget(MyData& data)
+{
+    showClampedScalarWidget(data);
 }
 
 /***********************************************************************************************************************
@@ -648,6 +664,9 @@ const bool dw_float = DataWidgetFactory::Add<float>();
 const bool dw_double = DataWidgetFactory::Add<double>();
 
 const bool dw_int = DataWidgetFactory::Add<int>();
+
+const bool dw_clampedfloat = DataWidgetFactory::Add<sofa::type::ClampedScalar<float>>();
+const bool dw_clampeddouble = DataWidgetFactory::Add<sofa::type::ClampedScalar<double>>();
 
 const bool dw_vec1d = DataWidgetFactory::Add<type::Vec<1, double> >();
 const bool dw_vec1f = DataWidgetFactory::Add<type::Vec<1, float> >();
