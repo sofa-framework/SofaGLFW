@@ -640,9 +640,28 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         const auto posX = ImGui::GetCursorPosX();
         if (showFPSInMenuBar)
         {
+            float framerateValue = io.Framerate;
+            if (m_framerateType == 1)
+            {
+                framerateValue = baseGUI->getSimulationLoop().getPhysicsFramerate();
+            }
+
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("1000.0 FPS ").x
-                 - 2 * ImGui::GetStyle().ItemSpacing.x);
-            ImGui::Text("%.1f FPS", io.Framerate);
+                 - 2 * ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize(ICON_FA_CARET_DOWN).x - 2 * ImGui::GetStyle().ItemSpacing.x);
+
+            ImGui::Text("%.1f FPS", framerateValue);
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_CARET_DOWN))
+            {
+                ImGui::OpenPopup("FramerateTypePopup");
+            }
+
+            if (ImGui::BeginPopup("FramerateTypePopup"))
+            {
+                if (ImGui::Selectable("Visualization", m_framerateType == 0)) m_framerateType = 0;
+                if (ImGui::Selectable("Physics", m_framerateType == 1)) m_framerateType = 1;
+                ImGui::EndPopup();
+            }
             ImGui::SetCursorPosX(posX);
         }
         if (showTime)
@@ -650,7 +669,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
             auto position = ImGui::GetCursorPosX() + ImGui::GetColumnWidth() - ImGui::CalcTextSize("Time: 000.000  ").x
                 - 2 * ImGui::GetStyle().ItemSpacing.x;
             if (showFPSInMenuBar)
-                position -= ImGui::CalcTextSize("1000.0 FPS ").x;
+                position -= ImGui::CalcTextSize("1000.0 FPS ").x + 2 * ImGui::GetStyle().ItemSpacing.x + ImGui::CalcTextSize(ICON_FA_CARET_DOWN).x + 2 * ImGui::GetStyle().ItemSpacing.x;
             ImGui::SetCursorPosX(position);
             ImGui::Text("Time: %.3f", groot->getTime());
             ImGui::SetCursorPosX(posX);

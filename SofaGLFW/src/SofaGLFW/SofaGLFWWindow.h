@@ -47,12 +47,12 @@ public:
     SofaGLFWWindow(GLFWwindow* glfwWindow, sofa::component::visual::BaseCamera::SPtr camera);
     virtual ~SofaGLFWWindow() = default;
 
-    void draw(sofa::simulation::NodeSPtr groot, sofa::core::visual::VisualParams* vparams);
+    void draw(const SceneSnapshot& sceneSnapshot, sofa::helper::visual::DrawTool* drawTool);
     void close();
 
     void mouseMoveEvent(int xpos, int ypos,SofaGLFWBaseGUI* gui);
     void mouseButtonEvent(int button, int action, int mods);
-    void scrollEvent(double xoffset, double yoffset);
+    void scrollEvent(double xoffset, double yoffset, SofaGLFWBaseGUI* gui);
     void setBackgroundColor(const RGBAColor& newColor);
     void setBackgroundImage(const std::string& filename);
     void drawBackgroundImage();

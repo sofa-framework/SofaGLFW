@@ -114,6 +114,7 @@ protected:
     unsigned long m_screenshotCounter{0};
     bool m_isTerminated{ false };
     std::size_t m_frameCount{0};
+    int m_framerateType{ 0 }; // 0: Visualization, 1: Physics
     static inline constexpr int s_NB_PBOS = 2;
     GLuint m_pbos[s_NB_PBOS];
     sofa::type::Vec2i m_pboSize;
