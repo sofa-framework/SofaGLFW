@@ -69,7 +69,7 @@ namespace windows
                     ImGui::Separator();
                     if (ImGui::Button("Memory"))
                     {
-                        snapshot_manager.doMemorySave(groot);
+                        snapshot_manager.memorySave(groot);
                     }
                     if (ImGui::Button("File"))
                     {
@@ -92,7 +92,7 @@ namespace windows
                     ImGui::Separator();
                     if (ImGui::Button("Memory (recent)"))
                     {
-                        snapshot_manager.doMemoryLoad(groot);
+                        snapshot_manager.memoryLoad(groot);
                     }
                     if (ImGui::Button("File"))
                     {
@@ -124,7 +124,7 @@ namespace windows
                                 if(file.ends_with(".json"))
                                 {
                                     auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                                    importFrom(*m_snapshot,file);
+                                    importFromJSON(*m_snapshot,file);
                                     auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(visitor);
                                 }
@@ -159,7 +159,7 @@ namespace windows
         if (result == NFD_OKAY)
         {
             std::string path(savePath);
-            snapshot_manager.doSaveTo(groot,path,isSet);
+            snapshot_manager.saveTo(groot,path,isSet);
         }
         else
         {
@@ -177,12 +177,12 @@ namespace windows
         if ( result == NFD_OKAY && !isSet)
         {
             std::string path(outPath);
-            snapshot_manager.doLoadTo(groot,path);
+            snapshot_manager.loadTo(groot,path);
         }
         else if (result == NFD_OKAY && isSet)
         {
             std::string path(outPath);
-            snapshot_manager.doLoadToSet(path);
+            snapshot_manager.loadToSet(path);
         }
         else
         {
