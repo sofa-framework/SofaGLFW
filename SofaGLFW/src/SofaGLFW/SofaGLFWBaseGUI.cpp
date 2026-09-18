@@ -61,7 +61,6 @@ using std::endl;
 using namespace sofa::type;
 using namespace sofa::defaulttype;
 using namespace sofa::gl;
-using simulation::getSimulation;
 using namespace sofa::simulation;
 using namespace sofa::gui::common;
 using namespace  core::visual;
