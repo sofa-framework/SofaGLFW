@@ -28,8 +28,10 @@
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/BackTrace.h>
 #include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
+#include <sofa/core/ObjectFactory.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
+#include <sofa/simulation/common/init.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/setting/ViewerSetting.h>
 #include <sofa/component/setting/BackgroundSetting.h>
@@ -66,6 +68,8 @@ int main(int argc, char** argv)
 
     sofa::helper::BackTrace::autodump();
 
+    sofa::simulation::common::init();
+
     // create an instance of SofaGLFWGUI
     // linked with the simulation
     sofaglfw::SofaGLFWBaseGUI glfwGUI;
@@ -78,9 +82,19 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    auto& pluginManager = sofa::helper::system::PluginManager::getInstance();
+
     for (const auto& plugin : pluginsToLoad)
     {
-        sofa::helper::system::PluginManager::getInstance().loadPlugin(plugin);
+        pluginManager.loadPlugin(plugin);
+    }
+
+    pluginManager.init();
+
+    sofa::core::ObjectFactory* objectFactory = sofa::core::ObjectFactory::getInstance();
+    for (const auto& [pluginPath, plugin] : pluginManager.getPluginMap())
+    {
+        objectFactory->registerObjectsFromPlugin(plugin.getModuleName());
     }
 
     std::string fileName = result["file"].as<std::string>();
@@ -95,6 +109,9 @@ int main(int argc, char** argv)
     }
 
     glfwGUI.setSimulation(groot, fileName);
+
+    // create camera, visual style, pick handler ...
+    glfwGUI.load();
 
     bool isFullScreen = result["fullscreen"].as<bool>();
     sofa::type::Vec2i resolution{ 800, 600};
@@ -156,6 +173,8 @@ int main(int argc, char** argv)
     {
         sofa::simulation::node::unload(groot);
     }
+
+    sofa::simulation::common::cleanup();
 
     return 0;
 }
