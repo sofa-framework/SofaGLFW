@@ -35,8 +35,11 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/setting/ViewerSetting.h>
 #include <sofa/component/setting/BackgroundSetting.h>
+#include <sofa/gui/common/BaseGUI.h>
 
+#include <sofa/helper/system/FileSystem.h>
 #include <sofa/helper/system/PluginManager.h>
+#include <sofa/helper/Utils.h>
 
 #include <chrono>
 
@@ -69,6 +72,10 @@ int main(int argc, char** argv)
     sofa::helper::BackTrace::autodump();
 
     sofa::simulation::common::init();
+
+    // same configuration directory as runSofa
+    sofa::gui::common::BaseGUI::setConfigDirectoryPath(
+        sofa::helper::system::FileSystem::append(sofa::helper::Utils::getSofaUserLocalDirectory(), "config"), true);
 
     // create an instance of SofaGLFWGUI
     // linked with the simulation
@@ -145,6 +152,9 @@ int main(int argc, char** argv)
         groot->setAnimate(true);
 
     glfwGUI.initVisual();
+
+    // camera of the '.view' sidecar file, if any
+    glfwGUI.restoreCamera(glfwGUI.getCamera());
 
     //Background
     sofa::component::setting::BackgroundSetting* background;

@@ -168,14 +168,15 @@ void SofaGLFWWindow::drawBackgroundImage()
     if(!m_backgrounds.contains(m_currentBackgroundFilename))
         return;
 
+    const auto& background = m_backgrounds[m_currentBackgroundFilename];
+
+    // before glPushAttrib(), otherwise the attribute stack leaks on every frame
+    if(!background.image)
+        return;
+
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     
     glDisable(GL_LIGHTING);
-    
-    const auto& background = m_backgrounds[m_currentBackgroundFilename];
-
-    if(!background.image)
-        return;
     
     const int imageWidth = background.image->getWidth();
     const int imageHeight = background.image->getHeight();
