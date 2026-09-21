@@ -48,7 +48,17 @@ namespace windows
             ImGui::SetNextWindowSize(ImVec2(700, 400), ImGuiCond_FirstUseEver);
             if (ImGui::Begin(windowNamePlugins, winManagerPlugins.getStatePtr()))
             {
-                if (ImGui::Button("Load"))
+                // Add space before the button
+                ImGui::Dummy(ImVec2(0, 10));
+
+                // Set button width and height
+                float buttonWidth = ImGui::GetContentRegionAvail().x*0.5f;
+                float buttonHeight = 40.0f;
+
+                // Increase button height by adjusting FramePadding
+                ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
+
+                if (ImGui::Button("Load", ImVec2(buttonWidth, buttonHeight)))
                 {
                     std::vector<nfdfilteritem_t> nfd_filters {
                             {"SOFA plugin", sofa::helper::system::DynamicLibrary::extension.c_str() } };
@@ -65,6 +75,11 @@ namespace windows
                         }
                     }
                 }
+                
+                // Reset padding
+                ImGui::PopStyleVar();
+                // Add space after the button
+                ImGui::Dummy(ImVec2(0, 10));
 
                 ImGui::BeginChild("Plugins", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar);
 
