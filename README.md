@@ -73,6 +73,14 @@ Using the SHIFT + CTRL keys, you will trigger events on key pressed/released.
 * `-l` or `--load`: load given plugins as a comma-separated list. Example: -l SofaPython3
 * `-m` or `--msaa_samples`: set the number of samples for multisample anti-aliasing (MSAA). 0 by default.
 * `-n` or `--nb_iterations`: set the number of iterations to run (batch mode). 0 (unlimited) by default.
+* `--offscreen`: render offscreen. No window is shown, but the graphics functions are still called. False by default.
+  The window and its OpenGL context are created as usual, they are simply never mapped on screen. Combine it with
+  `--nb_iterations` to get a finite run, since there is no window to close.
+
+The `--offscreen` option is also available from `runSofa` with the `glfw` and `imgui` GUIs:
+`runSofa -g imgui -l SofaImGui --offscreen myScene.scn`
+(as for any GUI argument coming from a plugin, it is only listed by `runSofa --help` when the plugin is autoloaded,
+but it is taken into account in all cases).
 
 ## Dear ImGui
 

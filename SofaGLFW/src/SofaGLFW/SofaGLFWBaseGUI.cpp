@@ -251,6 +251,15 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
         return false;
     }
 
+    // the hint is sticky, hence always set explicitly
+    glfwWindowHint(GLFW_VISIBLE, m_bOffscreen ? GLFW_FALSE : GLFW_TRUE);
+
+    if (m_bOffscreen && fullscreenAtStartup)
+    {
+        msg_warning("SofaGLFWBaseGUI") << "Fullscreen is ignored in offscreen mode.";
+        fullscreenAtStartup = false;
+    }
+
     GLFWwindow* glfwWindow = nullptr;
     if (fullscreenAtStartup)
     {
@@ -275,6 +284,7 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
     s_numberOfActiveWindows++;
 
 #ifndef __APPLE__ // Apple implies Cocoa and Cocoa does not support icon for the window
+    if (!m_bOffscreen)
     {
         setWindowIcon(glfwWindow);
     }
@@ -383,6 +393,12 @@ bool SofaGLFWBaseGUI::isFullScreen(GLFWwindow* glfwWindow) const
 
 void SofaGLFWBaseGUI::switchFullScreen(GLFWwindow* glfwWindow, unsigned int /* screenID */)
 {
+    if (m_bOffscreen)
+    {
+        msg_warning("SofaGLFWBaseGUI") << "Cannot switch to fullscreen in offscreen mode.";
+        return;
+    }
+
     if (hasWindow())
     {
         // only manage the first window for now
