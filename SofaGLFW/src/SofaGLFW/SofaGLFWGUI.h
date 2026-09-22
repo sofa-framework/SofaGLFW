@@ -67,6 +67,9 @@ public:
 
     /// Whether '--offscreen' was given on the command line
     static bool isOffscreenRequested();
+
+    /// Directory given with '--save_frames'; empty when the argument was not given
+    static std::string getRequestedFrameOutputDirectory();
     void setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting) override;
 
     /// An interactive GUI ignores the arguments meant for headless rendering

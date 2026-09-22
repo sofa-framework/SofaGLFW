@@ -65,6 +65,9 @@ public:
 
     /// Hide the progress bar of a bounded run
     void setHideProgressBar(bool hide) { m_bHideProgressBar = hide; }
+    /// Save every rendered frame as a PNG in this directory, created if needed. Empty disables it.
+    bool setFrameOutputDirectory(const std::string& directory);
+    const std::string& getFrameOutputDirectory() const { return m_frameOutputDirectory; }
 
     void initVisual();
     std::size_t runLoop(std::size_t targetNbIterations = 0);
@@ -158,6 +161,7 @@ private:
 
     void makeCurrentContext(GLFWwindow* sofaWindow);
     void runStep();
+    void saveCurrentFrame();
 
     inline static std::map<GLFWwindow*, SofaGLFWWindow*> s_mapWindows{};
     inline static std::map<GLFWwindow*, SofaGLFWBaseGUI*> s_mapGUIs{};
@@ -167,6 +171,8 @@ private:
     bool m_bGlewIsInitialized{ false };
     bool m_bOffscreen{ false };
     bool m_bHideProgressBar{ false };
+    std::string m_frameOutputDirectory;
+    std::size_t m_frameCounter{ 0 };
 
     std::unique_ptr<sofa::gl::DrawToolGL> m_glDrawTool;
     sofa::core::visual::VisualParams* m_vparams{ nullptr };
