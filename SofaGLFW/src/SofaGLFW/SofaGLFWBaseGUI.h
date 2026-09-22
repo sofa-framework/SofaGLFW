@@ -63,6 +63,9 @@ public:
     void setOffscreen(bool offscreen) { m_bOffscreen = offscreen; }
     bool isOffscreen() const { return m_bOffscreen; }
 
+    /// Hide the progress bar of a bounded run
+    void setHideProgressBar(bool hide) { m_bHideProgressBar = hide; }
+
     void initVisual();
     std::size_t runLoop(std::size_t targetNbIterations = 0);
     void terminate();
@@ -163,6 +166,7 @@ private:
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
     bool m_bOffscreen{ false };
+    bool m_bHideProgressBar{ false };
 
     std::unique_ptr<sofa::gl::DrawToolGL> m_glDrawTool;
     sofa::core::visual::VisualParams* m_vparams{ nullptr };

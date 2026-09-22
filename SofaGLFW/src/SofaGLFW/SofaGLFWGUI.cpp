@@ -48,6 +48,14 @@ int SofaGLFWGUI::mainLoop()
         // a bounded run is meant to be computed, as in runSofaGLFW and the batch GUI
         m_baseGUI.setSimulationIsRunning(true);
     }
+
+    // '--hideProgressBar' is registered by the batch GUI; it is only read here
+    bool hideProgressBar = false;
+    if (s_argumentParser)
+    {
+        s_argumentParser->getValueFromKey("hideProgressBar", hideProgressBar);
+    }
+    m_baseGUI.setHideProgressBar(hideProgressBar);
     m_baseGUI.runLoop(targetNbIterations);
     return 0;
 }
