@@ -55,6 +55,7 @@ int main(int argc, char** argv)
         ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
         ("m,msaa_samples", "set number of samples for multisample anti-aliasing (MSAA)", cxxopts::value<unsigned short>()->default_value("0"))
         ("n,nb_iterations", "set number of iterations to run (batch mode)", cxxopts::value<std::size_t>()->default_value("0"))
+        ("offscreen", "render offscreen: no window is shown but the graphics functions are still called", cxxopts::value<bool>()->default_value("false"))
         ("h,help", "print usage")
         ;
 
@@ -136,6 +137,9 @@ int main(int argc, char** argv)
         }
     }
 
+    const bool isOffscreen = result["offscreen"].as<bool>();
+    glfwGUI.setOffscreen(isOffscreen);
+
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
 
@@ -146,6 +150,11 @@ int main(int argc, char** argv)
     {
         msg_info("SofaGLFW") << "Batch mode: computing " << targetNbIterations << " iterations.";
         startAnim = true;
+    }
+    else if (isOffscreen)
+    {
+        msg_warning("SofaGLFW") << "Offscreen mode without a number of iterations (--nb_iterations): "
+                                   "the simulation will run until the process is interrupted.";
     }
 
     if (startAnim)

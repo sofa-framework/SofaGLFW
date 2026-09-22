@@ -57,6 +57,12 @@ public:
 
     bool createWindow(int width, int height, const char* title, bool fullscreenAtStartup = false);
     void destroyWindow();
+
+    /// Window and OpenGL context created but never shown; graphics functions are still
+    /// called. To be set before createWindow().
+    void setOffscreen(bool offscreen) { m_bOffscreen = offscreen; }
+    bool isOffscreen() const { return m_bOffscreen; }
+
     void initVisual();
     std::size_t runLoop(std::size_t targetNbIterations = 0);
     void terminate();
@@ -156,6 +162,7 @@ private:
 
     bool m_bGlfwIsInitialized{ false };
     bool m_bGlewIsInitialized{ false };
+    bool m_bOffscreen{ false };
 
     std::unique_ptr<sofa::gl::DrawToolGL> m_glDrawTool;
     sofa::core::visual::VisualParams* m_vparams{ nullptr };

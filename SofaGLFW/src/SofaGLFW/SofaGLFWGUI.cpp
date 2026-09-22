@@ -25,11 +25,14 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/component/setting/ViewerSetting.h>
+#include <sofa/gui/common/ArgumentParser.h>
 
 using namespace sofa;
 
 namespace sofaglfw
 {
+
+sofa::gui::common::ArgumentParser* SofaGLFWGUI::s_argumentParser = nullptr;
 
 bool SofaGLFWGUI::init()
 {
@@ -40,6 +43,16 @@ int SofaGLFWGUI::mainLoop()
 {
     m_baseGUI.runLoop();
     return 0;
+}
+
+bool SofaGLFWGUI::isOffscreenRequested()
+{
+    bool offscreen = false;
+    if (s_argumentParser)
+    {
+        s_argumentParser->getValueFromKey("offscreen", offscreen);
+    }
+    return offscreen;
 }
 
 void SofaGLFWGUI::redraw() 
@@ -63,6 +76,7 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
     m_baseGUI.setSimulation(groot, strFilename);
 
     m_baseGUI.load();
+    m_baseGUI.setOffscreen(isOffscreenRequested());
     m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SOFA - " + strFilename).c_str(), m_bCreateWithFullScreen);
 
     // needs to be done after for background
@@ -138,6 +152,26 @@ sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simul
     }
     
     return gui;
+}
+
+int SofaGLFWGUI::RegisterGUIParameters(sofa::gui::common::ArgumentParser* argumentParser)
+{
+    s_argumentParser = argumentParser;
+
+    // GUIManager declares the parameters of every registered GUI: only add them once
+    static bool alreadyRegistered = false;
+    if (alreadyRegistered)
+    {
+        return 0;
+    }
+    alreadyRegistered = true;
+
+    argumentParser->addArgument(
+        cxxopts::value<bool>()->default_value("false"),
+        "offscreen",
+        "(only glfw/imgui) render offscreen: no window is shown but the graphics functions are still called"
+    );
+    return 0;
 }
 
 void SofaGLFWGUI::setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting)
