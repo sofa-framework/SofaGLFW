@@ -33,6 +33,9 @@ public:
     ImGuiGUI();
     ~ImGuiGUI() override = default;
 
+    /// the imgui GUI is the glfw one plus interactive widgets, it is meant to be used
+    bool isInteractive() const override { return true; }
+
     static sofa::gui::common::BaseGUI* CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
 };
 
