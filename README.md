@@ -77,6 +77,8 @@ Using the SHIFT + CTRL keys, you will trigger events on key pressed/released.
 * `--offscreen`: render offscreen. No window is shown, but the graphics functions are still called. False by default.
   The window and its OpenGL context are created as usual, they are simply never mapped on screen. Combine it with
   `--nb_iterations` to get a finite run, since there is no window to close.
+* `--save_frames`: save each rendered frame as a PNG (`frame_000000.png`, ...) in the given directory,
+  created if needed. Frames are only written while the simulation is animating.
 
 The `-n`/`--nbIter` option of the batch GUI is also honoured by the `glfw` and `imgui` GUIs:
 `runSofa -g imgui -l SofaImGui -n 100 myScene.scn` stops after 100 iterations, and `infinite`
@@ -86,13 +88,17 @@ animation, `-a` is not needed.
 A bounded run shows the same progress bar as the batch GUI, hidden with `--hideProgressBar`, and reports
 the number of iterations, the elapsed time and the average FPS when it ends.
 
+`--save_frames` is available from `runSofa` with the `glfw` GUI too, where it combines with `--offscreen`
+and `-n` to render a fixed number of frames without showing any window:
+`runSofa -g glfw -l SofaGLFW --offscreen -a -n 100 --save_frames /tmp/frames myScene.scn`
+
 The `--offscreen` option is also available from `runSofa` with the `glfw` GUI:
 `runSofa -g glfw -l SofaGLFW --offscreen myScene.scn`
 (as for any GUI argument coming from a plugin, it is only listed by `runSofa --help` when the plugin is autoloaded,
 but it is taken into account in all cases).
 
-It is ignored, with a warning, by the `imgui` GUI: that GUI is the `glfw` one plus interactive widgets, so
-rendering it offscreen would serve no purpose.
+`--offscreen` and `--save_frames` are both ignored, with a warning, by the `imgui` GUI: that GUI is the
+`glfw` one plus interactive widgets, so rendering it without a user watching would serve no purpose.
 
 ## Dear ImGui
 

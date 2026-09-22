@@ -56,6 +56,7 @@ int main(int argc, char** argv)
         ("n,nb_iterations", "set number of iterations to run (batch mode)", cxxopts::value<std::size_t>()->default_value("0"))
         ("offscreen", "render offscreen: no window is shown but the graphics functions are still called", cxxopts::value<bool>()->default_value("false"))
         ("hideProgressBar", "hide the progress bar of a bounded run", cxxopts::value<bool>()->default_value("false"))
+        ("save_frames", "save each rendered frame as a PNG in the given directory", cxxopts::value<std::string>()->default_value(""))
         ("h,help", "print usage")
         ;
 
@@ -81,7 +82,13 @@ int main(int argc, char** argv)
     // create an instance of SofaGLFWGUI
     // linked with the simulation
     sofaglfw::SofaGLFWBaseGUI glfwGUI;
-    
+
+    // before init(), so that returning does not destroy a draw tool without an OpenGL context
+    if (!glfwGUI.setFrameOutputDirectory(result["save_frames"].as<std::string>()))
+    {
+        return 1;
+    }
+
     auto nbMSAASamples = result["msaa_samples"].as<unsigned short>();
     if (!glfwGUI.init(nbMSAASamples))
     {
