@@ -102,7 +102,13 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
     m_baseGUI.setSimulation(groot, strFilename);
 
     m_baseGUI.load();
-    m_baseGUI.setOffscreen(isOffscreenRequested());
+    const bool interactive = isInteractive();
+    const bool offscreen = isOffscreenRequested();
+    if (interactive && offscreen)
+    {
+        msg_warning("SofaGLFWGUI") << "The '" << mGuiName << "' GUI is interactive: '--offscreen' is ignored.";
+    }
+    m_baseGUI.setOffscreen(!interactive && offscreen);
     m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SOFA - " + strFilename).c_str(), m_bCreateWithFullScreen);
 
     // needs to be done after for background
@@ -195,7 +201,7 @@ int SofaGLFWGUI::RegisterGUIParameters(sofa::gui::common::ArgumentParser* argume
     argumentParser->addArgument(
         cxxopts::value<bool>()->default_value("false"),
         "offscreen",
-        "(only glfw/imgui) render offscreen: no window is shown but the graphics functions are still called"
+        "(only glfw) render offscreen: no window is shown but the graphics functions are still called"
     );
     return 0;
 }

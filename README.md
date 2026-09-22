@@ -81,10 +81,13 @@ The `-n`/`--nbIter` option of the batch GUI is also honoured by the `glfw` and `
 `runSofa -g imgui -l SofaImGui -n 100 myScene.scn` stops after 100 iterations, and `infinite`
 (the batch default) keeps running.
 
-The `--offscreen` option is also available from `runSofa` with the `glfw` and `imgui` GUIs:
-`runSofa -g imgui -l SofaImGui --offscreen myScene.scn`
+The `--offscreen` option is also available from `runSofa` with the `glfw` GUI:
+`runSofa -g glfw -l SofaGLFW --offscreen myScene.scn`
 (as for any GUI argument coming from a plugin, it is only listed by `runSofa --help` when the plugin is autoloaded,
 but it is taken into account in all cases).
+
+It is ignored, with a warning, by the `imgui` GUI: that GUI is the `glfw` one plus interactive widgets, so
+rendering it offscreen would serve no purpose.
 
 ## Dear ImGui
 

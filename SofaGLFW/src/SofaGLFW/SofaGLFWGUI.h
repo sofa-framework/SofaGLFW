@@ -69,6 +69,9 @@ public:
     static bool isOffscreenRequested();
     void setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting) override;
 
+    /// An interactive GUI ignores the arguments meant for headless rendering
+    virtual bool isInteractive() const { return false; }
+
     virtual BaseViewer* getViewer() override;
 protected:
     SofaGLFWBaseGUI m_baseGUI;
