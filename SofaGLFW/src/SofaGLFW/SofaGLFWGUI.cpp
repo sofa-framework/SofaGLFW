@@ -42,7 +42,13 @@ bool SofaGLFWGUI::init()
 
 int SofaGLFWGUI::mainLoop()
 {
-    m_baseGUI.runLoop(getTargetNbIterations());
+    const std::size_t targetNbIterations = getTargetNbIterations();
+    if (targetNbIterations > 0)
+    {
+        // a bounded run is meant to be computed, as in runSofaGLFW and the batch GUI
+        m_baseGUI.setSimulationIsRunning(true);
+    }
+    m_baseGUI.runLoop(targetNbIterations);
     return 0;
 }
 
