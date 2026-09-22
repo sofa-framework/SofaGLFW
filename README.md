@@ -79,7 +79,8 @@ Using the SHIFT + CTRL keys, you will trigger events on key pressed/released.
 
 The `-n`/`--nbIter` option of the batch GUI is also honoured by the `glfw` and `imgui` GUIs:
 `runSofa -g imgui -l SofaImGui -n 100 myScene.scn` stops after 100 iterations, and `infinite`
-(the batch default) keeps running.
+(the batch default) keeps running. As in the batch GUI, giving a number of iterations starts the
+animation, `-a` is not needed.
 
 The `--offscreen` option is also available from `runSofa` with the `glfw` GUI:
 `runSofa -g glfw -l SofaGLFW --offscreen myScene.scn`
