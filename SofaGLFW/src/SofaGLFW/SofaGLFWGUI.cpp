@@ -26,6 +26,7 @@
 #include <sofa/simulation/Simulation.h>
 #include <sofa/component/setting/ViewerSetting.h>
 #include <sofa/gui/common/ArgumentParser.h>
+#include <sofa/type/hardening.h>
 
 using namespace sofa;
 
@@ -41,7 +42,7 @@ bool SofaGLFWGUI::init()
 
 int SofaGLFWGUI::mainLoop()
 {
-    m_baseGUI.runLoop();
+    m_baseGUI.runLoop(getTargetNbIterations());
     return 0;
 }
 
@@ -53,6 +54,31 @@ bool SofaGLFWGUI::isOffscreenRequested()
         s_argumentParser->getValueFromKey("offscreen", offscreen);
     }
     return offscreen;
+}
+
+std::size_t SofaGLFWGUI::getTargetNbIterations()
+{
+    // '-n'/'--nbIter' is registered by the batch GUI; it is only read here
+    std::string value;
+    if (!s_argumentParser || !s_argumentParser->getValueFromKey("nbIter", value))
+    {
+        return 0;
+    }
+
+    if (value == "infinite")
+    {
+        return 0;
+    }
+
+    int nbIterations = 0;
+    if (!sofa::type::hardening::safeStrToInt(value, nbIterations) || nbIterations < 0)
+    {
+        msg_warning("SofaGLFWGUI") << "Invalid number of iterations: '" << value << "'. Ignored.";
+        return 0;
+    }
+
+    msg_info("SofaGLFWGUI") << "Computing " << nbIterations << " iterations.";
+    return static_cast<std::size_t>(nbIterations);
 }
 
 void SofaGLFWGUI::redraw() 

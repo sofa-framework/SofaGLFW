@@ -77,6 +77,10 @@ Using the SHIFT + CTRL keys, you will trigger events on key pressed/released.
   The window and its OpenGL context are created as usual, they are simply never mapped on screen. Combine it with
   `--nb_iterations` to get a finite run, since there is no window to close.
 
+The `-n`/`--nbIter` option of the batch GUI is also honoured by the `glfw` and `imgui` GUIs:
+`runSofa -g imgui -l SofaImGui -n 100 myScene.scn` stops after 100 iterations, and `infinite`
+(the batch default) keeps running.
+
 The `--offscreen` option is also available from `runSofa` with the `glfw` and `imgui` GUIs:
 `runSofa -g imgui -l SofaImGui --offscreen myScene.scn`
 (as for any GUI argument coming from a plugin, it is only listed by `runSofa --help` when the plugin is autoloaded,
