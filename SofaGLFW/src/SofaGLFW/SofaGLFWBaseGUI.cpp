@@ -50,7 +50,12 @@
 #include <sofa/helper/system/SetDirectory.h>
 #include <sofa/helper/Utils.h>
 
+#if SOFAGLFW_HAVE_SOFA_GUI_BATCH
+#include <sofa/gui/batch/ProgressBar.h>
+#endif
+
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <map>
 
@@ -497,6 +502,16 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
     std::stringstream tmpStr;
     std::vector<uint8_t> pixels;
 
+#if SOFAGLFW_HAVE_SOFA_GUI_BATCH
+    std::unique_ptr<sofa::gui::batch::ProgressBar> progressBar;
+    if (targetNbIterations > 0 && !m_bHideProgressBar)
+    {
+        progressBar = std::make_unique<sofa::gui::batch::ProgressBar>(static_cast<int>(targetNbIterations));
+    }
+#endif
+
+    const auto startTime = std::chrono::steady_clock::now();
+
     while (s_numberOfActiveWindows > 0 && running)
     {
         SIMULATION_LOOP_SCOPE
@@ -568,8 +583,25 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
             delete sofaGlfwWindow;
         }
 
+#if SOFAGLFW_HAVE_SOFA_GUI_BATCH
+        if (progressBar)
+        {
+            progressBar->tick();
+        }
+#endif
+
         currentNbIterations++;
         running = (targetNbIterations > 0) ? currentNbIterations < targetNbIterations : true;
+    }
+
+    // measurements only make sense for a bounded run
+    if (targetNbIterations > 0)
+    {
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - startTime).count() / 1000.0;
+        msg_info("SofaGLFWBaseGUI") << currentNbIterations << " iterations done in " << elapsed << " s ( "
+                                    << (elapsed > 0.0 ? static_cast<double>(currentNbIterations) / elapsed : 0.0)
+                                    << " FPS)." << msgendl;
     }
 
     return currentNbIterations;

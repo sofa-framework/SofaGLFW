@@ -41,7 +41,6 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/helper/Utils.h>
 
-#include <chrono>
 
 int main(int argc, char** argv)
 {
@@ -56,6 +55,7 @@ int main(int argc, char** argv)
         ("m,msaa_samples", "set number of samples for multisample anti-aliasing (MSAA)", cxxopts::value<unsigned short>()->default_value("0"))
         ("n,nb_iterations", "set number of iterations to run (batch mode)", cxxopts::value<std::size_t>()->default_value("0"))
         ("offscreen", "render offscreen: no window is shown but the graphics functions are still called", cxxopts::value<bool>()->default_value("false"))
+        ("hideProgressBar", "hide the progress bar of a bounded run", cxxopts::value<bool>()->default_value("false"))
         ("h,help", "print usage")
         ;
 
@@ -176,17 +176,10 @@ int main(int argc, char** argv)
             glfwGUI.setWindowBackgroundImage(background->d_image.getFullPath());
     }
 
-    // Run the main loop
-    const auto currentTime = std::chrono::steady_clock::now();
-    const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);
+    // Run the main loop; it reports the measurements of a bounded run itself
+    glfwGUI.setHideProgressBar(result["hideProgressBar"].as<bool>());
+    glfwGUI.runLoop(targetNbIterations);
 
-    const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
-
-    // measurements only make sense in batch mode
-    if (targetNbIterations > 0)
-    {
-        msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << (static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
-    }
     
     if (groot != nullptr)
     {
