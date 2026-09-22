@@ -61,6 +61,10 @@ public:
     /// than once is a no-op.
     static int RegisterGUIParameters(sofa::gui::common::ArgumentParser* argumentParser);
 
+    /// Number of iterations requested with the '-n'/'--nbIter' argument of the batch GUI;
+    /// 0 when unlimited.
+    static std::size_t getTargetNbIterations();
+
     /// Whether '--offscreen' was given on the command line
     static bool isOffscreenRequested();
     void setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting) override;
