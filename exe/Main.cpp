@@ -28,8 +28,7 @@
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/BackTrace.h>
 #include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
-#include <sofa/simulation/graph/init.h>
-#include <sofa/simulation/graph/DAGSimulation.h>
+#include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/setting/ViewerSetting.h>
@@ -67,8 +66,6 @@ int main(int argc, char** argv)
 
     sofa::helper::BackTrace::autodump();
 
-    sofa::simulation::graph::init();
-
     // create an instance of SofaGLFWGUI
     // linked with the simulation
     sofaglfw::SofaGLFWBaseGUI glfwGUI;
@@ -94,7 +91,7 @@ int main(int argc, char** argv)
     auto groot = sofa::simulation::node::load(fileName.c_str());
     if( !groot )
     {
-        groot = sofa::simulation::getSimulation()->createNewGraph("");
+        groot = sofa::simulation::MainSimulation::getSimulation()->createNewGraph("");
     }
 
     glfwGUI.setSimulation(groot, fileName);
@@ -159,8 +156,6 @@ int main(int argc, char** argv)
     {
         sofa::simulation::node::unload(groot);
     }
-
-    sofa::simulation::graph::cleanup();
 
     return 0;
 }

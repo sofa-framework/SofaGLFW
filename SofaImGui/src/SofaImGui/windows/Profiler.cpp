@@ -75,14 +75,19 @@ namespace windows {
                 static bool showChart = true;
                 ImGui::Checkbox("Show Chart", &showChart);
 
-                if (groot->animate_.getValue())
+                static SReal lastTime = -1_sreal;
+
+                if (lastTime != groot->getTime())
                 {
+                    lastTime = groot->getTime();
+
                     sofa::type::vector<sofa::helper::Record> _records = sofa::helper::AdvancedTimer::getRecords("Animate");
                     allRecords.emplace_back(std::move(_records));
 
-                    while ((int)allRecords.size() >= bufferSize)
+                    if ((int)allRecords.size() > bufferSize)
                     {
-                        allRecords.pop_front();
+                        allRecords.erase(allRecords.begin(),
+                                         allRecords.begin() + (allRecords.size() - bufferSize));
                     }
                 }
 
@@ -165,7 +170,8 @@ namespace windows {
                     }
                 }
 
-                ImGui::SliderInt("Frame", &selectedFrame, 0, allRecords.size());
+                int maxFrameIdx = allRecords.empty() ? 0 : (int)allRecords.size() - 1;
+                ImGui::SliderInt("Frame", &selectedFrame, 0, maxFrameIdx);
 
 
                 if (selectedFrame >= 0 && selectedFrame < (int)allRecords.size())

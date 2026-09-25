@@ -38,7 +38,7 @@ extern "C" {
     SOFAIMGUI_API const char* getModuleComponentList();
 }
 
-void initExternalModule()
+void init()
 {
     static bool first = true;
     if (first)
@@ -72,15 +72,9 @@ const char* getModuleDescription()
     return "A ImGui Gui for SOFA.";
 }
 
-const char* getModuleComponentList()
+void initExternalModule()
 {
-    //no Components in this plugin
-    return "";
-}
-
-void init()
-{
-    initExternalModule();
+    init();
 }
 
 } // namespace sofaimgui

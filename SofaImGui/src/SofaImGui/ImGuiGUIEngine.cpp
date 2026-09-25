@@ -219,7 +219,7 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
     groot = sofa::simulation::node::load(filePathName.c_str());
 
     if( !groot )
-        groot = sofa::simulation::getSimulation()->createNewGraph("");
+        groot = sofa::simulation::MainSimulation::getSimulation()->createNewGraph("");
 
     baseGUI->setSimulation(groot, filePathName);
     baseGUI->setWindowTitle(nullptr, std::string("SOFA - " + filePathName).c_str());
@@ -594,7 +594,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         if (ImGui::BeginPopupModal("About SOFA", &closeButton, ImGuiWindowFlags_AlwaysAutoResize))
         {
             std::stringstream version;
-            version << SOFA_VERSION / 10000 << "." << SOFA_VERSION / 100 % 100;
+            version << SOFA_VERSION / 10000 << "." << std::setw(2) << std::setfill('0') << (SOFA_VERSION % 10000) / 100;
 
             ImGui::Text("SOFA v%s", version.str().c_str());
             ImGui::TextLinkOpenURL("Website", "https://www.sofa-framework.org/");
