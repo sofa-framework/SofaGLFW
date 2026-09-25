@@ -26,7 +26,7 @@
 
 #include <sofa/helper/system/FileSystem.h>
 using sofa::helper::system::FileSystem;
-#include <sofa/core/objectmodel/SnapshotJSONExporter.h>
+#include <sofa/core/objectmodel/JSONSnapshot.h>
 #include <sofa/simulation/SnapshotManager.h>
 using sofa::simulation::SnapshotManager;
 #include <sofa/simulation/LoadSnapshotVisitor.h>

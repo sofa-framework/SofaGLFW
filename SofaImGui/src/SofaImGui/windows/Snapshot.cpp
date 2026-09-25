@@ -124,7 +124,7 @@ namespace windows
                                 if(file.ends_with(".json"))
                                 {
                                     auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                                    importFromJSON(*m_snapshot,file);
+                                    sofa::core::objectmodel::jsonsnapshot::importFromJSON(*m_snapshot,file);
                                     auto visitor = LoadSnapshotVisitor(nullptr,*m_snapshot);
                                     groot->execute(visitor);
                                 }
