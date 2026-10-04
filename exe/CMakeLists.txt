@@ -13,12 +13,14 @@ if(NOT TARGET Sofa.Helper) # temporary fix about aliases problem
     sofa_find_package(Sofa.Simulation.Core REQUIRED)
 endif()
 
+sofa_find_package(Sofa.GUI.Common REQUIRED)
+
 set(SOURCE_FILES
     Main.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} Sofa.Simulation.Core SofaGLFW)
+target_link_libraries(${PROJECT_NAME} Sofa.Simulation.Core Sofa.GUI.Common SofaGLFW)
 target_include_directories(${PROJECT_NAME} PRIVATE extlibs/cxxopts-2.2.1/include)
 
 sofa_add_targets_to_package(
