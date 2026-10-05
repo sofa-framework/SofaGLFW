@@ -27,6 +27,11 @@
 
 #include <sofa/component/setting/ViewerSetting.h>
 
+namespace sofa::gui::common
+{
+    class ArgumentParser;
+}
+
 namespace sofaglfw
 {
 
@@ -52,12 +57,31 @@ public:
     void setBackgroundColor(const sofa::type::RGBAColor& color) override;
     void setBackgroundImage(const std::string& image) override;
     static sofa::gui::common::BaseGUI * CreateGUI(const char* name, sofa::simulation::NodeSPtr groot, const char* filename);
+    /// Command line arguments shared by the GLFW-based GUIs (glfw, imgui); calling it more
+    /// than once is a no-op.
+    static int RegisterGUIParameters(sofa::gui::common::ArgumentParser* argumentParser);
+
+    /// Number of iterations requested with the '-n'/'--nbIter' argument of the batch GUI;
+    /// 0 when unlimited.
+    static std::size_t getTargetNbIterations();
+
+    /// Whether '--offscreen' was given on the command line
+    static bool isOffscreenRequested();
+
+    /// Directory given with '--save_frames'; empty when the argument was not given
+    static std::string getRequestedFrameOutputDirectory();
     void setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting) override;
+
+    /// An interactive GUI ignores the arguments meant for headless rendering
+    virtual bool isInteractive() const { return false; }
 
     virtual BaseViewer* getViewer() override;
 protected:
     SofaGLFWBaseGUI m_baseGUI;
     bool m_bCreateWithFullScreen{ false };
+
+    /// duplicates GUIManager::currentArgumentParser, protected: would need an accessor in SOFA
+    static sofa::gui::common::ArgumentParser* s_argumentParser;
 };
 
 } // namespace sofaglfw

@@ -41,7 +41,6 @@
 #include <sofa/helper/system/PluginManager.h>
 #include <sofa/helper/Utils.h>
 
-#include <chrono>
 
 int main(int argc, char** argv)
 {
@@ -55,6 +54,9 @@ int main(int argc, char** argv)
         ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
         ("m,msaa_samples", "set number of samples for multisample anti-aliasing (MSAA)", cxxopts::value<unsigned short>()->default_value("0"))
         ("n,nb_iterations", "set number of iterations to run (batch mode)", cxxopts::value<std::size_t>()->default_value("0"))
+        ("offscreen", "render offscreen: no window is shown but the graphics functions are still called", cxxopts::value<bool>()->default_value("false"))
+        ("hideProgressBar", "hide the progress bar of a bounded run", cxxopts::value<bool>()->default_value("false"))
+        ("save_frames", "save each rendered frame as a PNG in the given directory", cxxopts::value<std::string>()->default_value(""))
         ("h,help", "print usage")
         ;
 
@@ -80,7 +82,13 @@ int main(int argc, char** argv)
     // create an instance of SofaGLFWGUI
     // linked with the simulation
     sofaglfw::SofaGLFWBaseGUI glfwGUI;
-    
+
+    // before init(), so that returning does not destroy a draw tool without an OpenGL context
+    if (!glfwGUI.setFrameOutputDirectory(result["save_frames"].as<std::string>()))
+    {
+        return 1;
+    }
+
     auto nbMSAASamples = result["msaa_samples"].as<unsigned short>();
     if (!glfwGUI.init(nbMSAASamples))
     {
@@ -136,6 +144,9 @@ int main(int argc, char** argv)
         }
     }
 
+    const bool isOffscreen = result["offscreen"].as<bool>();
+    glfwGUI.setOffscreen(isOffscreen);
+
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
 
@@ -146,6 +157,11 @@ int main(int argc, char** argv)
     {
         msg_info("SofaGLFW") << "Batch mode: computing " << targetNbIterations << " iterations.";
         startAnim = true;
+    }
+    else if (isOffscreen)
+    {
+        msg_warning("SofaGLFW") << "Offscreen mode without a number of iterations (--nb_iterations): "
+                                   "the simulation will run until the process is interrupted.";
     }
 
     if (startAnim)
@@ -167,17 +183,10 @@ int main(int argc, char** argv)
             glfwGUI.setWindowBackgroundImage(background->d_image.getFullPath());
     }
 
-    // Run the main loop
-    const auto currentTime = std::chrono::steady_clock::now();
-    const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);
+    // Run the main loop; it reports the measurements of a bounded run itself
+    glfwGUI.setHideProgressBar(result["hideProgressBar"].as<bool>());
+    glfwGUI.runLoop(targetNbIterations);
 
-    const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
-
-    // measurements only make sense in batch mode
-    if (targetNbIterations > 0)
-    {
-        msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << (static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
-    }
     
     if (groot != nullptr)
     {
