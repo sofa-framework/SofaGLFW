@@ -71,7 +71,6 @@ add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.GL Sofa.Simulation.Common Sofa.Component.Visual)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC 
-    $<BUILD_INTERFACE:${glfw_SOURCE_DIR}/include>  
     $<INSTALL_INTERFACE:include>
 )
 
