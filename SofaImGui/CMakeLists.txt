@@ -144,6 +144,7 @@ set(SOURCE_FILES
     ${SOFAIMGUI_SOURCE_DIR}/widgets/BoolWidget.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Performances.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Log.cpp
+    ${SOFAIMGUI_SOURCE_DIR}/windows/MappingGraph.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/MouseManager.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/Profiler.cpp
     ${SOFAIMGUI_SOURCE_DIR}/windows/SceneGraph.cpp
