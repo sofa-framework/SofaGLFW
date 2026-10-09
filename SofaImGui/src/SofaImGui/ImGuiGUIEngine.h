@@ -104,6 +104,7 @@ protected:
     windows::WindowState winManagerMouse;
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
+    windows::WindowState winManagerMappingGraph;
     std::map<std::string, windows::WindowState> winManagerAdditionalGUIs;
     windows::WindowState firstRunState;
 
