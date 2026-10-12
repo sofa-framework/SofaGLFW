@@ -164,6 +164,10 @@ int main(int argc, char** argv)
                                    "the simulation will run until the process is interrupted.";
     }
 
+    // frames are only saved while animating
+    if (!glfwGUI.getFrameOutputDirectory().empty())
+        startAnim = true;
+
     if (startAnim)
         groot->setAnimate(true);
 

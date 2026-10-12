@@ -43,9 +43,10 @@ bool SofaGLFWGUI::init()
 int SofaGLFWGUI::mainLoop()
 {
     const std::size_t targetNbIterations = getTargetNbIterations();
-    if (targetNbIterations > 0)
+    // a bounded run is meant to be computed, as in runSofaGLFW and the batch GUI,
+    // and frames are only saved while animating
+    if (targetNbIterations > 0 || !m_baseGUI.getFrameOutputDirectory().empty())
     {
-        // a bounded run is meant to be computed, as in runSofaGLFW and the batch GUI
         m_baseGUI.setSimulationIsRunning(true);
     }
 
@@ -101,7 +102,14 @@ std::size_t SofaGLFWGUI::getTargetNbIterations()
         return 0;
     }
 
-    msg_info("SofaGLFWGUI") << "Computing " << nbIterations << " iterations.";
+    if (nbIterations == 0)
+    {
+        msg_info("SofaGLFWGUI") << "Running until stopped.";
+    }
+    else
+    {
+        msg_info("SofaGLFWGUI") << "Computing " << nbIterations << " iterations.";
+    }
     return static_cast<std::size_t>(nbIterations);
 }
 
