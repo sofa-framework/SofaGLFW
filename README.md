@@ -144,6 +144,7 @@ Here are all the available windows:
 | __Plugin__        | show a list of plugins currently loaded                                          |
 | __Components__    | show a detailed list of components currently loaded                              |
 | __Log__           | all the messages sent by SOFA                                                    |
+| __Snapshot__      | display a user interface for Snapshot : Save/Load to memory or disk              |
 
 ### Screenshots
 

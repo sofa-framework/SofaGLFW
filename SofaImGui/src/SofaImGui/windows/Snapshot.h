@@ -26,25 +26,20 @@
 
 #include <sofa/helper/system/FileSystem.h>
 using sofa::helper::system::FileSystem;
-#include <sofa/core/objectmodel/JSONSnapshot.h>
-#include <sofa/simulation/SnapshotManager.h>
-using sofa::simulation::SnapshotManager;
-#include <sofa/simulation/LoadSnapshotVisitor.h>
-using sofa::simulation::LoadSnapshotVisitor;
-
 
 namespace windows
 {
-        /**
-        * @brief Shows the Snapshot window.
-        *
-        * This function displays a window which user can use Snapshot's features.
-        *
-        */
-        void showSnapshot(const char* const& windowNameSnapshot,
-                             WindowState& winManagerSnapshot,sofa::core::sptr<sofa::simulation::Node>& groot);
+    /**
+    * @brief Shows the Snapshot window.
+    *
+    * This function displays a window which user can use Snapshot's features.
+    *
+    */
+    void showSnapshot(const char *const&windowNameSnapshot,
+                      WindowState &winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node> &groot);
 
-        void doFileSave(sofa::core::sptr<sofa::simulation::Node>& groot, bool isSet);
-        void doFileLoad(sofa::core::sptr<sofa::simulation::Node>& groot, bool isSet);
+    void fileSave(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet);
+
+    void fileLoad(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet);
 
 } // namespace sofaimgui

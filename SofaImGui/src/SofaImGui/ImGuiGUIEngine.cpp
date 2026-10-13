@@ -1046,6 +1046,4 @@ type::Vec2i ImGuiGUIEngine::getFrameBufferPixels(std::vector<uint8_t>& pixels)
     return {viewport[2], viewport[3]};
 }
 
-
-
 } //namespace sofaimgui
