@@ -25,11 +25,15 @@
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/component/setting/ViewerSetting.h>
+#include <sofa/gui/common/ArgumentParser.h>
+#include <sofa/type/hardening.h>
 
 using namespace sofa;
 
 namespace sofaglfw
 {
+
+sofa::gui::common::ArgumentParser* SofaGLFWGUI::s_argumentParser = nullptr;
 
 bool SofaGLFWGUI::init()
 {
@@ -38,8 +42,57 @@ bool SofaGLFWGUI::init()
 
 int SofaGLFWGUI::mainLoop()
 {
-    m_baseGUI.runLoop();
+    const std::size_t targetNbIterations = getTargetNbIterations();
+    if (targetNbIterations > 0)
+    {
+        // a bounded run is meant to be computed, as in runSofaGLFW and the batch GUI
+        m_baseGUI.setSimulationIsRunning(true);
+    }
+
+    // '--hideProgressBar' is registered by the batch GUI; it is only read here
+    bool hideProgressBar = false;
+    if (s_argumentParser)
+    {
+        s_argumentParser->getValueFromKey("hideProgressBar", hideProgressBar);
+    }
+    m_baseGUI.setHideProgressBar(hideProgressBar);
+    m_baseGUI.runLoop(targetNbIterations);
     return 0;
+}
+
+bool SofaGLFWGUI::isOffscreenRequested()
+{
+    bool offscreen = false;
+    if (s_argumentParser)
+    {
+        s_argumentParser->getValueFromKey("offscreen", offscreen);
+    }
+    return offscreen;
+}
+
+std::size_t SofaGLFWGUI::getTargetNbIterations()
+{
+    // '-n'/'--nbIter' is registered by the batch GUI; it is only read here
+    std::string value;
+    if (!s_argumentParser || !s_argumentParser->getValueFromKey("nbIter", value))
+    {
+        return 0;
+    }
+
+    if (value == "infinite")
+    {
+        return 0;
+    }
+
+    int nbIterations = 0;
+    if (!sofa::type::hardening::safeStrToInt(value, nbIterations) || nbIterations < 0)
+    {
+        msg_warning("SofaGLFWGUI") << "Invalid number of iterations: '" << value << "'. Ignored.";
+        return 0;
+    }
+
+    msg_info("SofaGLFWGUI") << "Computing " << nbIterations << " iterations.";
+    return static_cast<std::size_t>(nbIterations);
 }
 
 void SofaGLFWGUI::redraw() 
@@ -63,6 +116,13 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
     m_baseGUI.setSimulation(groot, strFilename);
 
     m_baseGUI.load();
+    const bool interactive = isInteractive();
+    const bool offscreen = isOffscreenRequested();
+    if (interactive && offscreen)
+    {
+        msg_warning("SofaGLFWGUI") << "The '" << mGuiName << "' GUI is interactive: '--offscreen' is ignored.";
+    }
+    m_baseGUI.setOffscreen(!interactive && offscreen);
     m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SOFA - " + strFilename).c_str(), m_bCreateWithFullScreen);
 
     // needs to be done after for background
@@ -138,6 +198,26 @@ sofa::gui::common::BaseGUI* SofaGLFWGUI::CreateGUI(const char* name, sofa::simul
     }
     
     return gui;
+}
+
+int SofaGLFWGUI::RegisterGUIParameters(sofa::gui::common::ArgumentParser* argumentParser)
+{
+    s_argumentParser = argumentParser;
+
+    // GUIManager declares the parameters of every registered GUI: only add them once
+    static bool alreadyRegistered = false;
+    if (alreadyRegistered)
+    {
+        return 0;
+    }
+    alreadyRegistered = true;
+
+    argumentParser->addArgument(
+        cxxopts::value<bool>()->default_value("false"),
+        "offscreen",
+        "(only glfw) render offscreen: no window is shown but the graphics functions are still called"
+    );
+    return 0;
 }
 
 void SofaGLFWGUI::setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting)

@@ -28,15 +28,19 @@
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/BackTrace.h>
 #include <sofa/core/logging/PerComponentLoggingMessageHandler.h>
+#include <sofa/core/ObjectFactory.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
+#include <sofa/simulation/common/init.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/component/setting/ViewerSetting.h>
 #include <sofa/component/setting/BackgroundSetting.h>
+#include <sofa/gui/common/BaseGUI.h>
 
+#include <sofa/helper/system/FileSystem.h>
 #include <sofa/helper/system/PluginManager.h>
+#include <sofa/helper/Utils.h>
 
-#include <chrono>
 
 int main(int argc, char** argv)
 {
@@ -50,6 +54,8 @@ int main(int argc, char** argv)
         ("l,load", "load given plugins as a comma-separated list. Example: -l SofaPython3", cxxopts::value<std::vector<std::string> >(pluginsToLoad))
         ("m,msaa_samples", "set number of samples for multisample anti-aliasing (MSAA)", cxxopts::value<unsigned short>()->default_value("0"))
         ("n,nb_iterations", "set number of iterations to run (batch mode)", cxxopts::value<std::size_t>()->default_value("0"))
+        ("offscreen", "render offscreen: no window is shown but the graphics functions are still called", cxxopts::value<bool>()->default_value("false"))
+        ("hideProgressBar", "hide the progress bar of a bounded run", cxxopts::value<bool>()->default_value("false"))
         ("h,help", "print usage")
         ;
 
@@ -66,6 +72,12 @@ int main(int argc, char** argv)
 
     sofa::helper::BackTrace::autodump();
 
+    sofa::simulation::common::init();
+
+    // same configuration directory as runSofa
+    sofa::gui::common::BaseGUI::setConfigDirectoryPath(
+        sofa::helper::system::FileSystem::append(sofa::helper::Utils::getSofaUserLocalDirectory(), "config"), true);
+
     // create an instance of SofaGLFWGUI
     // linked with the simulation
     sofaglfw::SofaGLFWBaseGUI glfwGUI;
@@ -78,9 +90,19 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    auto& pluginManager = sofa::helper::system::PluginManager::getInstance();
+
     for (const auto& plugin : pluginsToLoad)
     {
-        sofa::helper::system::PluginManager::getInstance().loadPlugin(plugin);
+        pluginManager.loadPlugin(plugin);
+    }
+
+    pluginManager.init();
+
+    sofa::core::ObjectFactory* objectFactory = sofa::core::ObjectFactory::getInstance();
+    for (const auto& [pluginPath, plugin] : pluginManager.getPluginMap())
+    {
+        objectFactory->registerObjectsFromPlugin(plugin.getModuleName());
     }
 
     std::string fileName = result["file"].as<std::string>();
@@ -95,6 +117,9 @@ int main(int argc, char** argv)
     }
 
     glfwGUI.setSimulation(groot, fileName);
+
+    // create camera, visual style, pick handler ...
+    glfwGUI.load();
 
     bool isFullScreen = result["fullscreen"].as<bool>();
     sofa::type::Vec2i resolution{ 800, 600};
@@ -112,6 +137,9 @@ int main(int argc, char** argv)
         }
     }
 
+    const bool isOffscreen = result["offscreen"].as<bool>();
+    glfwGUI.setOffscreen(isOffscreen);
+
     // create a SofaGLFW window
     glfwGUI.createWindow(resolution[0], resolution[1], "SofaGLFW", isFullScreen);
 
@@ -123,11 +151,19 @@ int main(int argc, char** argv)
         msg_info("SofaGLFW") << "Batch mode: computing " << targetNbIterations << " iterations.";
         startAnim = true;
     }
+    else if (isOffscreen)
+    {
+        msg_warning("SofaGLFW") << "Offscreen mode without a number of iterations (--nb_iterations): "
+                                   "the simulation will run until the process is interrupted.";
+    }
 
     if (startAnim)
         groot->setAnimate(true);
 
     glfwGUI.initVisual();
+
+    // camera of the '.view' sidecar file, if any
+    glfwGUI.restoreCamera(glfwGUI.getCamera());
 
     //Background
     sofa::component::setting::BackgroundSetting* background;
@@ -140,22 +176,17 @@ int main(int argc, char** argv)
             glfwGUI.setWindowBackgroundImage(background->d_image.getFullPath());
     }
 
-    // Run the main loop
-    const auto currentTime = std::chrono::steady_clock::now();
-    const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);
+    // Run the main loop; it reports the measurements of a bounded run itself
+    glfwGUI.setHideProgressBar(result["hideProgressBar"].as<bool>());
+    glfwGUI.runLoop(targetNbIterations);
 
-    const auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - currentTime).count() / 1000.0;
-
-    // measurements only make sense in batch mode
-    if (targetNbIterations > 0)
-    {
-        msg_info("SofaGLFW") << currentNbIterations << " iterations done in " << totalTime << " s ( " << (static_cast<double>(currentNbIterations) / totalTime) << " FPS)." << msgendl;
-    }
     
     if (groot != nullptr)
     {
         sofa::simulation::node::unload(groot);
     }
+
+    sofa::simulation::common::cleanup();
 
     return 0;
 }
