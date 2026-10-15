@@ -43,9 +43,10 @@ bool SofaGLFWGUI::init()
 int SofaGLFWGUI::mainLoop()
 {
     const std::size_t targetNbIterations = getTargetNbIterations();
-    if (targetNbIterations > 0)
+    // a bounded run is meant to be computed, as in runSofaGLFW and the batch GUI,
+    // and frames are only saved while animating
+    if (targetNbIterations > 0 || !m_baseGUI.getFrameOutputDirectory().empty())
     {
-        // a bounded run is meant to be computed, as in runSofaGLFW and the batch GUI
         m_baseGUI.setSimulationIsRunning(true);
     }
 
@@ -70,6 +71,16 @@ bool SofaGLFWGUI::isOffscreenRequested()
     return offscreen;
 }
 
+std::string SofaGLFWGUI::getRequestedFrameOutputDirectory()
+{
+    std::string directory;
+    if (s_argumentParser)
+    {
+        s_argumentParser->getValueFromKey("save_frames", directory);
+    }
+    return directory;
+}
+
 std::size_t SofaGLFWGUI::getTargetNbIterations()
 {
     // '-n'/'--nbIter' is registered by the batch GUI; it is only read here
@@ -91,7 +102,14 @@ std::size_t SofaGLFWGUI::getTargetNbIterations()
         return 0;
     }
 
-    msg_info("SofaGLFWGUI") << "Computing " << nbIterations << " iterations.";
+    if (nbIterations == 0)
+    {
+        msg_info("SofaGLFWGUI") << "Running until stopped.";
+    }
+    else
+    {
+        msg_info("SofaGLFWGUI") << "Computing " << nbIterations << " iterations.";
+    }
     return static_cast<std::size_t>(nbIterations);
 }
 
@@ -118,11 +136,17 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
     m_baseGUI.load();
     const bool interactive = isInteractive();
     const bool offscreen = isOffscreenRequested();
+    const std::string frameOutputDirectory = getRequestedFrameOutputDirectory();
     if (interactive && offscreen)
     {
         msg_warning("SofaGLFWGUI") << "The '" << mGuiName << "' GUI is interactive: '--offscreen' is ignored.";
     }
+    if (interactive && !frameOutputDirectory.empty())
+    {
+        msg_warning("SofaGLFWGUI") << "The '" << mGuiName << "' GUI is interactive: '--save_frames' is ignored.";
+    }
     m_baseGUI.setOffscreen(!interactive && offscreen);
+    m_baseGUI.setFrameOutputDirectory(interactive ? std::string{} : frameOutputDirectory);
     m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SOFA - " + strFilename).c_str(), m_bCreateWithFullScreen);
 
     // needs to be done after for background
@@ -216,6 +240,11 @@ int SofaGLFWGUI::RegisterGUIParameters(sofa::gui::common::ArgumentParser* argume
         cxxopts::value<bool>()->default_value("false"),
         "offscreen",
         "(only glfw) render offscreen: no window is shown but the graphics functions are still called"
+    );
+    argumentParser->addArgument(
+        cxxopts::value<std::string>(),
+        "save_frames",
+        "(only glfw) save each rendered frame as a PNG in the given directory"
     );
     return 0;
 }
