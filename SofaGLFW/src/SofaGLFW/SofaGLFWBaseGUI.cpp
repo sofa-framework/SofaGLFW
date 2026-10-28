@@ -969,8 +969,10 @@ void SofaGLFWBaseGUI::moveRayPickInteractor(int eventX, int eventY)
     q.fromMatrix(mat);
 
     Vec3d position, direction;
-    position = transform * Vec4d(0, 0, 0, 1);
-    direction = transform * Vec4d(0, 0, 1, 0);
+    Vec4d tempPos = transform * Vec4d(0, 0, 0, 1);
+    Vec4d tempDir = transform * Vec4d(0, 0, 1, 0);
+    position = Vec3d(tempPos[0],tempPos[1],tempPos[2]);
+    direction = Vec3d(tempDir[0],tempDir[1],tempDir[2]);
     direction.normalize();
     getPickHandler()->updateRay(position, direction);
 }
