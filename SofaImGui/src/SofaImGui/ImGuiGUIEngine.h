@@ -102,6 +102,7 @@ protected:
     windows::WindowState winManagerComponents;
     windows::WindowState winManagerLog;
     windows::WindowState winManagerMouse;
+    windows::WindowState winManagerSnapshot;
     windows::WindowState winManagerSettings;
     windows::WindowState winManagerViewPort;
     std::map<std::string, windows::WindowState> winManagerAdditionalGUIs;
