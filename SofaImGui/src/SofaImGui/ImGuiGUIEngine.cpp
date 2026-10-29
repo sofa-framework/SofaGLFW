@@ -45,6 +45,7 @@
 #include "windows/Components.h"
 #include "windows/DisplayFlags.h"
 #include "windows/Log.h"
+#include "windows/MappingGraph.h"
 #include "windows/MouseManager.h"
 #include "windows/Snapshot.h"
 #include "windows/Performances.h"
@@ -108,6 +109,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
     , winManagerSnapshot(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("snapshot.txt")))
     , winManagerSettings(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("settings.txt")))
     , winManagerViewPort(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("viewport.txt")))
+    , winManagerMappingGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mappinggraph.txt")))
     , firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
     , m_imguiNeedViewReset(false)
 {
@@ -410,6 +412,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     static constexpr auto windowNameMouse = ICON_FA_COMPUTER_MOUSE "  Mouse Manager";
     static constexpr auto windowNameSnapshot = ICON_FA_FLOPPY_DISK "  Snapshot";
     static constexpr auto windowNameSettings = ICON_FA_SLIDERS "  Settings";
+    static constexpr auto windowNameMappingGraph = ICON_FA_SITEMAP "  Mapping Graph";
 
     if (!*firstRunState.getStatePtr())
     {
@@ -536,6 +539,13 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
         }
         if (ImGui::BeginMenu("Windows"))
         {
+            if (ImGui::BeginMenu(ICON_FA_MAGNIFYING_GLASS_CHART  " Analysis"))
+            {
+                ImGui::Checkbox(windowNameMappingGraph, winManagerMappingGraph.getStatePtr());
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+
             ImGui::Checkbox(windowNameViewport, winManagerViewPort.getStatePtr());
             ImGui::Checkbox(windowNamePerformances, winManagerPerformances.getStatePtr());
 
@@ -761,6 +771,11 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
      * Settings window
      **************************************/
     windows::showSettings(windowNameSettings, settings->ini, winManagerSettings, this);
+
+    /***************************************
+     * Mapping Graph window
+     **************************************/
+    windows::showMappingGraphWindow(windowNameMappingGraph, settings->ini, winManagerMappingGraph, groot);
     
     ImGui::Render();
 #if SOFAIMGUI_FORCE_OPENGL2 == 1
