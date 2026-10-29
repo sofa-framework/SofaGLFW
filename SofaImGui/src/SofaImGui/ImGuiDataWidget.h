@@ -96,13 +96,14 @@ struct SOFAIMGUI_API DataWidgetFactory
     static bool Add()
     {
         using Widget = DataWidget<T>;
-        const auto it = factoryMap.emplace(Widget::getType(), std::make_unique<Widget>());
+        const auto it = getFactoryMap().emplace(Widget::getType(), std::make_unique<Widget>());
         msg_error_when(!it.second, "DataWidgetFactory")<< "Cannot add widget " << Widget::getType() << " into the factory";
         return it.second;
     }
 
     static BaseDataWidget* GetWidget(sofa::core::objectmodel::BaseData& data)
     {
+        auto& factoryMap = getFactoryMap();
         const auto it = factoryMap.find(data.getValueTypeString());
         if (it != factoryMap.end())
             return it->second.get();
@@ -110,7 +111,11 @@ struct SOFAIMGUI_API DataWidgetFactory
     }
 
 private:
-    inline static std::unordered_map<std::string, std::unique_ptr<BaseDataWidget> > factoryMap;
+    static std::unordered_map<std::string, std::unique_ptr<BaseDataWidget> >& getFactoryMap()
+    {
+        static std::unordered_map<std::string, std::unique_ptr<BaseDataWidget> > factoryMap;
+        return factoryMap;
+    }
 };
 
 inline void SOFAIMGUI_API showWidget(sofa::core::objectmodel::BaseData& data)
