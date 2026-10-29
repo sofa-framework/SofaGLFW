@@ -57,7 +57,9 @@
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
+#include <iomanip>
 #include <map>
+#include <system_error>
 
 using namespace sofa;
 using namespace sofa::gui::common;
@@ -549,6 +551,11 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                         m_videoRecorderFFMPEG.addFrame(pixels.data(), width, height);
                     }
 
+                    if (this->groot->getAnimate() && !m_frameOutputDirectory.empty())
+                    {
+                        saveCurrentFrame();
+                    }
+
                     glfwSwapBuffers(glfwWindow);
 
                 }
@@ -662,6 +669,38 @@ void SofaGLFWBaseGUI::initVisual()
     }
     
     setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+}
+
+bool SofaGLFWBaseGUI::setFrameOutputDirectory(const std::string& directory)
+{
+    m_frameOutputDirectory.clear();
+
+    if (directory.empty())
+    {
+        return true;
+    }
+
+    std::error_code errorCode;
+    std::filesystem::create_directories(directory, errorCode);
+    if (errorCode)
+    {
+        msg_error("SofaGLFWBaseGUI") << "Cannot create the frame output directory '" << directory
+                                     << "': " << errorCode.message();
+        return false;
+    }
+
+    m_frameOutputDirectory = directory;
+    m_frameCounter = 0;
+    return true;
+}
+
+void SofaGLFWBaseGUI::saveCurrentFrame()
+{
+    std::ostringstream filename;
+    filename << "frame_" << std::setfill('0') << std::setw(6) << m_frameCounter++ << ".png";
+
+    const auto path = std::filesystem::path(m_frameOutputDirectory) / filename.str();
+    m_guiEngine->saveNamedScreenshot(this, path.string());
 }
 
 void SofaGLFWBaseGUI::runStep()
