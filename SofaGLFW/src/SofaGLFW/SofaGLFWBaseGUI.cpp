@@ -147,6 +147,8 @@ void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename)
         this->pick->init(this->groot.get());
         m_sofaGLFWMouseManager.setPickHandler(getPickHandler());
     }
+
+    m_guiEngine->setSimulation(groot, filename);
 }
 
 void SofaGLFWBaseGUI::setSimulationIsRunning(bool running)

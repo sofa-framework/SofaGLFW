@@ -54,6 +54,7 @@ public:
     virtual void contentScaleChanged(float xscale, float yscale) { SOFA_UNUSED(xscale); SOFA_UNUSED(yscale); };
     virtual void saveNamedScreenshot(SofaGLFWBaseGUI * baseGUI, std::string filename = std::string(""), int compression_level = -1)
     { SOFA_UNUSED(baseGUI); SOFA_UNUSED(filename); SOFA_UNUSED(compression_level); };
+    virtual void setSimulation(sofa::core::sptr<sofa::simulation::Node>& groot, std::string filename = std::string("")) { SOFA_UNUSED(groot); SOFA_UNUSED(filename); };
 };
 
 } // namespace sofaglfw

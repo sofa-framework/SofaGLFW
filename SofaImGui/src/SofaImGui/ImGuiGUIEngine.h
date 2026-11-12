@@ -28,6 +28,7 @@
 
 #include "guis/AdditionalGUIRegistry.h"
 #include "windows/WindowState.h"
+#include <sofa/gui/common/FilesRecentlyOpenedManager.h>
 
 using windows::WindowState;
 
@@ -59,6 +60,7 @@ public:
     bool isTerminated() const override { return m_isTerminated; };
     bool dispatchMouseEvents() override;
     void contentScaleChanged(float xscale, float yscale) override;
+    void setSimulation(sofa::core::sptr<sofa::simulation::Node>& groot, std::string filename = std::string("")) override;
 
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
     void setScale(float globalScale);
@@ -119,6 +121,8 @@ protected:
     static inline constexpr int s_NB_PBOS = 2;
     GLuint m_pbos[s_NB_PBOS];
     sofa::type::Vec2i m_pboSize;
+
+    sofa::gui::common::FilesRecentlyOpenedManager m_recentFilesManager;
 };
 
 } // namespace sofaimgui
