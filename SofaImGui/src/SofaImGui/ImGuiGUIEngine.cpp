@@ -112,6 +112,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
     , winManagerMappingGraph(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("mappinggraph.txt")))
     , firstRunState(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("firstrun.txt")))
     , m_imguiNeedViewReset(false)
+    , m_recentFilesManager(helper::system::FileSystem::append(sofaimgui::getConfigurationFolderPath(), std::string("recentFiles.ini")))
 {
 }
 
@@ -258,6 +259,8 @@ void ImGuiGUIEngine::loadFile(sofaglfw::SofaGLFWBaseGUI* baseGUI, sofa::core::sp
 
     // update camera if a sidecar file is present
     baseGUI->restoreCamera(baseGUI->getCamera());
+
+    m_recentFilesManager.openFile(filePathName);
 }
 
 void ImGuiGUIEngine::resetCounter()
@@ -459,6 +462,29 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
                 ImGui::BeginTooltip();
                 ImGui::TextDisabled("%s", filename.c_str());
                 ImGui::EndTooltip();
+            }
+
+            if (ImGui::BeginMenu(ICON_FA_FILE "  Open Recent"))
+            {
+                for (const auto& path : m_recentFilesManager.getFiles())
+                {
+                    if (ImGui::MenuItem(path.c_str()))
+                    {
+                        if (!filename.empty() && helper::system::FileSystem::exists(filename))
+                        {
+                            loadFile(baseGUI, groot, path, true);
+                        }
+                    }
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Clear Recent"))
+                {
+                    m_recentFilesManager.setFiles({}); //clear recent files
+                }
+
+                ImGui::EndMenu();
             }
 
             if (ImGui::MenuItem(ICON_FA_CIRCLE_XMARK "  Close Simulation"))
@@ -1005,6 +1031,12 @@ void ImGuiGUIEngine::contentScaleChanged(float xscale, float yscale)
 {
     SOFA_UNUSED(xscale);
     loadFont(yscale);
+}
+
+void ImGuiGUIEngine::setSimulation(sofa::core::sptr<sofa::simulation::Node>& groot,
+                                   std::string filename)
+{
+    m_recentFilesManager.openFile(filename);
 }
 
 void ImGuiGUIEngine::setScale(float globalScale)
