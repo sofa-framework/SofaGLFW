@@ -40,8 +40,8 @@ namespace windows
     void showSnapshot(const char *const&windowNameSnapshot,
                       WindowState &winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node> &groot);
 
-    void fileSave(sofa::core::sptr<sofa::simulation::Node> &groot, SnapshotManager* snapshot_manager1, bool isSet);
+    void fileSave(SnapshotManager* snapshot_manager1, bool isSet);
 
-    void fileLoad(sofa::core::sptr<sofa::simulation::Node> &groot, SnapshotManager* snapshot_manager1, bool isSet);
+    void fileLoad( SnapshotManager* snapshot_manager1, bool isSet);
 
 } // namespace sofaimgui
