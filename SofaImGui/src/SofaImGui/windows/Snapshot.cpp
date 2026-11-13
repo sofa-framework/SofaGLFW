@@ -159,56 +159,69 @@ void showSnapshot(const char *const&windowNameSnapshot,
     else
     {
         if (*winManagerSnapshot.getStatePtr())
+    {
+        if (ImGui::Begin(windowNameSnapshot, winManagerSnapshot.getStatePtr()))
         {
-            if (ImGui::Begin(windowNameSnapshot, winManagerSnapshot.getStatePtr()))
+            const char* message =
+                "Snapshot Manager is not available. "
+                "Please make sure that a valid SnapshotManager "
+                "is present in your scene.";
+
+            ImVec2 availableSize = ImGui::GetContentRegionAvail();
+
+            const float margin = 20.0f;
+            float maxTextWidth = availableSize.x - 2.0f * margin;
+            float maxTextHeight = availableSize.y - 2.0f * margin;
+
+            ImVec2 baseTextSize = ImGui::CalcTextSize(
+                message, nullptr, false, maxTextWidth);
+
+            float scaleX = maxTextWidth / baseTextSize.x;
+            float scaleY = maxTextHeight / baseTextSize.y;
+
+            float fontScale = std::min(scaleX, scaleY) * 0.9f;
+            fontScale = std::clamp(fontScale, 0.8f, 3.0f);
+
+            ImGui::SetWindowFontScale(fontScale);
+
+            ImVec2 textSize = ImGui::CalcTextSize(
+                message, nullptr, false, maxTextWidth);
+
+            ImVec2 cursorPos = ImGui::GetCursorPos();
+
+            cursorPos.x += (availableSize.x - textSize.x) * 0.5f;
+            cursorPos.y += (availableSize.y - textSize.y) * 0.5f;
+
+            ImGui::SetCursorPos(cursorPos);
+
+            ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + maxTextWidth);
+            ImGui::TextWrapped("%s", message);
+            ImGui::PopTextWrapPos();
+
+            ImGui::SetWindowFontScale(1.0f);
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            const char* buttonLabel = "Add SnapshotManager";
+            float buttonWidth = ImGui::CalcTextSize(buttonLabel).x
+                              + ImGui::GetStyle().FramePadding.x * 2.0f;
+
+            ImGui::SetCursorPosX(
+                (availableSize.x - buttonWidth) * 0.5f);
+
+            if (ImGui::Button(buttonLabel))
             {
-                const char* message =
-                    "Snapshot Manager is not available. "
-                    "Please make sure that a valid SnapshotManager "
-                    "is present in your scene.";
+                auto snapshotManager =
+                    sofa::core::objectmodel::New<SnapshotManager>();
 
-                ImVec2 availableSize = ImGui::GetContentRegionAvail();
-
-                // Keep some margins around the text
-                const float margin = 20.0f;
-                float maxTextWidth = availableSize.x - 2.0f * margin;
-                float maxTextHeight = availableSize.y - 2.0f * margin;
-
-                // Determine font scale
-                ImVec2 baseTextSize = ImGui::CalcTextSize(
-                    message, nullptr, false, maxTextWidth
-                );
-
-                float scaleX = maxTextWidth / baseTextSize.x;
-                float scaleY = maxTextHeight / baseTextSize.y;
-
-                float fontScale = std::min(scaleX, scaleY) * 0.9f;
-                fontScale = std::clamp(fontScale, 0.8f, 3.0f);
-
-                ImGui::SetWindowFontScale(fontScale);
-
-                // Calculate wrapped text dimensions
-                ImVec2 textSize = ImGui::CalcTextSize(
-                    message, nullptr, false, maxTextWidth
-                );
-
-                // Center the text
-                ImVec2 cursorPos = ImGui::GetCursorPos();
-
-                cursorPos.x += (availableSize.x - textSize.x) * 0.5f;
-                cursorPos.y += (availableSize.y - textSize.y) * 0.5f;
-
-                ImGui::SetCursorPos(cursorPos);
-
-                // Display wrapped text
-                ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + maxTextWidth);
-                ImGui::TextWrapped("%s", message);
-                ImGui::PopTextWrapPos();
-
-                ImGui::SetWindowFontScale(1.0f);
+                snapshotManager->setName("SnapshotManager");
+                groot->addObject(snapshotManager);
             }
-            ImGui::End();
         }
+
+        ImGui::End();
+    }
     }
 
 }
