@@ -52,10 +52,10 @@ void showSnapshot(const char *const&windowNameSnapshot,
     WindowState &winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node> &groot)
 {
 
-    SnapshotManager* snapshot_manager1 = nullptr;
-    groot->getContext()->get(snapshot_manager1, sofa::core::objectmodel::BaseContext::Local);
+    SnapshotManager* snapshot_manager = nullptr;
+    groot->getContext()->get(snapshot_manager, sofa::core::objectmodel::BaseContext::Local);
 
-    if (snapshot_manager1 != nullptr)
+    if (snapshot_manager != nullptr)
     {
         if (*winManagerSnapshot.getStatePtr())
         {
@@ -79,17 +79,17 @@ void showSnapshot(const char *const&windowNameSnapshot,
                     ImGui::Separator();
                     if (ImGui::Button("Memory"))
                     {
-                        snapshot_manager1->memorySave();
+                        snapshot_manager->memorySave();
                     }
                     if (ImGui::Button("File"))
                     {
-                        fileSave(snapshot_manager1, false);
+                        fileSave(snapshot_manager, false);
                     }
                     if (ImGui::Button("Set of Snapshots"))
                     {
-                        if (!snapshot_manager1->m_snapshotsFromMemory.empty())
+                        if (!snapshot_manager->m_snapshotsFromMemory.empty())
                         {
-                            fileSave( snapshot_manager1, true);
+                            fileSave( snapshot_manager, true);
                         } else
                         msg_warning("SaveSnapshot") << "No snapshot";
                     }
@@ -100,16 +100,16 @@ void showSnapshot(const char *const&windowNameSnapshot,
                     ImGui::Separator();
                     if (ImGui::Button("Memory (recent)"))
                     {
-                        snapshot_manager1->memoryLoad();
+                        snapshot_manager->memoryLoad();
                     }
                     if (ImGui::Button("File"))
                     {
-                        fileLoad(snapshot_manager1, false);
+                        fileLoad(snapshot_manager, false);
                     }
 
                     if (ImGui::Button("Set of Snapshots"))
                     {
-                        fileLoad(snapshot_manager1, true);
+                        fileLoad(snapshot_manager, true);
                     }
                     ImGui::EndChild();
 
@@ -119,13 +119,13 @@ void showSnapshot(const char *const&windowNameSnapshot,
 
                     ImGui::BeginChild("Recents", ImVec2(0, listHeight), true);
 
-                    if (snapshot_manager1->m_snapshotsFromFiles.empty() && snapshot_manager1->m_snapshotsFromMemory.
+                    if (snapshot_manager->m_snapshotsFromFiles.empty() && snapshot_manager->m_snapshotsFromMemory.
                         empty())
                     {
                         ImGui::TextDisabled("(No recent files)");
                     } else
                     {
-                        for (auto file: snapshot_manager1->m_snapshotsFromFiles)
+                        for (auto file: snapshot_manager->m_snapshotsFromFiles)
                         {
                             if (ImGui::Selectable(file.c_str()))
                             {
@@ -138,7 +138,7 @@ void showSnapshot(const char *const&windowNameSnapshot,
                                 }
                             }
                         }
-                        for (auto [name, file]: snapshot_manager1->m_snapshotsFromMemory)
+                        for (auto [name, file]: snapshot_manager->m_snapshotsFromMemory)
                         {
                             if (ImGui::Selectable(name.c_str()))
                             {
@@ -226,7 +226,7 @@ void showSnapshot(const char *const&windowNameSnapshot,
 
 }
 
-void fileSave(SnapshotManager* snapshot_manager1, bool isSet)
+void fileSave(SnapshotManager* snapshot_manager, bool isSet)
 {
     NFD_Init();
     nfdchar_t *savePath;
@@ -236,7 +236,7 @@ void fileSave(SnapshotManager* snapshot_manager1, bool isSet)
     if (result == NFD_OKAY)
     {
         std::string path(savePath);
-        snapshot_manager1->saveTo(path, isSet);
+        snapshot_manager->saveTo(path, isSet);
     } else
     {
         msg_error("SaveSnapshot") << "Error of saving snapshot";
@@ -244,7 +244,7 @@ void fileSave(SnapshotManager* snapshot_manager1, bool isSet)
     NFD_Quit();
 }
 
-void fileLoad(SnapshotManager* snapshot_manager1, bool isSet)
+void fileLoad(SnapshotManager* snapshot_manager, bool isSet)
 {
     nfdchar_t *outPath = NULL;
     nfdfilteritem_t filterItem[1] = {{"Snapshot code", "json"}};
@@ -253,11 +253,11 @@ void fileLoad(SnapshotManager* snapshot_manager1, bool isSet)
     if (result == NFD_OKAY && !isSet)
     {
         std::string path(outPath);
-        snapshot_manager1->loadTo(path);
+        snapshot_manager->loadTo(path);
     } else if (result == NFD_OKAY && isSet)
     {
         std::string path(outPath);
-        snapshot_manager1->loadToSet(path);
+        snapshot_manager->loadToSet(path);
     } else
     {
         msg_error("LoadSnapshot") << "Error of loading snapshot";
