@@ -38,6 +38,7 @@
 #include <fstream>
 
 #include "Components.h"
+#include "Style.h"
 
 namespace windows
 {
@@ -135,16 +136,46 @@ namespace windows
                         static const std::map<std::string, ImVec4> colorMap = []()
                         {
                             std::map<std::string, ImVec4> m;
-                            int i {};
+
+                            std::map<std::string, sofaimgui::StyleColor> colorToStrinMap{
+                            {"AnimationLoop",sofaimgui::StyleColor::baseAnimationLoopIconColor},
+                            {"BehaviorModel",sofaimgui::StyleColor::behaviorModelIconColor},
+                            // {"CollisionAlgorithm",sofaimgui::StyleColor::},
+                            // {"CollisionModel",sofaimgui::StyleColor::},
+                            {"ConfigurationSetting",sofaimgui::StyleColor::configurationSettingIconColor},
+                            {"ConstraintSet",sofaimgui::StyleColor::baseConstraintSetIconColor},
+                            // {"ConstraintSolver",sofaimgui::StyleColor::},
+                            {"ContextObject",sofaimgui::StyleColor::contextIconColor},
+                            // {"Controller",sofaimgui::StyleColor::},
+                            // {"Engine",sofaimgui::StyleColor::},
+                            // {"Exporter",sofaimgui::StyleColor::},
+                            {"ForceField",sofaimgui::StyleColor::baseForceFieldIconColor},
+                            {"InteractionForceField",sofaimgui::StyleColor::baseInteractionForceFieldIconColor},
+                            // {"LinearSolver",sofaimgui::StyleColor::},
+                            // {"LinearSystem",sofaimgui::StyleColor::},
+                            {"Loader",sofaimgui::StyleColor::baseLoaderIconColor},
+                            {"Mapping",sofaimgui::StyleColor::baseMappingIconColor},
+                            {"Mass",sofaimgui::StyleColor::baseMassIconColor},
+                            {"MechanicalState",sofaimgui::StyleColor::baseMechanicalStateIconColor},
+                            {"IntegrationScheme",sofaimgui::StyleColor::baseIntegrationSchemeIconColor},
+                            // {"OrderingMethod",sofaimgui::StyleColor::},
+                            {"ProjectiveConstraintSet",sofaimgui::StyleColor::baseProjectiveConstraintSetIconColor},
+                            // {"TopologicalMapping",sofaimgui::StyleColor::},
+                            {"Topology",sofaimgui::StyleColor::topologyIconColor},
+                            {"TopologyObject",sofaimgui::StyleColor::baseTopologyObjectIconColor},
+                            {"VisualModel",sofaimgui::StyleColor::visualModelIconColor},
+                            // {"_Miscellaneous",sofaimgui::StyleColor::}
+                            };
                             auto categories = sofa::core::CategoryLibrary::getCategories();
-                            std::sort(categories.begin(), categories.end(), std::less<std::string>());
                             for (const auto& cat : categories)
                             {
-                                ImVec4 color;
-                                color.w = 1.f;
-                                ImGui::ColorConvertHSVtoRGB(i++ / (static_cast<float>(categories.size())-1.f), 0.72f, 1.f, color.x, color.y, color.z);
-                                m[cat] = color;
+                                if (colorToStrinMap.find(cat) != colorToStrinMap.end())
+                                {
+                                    const auto color = sofaimgui::getStyleColor(colorToStrinMap[cat]);
+                                    m[cat] = ImVec4(color.r(), color.g(), color.b(), color.a());
+                                }
                             }
+
                             return m;
                         }();
 
