@@ -27,8 +27,7 @@
 #include <sofa/simulation/SceneLoaderFactory.h>
 #include <sofa/simulation/Simulation.h>
 #include <sofa/core/objectmodel/JSONSnapshot.h>
-#include <sofa/simulation/SnapshotManager.h>
-using sofa::simulation::SnapshotManager;
+
 #include <sofa/simulation/LoadSnapshotVisitor.h>
 using sofa::simulation::LoadSnapshotVisitor;
 #include <imgui.h>
@@ -48,111 +47,186 @@ using sofa::simulation::LoadSnapshotVisitor;
 
 namespace windows
 {
-SnapshotManager snapshot_manager;
 
 void showSnapshot(const char *const&windowNameSnapshot,
     WindowState &winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node> &groot)
 {
-    if (*winManagerSnapshot.getStatePtr())
+
+    SnapshotManager* snapshot_manager = nullptr;
+    groot->getContext()->get(snapshot_manager, sofa::core::objectmodel::BaseContext::Local);
+
+    if (snapshot_manager != nullptr)
     {
-        if (ImGui::Begin(windowNameSnapshot, winManagerSnapshot.getStatePtr()))
+        if (*winManagerSnapshot.getStatePtr())
         {
-            static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders |
-                                           ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg;
-            if (ImGui::BeginTable("MainTable", 2, flags, ImVec2(0.f, 400.f)))
+            if (ImGui::Begin(windowNameSnapshot, winManagerSnapshot.getStatePtr()))
             {
-                ImGui::TableSetupColumn("Save/Load");
-                ImGui::TableSetupColumn("Snapshot in memory");
-                ImGui::TableHeadersRow();
-                ImGui::TableNextRow();
+                static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders |
+                                               ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg;
+                if (ImGui::BeginTable("MainTable", 2, flags, ImVec2(0.f, 400.f)))
+                {
+                    ImGui::TableSetupColumn("Save/Load");
+                    ImGui::TableSetupColumn("Snapshot in memory");
+                    ImGui::TableHeadersRow();
+                    ImGui::TableNextRow();
 
-                ImGui::TableSetColumnIndex(0);
-                float totalHeight = ImGui::GetContentRegionAvail().y;
-                float halfHeight = totalHeight * 0.5f - 4.0f;
+                    ImGui::TableSetColumnIndex(0);
+                    float totalHeight = ImGui::GetContentRegionAvail().y;
+                    float halfHeight = totalHeight * 0.5f - 4.0f;
 
-                ImGui::BeginChild("Save Snapshot", ImVec2(0, halfHeight), ImGuiChildFlags_Borders);
-                ImGui::Text("Save Snapshot");
-                ImGui::Separator();
-                if (ImGui::Button("Memory"))
-                {
-                    snapshot_manager.memorySave(groot);
-                }
-                if (ImGui::Button("File"))
-                {
-                    fileSave(groot, false);
-                }
-                if (ImGui::Button("Set of Snapshots"))
-                {
-                    if (!snapshot_manager.m_snapshotsFromMemory.empty())
+                    ImGui::BeginChild("Save Snapshot", ImVec2(0, halfHeight), ImGuiChildFlags_Borders);
+                    ImGui::Text("Save Snapshot");
+                    ImGui::Separator();
+                    if (ImGui::Button("Memory"))
                     {
-                        fileSave(groot, true);
-                    } else
-                    msg_warning("SaveSnapshot") << "No snapshot";
-                }
-                ImGui::EndChild();
-
-                ImGui::BeginChild("Load Snapshot", ImVec2(0, halfHeight), ImGuiChildFlags_Borders);
-                ImGui::Text("Load Snapshot");
-                ImGui::Separator();
-                if (ImGui::Button("Memory (recent)"))
-                {
-                    snapshot_manager.memoryLoad(groot);
-                }
-                if (ImGui::Button("File"))
-                {
-                    fileLoad(groot, false);
-                }
-
-                if (ImGui::Button("Set of Snapshots"))
-                {
-                    fileLoad(groot, true);
-                }
-                ImGui::EndChild();
-
-                ImGui::TableSetColumnIndex(1);
-
-                float listHeight = ImGui::GetContentRegionAvail().y - 8.0f;
-
-                ImGui::BeginChild("Recents", ImVec2(0, listHeight), true);
-
-                if (snapshot_manager.m_snapshotsFromFiles.empty() && snapshot_manager.m_snapshotsFromMemory.empty())
-                {
-                    ImGui::TextDisabled("(No recent files)");
-                } else
-                {
-                    for (auto file: snapshot_manager.m_snapshotsFromFiles)
+                        snapshot_manager->memorySave();
+                    }
+                    if (ImGui::Button("File"))
                     {
-                        if (ImGui::Selectable(file.c_str()))
+                        fileSave(snapshot_manager, false);
+                    }
+                    if (ImGui::Button("Set of Snapshots"))
+                    {
+                        if (!snapshot_manager->m_snapshotsFromMemory.empty())
                         {
-                            if (file.ends_with(".json"))
+                            fileSave( snapshot_manager, true);
+                        } else
+                        msg_warning("SaveSnapshot") << "No snapshot";
+                    }
+                    ImGui::EndChild();
+
+                    ImGui::BeginChild("Load Snapshot", ImVec2(0, halfHeight), ImGuiChildFlags_Borders);
+                    ImGui::Text("Load Snapshot");
+                    ImGui::Separator();
+                    if (ImGui::Button("Memory (recent)"))
+                    {
+                        snapshot_manager->memoryLoad();
+                    }
+                    if (ImGui::Button("File"))
+                    {
+                        fileLoad(snapshot_manager, false);
+                    }
+
+                    if (ImGui::Button("Set of Snapshots"))
+                    {
+                        fileLoad(snapshot_manager, true);
+                    }
+                    ImGui::EndChild();
+
+                    ImGui::TableSetColumnIndex(1);
+
+                    float listHeight = ImGui::GetContentRegionAvail().y - 8.0f;
+
+                    ImGui::BeginChild("Recents", ImVec2(0, listHeight), true);
+
+                    if (snapshot_manager->m_snapshotsFromFiles.empty() && snapshot_manager->m_snapshotsFromMemory.
+                        empty())
+                    {
+                        ImGui::TextDisabled("(No recent files)");
+                    } else
+                    {
+                        for (auto file: snapshot_manager->m_snapshotsFromFiles)
+                        {
+                            if (ImGui::Selectable(file.c_str()))
+                            {
+                                if (file.ends_with(".json"))
+                                {
+                                    auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
+                                    sofa::core::objectmodel::jsonsnapshot::importFromJSON(*m_snapshot, file);
+                                    auto visitor = LoadSnapshotVisitor(nullptr, *m_snapshot);
+                                    groot->execute(visitor);
+                                }
+                            }
+                        }
+                        for (auto [name, file]: snapshot_manager->m_snapshotsFromMemory)
+                        {
+                            if (ImGui::Selectable(name.c_str()))
                             {
                                 auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                                sofa::core::objectmodel::jsonsnapshot::importFromJSON(*m_snapshot, file);
+                                m_snapshot = file;
                                 auto visitor = LoadSnapshotVisitor(nullptr, *m_snapshot);
                                 groot->execute(visitor);
                             }
                         }
                     }
-                    for (auto [name, file]: snapshot_manager.m_snapshotsFromMemory)
-                    {
-                        if (ImGui::Selectable(name.c_str()))
-                        {
-                            auto m_snapshot = std::make_shared<sofa::core::objectmodel::Snapshot>();
-                            m_snapshot = file;
-                            auto visitor = LoadSnapshotVisitor(nullptr, *m_snapshot);
-                            groot->execute(visitor);
-                        }
-                    }
+                    ImGui::EndChild();
+                    ImGui::EndTable();
                 }
-                ImGui::EndChild();
-                ImGui::EndTable();
+            }
+            ImGui::End();
+        }
+    }
+    else
+    {
+        if (*winManagerSnapshot.getStatePtr())
+    {
+        if (ImGui::Begin(windowNameSnapshot, winManagerSnapshot.getStatePtr()))
+        {
+            const char* message =
+                "Snapshot Manager is not available. "
+                "Please make sure that a valid SnapshotManager "
+                "is present in your scene.";
+
+            ImVec2 availableSize = ImGui::GetContentRegionAvail();
+
+            const float margin = 20.0f;
+            float maxTextWidth = availableSize.x - 2.0f * margin;
+            float maxTextHeight = availableSize.y - 2.0f * margin;
+
+            ImVec2 baseTextSize = ImGui::CalcTextSize(
+                message, nullptr, false, maxTextWidth);
+
+            float scaleX = maxTextWidth / baseTextSize.x;
+            float scaleY = maxTextHeight / baseTextSize.y;
+
+            float fontScale = std::min(scaleX, scaleY) * 0.9f;
+            fontScale = std::clamp(fontScale, 0.8f, 3.0f);
+
+            ImGui::SetWindowFontScale(fontScale);
+
+            ImVec2 textSize = ImGui::CalcTextSize(
+                message, nullptr, false, maxTextWidth);
+
+            ImVec2 cursorPos = ImGui::GetCursorPos();
+
+            cursorPos.x += (availableSize.x - textSize.x) * 0.5f;
+            cursorPos.y += (availableSize.y - textSize.y) * 0.5f;
+
+            ImGui::SetCursorPos(cursorPos);
+
+            ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + maxTextWidth);
+            ImGui::TextWrapped("%s", message);
+            ImGui::PopTextWrapPos();
+
+            ImGui::SetWindowFontScale(1.0f);
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            const char* buttonLabel = "Add SnapshotManager";
+            float buttonWidth = ImGui::CalcTextSize(buttonLabel).x
+                              + ImGui::GetStyle().FramePadding.x * 2.0f;
+
+            ImGui::SetCursorPosX(
+                (availableSize.x - buttonWidth) * 0.5f);
+
+            if (ImGui::Button(buttonLabel))
+            {
+                auto snapshotManager =
+                    sofa::core::objectmodel::New<SnapshotManager>();
+
+                snapshotManager->setName("SnapshotManager");
+                groot->addObject(snapshotManager);
             }
         }
+
         ImGui::End();
     }
+    }
+
 }
 
-void fileSave(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet)
+void fileSave(SnapshotManager* snapshot_manager, bool isSet)
 {
     NFD_Init();
     nfdchar_t *savePath;
@@ -162,7 +236,7 @@ void fileSave(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet)
     if (result == NFD_OKAY)
     {
         std::string path(savePath);
-        snapshot_manager.saveTo(groot, path, isSet);
+        snapshot_manager->saveTo(path, isSet);
     } else
     {
         msg_error("SaveSnapshot") << "Error of saving snapshot";
@@ -170,7 +244,7 @@ void fileSave(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet)
     NFD_Quit();
 }
 
-void fileLoad(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet)
+void fileLoad(SnapshotManager* snapshot_manager, bool isSet)
 {
     nfdchar_t *outPath = NULL;
     nfdfilteritem_t filterItem[1] = {{"Snapshot code", "json"}};
@@ -179,11 +253,11 @@ void fileLoad(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet)
     if (result == NFD_OKAY && !isSet)
     {
         std::string path(outPath);
-        snapshot_manager.loadTo(groot, path);
+        snapshot_manager->loadTo(path);
     } else if (result == NFD_OKAY && isSet)
     {
         std::string path(outPath);
-        snapshot_manager.loadToSet(path);
+        snapshot_manager->loadToSet(path);
     } else
     {
         msg_error("LoadSnapshot") << "Error of loading snapshot";

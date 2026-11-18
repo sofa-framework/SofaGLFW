@@ -26,6 +26,8 @@
 
 #include <sofa/helper/system/FileSystem.h>
 using sofa::helper::system::FileSystem;
+#include <sofa/simulation/SnapshotManager.h>
+using sofa::simulation::SnapshotManager;
 
 namespace windows
 {
@@ -38,8 +40,8 @@ namespace windows
     void showSnapshot(const char *const&windowNameSnapshot,
                       WindowState &winManagerSnapshot, sofa::core::sptr<sofa::simulation::Node> &groot);
 
-    void fileSave(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet);
+    void fileSave(SnapshotManager* snapshot_manager, bool isSet);
 
-    void fileLoad(sofa::core::sptr<sofa::simulation::Node> &groot, bool isSet);
+    void fileLoad( SnapshotManager* snapshot_manager, bool isSet);
 
 } // namespace sofaimgui
