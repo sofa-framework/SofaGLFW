@@ -60,7 +60,7 @@ public:
     bool isTerminated() const override { return m_isTerminated; };
     bool dispatchMouseEvents() override;
     void contentScaleChanged(float xscale, float yscale) override;
-    void setSimulation(sofa::core::sptr<sofa::simulation::Node>& groot, std::string filename = std::string("")) override;
+    void setSimulation(sofa::core::sptr<sofa::simulation::Node>& groot, const std::string& filename = std::string("")) override;
 
     // apply global scale on the given monitor (if null, it will fetch the main monitor)
     void setScale(float globalScale);

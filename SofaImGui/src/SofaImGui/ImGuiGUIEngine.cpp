@@ -1034,8 +1034,9 @@ void ImGuiGUIEngine::contentScaleChanged(float xscale, float yscale)
 }
 
 void ImGuiGUIEngine::setSimulation(sofa::core::sptr<sofa::simulation::Node>& groot,
-                                   std::string filename)
+                                   const std::string& filename)
 {
+    SOFA_UNUSED(groot);
     m_recentFilesManager.openFile(filename);
 }
 
