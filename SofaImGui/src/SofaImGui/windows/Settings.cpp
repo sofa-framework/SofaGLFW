@@ -31,6 +31,7 @@
 
 #include <SofaImGui/UIStrings.h>
 #include "SofaImGui/AppIniFile.h"
+#include <SofaGLFW/SofaGLFWBaseGUI.h>
 
 namespace windows
 {
@@ -38,7 +39,8 @@ namespace windows
     void showSettings(const char* const& windowNameSettings,
                       CSimpleIniA &ini,
                       WindowState& winManagerSettings,
-                      sofaimgui::ImGuiGUIEngine* engine)
+                      sofaimgui::ImGuiGUIEngine* engine,
+                      sofaglfw::SofaGLFWBaseGUI* baseGUI)
     {
         if (*winManagerSettings.getStatePtr())
         {
@@ -56,7 +58,7 @@ namespace windows
                         {
                             styleCurrent = n;
 
-                            sofaimgui::setStyle(sofaimgui::listStyles[styleCurrent]);
+                            sofaimgui::setStyle(sofaimgui::listStyles[styleCurrent], baseGUI);
                             const auto style = sofaimgui::listStyles[styleCurrent];
                             ini.SetValue("Style", "theme", style, sofaimgui::ini::styleDescription);
                             SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
@@ -110,6 +112,8 @@ namespace windows
                     ini.SetBoolValue("Window", "rememberWindowSize", rememberWindowSize);
                     [[maybe_unused]] SI_Error rc = ini.SaveFile(sofaimgui::AppIniFile::getAppIniFile().c_str());
                 }
+
+                // ImGui::ShowStyleEditor(&ImGui::GetStyle());
 
             }
             ImGui::End();

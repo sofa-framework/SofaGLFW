@@ -30,7 +30,7 @@
 namespace sofaglfw
 {
     
-void NullGUIEngine::init()
+void NullGUIEngine::init(SofaGLFWBaseGUI* gui)
 {
     m_lastTime = glfwGetTime();
     m_lastDisplayTime = m_lastTime;

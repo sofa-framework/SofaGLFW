@@ -54,6 +54,7 @@ public:
     void mouseButtonEvent(int button, int action, int mods);
     void scrollEvent(double xoffset, double yoffset);
     void setBackgroundColor(const RGBAColor& newColor);
+    RGBAColor getBackgroundColor() const { return m_backgroundColor; }
     void setBackgroundImage(const std::string& filename);
     void drawBackgroundImage();
 

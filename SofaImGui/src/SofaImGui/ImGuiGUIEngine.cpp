@@ -118,7 +118,7 @@ ImGuiGUIEngine::ImGuiGUIEngine()
 ImGuiGUIEngine::~ImGuiGUIEngine()
 {}
 
-void ImGuiGUIEngine::init()
+void ImGuiGUIEngine::init(sofaglfw::SofaGLFWBaseGUI* gui)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -160,7 +160,7 @@ void ImGuiGUIEngine::init()
     }
 
     // Setup Dear ImGui style
-    sofaimgui::setStyle(pv);
+    sofaimgui::setStyle(pv, gui);
 
     sofa::helper::system::PluginManager::getInstance().readFromIniFile(
         sofa::gui::common::BaseGUI::getConfigDirectoryPath() + "/loadedPlugins.ini");
@@ -770,7 +770,7 @@ void ImGuiGUIEngine::startFrame(sofaglfw::SofaGLFWBaseGUI* baseGUI)
     /***************************************
      * Settings window
      **************************************/
-    windows::showSettings(windowNameSettings, settings->ini, winManagerSettings, this);
+    windows::showSettings(windowNameSettings, settings->ini, winManagerSettings, this, baseGUI);
 
     /***************************************
      * Mapping Graph window

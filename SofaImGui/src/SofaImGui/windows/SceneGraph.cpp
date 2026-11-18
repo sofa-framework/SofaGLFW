@@ -38,6 +38,7 @@
 #include <sofa/gui/common/BaseGUI.h>
 #include "SceneGraph.h"
 #include <sofa/simulation/DeactivatedNodeVisitor.h>
+#include <Style.h>
 
 namespace windows
 {
@@ -386,7 +387,8 @@ namespace windows
 
                     ////Label and tree expand drawing
                     const bool isNodeHighlighted = !filter.Filters.empty() && filter.PassFilter(node->getName().c_str());
-                    bool open = drawExpandableObject(node, isNodeHighlighted, ICON_FA_CUBES, ImVec4(1,1,1,1), componentToOpen, currentSelection, clickedObject);
+                    const auto& color = sofaimgui::getStyleColor(sofaimgui::StyleColor::nodeIconColor);
+                    bool open = drawExpandableObject(node, isNodeHighlighted, ICON_FA_CUBES, ImVec4(color.r(), color.g(), color.b(), color.a()), componentToOpen, currentSelection, clickedObject);
 
                     if (open)
                     {
@@ -401,12 +403,14 @@ namespace windows
                             if (object->countLoggedMessages({sofa::helper::logging::Message::Error, sofa::helper::logging::Message::Fatal})!=0)
                             {
                                 icon = ICON_FA_BUG;
-                                objectColor = ImVec4(1.f, 0.f, 0.f, 1.f); //red
+                                const auto& color = sofaimgui::getStyleColor(sofaimgui::StyleColor::messageFatalIconColor);
+                                objectColor = ImVec4(color.r(), color.g(), color.b(), color.a());
                             }
                             else if (object->countLoggedMessages({sofa::helper::logging::Message::Warning})!=0)
                             {
                                 icon = ICON_FA_TRIANGLE_EXCLAMATION;
-                                objectColor = ImVec4(1.f, 0.5f, 0.f, 1.f); //orange
+                                const auto& color = sofaimgui::getStyleColor(sofaimgui::StyleColor::messageWarningIconColor);
+                                objectColor = ImVec4(color.r(), color.g(), color.b(), color.a());
                             }
                             else if (object->countLoggedMessages({sofa::helper::logging::Message::Info, sofa::helper::logging::Message::Deprecated, sofa::helper::logging::Message::Advice})!=0)
                             {
@@ -443,8 +447,10 @@ namespace windows
                                     ImGui::TableNextRow();
                                     ImGui::TableNextColumn();
 
+                                    objectColor = sofaimgui::getObjectColor(slave.get());
+
                                     const bool isSlaveHighlighted = !filter.Filters.empty() && (filter.PassFilter(slave->getName().c_str()) || filter.PassFilter(slave->getClassName().c_str()));
-                                    drawNonExpandableObject(slave.get(), isSlaveHighlighted, ICON_FA_CUBE, ImVec4(1,1,1,1), componentToOpen, currentSelection, clickedObject );
+                                    drawNonExpandableObject(slave.get(), isSlaveHighlighted, ICON_FA_CUBE, objectColor, componentToOpen, currentSelection, clickedObject );
 
                                 }
                                 ImGui::TreePop();

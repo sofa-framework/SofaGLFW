@@ -33,7 +33,7 @@ public:
     NullGUIEngine() = default;
     ~NullGUIEngine() = default;
     
-    void init() override;
+    void init(SofaGLFWBaseGUI* gui) override;
     void initBackend(GLFWwindow*) override;
     void startFrame(SofaGLFWBaseGUI*) override;
     void endFrame() override;

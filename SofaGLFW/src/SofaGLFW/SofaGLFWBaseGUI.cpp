@@ -250,8 +250,6 @@ void SofaGLFWBaseGUI::setWindowIcon(GLFWwindow* glfwWindow)
 
 bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, bool fullscreenAtStartup)
 {
-    m_guiEngine->init();
-
     if (this->groot == nullptr)
     {
         msg_error("SofaGLFWBaseGUI") << "No simulation root has been defined. Quitting.";
@@ -321,15 +319,18 @@ bool SofaGLFWBaseGUI::createWindow(int width, int height, const char* title, boo
 
         makeCurrentContext(glfwWindow);
 
-        m_guiEngine->initBackend(glfwWindow);
-
         SofaGLFWWindow* sofaWindow = new SofaGLFWWindow(glfwWindow, this->currentCamera);
 
         s_mapWindows[glfwWindow] = sofaWindow;
         s_mapGUIs[glfwWindow] = this;
 
+        m_guiEngine->init(this);
+        m_guiEngine->initBackend(glfwWindow);
+
         return true;
     }
+
+    m_guiEngine->init(this);
 
     return false;
 
@@ -667,8 +668,18 @@ void SofaGLFWBaseGUI::initVisual()
     {
         sofaGlfwWindow->centerCamera(this->groot, m_vparams);
     }
-    
-    setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+
+    if (auto* window = s_mapWindows[m_firstWindow])
+    {
+        const auto backgroundColor = window->getBackgroundColor();
+        const auto isLight = (0.2126 * backgroundColor.r() + 0.7152 * backgroundColor.g() + 0.0722 * backgroundColor.b()) > 0.5; //luminance formula
+        const auto textureFilename = isLight ? "textures/SOFA_logo_white.bmp" : "textures/SOFA_logo.bmp";
+        setWindowBackgroundImage(textureFilename, 0);
+    }
+    else
+    {
+        setWindowBackgroundImage("textures/SOFA_logo.bmp", 0);
+    }
 }
 
 bool SofaGLFWBaseGUI::setFrameOutputDirectory(const std::string& directory)
