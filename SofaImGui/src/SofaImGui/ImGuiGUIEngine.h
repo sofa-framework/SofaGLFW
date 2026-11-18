@@ -49,7 +49,7 @@ public:
     ImGuiGUIEngine() ;
     ~ImGuiGUIEngine();
 
-    void init() override;
+    void init(sofaglfw::SofaGLFWBaseGUI* gui) override;
     void initBackend(GLFWwindow*) override;
     void startFrame(sofaglfw::SofaGLFWBaseGUI*) override;
     void endFrame() override;

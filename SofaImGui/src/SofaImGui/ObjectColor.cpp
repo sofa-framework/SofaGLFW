@@ -24,76 +24,64 @@
 #include <sofa/simulation/Colors.h>
 #include <sofa/core/behavior/BaseInteractionForceField.h>
 #include <sofa/core/BaseMapping.h>
+#include <Style.h>
 
 namespace sofaimgui
 {
     ImVec4 getObjectColor(sofa::core::objectmodel::Base* object)
     {
-        unsigned int objectType=sofa::simulation::Colors::OBJECT;
+        sofa::type::RGBAColor color = sofaimgui::getStyleColor(StyleColor::nodeIconColor);
         if(object->toContextObject())
-            objectType=sofa::simulation::Colors::CONTEXT;
+            color = sofaimgui::getStyleColor(StyleColor::contextIconColor);
         else if(object->toBehaviorModel())
-            objectType=sofa::simulation::Colors::BMODEL;
+            color = sofaimgui::getStyleColor(StyleColor::behaviorModelIconColor);
         else if(object->toCollisionModel())
-            objectType=sofa::simulation::Colors::CMODEL;
+            color = sofaimgui::getStyleColor(StyleColor::collisionModelIconColor);
         else if(object->toBaseMechanicalState())
-            objectType=sofa::simulation::Colors::MMODEL;
+            color = sofaimgui::getStyleColor(StyleColor::baseMechanicalStateIconColor);
         else if(object->toBaseProjectiveConstraintSet())
-            objectType=sofa::simulation::Colors::PROJECTIVECONSTRAINTSET;
+            color = sofaimgui::getStyleColor(StyleColor::baseProjectiveConstraintSetIconColor);
         else if(object->toBaseConstraintSet())
-            objectType=sofa::simulation::Colors::CONSTRAINTSET;
+            color = sofaimgui::getStyleColor(StyleColor::baseConstraintSetIconColor);
         else if(object->toBaseInteractionForceField() &&
             object->toBaseInteractionForceField()->getMechModel1()!=object->toBaseInteractionForceField()->getMechModel2())
-            objectType=sofa::simulation::Colors::IFFIELD;
-        else if(object->toBaseForceField())
-            objectType=sofa::simulation::Colors::FFIELD;
+            color = sofaimgui::getStyleColor(StyleColor::baseInteractionForceFieldIconColor);
+        else if(object->toBaseForceField() && !object->toBaseMass())
+            color = sofaimgui::getStyleColor(StyleColor::baseForceFieldIconColor);
         else if(object->toBaseAnimationLoop())
-            objectType=sofa::simulation::Colors::SOLVER;
+            color = sofaimgui::getStyleColor(StyleColor::baseAnimationLoopIconColor);
         else if(object->toBaseIntegrationScheme())
-            objectType=sofa::simulation::Colors::SOLVER;
+            color = sofaimgui::getStyleColor(StyleColor::baseIntegrationSchemeIconColor);
         else if(object->toPipeline())
-            objectType=sofa::simulation::Colors::COLLISION;
+            color = sofaimgui::getStyleColor(StyleColor::pipelineIconColor);
         else if(object->toIntersection())
-            objectType=sofa::simulation::Colors::COLLISION;
+            color = sofaimgui::getStyleColor(StyleColor::intersectionIconColor);
         else if(object->toDetection())
-            objectType=sofa::simulation::Colors::COLLISION;
+            color = sofaimgui::getStyleColor(StyleColor::detectionIconColor);
         else if(object->toContactManager())
-            objectType=sofa::simulation::Colors::COLLISION;
+            color = sofaimgui::getStyleColor(StyleColor::contactManagerIconColor);
         else if(object->toCollisionGroupManager())
-            objectType=sofa::simulation::Colors::COLLISION;
+            color = sofaimgui::getStyleColor(StyleColor::collisionGroupManagerIconColor);
         else if(object->toBaseMapping())
         {
             if(object->toBaseMapping()->isMechanical())
-                objectType=sofa::simulation::Colors::MMAPPING;
+                color = sofaimgui::getStyleColor(StyleColor::baseMechanicalMappingIconColor);
             else
-                objectType=sofa::simulation::Colors::MAPPING;
+                color = sofaimgui::getStyleColor(StyleColor::baseMappingIconColor);
         }
         else if(object->toBaseMass())
-            objectType=sofa::simulation::Colors::MASS;
+            color = sofaimgui::getStyleColor(StyleColor::baseMassIconColor);
         else if(object->toTopology())
-            objectType=sofa::simulation::Colors::TOPOLOGY;
+            color = sofaimgui::getStyleColor(StyleColor::topologyIconColor);
         else if(object->toBaseTopologyObject())
-            objectType=sofa::simulation::Colors::TOPOLOGY;
+            color = sofaimgui::getStyleColor(StyleColor::baseTopologyObjectIconColor);
         else if(object->toBaseLoader())
-            objectType=sofa::simulation::Colors::LOADER;
+            color = sofaimgui::getStyleColor(StyleColor::baseLoaderIconColor);
         else if(object->toConfigurationSetting())
-            objectType=sofa::simulation::Colors::CONFIGURATIONSETTING;
+            color = sofaimgui::getStyleColor(StyleColor::configurationSettingIconColor);
         else if(object->toVisualModel())
-            objectType=sofa::simulation::Colors::VMODEL;
+            color = sofaimgui::getStyleColor(StyleColor::visualModelIconColor);
 
-        const auto iconColor=sofa::simulation::Colors::COLOR[objectType];
-
-        constexpr auto hexval=[](char c)
-        {
-            if(c >= '0' && c <= '9') return c-'0';
-            if(c >= 'a' && c <= 'f') return (c-'a')+10;
-            if(c >= 'A' && c <= 'F') return (c-'A')+10;
-            return 0;
-        };
-
-        const auto r = static_cast<float>(hexval(iconColor[1]) * 16 + hexval(iconColor[2]));
-        const auto g = static_cast<float>(hexval(iconColor[3]) * 16 + hexval(iconColor[4]));
-        const auto b = static_cast<float>(hexval(iconColor[5]) * 16 + hexval(iconColor[6]));
-        return ImVec4(r/255.f, g/255.f, b/255.f, 1.f);
+        return ImVec4(color.r(), color.g(), color.b(), color.a());
     }
 } //namespace sofaimgui

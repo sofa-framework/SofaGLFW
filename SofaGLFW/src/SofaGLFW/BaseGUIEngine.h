@@ -37,7 +37,7 @@ class BaseGUIEngine
 {
 public:
     
-    virtual void init() = 0;
+    virtual void init(SofaGLFWBaseGUI* gui) = 0;
     virtual void initBackend(GLFWwindow*) = 0;
     virtual void startFrame(SofaGLFWBaseGUI*) = 0;
     virtual void endFrame() = 0;

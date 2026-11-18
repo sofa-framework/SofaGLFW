@@ -30,6 +30,11 @@ namespace sofaimgui
     class ImGuiGUIEngine;
 }
 
+namespace sofaglfw
+{
+class SofaGLFWBaseGUI;
+}
+
 namespace windows
 {
 
@@ -44,6 +49,7 @@ namespace windows
         void showSettings(const char* const& windowNameSettings,
                           CSimpleIniA &ini,
                           WindowState& winManagerSettings,
-                          sofaimgui::ImGuiGUIEngine* engine);
+                          sofaimgui::ImGuiGUIEngine* engine,
+                          sofaglfw::SofaGLFWBaseGUI* baseGUI);
 
 } // namespace sofaimgui

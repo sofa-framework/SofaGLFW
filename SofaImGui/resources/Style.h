@@ -23,12 +23,56 @@
 
 #include <string>
 #include <array>
+#include <sofa/type/RGBAColor.h>
+
+namespace sofaglfw
+{
+class SofaGLFWBaseGUI;
+}
+
 namespace sofaimgui
 {
 
-void setStyle(const std::string& style);
+// SOFA specific style colors
+enum class StyleColor : std::size_t
+{
+    messageFatalIconColor,
+    messageWarningIconColor,
+    messageInfoIconColor,
+    nodeIconColor,
+    componentIconColor,
+    contextIconColor,
+    behaviorModelIconColor,
+    collisionModelIconColor,
+    baseMechanicalStateIconColor,
+    baseProjectiveConstraintSetIconColor,
+    baseConstraintSetIconColor,
+    baseInteractionForceFieldIconColor,
+    baseForceFieldIconColor,
+    baseAnimationLoopIconColor,
+    baseIntegrationSchemeIconColor,
+    pipelineIconColor,
+    intersectionIconColor,
+    detectionIconColor,
+    contactManagerIconColor,
+    collisionGroupManagerIconColor,
+    baseMappingIconColor,
+    baseMechanicalMappingIconColor,
+    baseMassIconColor,
+    topologyIconColor,
+    baseTopologyObjectIconColor,
+    baseLoaderIconColor,
+    configurationSettingIconColor,
+    visualModelIconColor,
 
-inline const std::array<const char*, 7> listStyles = {"deep_dark", "default_dark", "default_light", "classic", "light_green", "yet_another_dark", "cherry"};
+    count
+};
+
+const sofa::type::RGBAColor& getStyleColor(StyleColor color);
+
+void setStyle(const std::string& style, sofaglfw::SofaGLFWBaseGUI* gui);
+
+inline const std::array<const char*, 8> listStyles = {"sofa_light", "deep_dark", "default_dark", "default_light", "classic", "light_green", "yet_another_dark", "cherry"};
 inline const std::string defaultStyle = listStyles[0];
 
 }
