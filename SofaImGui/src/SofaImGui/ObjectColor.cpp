@@ -47,7 +47,7 @@ namespace sofaimgui
             objectType=sofa::simulation::Colors::IFFIELD;
         else if(object->toBaseForceField())
             objectType=sofa::simulation::Colors::FFIELD;
-        else if(object->toBaseAnimationLoop())
+        else if(object->toBaseTimeIntegrator())
             objectType=sofa::simulation::Colors::SOLVER;
         else if(object->toBaseIntegrationScheme())
             objectType=sofa::simulation::Colors::SOLVER;
