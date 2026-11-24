@@ -23,6 +23,7 @@
 
 #include <cxxopts.hpp>
 #include <SofaGLFW/SofaGLFWBaseGUI.h>
+#include <SofaGLFW/SofaGLFWGUI.h>
 
 #include <sofa/helper/logging/LoggingMessageHandler.h>
 #include <sofa/helper/system/FileRepository.h>
@@ -57,6 +58,7 @@ int main(int argc, char** argv)
         ("offscreen", "render offscreen: no window is shown but the graphics functions are still called", cxxopts::value<bool>()->default_value("false"))
         ("hideProgressBar", "hide the progress bar of a bounded run", cxxopts::value<bool>()->default_value("false"))
         ("save_frames", "save each rendered frame as a PNG in the given directory", cxxopts::value<std::string>()->default_value(""))
+        ("resolution", "window resolution as WIDTHxHEIGHT, e.g. 1920x1080; overrides the scene's ViewerSetting", cxxopts::value<std::string>()->default_value(""))
         ("h,help", "print usage")
         ;
 
@@ -141,6 +143,19 @@ int main(int argc, char** argv)
         else
         {
             resolution = viewerConf->d_resolution.getValue();
+        }
+    }
+
+    if (const auto& requestedResolution = result["resolution"].as<std::string>(); !requestedResolution.empty())
+    {
+        if (const auto parsed = sofaglfw::SofaGLFWGUI::parseResolution(requestedResolution))
+        {
+            resolution = *parsed;
+            isFullScreen = false;
+        }
+        else
+        {
+            msg_warning("SofaGLFW") << "Invalid resolution: '" << requestedResolution << "', expected WIDTHxHEIGHT. Ignored.";
         }
     }
 

@@ -27,6 +27,8 @@
 
 #include <sofa/component/setting/ViewerSetting.h>
 
+#include <optional>
+
 namespace sofa::gui::common
 {
     class ArgumentParser;
@@ -70,6 +72,11 @@ public:
 
     /// Directory given with '--save_frames'; empty when the argument was not given
     static std::string getRequestedFrameOutputDirectory();
+
+    /// Resolution given with '--resolution WIDTHxHEIGHT'; overrides the scene's ViewerSetting
+    static std::optional<sofa::type::Vec2i> getRequestedResolution();
+    /// Parse 'WIDTHxHEIGHT'; nullopt when malformed or not positive
+    static std::optional<sofa::type::Vec2i> parseResolution(const std::string& value);
     void setMouseButtonConfiguration(sofa::component::setting::MouseButtonSetting *setting) override;
 
     /// An interactive GUI ignores the arguments meant for headless rendering

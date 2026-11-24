@@ -79,6 +79,8 @@ Using the SHIFT + CTRL keys, you will trigger events on key pressed/released.
   `--nb_iterations` to get a finite run, since there is no window to close.
 * `--save_frames`: save each rendered frame as a PNG (`frame_000000.png`, ...) in the given directory,
   created if needed. Giving it starts the animation, as frames are only written while the simulation is animating.
+* `--resolution`: window resolution as `WIDTHxHEIGHT` (e.g. `1920x1080`). It overrides the `resolution` and `fullscreen`
+  of a `ViewerSetting` in the scene, and thus sets the size of the frames written with `--save_frames`.
 
 The `-n`/`--nbIter` option of the batch GUI is also honoured by the `glfw` and `imgui` GUIs:
 `runSofa -g imgui -l SofaImGui -n 100 myScene.scn` stops after 100 iterations, and `infinite`
@@ -91,6 +93,11 @@ the number of iterations, the elapsed time and the average FPS when it ends.
 `--save_frames` is available from `runSofa` with the `glfw` GUI too, where it combines with `--offscreen`
 and `-n` to render a fixed number of frames without showing any window:
 `runSofa -g glfw -l SofaGLFW --offscreen -n 100 --save_frames /tmp/frames myScene.scn`
+
+`--resolution WIDTHxHEIGHT` (e.g. `--resolution 1920x1080`) sets the window resolution of the `glfw` and `imgui` GUIs
+from `runSofa`. It overrides the `resolution` and `fullscreen` of a `ViewerSetting` in the scene, which makes it handy
+to choose the size of the frames written with `--save_frames`:
+`runSofa -g glfw -l SofaGLFW --offscreen -n 100 --save_frames /tmp/frames --resolution 1920x1080 myScene.scn`
 
 The `--offscreen` option is also available from `runSofa` with the `glfw` GUI:
 `runSofa -g glfw -l SofaGLFW --offscreen myScene.scn`
