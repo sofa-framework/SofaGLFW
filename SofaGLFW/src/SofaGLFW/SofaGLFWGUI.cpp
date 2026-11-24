@@ -28,6 +28,8 @@
 #include <sofa/gui/common/ArgumentParser.h>
 #include <sofa/type/hardening.h>
 
+#include <utility>
+
 using namespace sofa;
 
 namespace sofaglfw
@@ -79,6 +81,38 @@ std::string SofaGLFWGUI::getRequestedFrameOutputDirectory()
         s_argumentParser->getValueFromKey("save_frames", directory);
     }
     return directory;
+}
+
+std::optional<sofa::type::Vec2i> SofaGLFWGUI::parseResolution(const std::string& value)
+{
+    const auto separator = value.find_first_of("xX");
+    int width = 0;
+    int height = 0;
+    if (separator == std::string::npos
+        || !sofa::type::hardening::safeStrToInt(value.substr(0, separator), width)
+        || !sofa::type::hardening::safeStrToInt(value.substr(separator + 1), height)
+        || width <= 0 || height <= 0)
+    {
+        return std::nullopt;
+    }
+    return sofa::type::Vec2i{ width, height };
+}
+
+std::optional<sofa::type::Vec2i> SofaGLFWGUI::getRequestedResolution()
+{
+    std::string value;
+    if (!s_argumentParser || !s_argumentParser->getValueFromKey("resolution", value) || value.empty())
+    {
+        return std::nullopt;
+    }
+
+    const auto resolution = parseResolution(value);
+    static bool warned = false;
+    if (!resolution && !std::exchange(warned, true))
+    {
+        msg_warning("SofaGLFWGUI") << "Invalid resolution: '" << value << "', expected WIDTHxHEIGHT. Ignored.";
+    }
+    return resolution;
 }
 
 std::size_t SofaGLFWGUI::getTargetNbIterations()
@@ -147,6 +181,11 @@ void SofaGLFWGUI::setScene(sofa::simulation::NodeSPtr groot, const char* filenam
     }
     m_baseGUI.setOffscreen(!interactive && offscreen);
     m_baseGUI.setFrameOutputDirectory(interactive ? std::string{} : frameOutputDirectory);
+    if (const auto resolution = getRequestedResolution())
+    {
+        m_baseGUI.setWindowWidth((*resolution)[0]);
+        m_baseGUI.setWindowHeight((*resolution)[1]);
+    }
     m_baseGUI.createWindow(m_baseGUI.getWindowWidth(), m_baseGUI.getWindowHeight(), std::string("SOFA - " + strFilename).c_str(), m_bCreateWithFullScreen);
 
     // needs to be done after for background
@@ -165,6 +204,12 @@ sofa::simulation::Node* SofaGLFWGUI::currentSimulation()
 
 void SofaGLFWGUI::setViewerResolution(int width, int height)
 {
+    if (const auto resolution = getRequestedResolution())
+    {
+        width = (*resolution)[0];
+        height = (*resolution)[1];
+    }
+
     m_baseGUI.setWindowWidth(width);
     m_baseGUI.setWindowHeight(height);
 
@@ -182,7 +227,7 @@ void SofaGLFWGUI::setViewerConfiguration(sofa::component::setting::ViewerSetting
 {
     const type::Vec<2, int>& res = viewerConf->d_resolution.getValue();
 
-    if (viewerConf->d_fullscreen.getValue())
+    if (viewerConf->d_fullscreen.getValue() && !getRequestedResolution())
     {
         m_bCreateWithFullScreen = true;
     }
@@ -245,6 +290,11 @@ int SofaGLFWGUI::RegisterGUIParameters(sofa::gui::common::ArgumentParser* argume
         cxxopts::value<std::string>(),
         "save_frames",
         "(only glfw) save each rendered frame as a PNG in the given directory"
+    );
+    argumentParser->addArgument(
+        cxxopts::value<std::string>(),
+        "resolution",
+        "(only glfw) window resolution as WIDTHxHEIGHT, e.g. 1920x1080; overrides the scene's ViewerSetting"
     );
     return 0;
 }
